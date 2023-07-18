@@ -16,7 +16,14 @@ Further goals:
 
 ## Proposed Solution
 
-// TODO
+The VM prototype for BOS Web Engine works by executing Component source code in iframes, sandboxed to enforce isolation between Components as well as the application running in the outer window. At a high level:
+- Component source code is fetched from on chain and transpiled from the current JSX to JavaScript (Preact)
+- A new iframe is created to encapsulate the translated JavaScript in a closure used to render the Component inside the outer window application
+- The Component props and DOM tree are serialized and posted to the outer window application to be rendered
+- A parent Component rendering Component children renders a placeholder DOM node (a leaf on the parent Component’s DOM tree) and the outer window application renders a Component iframe container (with props) for each child
+- Component iframe containers may expose methods to be invoked from the outer window application via message posting, either as event handlers or indirect callbacks originating from other Components proxied by the outer window application
+- Components are re-rendered in response to callbacks in the outer window, and re-render their children in turn
+
 
 ### Challenges
 - [ ] controlled components
