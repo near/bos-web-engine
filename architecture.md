@@ -40,7 +40,7 @@ The current implementation relies on server-side transpilation, but this ultimat
 
 ## Component Rendering
 
-Rendering of Component Components is handled by Preact. The current implementation inlines a custom, minified Preact bundle into the iframe code directly, which has new logic in the render method to serialize the DOM tree and props before posting a message to the outer window to render Component. Subsequent renders are done manually at this point however, i.e. the Component iframe container calls render in response to messages posted from the parent window.
+Rendering of Components is handled by Preact. The current implementation inlines a custom, minified Preact bundle into the iframe code directly, which has new logic in the render method to serialize the DOM tree and props before posting a message to the outer window to render Component. Subsequent renders are done manually at this point however, i.e. the Component iframe container calls render in response to messages posted from the parent window.
 
 Once initialized, Component DOM can be interacted with in the outer window. Components are re-rendered in one of two ways:
 
@@ -137,7 +137,7 @@ See https://pagodaplatform.atlassian.net/browse/ROAD-216 for a detailed, up-to-d
    1. Components (and, recursively, their children) are currently re-rendered when anything changes.
    2. Caching props passed to rendered child Components would prevent unnecessary re-renders of children.
    3. Check state by value before and after mutation to prevent re-renders when nothing has changed.
-   4. Exploration of deeper integration with Preact (or another VDOM library); render is manually called now as the props and state of Component components is external to the component.
+   4. Exploration of deeper integration with Preact (or another VDOM library); render is manually called now as the props and state of Component is external to the Component.
 
 ## Future Application Architecture (WIP)
 
@@ -188,12 +188,12 @@ Component Source:
 State.init({ value: 0 });
 return (
   <Component
-    src="example.near/component/ChildComponent"
+    src="example.near/widget/ChildComponent"
     props={{ onClick: (n) => State.update({ value: state.value + n }) }}
   />
 );
 
-// Child Component Source - example.near/component/ChildComponent
+// Child Component Source - example.near/widget/ChildComponent
 return <button onClick={(e) => props.onClick(1)}>Click Me</button>;
 ```
 
