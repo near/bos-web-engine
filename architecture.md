@@ -67,7 +67,7 @@ This implementation provides a functional, if limited, method for execution of c
 - Parent Components executing callback arguments to a method passed to the child Component
   - Parent passes a prop `executeChildMethod={(cb) => cb()}` to its child
   - Child invokes the prop callback `props.executeChildMethod(() => State.update({ k: state.k + 1 }))`
-  - Parent executes the child callback, but only if the child callback is executed within the parent’s function (see below). **This appears to be the same level of support offered by the current Viewer however - it can execute the function argument from the child Component in the props function, but cannot defer it. See [andyh.near/component/RenderTestChild](https://near.social/#/mob.near/component/ComponentSource?src=andyh.near/component/RenderTestChild).**
+  - Parent executes the child callback, but only if the child callback is executed within the parent’s function (see below). **This appears to be the same level of support offered by the current Viewer however - it can execute the function argument from the child Component in the props function, but cannot defer it.**
 
 Shortcomings/missing functionality from current callbacks implementation (WIP)
 
