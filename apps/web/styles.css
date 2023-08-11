@@ -1,0 +1,118 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+#init-widget {
+  padding: 24px;
+}
+
+.debug-option {
+  padding: 8px 16px;
+}
+
+.debug-option > input {
+  margin-right: 8px;
+}
+
+.debug-option > span {
+  font-size: 18px;
+}
+
+#widget-monitor {
+  display: flex;
+  flex-direction: row;
+  font-family: "Roboto Mono for Powerline";
+  height: 200px;
+  justify-content: space-around;
+  padding: 2px;
+}
+
+.widgets {
+  padding: 8px;
+  font-size: 10px;
+  overflow: scroll;
+}
+
+.metrics {
+  display: flex;
+  padding: 8px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 400px;
+}
+
+.metrics-data-point {
+  border: 1px solid #2bc;
+  margin: 2px 4px;
+  padding: 4px;
+}
+
+.data-point-header {
+  font-size: 14px;
+}
+
+.data-point-value {
+  font-size: 24px;
+  text-align: right;
+}
+
+.iframe {
+  flex: 1;
+  justify-content: space-between;
+  margin: 4px;
+  padding: 8px;
+  border: 1px solid blue;
+}
+
+.iframe > div {
+  min-width: 60px;
+  min-height: 60px;
+}
+
+span {
+  font-size: 12px;
+}
+
+.dom-label {
+  font-size: 10px;
+  font-family: "Roboto Mono for Powerline";
+}
