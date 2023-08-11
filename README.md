@@ -26,3 +26,6 @@ See [architecture.md](./architecture.md) for full details
 - [ ] decentralization of dependencies hosting
 - [ ] performance of pages with large number of components
 - [ ] maintainability of logic for sanitization of component output
+
+### Discussion
+This project leverages [GitHub Discussions](https://github.com/near/bos-web-engine/discussions) for decision making, Q&A, implementation discussion between contributors, and more. 
