@@ -46,21 +46,26 @@ export function serializeProps({ callbacks, h, parentId, props, widgetId }: Seri
       callbacks[fnKey] = value;
 
       if (widgetId) {
+        if (!newProps.__widgetcallbacks) {
+          newProps.__widgetcallbacks = {};
+        }
+
         newProps.__widgetcallbacks[key] = {
           __widgetMethod: fnKey,
           parentId,
         };
       } else {
+        if (!newProps.__domcallbacks) {
+          newProps.__domcallbacks = {};
+        }
+
         newProps.__domcallbacks[key] = {
           __widgetMethod: fnKey,
         };
       }
 
       return newProps;
-    }, {
-      __domcallbacks: {},
-      __widgetcallbacks: {},
-    } as Props);
+    }, {} as Props);
 }
 
 export function serializeArgs({ args, callbacks, widgetId }: SerializeArgsOptions): SerializedArgs {

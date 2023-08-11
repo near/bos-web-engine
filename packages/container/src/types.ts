@@ -194,8 +194,8 @@ export interface ProcessEventOptions {
 }
 
 export interface Props extends KeyValuePair {
-  __domcallbacks: { [key: string]: any };
-  __widgetcallbacks: { [key: string]: any };
+  __domcallbacks?: { [key: string]: any };
+  __widgetcallbacks?: { [key: string]: any };
   children?: any[];
 }
 
