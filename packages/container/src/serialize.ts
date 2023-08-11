@@ -199,6 +199,10 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
     return [widgetPath, base64Props, parentWidgetId].join('##');
   }
 
+  if (!node || typeof node !== 'object') {
+    return node;
+  }
+
   let { type } = node;
   const { children } = node.props;
   let props = { ...node.props };
@@ -251,26 +255,10 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
           id: 'dom-' + widgetId,
         },
       };
-    } else if (typeof type === 'function') {
+    } else {
       // `type` is a Preact component function for a child Widget
       // invoke it with the passed props to render the component and serialize its DOM tree
-      const renderResult = type(props);
-      if (renderResult?.type === undefined) {
-        return renderResult;
-      }
-
-      ({ props, type } = renderResult);
-      if (!props) {
-        props = {};
-      }
-
-      if (Array.isArray(props.children)) {
-        unifiedChildren = props.children;
-      } else if (props.children === undefined) {
-        unifiedChildren = [];
-      } else {
-        unifiedChildren = [props.children];
-      }
+      return serializeNode({ h, node: type(props), parentId, index, callbacks, childWidgets });
     }
   }
 
@@ -288,7 +276,7 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
           callbacks,
           parentId,
         }) : c
-        ),
+      ),
     },
     childWidgets,
   };
