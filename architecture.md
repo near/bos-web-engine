@@ -11,8 +11,6 @@ The VM prototype for BOS Web Engine works by executing Component source code in 
 - Component iframe containers may expose methods to be invoked from the outer window application via message posting, either as event handlers or indirect callbacks originating from other Components proxied by the outer window application
 - Components are re-rendered in response to callbacks in the outer window, and re-render their children in turn
 
-The repository for the prototype can be found here: https://github.com/andy-haynes/wigesque, with the intention of moving this to a near repository once the team is satisfied that the approach is viable and the structure conducive to building upon.
-
 ## Module Loading
 
 At a high level, module loading is as follows:
@@ -33,8 +31,6 @@ Unique identifiers must be generated at render time for each Component (except t
 This approach enforces isolation between all Components by forcing them to render in their own iframe. This constraint can be relaxed on a per-Component basis during transpilation by grouping sets of “trusted” Components together in the same Component tree. Trusted Components would not be treated as leaf nodes in the DOM subtree, but instead inlined into the tree prior to being rendered. This functionality/optimization could be supported by the current architecture but must be well defined prior to implementation (e.g. if a parent Component renders a trusted child Component, are the children’s Components also trusted?)
 
 There are likely optimizations to be incorporated into module loading, as the current approach of resolving child Components occurs at render time. Caching and eager fetching of Components may be viable options here.
-
-The current implementation relies on server-side transpilation, but this ultimately should be happening on the client for efficiency and transparency. This decision to do this server-side was made to expedite development as there was some friction attempting to add babel transpilation to the outer window app.
 
 ![component loading](./assets/component-loading-diagram.png)
 
@@ -71,11 +67,8 @@ This implementation provides a functional, if limited, method for execution of c
 
 Shortcomings/missing functionality from current callbacks implementation (WIP)
 
-- Callbacks are implicitly treated as synchronous
 - Dynamic methods for deferred execution of methods passed from children
-- Support for arguments
-- No data returned
-- Brittle Component identifiers based on index position within set of parent’s children
+- Full support for arguments
 
 ## Message Posting (WIP)
 
@@ -107,7 +100,7 @@ See https://pagodaplatform.atlassian.net/browse/ROAD-216 for a detailed, up-to-d
    4. Debugging and performance monitoring features (e.g. logs of message posting, displaying loading times) enables better DX.
    5. Outcome: Design Document [b]- Clarity on the approach we should take
 3. Callback Support | P0
-   1. Basic callback functionality is supported. [c][d][e][f]The Outer Window Application DOM transforms event callbacks to message posts to the target Component iframe container. Similarly, Components may invoke methods on other Components.
+   1. Basic callback functionality is supported. The Outer Window Application DOM transforms event callbacks to message posts to the target Component iframe container. Similarly, Components may invoke methods on other Components.
    2. We need to use the structured-clone NPM package to serialize DOM events. Currently only a subset of event properties are passed along.
    3. We need support for callback arguments in DOM event callbacks. Currently only the event is passed.
    4. Outcome: Design Document [g]- Clarity on the approach we should take
@@ -115,25 +108,23 @@ See https://pagodaplatform.atlassian.net/browse/ROAD-216 for a detailed, up-to-d
    1. There is basic support for the current VM API (e.g. Social, Near) but it’s not in parity.
    2. We need the prototype implementation to be in parity with the current VM.
 5. Component Iframe Container Identification | P0
-   1. Generating unique Component IDs at render time can be done implicitly by using a concatenation of: 1. Component source path 2. Initial props value 3. Ancestral Component IDs
-      This should only break in cases where two instances of the same Component are rendered under a single parent Component using the same props values. In these instances we would need the developer to explicitly delineate between the two with a special key on the Component’s props argument. This is analogous to React’s requirement for a key attribute on components, and conflicts could be identified to some extent when the Component source is saved. These explicit keys would still need to be appropriately namespaced to avoid collision
-   2. Component identifiers are currently constructed from the Component source path and index within its set of parent Components, prefixed onto its parent’s (and ancestors’) identifiers. These identifiers persist the lifespan of the Component iframe container.
-   3. We need a way to build Component identifiers which are not dependent on render position, as this can change as the result of a parent render. In the current implementation, Components must have a stable identifier when their parent renders them to ensure the Component iframe container and Outer Window Application DOM remain synchronized.
+   1. Generating unique Widget IDs at render time can be done implicitly by using a concatenation of:
+      1. Widget source path
+      2. Initial props value
+      3. Ancestral Widget IDs
+   2. This should only break in cases where two instances of the same Widget are rendered under a single parent Widget using the same props values. In these instances we would need the developer to explicitly delineate between the two with a special key on the Widget’s props argument. This is analogous to React’s requirement for a key attribute on components, and conflicts could be identified to some extent when the Widget source is saved. These explicit keys would still need to be appropriately namespaced to avoid collision
+
 6. Trusted Component Loading | P1
    1. Currently Components are always loaded dynamically; the process responsible for creating React elements loads a placeholder for any Component leaf nodes in the current Component’s DOM subtree which gets rendered over when the child Component’s iframe container is loaded.
    2. We need a way to inline the descendant Component definitions into a parent Component source, trading dynamic loading for static.
    3. At a high level this involves creating Preact Components for each trusted descendant and prefixing it to the root Component’s transpiled source.
-7. Move Component source transpilation client-side | P2
-   1. The prototype fetches Component source via local REST API using babel (with preact plugins) to transpile the raw source.
-   2. We need the transpilation to happen client-side for transparency.
-   3. There were issues integrating client-side babel usage into a React app, which is why it’s currently server-side.
       —
       Do a performance benchmark, if bad:
-8. Loading Optimizations | P2
+7. Loading Optimizations | P2
    1. Dynamic loading of leaf nodes is not ideal, particularly for deep trees.
    2. Statically traversing the root Component’s dependency tree would flatten the dependency list and eliminate duplicates, enabling pre-fetching of Component source dependencies.
    3. A simple client-side cache would eliminate duplicate fetching, though it’s possible the browser will be performing some caching internally.
-9. Component Rendering Optimizations | P2
+8. Component Rendering Optimizations | P2
    1. Components (and, recursively, their children) are currently re-rendered when anything changes.
    2. Caching props passed to rendered child Components would prevent unnecessary re-renders of children.
    3. Check state by value before and after mutation to prevent re-renders when nothing has changed.
