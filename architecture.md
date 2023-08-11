@@ -36,7 +36,7 @@ There are likely optimizations to be incorporated into module loading, as the cu
 
 The current implementation relies on server-side transpilation, but this ultimately should be happening on the client for efficiency and transparency. This decision to do this server-side was made to expedite development as there was some friction attempting to add babel transpilation to the outer window app.
 
-> TODO: insert diagram
+![component loading](./assets/component-loading-diagram.png)
 
 ## Component Rendering
 
@@ -157,6 +157,7 @@ Incompatibilities with current prototype:
 
 ### DOM Callbacks
 
+
 Component Source:
 
 ```jsx
@@ -169,7 +170,8 @@ return (
 );
 ```
 
-> TODO: insert diagram
+![callback legend](./assets/callback-legend.png)
+![callback legend](./assets/dom-callback-diagram.png)
 
 1. Button is clicked in outer window application DOM
 2. Target Component iframe’s window.postMessage method is invoked with callback metadata
@@ -197,7 +199,7 @@ return (
 return <button onClick={(e) => props.onClick(1)}>Click Me</button>;
 ```
 
-> TODO: insert diagram
+![callback legend](./assets/props-callback-diagram.png)
 
 1. Button is clicked in the Child Component’s DOM subtree within the outer window application
 2. Child Component iframe’s window.postMessage method is invoked with callback metadata
