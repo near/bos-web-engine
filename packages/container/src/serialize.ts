@@ -1,4 +1,5 @@
 import type {
+  BuiltinProps,
   DeserializePropsOptions,
   FilesProps,
   InfiniteScrollProps,
@@ -149,40 +150,40 @@ export function deserializeProps({
 export function serializeNode({ h, node, index, childWidgets, callbacks, parentId }: SerializeNodeOptions): SerializedNode {
 // TODO implement these for real
   const BUILTIN_COMPONENTS = {
-    Checkbox: ({ children, props } : { children: any[], props?: object }) => {
+    Checkbox: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    CommitButton: ({ children, props } : { children: any[], props?: object }) => {
+    CommitButton: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    Dialog: ({ children, props } : { children: any[], props?: object }) => {
+    Dialog: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    DropdownMenu: ({ children, props } : { children: any[], props?: object }) => {
+    DropdownMenu: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    Files: ({ children, props } : { children: any[], props?: FilesProps }) => {
+    Files: ({ children, props } : BuiltinProps<FilesProps>) => {
       return h('div', props,  children);
     },
-    Fragment: ({ children, props } : { children: any[], props?: object }) => {
+    Fragment: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    InfiniteScroll: ({ children, props } : { children: any[], props?: InfiniteScrollProps }) => {
+    InfiniteScroll: ({ children, props } : BuiltinProps<InfiniteScrollProps>) => {
       return h('div', props,  children);
     },
-    IpfsImageUpload: ({ children, props } : { children: any[], props?: IpfsImageUploadProps }) => {
+    IpfsImageUpload: ({ children, props } : BuiltinProps<IpfsImageUploadProps>) => {
       return h('div', props,  children);
     },
-    Markdown: ({ children, props } : { children: any[], props?: MarkdownProps }) => {
+    Markdown: ({ children, props } : BuiltinProps<MarkdownProps>) => {
       return h('div', props,  [props?.text, ...children]);
     },
-    OverlayTrigger: ({ children, props } : { children: any[], props?: OverlayTriggerProps }) => {
+    OverlayTrigger: ({ children, props } : BuiltinProps<OverlayTriggerProps>) => {
       return h('div', props, children);
     },
-    Tooltip: ({ children, props } : { children: any[], props?: object }) => {
+    Tooltip: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    Typeahead: ({ children, props } : { children: any[], props?: TypeaheadProps }) => {
+    Typeahead: ({ children, props } : BuiltinProps<TypeaheadProps>) => {
       return h('div', props,  children);
     },
   };

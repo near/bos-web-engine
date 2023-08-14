@@ -291,3 +291,16 @@ export interface TypeaheadProps {
   options: string[];
   placeholder: string;
 }
+
+type BuiltinPropsTypes = FilesProps
+  | IpfsImageUploadProps
+  | InfiniteScrollProps
+  | MarkdownProps
+  | OverlayTriggerProps
+  | TypeaheadProps
+  | WidgetProps;
+
+export interface BuiltinProps<T extends object | BuiltinPropsTypes> {
+  children: any[];
+  props: T;
+}
