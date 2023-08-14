@@ -101,6 +101,7 @@ export function initSocial({ endpointBaseUrl, renderWidget, widgetId }: InitSoci
       return value;
     }
 
+    cache[cacheKey] = undefined;
     fetch(apiEndpoint, {
       body: JSON.stringify({
         ...body,
