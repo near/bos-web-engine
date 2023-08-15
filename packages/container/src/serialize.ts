@@ -19,7 +19,7 @@ export function serializeProps({ callbacks, h, parentId, props, widgetId }: Seri
   return Object.entries(props)
     .reduce((newProps, [key, value]: [string, any]) => {
       // TODO better preact component check
-      const isComponent = value?.props && ('__' in value && '__k' in value);
+      const isComponent = value?.props && typeof value === 'object' && ('__' in value && '__k' in value);
       const isFunction = typeof value === 'function';
 
       if (!isFunction) {

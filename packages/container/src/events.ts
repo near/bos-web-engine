@@ -80,6 +80,7 @@ export function invokeWidgetCallback({
 
   const result = invokeCallback({ args, callback: callbacks[method] });
   const isComponent = !!(result
+    && typeof result === 'object'
     && '__k' in result
     && '__' in result);
 
