@@ -36,13 +36,57 @@ export default function Transpiler() {
         return name;
       }
       
-      return name + '_' + suffix.replace(/[.\/]/g, '');
+      return name + '_' + suffix.replace(/[.\\/]/g, '');
     }
 
-    function buildComponentFunction({ widgetPath, widgetSource, isChild }) {
-      const signature = (!isChild ? 'async ' : '') + 'function ' + buildComponentFunctionName(isChild ? widgetPath : '');
-      const args = isChild ? '({ props })' : '()';
-      return signature + args + ' {\\n\\n/*' + widgetPath + '*/\\n\\n' + widgetSource + ' }';
+    function buildComponentFunction({ widgetPath, widgetSource, isRoot }) {
+      const componentBody = '\\n\\n/*' + widgetPath + '*/\\n\\n' + widgetSource;
+      if (isRoot) {
+        return 'function ' + buildComponentFunctionName() + '() {' + componentBody + '}';
+      }
+
+      function initState() {
+        let _state = {};
+        let isStateInitialized = false;
+
+        const state = new Proxy({}, {
+          get(_, key) {
+            try {
+              return _state[key];
+            } catch {
+              return undefined;
+            }
+          },
+          set() {
+            return false;
+          },
+        });
+
+        const State = {
+          init(obj) {
+            if (!isStateInitialized) {
+              _state = obj;
+              isStateInitialized = true;
+            }
+          },
+          update(newState, initialState) {
+            // TODO real implementation
+            _state = Object.assign({}, state, newState);
+          },
+        };
+
+        return {
+          state,
+          State,
+        };
+      }
+
+      return [
+        'function ' + buildComponentFunctionName(widgetPath) + '({ props }) {',
+        'const { state, State} = (' + initState.toString() + ')();',
+        componentBody,
+        '}'
+      ].join('\\n\\n');
     }
 
     function parseChildWidgetPaths(transpiledWidget) {
@@ -79,7 +123,7 @@ export default function Transpiler() {
           .map(async ([childPath, widgetSource]) => {
             const transpiledChild = getTranspiledWidgetSource(
               childPath,
-              buildComponentFunction({ widgetPath: childPath, widgetSource: await widgetSource, isChild: true })
+              buildComponentFunction({ widgetPath: childPath, widgetSource: await widgetSource, isRoot: false })
             );
 
             await parseWidgetTree({ widgetPath: childPath, transpiledWidget: transpiledChild, mapped });
@@ -151,19 +195,24 @@ export default function Transpiler() {
         const source = await fetchWidgetSource([widgetPath])[widgetPath];
         const transpiledWidget = getTranspiledWidgetSource(
           widgetPath,
-          buildComponentFunction({ widgetPath, widgetSource: source }),
+          buildComponentFunction({ widgetPath, widgetSource: source, isRoot: true }),
         );
   
-        // if (isTrustedMode) ...
-        const transformedWidgets = await parseWidgetTree({ widgetPath, transpiledWidget, mapped: {} });
-        const [rootWidget, ...childWidgets] = Object.values(transformedWidgets).map(({ transpiled }) => transpiled);
-        const aggregatedSourceLines = rootWidget.split('\\n')
-        aggregatedSourceLines.splice(1, 0, childWidgets.join('\\n\\n'));
+        let widgetComponent = transpiledWidget;
+        
+        if (isTrusted) {
+          // recursively parse the Component tree for child Components
+          const transformedWidgets = await parseWidgetTree({ widgetPath, transpiledWidget, mapped: {} });
+          const [rootWidget, ...childWidgets] = Object.values(transformedWidgets).map(({ transpiled }) => transpiled);
+          const aggregatedSourceLines = rootWidget.split('\\n')
+          aggregatedSourceLines.splice(1, 0, childWidgets.join('\\n\\n'));
+          widgetComponent = aggregatedSourceLines.join('\\n');
+        }
         
         window.parent.postMessage({
           type: 'transpiler.sourceTranspiled',
           source: widgetId,
-          widgetComponent: aggregatedSourceLines.join('\\n'),
+          widgetComponent,
         }, '*');
       } catch (e) {
         console.error(e);
