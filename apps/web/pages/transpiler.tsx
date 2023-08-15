@@ -143,7 +143,7 @@ export default function Transpiler() {
       return transpiledCache[widgetPath];
     }
 
-    async function getWidgetSource(widgetId) {
+    async function getWidgetSource({ widgetId, isTrusted }) {
       const widgetPath = widgetId.split('##')[0];
       const [author, , widget] = widgetPath.split('/');
 
@@ -173,7 +173,7 @@ export default function Transpiler() {
     window.addEventListener('message', (event) => {
       const { data } = event;
       if (data?.type === 'transpiler.widgetFetch') {
-        getWidgetSource(data.source);
+        getWidgetSource({ widgetId: data.source, isTrusted: data.isTrusted });
       }
     });
   </script>

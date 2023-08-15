@@ -38,10 +38,11 @@ function mountElement({ widgetId, element }: { widgetId: string, element: Widget
   roots[widgetId].render(element);
 }
 
-function requestWidgetSource(widgetPath: string) {
+function requestWidgetSource({ widgetPath, isTrusted }: { widgetPath: string, isTrusted: boolean }) {
   postMessageToIframe({
     id: 'transpiler',
     message: {
+      isTrusted,
       source: widgetPath,
       type: 'transpiler.widgetFetch',
     },
@@ -51,6 +52,7 @@ function requestWidgetSource(widgetPath: string) {
 
 export default function Web() {
   const [rootWidget, setRootWidget] = useState('');
+  const [isRootWidgetLoading, setIsRootWidgetLoading] = useState(false);
   const [rootWidgetInput, setRootWidgetInput] = useState(DEFAULT_ROOT_WIDGET);
   const [rootWidgetSource, setRootWidgetSource] = useState(null);
   const [widgetUpdates, setWidgetUpdates] = useState('');
@@ -65,7 +67,7 @@ export default function Web() {
     set(target, key: string, value: any) {
       // if the widget is being added, initiate request for widget component code
       if (!target[key]) {
-        requestWidgetSource(key);
+        requestWidgetSource({ widgetPath: key, isTrusted: value.isTrusted });
       }
 
       target[key] = value;
@@ -136,15 +138,14 @@ export default function Web() {
     return () => messageListeners.forEach((cb) => window.removeEventListener('message', cb));
   }, [rootWidgetSource, showWidgetDebug]);
 
-  let rootWidgetFetching = false;
   useEffect(() => {
-    if (!rootWidget || rootWidgetFetching) {
+    if (!rootWidget || isRootWidgetLoading) {
       return;
     }
 
-    rootWidgetFetching = true;
-    requestWidgetSource(rootWidget);
-  }, [rootWidget]);
+    setIsRootWidgetLoading(true);
+    requestWidgetSource({ widgetPath: rootWidget, isTrusted: false });
+  }, [rootWidget, isRootWidgetLoading]);
 
   return (
     <div className='App'>
@@ -199,10 +200,11 @@ export default function Web() {
             {
               Object.entries({ ...widgetProxy })
                 .filter(([, { widgetComponent }]) => !!widgetComponent)
-                .map(([widgetId, { props, widgetComponent }]) => (
+                .map(([widgetId, { isTrusted, props, widgetComponent }]) => (
                   <div key={widgetId} widget-id={widgetId}>
                     <SandboxedIframe
                       id={getIframeId(widgetId)}
+                      isTrusted={isTrusted}
                       scriptSrc={widgetComponent}
                       widgetProps={props}
                     />

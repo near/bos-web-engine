@@ -243,10 +243,11 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
       }));
       unifiedChildren = props.children;
     } else if (component === 'Widget') {
-      const { src, props: widgetProps } = props;
+      const { src, props: widgetProps, isTrusted } = props;
       const widgetId = buildWidgetId({ widgetPath: src, widgetProps, parentWidgetId: parentId });
       try {
         childWidgets.push({
+          isTrusted: !!isTrusted,
           props: widgetProps ? serializeProps({ props: widgetProps, callbacks, h, parentId, widgetId }) : {},
           source: src,
           widgetId,

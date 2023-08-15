@@ -17,7 +17,7 @@ import {
 
 const NEWLINE_ESCAPE_CHAR = '⁣';
 
-function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scriptSrc: string, widgetProps: any }) {
+function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
   const widgetPath = id.split('::')[0];
   const jsonWidgetProps = widgetProps ? JSON.stringify(widgetProps).replace(/\\n/g, NEWLINE_ESCAPE_CHAR) : '{}';
 
@@ -94,6 +94,7 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
             try {
               postWidgetRenderMessage({
                 childWidgets,
+                isTrusted: ${isTrusted},
                 node: serialized,
                 widgetId: '${id}',
               });
@@ -270,7 +271,14 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
   `;
 }
 
-export function SandboxedIframe({ id, scriptSrc, widgetProps }: { id: string, scriptSrc: string, widgetProps?: any }) {
+interface SandboxedIframeProps {
+  id: string;
+  isTrusted: boolean;
+  scriptSrc: string;
+  widgetProps?: any;
+}
+
+export function SandboxedIframe({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
   return (
     <iframe
       id={id}
@@ -286,7 +294,7 @@ export function SandboxedIframe({ id, scriptSrc, widgetProps }: { id: string, sc
       ].join('; ')}
       height={0}
       sandbox='allow-scripts'
-      srcDoc={buildSandboxedWidget({ id: id.replace('iframe-', ''), scriptSrc, widgetProps })}
+      srcDoc={buildSandboxedWidget({ id: id.replace('iframe-', ''), isTrusted, scriptSrc, widgetProps })}
       title='code-container'
       width={0}
       style={{ border: 'none' }}

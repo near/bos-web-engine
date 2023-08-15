@@ -78,7 +78,7 @@ export function onRender({
   });
   mountElement({ widgetId, element });
 
-  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source }: { widgetId: string, props: any, source: string }) => {
+  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source, isTrusted }: { widgetId: string, props: any, source: string, isTrusted: boolean }) => {
     /*
       a widget is being rendered by a parent widget, either:
       - this widget is being loaded for the first time
@@ -87,6 +87,7 @@ export function onRender({
     if (!widgets[childWidgetId]) {
       /* widget code has not yet been loaded, add to cache and load */
       widgets[childWidgetId] = {
+        isTrusted,
         parentId: widgetId,
         props: widgetProps,
         source,

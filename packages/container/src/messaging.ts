@@ -72,11 +72,13 @@ export function postCallbackResponseMessage({
 
 export function postWidgetRenderMessage({
   childWidgets,
+  isTrusted,
   node,
   widgetId,
 }: PostMessageWidgetRenderOptions): void {
   postMessage<PostMessageWidgetRender>({
     childWidgets,
+    isTrusted,
     node,
     type: 'widget.render',
     widgetId,

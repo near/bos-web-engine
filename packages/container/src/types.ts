@@ -49,6 +49,7 @@ export interface DomCallbackEventData {
 
 export interface RenderEventData {
   childWidgets: any[];
+  isTrusted: boolean;
   node: SerializedNode;
   widgetId: string;
   type: WidgetRender;
@@ -60,6 +61,7 @@ export interface UpdateEventData {
 }
 
 export interface WidgetSourceData {
+  isTrusted: boolean;
   source: string;
   type: TranspilerWidgetFetch;
 }
@@ -160,12 +162,14 @@ export interface PostMessageWidgetCallbackResponseOptions {
 
 export interface PostMessageWidgetRender extends PostMessageOptions {
   childWidgets: string[];
+  isTrusted: boolean;
   node: SerializedNode;
   type: WidgetRender;
   widgetId: string;
 }
 export interface PostMessageWidgetRenderOptions {
   childWidgets: string[];
+  isTrusted: boolean;
   node: SerializedNode;
   widgetId: string;
 }
