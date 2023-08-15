@@ -14,7 +14,6 @@ import ReactDOM from 'react-dom/client';
 
 import Transpiler from './transpiler';
 
-const LOCAL_PROXY_WIDGET_URL_PREFIX = 'http://localhost:3001/widget';
 const DEFAULT_ROOT_WIDGET = 'andyh.near/widget/MainPage';
 
 const roots = {} as { [key: string]: ReactDOM.Root };
@@ -88,7 +87,7 @@ export default function Web() {
               case 'transpiler.sourceTranspiled': {
                 const { source, widgetComponent } = data;
                 const widget = { ...widgetProxy[source], widgetComponent };
-                if (!rootWidgetSource && source == rootWidget) {
+                if (!rootWidgetSource && source === rootWidget) {
                   setRootWidgetSource(source);
                 }
                 monitor.widgetAdded(widget);
@@ -113,7 +112,6 @@ export default function Web() {
                   isDebug: showWidgetDebug,
                   markWidgetUpdated: (update: WidgetUpdate) => monitor.widgetUpdated(update),
                   mountElement,
-                  widgetSourceBaseUrl: LOCAL_PROXY_WIDGET_URL_PREFIX,
                   widgets: widgetProxy,
                 });
                 break;
@@ -189,14 +187,6 @@ export default function Web() {
           </div>
           <div className="iframes">
             {showWidgetDebug && (<h5>here be hidden iframes</h5>)}
-            <div key={0} widget-id={rootWidget}>
-              {rootWidgetSource && (
-                <SandboxedIframe
-                  id={getIframeId(rootWidget)}
-                  scriptSrc={rootWidgetSource}
-                />
-              )}
-            </div>
             {
               Object.entries({ ...widgetProxy })
                 .filter(([, { widgetComponent }]) => !!widgetComponent)

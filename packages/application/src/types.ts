@@ -36,7 +36,6 @@ export interface RenderHandlerOptions {
   isDebug?: boolean;
   markWidgetUpdated: (update: WidgetUpdate) => void;
   mountElement: ({ widgetId, element }: { widgetId: string, element: any }) => void;
-  widgetSourceBaseUrl: string;
   widgets: { [key: string]: any };
 }
 

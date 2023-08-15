@@ -56,7 +56,6 @@ export function onRender({
   isDebug = false,
   markWidgetUpdated,
   mountElement,
-  widgetSourceBaseUrl,
   widgets,
 }: RenderHandlerOptions) {
   /* a widget has been rendered and is ready to be updated in the outer window */
