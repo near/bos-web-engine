@@ -8,6 +8,9 @@ export {
   invokeWidgetCallback,
 } from './events';
 export {
+  buildUseComponentCallback,
+} from './hooks';
+export {
   buildRequest,
   postMessage,
   postCallbackInvocationMessage,

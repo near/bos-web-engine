@@ -1,4 +1,5 @@
 import {
+  buildUseComponentCallback,
   initNear,
   initSocial,
   buildEventHandler,
@@ -68,6 +69,9 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
               .map(([functionName, minifiedName]) => 'if (!' + functionName + ') { window.' + functionName + ' = ' + minifiedName + '; }')
               .join('\n');
           }()}
+
+          const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
+          const useComponentCallback = buildUseComponentCallback(renderWidget);
 
           let lastRenderedNode;
           // FIXME circular dependency between [dispatchRenderEvent] (referenced in Preact fork) and [h] (used to render builtin components) 
