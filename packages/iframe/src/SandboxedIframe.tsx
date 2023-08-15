@@ -179,9 +179,9 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             }
           });
 
-          async function WidgetWrapper() {
+          function WidgetWrapper() {
             try {
-              return await (
+              return (
                 /* BEGIN EXTERNAL SOURCE */
                 ${scriptSrc}
                 /* END EXTERNAL SOURCE */
@@ -192,9 +192,9 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             }
           }
       
-          async function renderWidget() {
+          function renderWidget() {
             try {
-              render(await WidgetWrapper(), document.getElementById('${id}'));              
+              render(WidgetWrapper(), document.getElementById('${id}'));              
             } catch (e) {
               console.error(e, { widgetId: '${id}' });
             }
