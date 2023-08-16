@@ -122,6 +122,10 @@ export default function Transpiler() {
       };
 
       // fetch the set of child Component sources not already added to the tree
+      const childWidgetSources = await fetchWidgetSource(
+        childWidgetPaths.map(({ source }) => source)
+          .filter((source) => !(source in mapped))
+      );
 
       // transpile the set of new child Components and recursively parse their Component subtrees
       await Promise.all(
@@ -129,7 +133,8 @@ export default function Transpiler() {
           .map(async ([childPath, widgetSource]) => {
             const transpiledChild = getTranspiledWidgetSource(
               childPath,
-              buildComponentFunction({ widgetPath: childPath, widgetSource: await widgetSource, isRoot: false })
+              buildComponentFunction({ widgetPath: childPath, widgetSource: await widgetSource, isRoot: false }),
+              false
             );
 
             await parseWidgetTree({ widgetPath: childPath, transpiledWidget: transpiledChild, mapped });
@@ -184,13 +189,14 @@ export default function Transpiler() {
       }, {});
     }
 
-    function getTranspiledWidgetSource(widgetPath, widgetSource) {
-      if (!transpiledCache[widgetPath]) {
+    function getTranspiledWidgetSource(widgetPath, widgetSource, isRoot) {
+      const cacheKey = JSON.stringify({ widgetPath, isRoot });
+      if (!transpiledCache[cacheKey]) {
         const { code } = transpileSource(widgetSource);
-        transpiledCache[widgetPath] = code;
+        transpiledCache[cacheKey] = code;
       }
 
-      return transpiledCache[widgetPath];
+      return transpiledCache[cacheKey];
     }
 
     async function getWidgetSource({ widgetId, isTrusted }) {
@@ -202,6 +208,7 @@ export default function Transpiler() {
         const transpiledWidget = getTranspiledWidgetSource(
           widgetPath,
           buildComponentFunction({ widgetPath, widgetSource: source, isRoot: true }),
+          true
         );
   
         let widgetComponent = transpiledWidget;
