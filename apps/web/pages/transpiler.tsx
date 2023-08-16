@@ -106,18 +106,24 @@ export default function Transpiler() {
     }
 
     async function parseWidgetTree({ widgetPath, transpiledWidget, mapped }) {
+      // enumerate the set of Components referenced in the target Component
       const childWidgetPaths = parseChildWidgetPaths(transpiledWidget);
       let transformedWidget = transpiledWidget;
+
+      // replace each child [Widget] reference in the target Component source
+      // with the generated name of the inlined Component function definition
       childWidgetPaths.forEach(({ source, transform }) => {
         transformedWidget = transform(transformedWidget, buildComponentFunctionName(source));
       });
 
+      // add the transformed source to the returned Component tree
       mapped[widgetPath] = {
         transpiled: transformedWidget,
       };
 
-      const childWidgetSources = await fetchWidgetSource(childWidgetPaths.map(({ source }) => source).filter((source) => !(source in mapped)));
+      // fetch the set of child Component sources not already added to the tree
 
+      // transpile the set of new child Components and recursively parse their Component subtrees
       await Promise.all(
         Object.entries(childWidgetSources)
           .map(async ([childPath, widgetSource]) => {
@@ -199,7 +205,7 @@ export default function Transpiler() {
         );
   
         let widgetComponent = transpiledWidget;
-        
+
         if (isTrusted) {
           // recursively parse the Component tree for child Components
           const transformedWidgets = await parseWidgetTree({ widgetPath, transpiledWidget, mapped: {} });
