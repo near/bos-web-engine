@@ -46,32 +46,34 @@ export default function Transpiler() {
       }
 
       function initState() {
-        let _state = {};
         let isStateInitialized = false;
 
-        const state = new Proxy({}, {
-          get(_, key) {
-            try {
-              return _state[key];
-            } catch {
-              return undefined;
-            }
-          },
-          set() {
-            return false;
-          },
-        });
+        function buildStateProxy(initialState) {
+          return new Proxy({}, {
+            get(target, key) {
+              try {
+                return target[key];
+              } catch {
+                return undefined;
+              }
+            },
+            set() {
+              return false;
+            },
+          });
+        }
+
+        let state = buildStateProxy({});
 
         const State = {
           init(obj) {
             if (!isStateInitialized) {
-              _state = obj;
+              state = buildStateProxy(obj);
               isStateInitialized = true;
             }
           },
-          update(newState, initialState) {
-            // TODO real implementation
-            _state = Object.assign({}, state, newState);
+          update(newState = {}, initialState) {
+            state = buildStateProxy(Object.assign({}, state, newState));
           },
         };
 
