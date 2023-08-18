@@ -39,16 +39,16 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
           const callbacks = {};
           const requests = {};
 
-          ${buildRequest.toString()}
-          ${postMessage.toString()}
-          ${postWidgetRenderMessage.toString()}
-          ${postCallbackInvocationMessage.toString()}
-          ${postCallbackResponseMessage.toString()}
+          const buildRequest = ${buildRequest.toString()};
+          const postMessage = ${postMessage.toString()};
+          const postWidgetRenderMessage = ${postWidgetRenderMessage.toString()};
+          const postCallbackInvocationMessage = ${postCallbackInvocationMessage.toString()};
+          const postCallbackResponseMessage = ${postCallbackResponseMessage.toString()};
 
-          ${deserializeProps.toString()}
-          ${serializeArgs.toString()}
-          ${serializeNode.toString()}
-          ${serializeProps.toString()}
+          const deserializeProps = ${deserializeProps.toString()};
+          const serializeArgs = ${serializeArgs.toString()};
+          const serializeNode = ${serializeNode.toString()};
+          const serializeProps = ${serializeProps.toString()};
 
           let lastRenderedNode;
           // FIXME circular dependency between [dispatchRenderEvent] (referenced in Preact fork) and [h] (used to render builtin components) 
@@ -221,8 +221,8 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
             return getComparable(props) === getComparable(compareProps);
           }
 
-          ${invokeCallback.toString()}
-          ${invokeWidgetCallback.toString()}
+          const invokeCallback = ${invokeCallback.toString()};
+          const invokeWidgetCallback = ${invokeWidgetCallback.toString()};
           const processEvent = (${buildEventHandler.toString()})({
             buildRequest,
             callbacks,
