@@ -49,11 +49,14 @@ export function invokeWidgetCallback({
   serializeArgs,
   widgetId,
 }: InvokeWidgetCallbackOptions): WidgetCallbackInvocationResult {
+  // unknown method
   if (!callbacks[method]) {
     console.error(`No method ${method} on widget ${widgetId}`);
     return { isComponent: false, shouldRender: false };
   }
 
+  // some arguments to this callback are methods on other Components
+  // these must be replaced with wrappers invoking Component methods
   if (typeof args?.some === 'function' && args.some((arg: any) => arg.__widgetMethod)) {
     args = args.map((arg: any) => {
       const { __widgetMethod: widgetMethod } = arg;
@@ -119,9 +122,9 @@ export function buildEventHandler({
   widgetId,
 }: ProcessEventOptions): Function {
   return function processEvent(event: PostMessageEvent) {
-    let error = null;
+    let error: any = null;
     let isComponent = false;
-    let result;
+    let result: any;
     let shouldRender = false;
 
     function invokeCallback({ args, method }: { args: Args, method: string }) {
@@ -143,17 +146,27 @@ export function buildEventHandler({
           try {
             ({ isComponent, result, shouldRender } = invokeCallback({ args, method }));
           } catch (e: any) {
-            error = e as Error;
+            error = e;
           }
 
-          if (requestId) {
-            postCallbackResponseMessage({
-              error,
-              isComponent,
-              requestId,
-              result,
-              targetId: originator,
-            });
+          const postCallbackResponse = (value: any, error: any) => {
+            if (requestId) {
+              postCallbackResponseMessage({
+                error,
+                isComponent,
+                requestId,
+                result: value,
+                targetId: originator,
+              });
+            }
+          }
+
+          if (result?.then) {
+            result
+              .then((v: any) => postCallbackResponse(v, error))
+              .catch((e: any) => postCallbackResponse(undefined, e));
+          } else {
+            postCallbackResponse(result, error);
           }
           break;
         }
