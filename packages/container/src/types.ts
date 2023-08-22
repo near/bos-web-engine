@@ -34,7 +34,6 @@ export interface CallbackInvocationEventData {
 }
 
 export interface CallbackResponseEventData {
-  isComponent: boolean;
   requestId: string;
   result: string;
   targetId: string;
@@ -146,7 +145,6 @@ export interface PostMessageWidgetCallbackInvocationOptions {
 
 export type PostMessageWidgetResponseCallback = (message: PostMessageWidgetCallbackResponseOptions) => void;
 export interface PostMessageWidgetCallbackResponse extends PostMessageOptions {
-  isComponent: boolean;
   requestId: string;
   result: string; // stringified JSON in the form of { result: any, error: string }
   targetId: string;
@@ -154,7 +152,6 @@ export interface PostMessageWidgetCallbackResponse extends PostMessageOptions {
 }
 export interface PostMessageWidgetCallbackResponseOptions {
   error: Error | null;
-  isComponent: boolean;
   requestId: string;
   result: any;
   targetId: string;
@@ -243,12 +240,6 @@ export interface SerializePropsOptions {
 export interface SerializedWidgetCallback {
   __widgetMethod: string;
   parentId: string;
-}
-
-export interface WidgetCallbackInvocationResult {
-  isComponent: boolean;
-  result?: any;
-  shouldRender: boolean;
 }
 
 export interface WidgetProps {

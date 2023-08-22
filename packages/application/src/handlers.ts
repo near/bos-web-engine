@@ -37,11 +37,10 @@ export function onCallbackResponse({
     a widget has executed a callback invoked from another widget
     return the value of the callback execution to the calling widget
   */
-  const { isComponent, requestId, result, targetId } = data;
+  const { requestId, result, targetId } = data;
   postMessageToWidgetIframe({
     id: targetId,
     message: {
-      isComponent,
       result,
       requestId,
       targetId,

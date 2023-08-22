@@ -4,7 +4,6 @@ import type {
   InvokeWidgetCallbackOptions,
   PostMessageEvent,
   ProcessEventOptions,
-  WidgetCallbackInvocationResult,
 } from './types';
 
 /**
@@ -48,11 +47,11 @@ export function invokeWidgetCallback({
   requests,
   serializeArgs,
   widgetId,
-}: InvokeWidgetCallbackOptions): WidgetCallbackInvocationResult {
+}: InvokeWidgetCallbackOptions): any {
   // unknown method
   if (!callbacks[method]) {
     console.error(`No method ${method} on widget ${widgetId}`);
-    return { isComponent: false, shouldRender: false };
+    return null;
   }
 
   // some arguments to this callback are methods on other Components
@@ -81,17 +80,7 @@ export function invokeWidgetCallback({
     });
   }
 
-  const result = invokeCallback({ args, callback: callbacks[method] });
-  const isComponent = !!(result
-    && typeof result === 'object'
-    && '__k' in result
-    && '__' in result);
-
-  return {
-    isComponent,
-    result,
-    shouldRender: !isComponent,
-  };
+  return invokeCallback({ args, callback: callbacks[method] });
 }
 
 /**
@@ -123,7 +112,6 @@ export function buildEventHandler({
 }: ProcessEventOptions): Function {
   return function processEvent(event: PostMessageEvent) {
     let error: any = null;
-    let isComponent = false;
     let result: any;
     let shouldRender = false;
 
@@ -144,7 +132,7 @@ export function buildEventHandler({
         case 'widget.callbackInvocation': {
           let { args, method, originator, requestId } = event.data;
           try {
-            ({ isComponent, result, shouldRender } = invokeCallback({ args, method }));
+            result = invokeCallback({ args, method });
           } catch (e: any) {
             error = e;
           }
@@ -153,7 +141,6 @@ export function buildEventHandler({
             if (requestId) {
               postCallbackResponseMessage({
                 error,
-                isComponent,
                 requestId,
                 result: value,
                 targetId: originator,
@@ -171,7 +158,7 @@ export function buildEventHandler({
           break;
         }
         case 'widget.callbackResponse': {
-          const { isComponent, requestId, result } = event.data;
+          const { requestId, result } = event.data;
           if (!(requestId in requests)) {
             console.error(`No request found for request ${requestId}`);
             return;
@@ -215,7 +202,8 @@ export function buildEventHandler({
         case 'widget.domCallback': {
           let { args, method } = event.data;
           try {
-            ({ isComponent, result, shouldRender } = invokeCallback({ args, method }));
+            result = invokeCallback({ args, method });
+            shouldRender = true; // TODO conditional re-render
           } catch (e: any) {
             error = e as Error;
           }
