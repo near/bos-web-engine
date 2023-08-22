@@ -18,7 +18,9 @@ export {
   postWidgetRenderMessage,
 } from './messaging';
 export {
+  decodeJsonString,
   deserializeProps,
+  encodeJsonString,
   serializeArgs,
   serializeNode,
   serializeProps,

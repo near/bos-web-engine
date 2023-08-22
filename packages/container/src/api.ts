@@ -72,7 +72,7 @@ interface SocialQueryOptions {
   keys?: string | string[];
 }
 
-export function initSocial({ endpointBaseUrl, renderWidget, widgetId }: InitSocialOptions) {
+export function initSocial({ endpointBaseUrl, renderWidget, sanitizeString, widgetId }: InitSocialOptions) {
   const cache: KeyValuePair = {};
 
   function cachedQuery({ apiEndpoint, body, cacheKey }: { apiEndpoint: string, body: SocialQueryOptions, cacheKey: string }) {
@@ -83,7 +83,7 @@ export function initSocial({ endpointBaseUrl, renderWidget, widgetId }: InitSoci
 
     function deepEscape(value: any): any {
       if (typeof value === 'string') {
-        return value.replace(/\n/g, '⁣');
+        return sanitizeString(value);
       }
 
       if (Array.isArray(value)) {

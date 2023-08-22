@@ -15,6 +15,26 @@ import type {
   TypeaheadProps,
 } from './types';
 
+export function encodeJsonString(value: string) {
+  if (!value) {
+    return value;
+  }
+
+  return value.toString()
+    .replace(/\n/g, '⁣')
+    .replace(/\t/g, '⁤');
+}
+
+export function decodeJsonString(value: string) {
+  if (!value) {
+    return value;
+  }
+
+  return value.toString()
+    .replace(/⁣/g, '\n')
+    .replace(/⁤/g, '\t');
+}
+
 export function serializeProps({ callbacks, h, parentId, props, widgetId }: SerializePropsOptions): Props {
   return Object.entries(props)
     .reduce((newProps, [key, value]: [string, any]) => {
@@ -34,7 +54,7 @@ export function serializeProps({ callbacks, h, parentId, props, widgetId }: Seri
             parentId,
           });
         } else if (typeof value === 'string') {
-          serializedValue = serializedValue.replace(/⁣/g, '\n');
+          serializedValue = decodeJsonString(serializedValue);
         }
 
         newProps[key] = serializedValue;

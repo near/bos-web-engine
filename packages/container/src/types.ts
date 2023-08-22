@@ -88,6 +88,7 @@ export interface InitNearOptions {
 export interface InitSocialOptions {
   endpointBaseUrl: string;
   renderWidget: Function;
+  sanitizeString: (s: string) => string;
   widgetId: string;
 }
 

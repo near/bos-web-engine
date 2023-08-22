@@ -14,13 +14,16 @@ import {
   serializeArgs,
   serializeNode,
   serializeProps,
+  decodeJsonString,
+  encodeJsonString,
 } from '@bos-web-engine/container';
-
-const NEWLINE_ESCAPE_CHAR = '⁣';
 
 function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
   const widgetPath = id.split('::')[0];
-  const jsonWidgetProps = widgetProps ? JSON.stringify(widgetProps).replace(/\\n/g, NEWLINE_ESCAPE_CHAR) : '{}';
+  let jsonWidgetProps = '{}';
+  if (widgetProps) {
+    jsonWidgetProps = encodeJsonString(JSON.stringify(widgetProps));
+  }
 
   return `
     <html>
@@ -46,7 +49,9 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           ${postCallbackInvocationMessage.toString()}
           ${postCallbackResponseMessage.toString()}
 
+          ${decodeJsonString.toString()};
           ${deserializeProps.toString()}
+          ${encodeJsonString.toString()};
           ${serializeArgs.toString()}
           ${serializeNode.toString()}
           ${serializeProps.toString()}
@@ -54,7 +59,9 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           ${function () {
             const inlinedFunctions = {
               buildRequest: buildRequest.name,
+              decodeJsonString: decodeJsonString.name,
               deserializeProps: deserializeProps.name,
+              encodeJsonString: encodeJsonString.name,
               postCallbackInvocationMessage: postCallbackInvocationMessage.name,
               postCallbackResponseMessage: postCallbackResponseMessage.name,
               postMessage: postMessage.name,
@@ -143,7 +150,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             buildRequest,
             callbacks,
             postCallbackInvocationMessage,
-            props: JSON.parse('${jsonWidgetProps.replace(/'/g, '\\\'').replace(/\\n/g, NEWLINE_ESCAPE_CHAR).replace(/\\"/g, '\\\\"')}'),
+            props: JSON.parse('${jsonWidgetProps.replace(/'/g, '\\\'').replace(/\\"/g, '\\\\"')}'),
             requests,
             widgetId: '${id}',
           }));
@@ -161,6 +168,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           const Social = (${initSocial.toString()})({
             endpointBaseUrl: 'https://api.near.social',
             renderWidget,
+            sanitizeString: encodeJsonString,
             widgetId: '${id}',
           });
 
