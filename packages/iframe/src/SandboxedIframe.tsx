@@ -39,16 +39,35 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
           const callbacks = {};
           const requests = {};
 
-          const buildRequest = ${buildRequest.toString()};
-          const postMessage = ${postMessage.toString()};
-          const postWidgetRenderMessage = ${postWidgetRenderMessage.toString()};
-          const postCallbackInvocationMessage = ${postCallbackInvocationMessage.toString()};
-          const postCallbackResponseMessage = ${postCallbackResponseMessage.toString()};
+          ${buildRequest.toString()}
+          ${postMessage.toString()}
+          ${postWidgetRenderMessage.toString()}
+          ${postCallbackInvocationMessage.toString()}
+          ${postCallbackResponseMessage.toString()}
 
-          const deserializeProps = ${deserializeProps.toString()};
-          const serializeArgs = ${serializeArgs.toString()};
-          const serializeNode = ${serializeNode.toString()};
-          const serializeProps = ${serializeProps.toString()};
+          ${deserializeProps.toString()}
+          ${serializeArgs.toString()}
+          ${serializeNode.toString()}
+          ${serializeProps.toString()}
+
+          ${function () {
+            const inlinedFunctions = {
+              buildRequest: buildRequest.name,
+              deserializeProps: deserializeProps.name,
+              postCallbackInvocationMessage: postCallbackInvocationMessage.name,
+              postCallbackResponseMessage: postCallbackResponseMessage.name,
+              postMessage: postMessage.name,
+              postWidgetRenderMessage: postWidgetRenderMessage.name,
+              serializeArgs: serializeArgs.name,
+              serializeNode: serializeNode.name,
+              serializeProps: serializeProps.name,
+            };
+
+            return Object.entries(inlinedFunctions)
+              .filter(([functionName, minifiedName]) => functionName !== minifiedName)
+              .map(([functionName, minifiedName]) => 'if (!' + functionName + ') { window.' + functionName + ' = ' + minifiedName + '; }')
+              .join('\n');
+          }()}
 
           let lastRenderedNode;
           // FIXME circular dependency between [dispatchRenderEvent] (referenced in Preact fork) and [h] (used to render builtin components) 
