@@ -35,8 +35,8 @@ export function invokeCallback({ args, callback }: InvokeCallbackOptions): any {
  * @param method The name of the callback to be invoked
  * @param postCallbackInvocationMessage Request invocation on external Widget via window.postMessage
  * @param requests The set of inter-Widget callback requests being tracked by the Widget
- * @param serializeArgs The function responsible for serializing arguments to be passed via window.postMessage
- * @param widgetId ID of the target Widget on which the
+ * @param serializeArgs Function to serialize arguments passed to window.postMessage
+ * @param widgetId ID of the Widget invoking the method
  */
 export function invokeWidgetCallback({
   args,
@@ -88,12 +88,14 @@ export function invokeWidgetCallback({
  * @param buildRequest Function to build an inter-Widget asynchronous callback request
  * @param callbacks The set of callbacks defined on the target Widget
  * @param deserializeProps Function to deserialize props passed on the event
+ * @param h Preact's createElement wrapper
  * @param postCallbackInvocationMessage Request invocation on external Widget via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Widget via window.postMessage
  * @param renderDom Callback for rendering DOM within the widget
  * @param renderWidget Callback for rendering the Widget
  * @param requests The set of inter-Widget callback requests being tracked by the Widget
- * @param serializeArgs The function responsible for serializing arguments to be passed via window.postMessage
+ * @param serializeArgs Function to serialize arguments passed to window.postMessage
+ * @param serializeNode Function to serialize Preact DOM trees passed to window.postMessage
  * @param setProps Callback for setting the Widget's props
  * @param widgetId ID of the target Widget on which the
  */
@@ -101,12 +103,14 @@ export function buildEventHandler({
   buildRequest,
   callbacks,
   deserializeProps,
+  h,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   renderDom,
   renderWidget,
   requests,
   serializeArgs,
+  serializeNode,
   setProps,
   widgetId,
 }: ProcessEventOptions): Function {
@@ -128,6 +132,37 @@ export function buildEventHandler({
       });
     }
 
+    function applyRecursivelyToComponents(target: any, cb: (n: any) => any): any {
+      const isComponent = (c: any) =>  !!c
+        && typeof c === 'object'
+        && '__k' in c
+        && '__' in c;
+
+      if (isComponent(target)) {
+        return cb(target);
+      }
+
+      if (Array.isArray(target)) {
+        return target
+          .map((i) => {
+            if (!isComponent(i)) {
+              return i;
+            }
+
+            return applyRecursivelyToComponents(i, cb);
+          });
+      }
+
+      if (target && typeof target === 'object') {
+        return Object.fromEntries(
+          Object.entries(target)
+            .map(([k, v]) => [k, applyRecursivelyToComponents(v, cb)])
+        );
+      }
+
+      return target;
+    }
+
     switch (event.data.type) {
         case 'widget.callbackInvocation': {
           let { args, method, originator, requestId } = event.data;
@@ -136,6 +171,8 @@ export function buildEventHandler({
           } catch (e: any) {
             error = e;
           }
+
+          result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ h, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }))
 
           const postCallbackResponse = (value: any, error: any) => {
             if (requestId) {
@@ -191,12 +228,7 @@ export function buildEventHandler({
             return;
           }
 
-          if (isComponent) {
-            resolver(renderDom(value));
-            break;
-          }
-
-          resolver(value);
+          resolver(applyRecursivelyToComponents(value, renderDom));
           break;
         }
         case 'widget.domCallback': {

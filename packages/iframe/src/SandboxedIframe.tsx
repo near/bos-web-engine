@@ -259,12 +259,14 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             buildRequest,
             callbacks,
             deserializeProps,
+            h,
             postCallbackInvocationMessage,
             postCallbackResponseMessage,
             renderDom: (node) => preactify(node),
             renderWidget,
             requests,
             serializeArgs,
+            serializeNode,
             setProps: (newProps) => {
               if (isMatchingProps({ ...props }, newProps)) {
                 return false;

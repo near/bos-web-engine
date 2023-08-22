@@ -184,6 +184,7 @@ export interface ProcessEventOptions {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   deserializeProps: DeserializePropsCallback;
+  h: PreactCreateElement;
   postCallbackInvocationMessage: PostMessageWidgetInvocationCallback;
   postCallbackResponseMessage: PostMessageWidgetResponseCallback;
   props: any;
@@ -191,6 +192,7 @@ export interface ProcessEventOptions {
   renderWidget: () => void;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
+  serializeNode: SerializeNodeCallback;
   setProps: (props: object) => boolean;
   widgetId: string;
 }
@@ -209,14 +211,17 @@ export interface SerializeArgsOptions {
   widgetId: string;
 }
 
+type PreactCreateElement = (type: string | Function, props: any, children: any) => any;
+
 export interface SerializeNodeOptions {
-  h: (type: string | Function, props: any, children: any) => any;
+  h: PreactCreateElement;
   node: any;
   index: number;
   childWidgets: any[];
   callbacks: CallbackMap;
   parentId: string;
 }
+export type SerializeNodeCallback = (args: SerializeNodeOptions) => SerializedNode;
 
 export interface SerializedNode {
   childWidgets?: SerializedNode[];
