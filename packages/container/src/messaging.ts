@@ -51,7 +51,6 @@ export function postCallbackInvocationMessage({
 
 export function postCallbackResponseMessage({
   error,
-  isComponent,
   requestId,
   result,
   targetId,
@@ -59,7 +58,6 @@ export function postCallbackResponseMessage({
   const serializedError = error && JSON.stringify(error, Object.getOwnPropertyNames(error));
 
   postMessage<PostMessageWidgetCallbackResponse>({
-    isComponent,
     requestId,
     result: JSON.stringify({
       value: result,
@@ -72,11 +70,13 @@ export function postCallbackResponseMessage({
 
 export function postWidgetRenderMessage({
   childWidgets,
+  isTrusted,
   node,
   widgetId,
 }: PostMessageWidgetRenderOptions): void {
   postMessage<PostMessageWidgetRender>({
     childWidgets,
+    isTrusted,
     node,
     type: 'widget.render',
     widgetId,

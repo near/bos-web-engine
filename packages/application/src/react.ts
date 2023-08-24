@@ -17,8 +17,8 @@ export function createChildElements({ children, depth, index, parentId }: Create
     return children;
   }
 
-  // `children` is (non-zero) falsy
-  if (!children) {
+  // `children` is (non-zero) falsy or an empty object
+  if (!children || (typeof children === 'object' && Object.keys(children).length === 0)) {
     return '';
   }
 

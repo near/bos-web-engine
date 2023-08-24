@@ -34,7 +34,6 @@ export interface CallbackInvocationEventData {
 }
 
 export interface CallbackResponseEventData {
-  isComponent: boolean;
   requestId: string;
   result: string;
   targetId: string;
@@ -49,6 +48,7 @@ export interface DomCallbackEventData {
 
 export interface RenderEventData {
   childWidgets: any[];
+  isTrusted: boolean;
   node: SerializedNode;
   widgetId: string;
   type: WidgetRender;
@@ -60,6 +60,7 @@ export interface UpdateEventData {
 }
 
 export interface WidgetSourceData {
+  isTrusted: boolean;
   source: string;
   type: TranspilerWidgetFetch;
 }
@@ -87,6 +88,7 @@ export interface InitNearOptions {
 export interface InitSocialOptions {
   endpointBaseUrl: string;
   renderWidget: Function;
+  sanitizeString: (s: string) => string;
   widgetId: string;
 }
 
@@ -144,7 +146,6 @@ export interface PostMessageWidgetCallbackInvocationOptions {
 
 export type PostMessageWidgetResponseCallback = (message: PostMessageWidgetCallbackResponseOptions) => void;
 export interface PostMessageWidgetCallbackResponse extends PostMessageOptions {
-  isComponent: boolean;
   requestId: string;
   result: string; // stringified JSON in the form of { result: any, error: string }
   targetId: string;
@@ -152,7 +153,6 @@ export interface PostMessageWidgetCallbackResponse extends PostMessageOptions {
 }
 export interface PostMessageWidgetCallbackResponseOptions {
   error: Error | null;
-  isComponent: boolean;
   requestId: string;
   result: any;
   targetId: string;
@@ -160,12 +160,14 @@ export interface PostMessageWidgetCallbackResponseOptions {
 
 export interface PostMessageWidgetRender extends PostMessageOptions {
   childWidgets: string[];
+  isTrusted: boolean;
   node: SerializedNode;
   type: WidgetRender;
   widgetId: string;
 }
 export interface PostMessageWidgetRenderOptions {
   childWidgets: string[];
+  isTrusted: boolean;
   node: SerializedNode;
   widgetId: string;
 }
@@ -182,6 +184,7 @@ export interface ProcessEventOptions {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   deserializeProps: DeserializePropsCallback;
+  h: PreactCreateElement;
   postCallbackInvocationMessage: PostMessageWidgetInvocationCallback;
   postCallbackResponseMessage: PostMessageWidgetResponseCallback;
   props: any;
@@ -189,13 +192,14 @@ export interface ProcessEventOptions {
   renderWidget: () => void;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
+  serializeNode: SerializeNodeCallback;
   setProps: (props: object) => boolean;
   widgetId: string;
 }
 
 export interface Props extends KeyValuePair {
-  __domcallbacks: { [key: string]: any };
-  __widgetcallbacks: { [key: string]: any };
+  __domcallbacks?: { [key: string]: any };
+  __widgetcallbacks?: { [key: string]: any };
   children?: any[];
 }
 
@@ -207,14 +211,17 @@ export interface SerializeArgsOptions {
   widgetId: string;
 }
 
+type PreactCreateElement = (type: string | Function, props: any, children: any) => any;
+
 export interface SerializeNodeOptions {
-  h: (type: string | Function, props: any, children: any) => any;
+  h: PreactCreateElement;
   node: any;
   index: number;
   childWidgets: any[];
   callbacks: CallbackMap;
   parentId: string;
 }
+export type SerializeNodeCallback = (args: SerializeNodeOptions) => SerializedNode;
 
 export interface SerializedNode {
   childWidgets?: SerializedNode[];
@@ -239,12 +246,6 @@ export interface SerializePropsOptions {
 export interface SerializedWidgetCallback {
   __widgetMethod: string;
   parentId: string;
-}
-
-export interface WidgetCallbackInvocationResult {
-  isComponent: boolean;
-  result?: any;
-  shouldRender: boolean;
 }
 
 export interface WidgetProps {
@@ -290,4 +291,17 @@ export interface TypeaheadProps {
   onChange: (value: any) => {};
   options: string[];
   placeholder: string;
+}
+
+type BuiltinPropsTypes = FilesProps
+  | IpfsImageUploadProps
+  | InfiniteScrollProps
+  | MarkdownProps
+  | OverlayTriggerProps
+  | TypeaheadProps
+  | WidgetProps;
+
+export interface BuiltinProps<T extends object | BuiltinPropsTypes> {
+  children: any[];
+  props: T;
 }

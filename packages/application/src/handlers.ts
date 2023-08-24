@@ -37,11 +37,10 @@ export function onCallbackResponse({
     a widget has executed a callback invoked from another widget
     return the value of the callback execution to the calling widget
   */
-  const { isComponent, requestId, result, targetId } = data;
+  const { requestId, result, targetId } = data;
   postMessageToWidgetIframe({
     id: targetId,
     message: {
-      isComponent,
       result,
       requestId,
       targetId,
@@ -56,7 +55,6 @@ export function onRender({
   isDebug = false,
   markWidgetUpdated,
   mountElement,
-  widgetSourceBaseUrl,
   widgets,
 }: RenderHandlerOptions) {
   /* a widget has been rendered and is ready to be updated in the outer window */
@@ -78,7 +76,7 @@ export function onRender({
   });
   mountElement({ widgetId, element });
 
-  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source }: { widgetId: string, props: any, source: string }) => {
+  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source, isTrusted }: { widgetId: string, props: any, source: string, isTrusted: boolean }) => {
     /*
       a widget is being rendered by a parent widget, either:
       - this widget is being loaded for the first time
@@ -87,6 +85,7 @@ export function onRender({
     if (!widgets[childWidgetId]) {
       /* widget code has not yet been loaded, add to cache and load */
       widgets[childWidgetId] = {
+        isTrusted,
         parentId: widgetId,
         props: widgetProps,
         source,

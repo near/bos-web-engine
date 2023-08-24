@@ -14,7 +14,6 @@ import ReactDOM from 'react-dom/client';
 
 import Transpiler from './transpiler';
 
-const LOCAL_PROXY_WIDGET_URL_PREFIX = 'http://localhost:3001/widget';
 const DEFAULT_ROOT_WIDGET = 'andyh.near/widget/MainPage';
 
 const roots = {} as { [key: string]: ReactDOM.Root };
@@ -38,10 +37,11 @@ function mountElement({ widgetId, element }: { widgetId: string, element: Widget
   roots[widgetId].render(element);
 }
 
-function requestWidgetSource(widgetPath: string) {
+function requestWidgetSource({ widgetPath, isTrusted }: { widgetPath: string, isTrusted: boolean }) {
   postMessageToIframe({
     id: 'transpiler',
     message: {
+      isTrusted,
       source: widgetPath,
       type: 'transpiler.widgetFetch',
     },
@@ -51,6 +51,7 @@ function requestWidgetSource(widgetPath: string) {
 
 export default function Web() {
   const [rootWidget, setRootWidget] = useState('');
+  const [isRootWidgetLoading, setIsRootWidgetLoading] = useState(false);
   const [rootWidgetInput, setRootWidgetInput] = useState(DEFAULT_ROOT_WIDGET);
   const [rootWidgetSource, setRootWidgetSource] = useState(null);
   const [widgetUpdates, setWidgetUpdates] = useState('');
@@ -65,7 +66,7 @@ export default function Web() {
     set(target, key: string, value: any) {
       // if the widget is being added, initiate request for widget component code
       if (!target[key]) {
-        requestWidgetSource(key);
+        requestWidgetSource({ widgetPath: key, isTrusted: value.isTrusted });
       }
 
       target[key] = value;
@@ -86,7 +87,7 @@ export default function Web() {
               case 'transpiler.sourceTranspiled': {
                 const { source, widgetComponent } = data;
                 const widget = { ...widgetProxy[source], widgetComponent };
-                if (!rootWidgetSource && source == rootWidget) {
+                if (!rootWidgetSource && source === rootWidget) {
                   setRootWidgetSource(source);
                 }
                 monitor.widgetAdded(widget);
@@ -111,7 +112,6 @@ export default function Web() {
                   isDebug: showWidgetDebug,
                   markWidgetUpdated: (update: WidgetUpdate) => monitor.widgetUpdated(update),
                   mountElement,
-                  widgetSourceBaseUrl: LOCAL_PROXY_WIDGET_URL_PREFIX,
                   widgets: widgetProxy,
                 });
                 break;
@@ -136,15 +136,14 @@ export default function Web() {
     return () => messageListeners.forEach((cb) => window.removeEventListener('message', cb));
   }, [rootWidgetSource, showWidgetDebug]);
 
-  let rootWidgetFetching = false;
   useEffect(() => {
-    if (!rootWidget || rootWidgetFetching) {
+    if (!rootWidget || isRootWidgetLoading) {
       return;
     }
 
-    rootWidgetFetching = true;
-    requestWidgetSource(rootWidget);
-  }, [rootWidget]);
+    setIsRootWidgetLoading(true);
+    requestWidgetSource({ widgetPath: rootWidget, isTrusted: false });
+  }, [rootWidget, isRootWidgetLoading]);
 
   return (
     <div className='App'>
@@ -188,21 +187,14 @@ export default function Web() {
           </div>
           <div className="iframes">
             {showWidgetDebug && (<h5>here be hidden iframes</h5>)}
-            <div key={0} widget-id={rootWidget}>
-              {rootWidgetSource && (
-                <SandboxedIframe
-                  id={getIframeId(rootWidget)}
-                  scriptSrc={rootWidgetSource}
-                />
-              )}
-            </div>
             {
               Object.entries({ ...widgetProxy })
                 .filter(([, { widgetComponent }]) => !!widgetComponent)
-                .map(([widgetId, { props, widgetComponent }]) => (
+                .map(([widgetId, { isTrusted, props, widgetComponent }]) => (
                   <div key={widgetId} widget-id={widgetId}>
                     <SandboxedIframe
                       id={getIframeId(widgetId)}
+                      isTrusted={isTrusted}
                       scriptSrc={widgetComponent}
                       widgetProps={props}
                     />

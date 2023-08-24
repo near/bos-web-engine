@@ -1,4 +1,5 @@
 import {
+  buildUseComponentCallback,
   initNear,
   initSocial,
   buildEventHandler,
@@ -13,13 +14,16 @@ import {
   serializeArgs,
   serializeNode,
   serializeProps,
+  decodeJsonString,
+  encodeJsonString,
 } from '@bos-web-engine/container';
 
-const NEWLINE_ESCAPE_CHAR = '⁣';
-
-function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scriptSrc: string, widgetProps: any }) {
+function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
   const widgetPath = id.split('::')[0];
-  const jsonWidgetProps = widgetProps ? JSON.stringify(widgetProps).replace(/\\n/g, NEWLINE_ESCAPE_CHAR) : '{}';
+  let jsonWidgetProps = '{}';
+  if (widgetProps) {
+    jsonWidgetProps = encodeJsonString(JSON.stringify(widgetProps));
+  }
 
   return `
     <html>
@@ -45,7 +49,9 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
           ${postCallbackInvocationMessage.toString()}
           ${postCallbackResponseMessage.toString()}
 
+          ${decodeJsonString.toString()};
           ${deserializeProps.toString()}
+          ${encodeJsonString.toString()};
           ${serializeArgs.toString()}
           ${serializeNode.toString()}
           ${serializeProps.toString()}
@@ -53,7 +59,9 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
           ${function () {
             const inlinedFunctions = {
               buildRequest: buildRequest.name,
+              decodeJsonString: decodeJsonString.name,
               deserializeProps: deserializeProps.name,
+              encodeJsonString: encodeJsonString.name,
               postCallbackInvocationMessage: postCallbackInvocationMessage.name,
               postCallbackResponseMessage: postCallbackResponseMessage.name,
               postMessage: postMessage.name,
@@ -68,6 +76,9 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
               .map(([functionName, minifiedName]) => 'if (!' + functionName + ') { window.' + functionName + ' = ' + minifiedName + '; }')
               .join('\n');
           }()}
+
+          const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
+          const useComponentCallback = buildUseComponentCallback(renderWidget);
 
           let lastRenderedNode;
           // FIXME circular dependency between [dispatchRenderEvent] (referenced in Preact fork) and [h] (used to render builtin components) 
@@ -94,6 +105,7 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
             try {
               postWidgetRenderMessage({
                 childWidgets,
+                isTrusted: ${isTrusted},
                 node: serialized,
                 widgetId: '${id}',
               });
@@ -138,7 +150,7 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
             buildRequest,
             callbacks,
             postCallbackInvocationMessage,
-            props: JSON.parse('${jsonWidgetProps.replace(/'/g, '\\\'').replace(/\\n/g, NEWLINE_ESCAPE_CHAR).replace(/\\"/g, '\\\\"')}'),
+            props: JSON.parse('${jsonWidgetProps.replace(/'/g, '\\\'').replace(/\\"/g, '\\\\"')}'),
             requests,
             widgetId: '${id}',
           }));
@@ -156,6 +168,7 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
           const Social = (${initSocial.toString()})({
             endpointBaseUrl: 'https://api.near.social',
             renderWidget,
+            sanitizeString: encodeJsonString,
             widgetId: '${id}',
           });
 
@@ -174,9 +187,9 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
             }
           });
 
-          async function WidgetWrapper() {
+          function WidgetWrapper() {
             try {
-              return await (
+              return (
                 /* BEGIN EXTERNAL SOURCE */
                 ${scriptSrc}
                 /* END EXTERNAL SOURCE */
@@ -187,9 +200,9 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
             }
           }
       
-          async function renderWidget() {
+          function renderWidget() {
             try {
-              render(await WidgetWrapper(), document.getElementById('${id}'));              
+              render(WidgetWrapper(), document.getElementById('${id}'));              
             } catch (e) {
               console.error(e, { widgetId: '${id}' });
             }
@@ -246,12 +259,14 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
             buildRequest,
             callbacks,
             deserializeProps,
+            h,
             postCallbackInvocationMessage,
             postCallbackResponseMessage,
             renderDom: (node) => preactify(node),
             renderWidget,
             requests,
             serializeArgs,
+            serializeNode,
             setProps: (newProps) => {
               if (isMatchingProps({ ...props }, newProps)) {
                 return false;
@@ -270,7 +285,14 @@ function buildSandboxedWidget({ id, scriptSrc, widgetProps }: { id: string, scri
   `;
 }
 
-export function SandboxedIframe({ id, scriptSrc, widgetProps }: { id: string, scriptSrc: string, widgetProps?: any }) {
+interface SandboxedIframeProps {
+  id: string;
+  isTrusted: boolean;
+  scriptSrc: string;
+  widgetProps?: any;
+}
+
+export function SandboxedIframe({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
   return (
     <iframe
       id={id}
@@ -286,7 +308,7 @@ export function SandboxedIframe({ id, scriptSrc, widgetProps }: { id: string, sc
       ].join('; ')}
       height={0}
       sandbox='allow-scripts'
-      srcDoc={buildSandboxedWidget({ id: id.replace('iframe-', ''), scriptSrc, widgetProps })}
+      srcDoc={buildSandboxedWidget({ id: id.replace('iframe-', ''), isTrusted, scriptSrc, widgetProps })}
       title='code-container'
       width={0}
       style={{ border: 'none' }}

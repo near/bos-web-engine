@@ -4,7 +4,6 @@ import type {
   InvokeWidgetCallbackOptions,
   PostMessageEvent,
   ProcessEventOptions,
-  WidgetCallbackInvocationResult,
 } from './types';
 
 /**
@@ -36,8 +35,8 @@ export function invokeCallback({ args, callback }: InvokeCallbackOptions): any {
  * @param method The name of the callback to be invoked
  * @param postCallbackInvocationMessage Request invocation on external Widget via window.postMessage
  * @param requests The set of inter-Widget callback requests being tracked by the Widget
- * @param serializeArgs The function responsible for serializing arguments to be passed via window.postMessage
- * @param widgetId ID of the target Widget on which the
+ * @param serializeArgs Function to serialize arguments passed to window.postMessage
+ * @param widgetId ID of the Widget invoking the method
  */
 export function invokeWidgetCallback({
   args,
@@ -48,12 +47,15 @@ export function invokeWidgetCallback({
   requests,
   serializeArgs,
   widgetId,
-}: InvokeWidgetCallbackOptions): WidgetCallbackInvocationResult {
+}: InvokeWidgetCallbackOptions): any {
+  // unknown method
   if (!callbacks[method]) {
     console.error(`No method ${method} on widget ${widgetId}`);
-    return { isComponent: false, shouldRender: false };
+    return null;
   }
 
+  // some arguments to this callback are methods on other Components
+  // these must be replaced with wrappers invoking Component methods
   if (typeof args?.some === 'function' && args.some((arg: any) => arg.__widgetMethod)) {
     args = args.map((arg: any) => {
       const { __widgetMethod: widgetMethod } = arg;
@@ -78,16 +80,7 @@ export function invokeWidgetCallback({
     });
   }
 
-  const result = invokeCallback({ args, callback: callbacks[method] });
-  const isComponent = !!(result
-    && '__k' in result
-    && '__' in result);
-
-  return {
-    isComponent,
-    result,
-    shouldRender: !isComponent,
-  };
+  return invokeCallback({ args, callback: callbacks[method] });
 }
 
 /**
@@ -95,12 +88,14 @@ export function invokeWidgetCallback({
  * @param buildRequest Function to build an inter-Widget asynchronous callback request
  * @param callbacks The set of callbacks defined on the target Widget
  * @param deserializeProps Function to deserialize props passed on the event
+ * @param h Preact's createElement wrapper
  * @param postCallbackInvocationMessage Request invocation on external Widget via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Widget via window.postMessage
  * @param renderDom Callback for rendering DOM within the widget
  * @param renderWidget Callback for rendering the Widget
  * @param requests The set of inter-Widget callback requests being tracked by the Widget
- * @param serializeArgs The function responsible for serializing arguments to be passed via window.postMessage
+ * @param serializeArgs Function to serialize arguments passed to window.postMessage
+ * @param serializeNode Function to serialize Preact DOM trees passed to window.postMessage
  * @param setProps Callback for setting the Widget's props
  * @param widgetId ID of the target Widget on which the
  */
@@ -108,19 +103,20 @@ export function buildEventHandler({
   buildRequest,
   callbacks,
   deserializeProps,
+  h,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   renderDom,
   renderWidget,
   requests,
   serializeArgs,
+  serializeNode,
   setProps,
   widgetId,
 }: ProcessEventOptions): Function {
   return function processEvent(event: PostMessageEvent) {
-    let error = null;
-    let isComponent = false;
-    let result;
+    let error: any = null;
+    let result: any;
     let shouldRender = false;
 
     function invokeCallback({ args, method }: { args: Args, method: string }) {
@@ -136,28 +132,70 @@ export function buildEventHandler({
       });
     }
 
+    function applyRecursivelyToComponents(target: any, cb: (n: any) => any): any {
+      const isComponent = (c: any) =>  !!c
+        && typeof c === 'object'
+        && '__k' in c
+        && '__' in c;
+
+      if (isComponent(target)) {
+        return cb(target);
+      }
+
+      if (Array.isArray(target)) {
+        return target
+          .map((i) => {
+            if (!isComponent(i)) {
+              return i;
+            }
+
+            return applyRecursivelyToComponents(i, cb);
+          });
+      }
+
+      if (target && typeof target === 'object') {
+        return Object.fromEntries(
+          Object.entries(target)
+            .map(([k, v]) => [k, applyRecursivelyToComponents(v, cb)])
+        );
+      }
+
+      return target;
+    }
+
     switch (event.data.type) {
         case 'widget.callbackInvocation': {
           let { args, method, originator, requestId } = event.data;
           try {
-            ({ isComponent, result, shouldRender } = invokeCallback({ args, method }));
+            result = invokeCallback({ args, method });
           } catch (e: any) {
-            error = e as Error;
+            error = e;
           }
 
-          if (requestId) {
-            postCallbackResponseMessage({
-              error,
-              isComponent,
-              requestId,
-              result,
-              targetId: originator,
-            });
+          result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ h, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }))
+
+          const postCallbackResponse = (value: any, error: any) => {
+            if (requestId) {
+              postCallbackResponseMessage({
+                error,
+                requestId,
+                result: value,
+                targetId: originator,
+              });
+            }
+          }
+
+          if (result?.then) {
+            result
+              .then((v: any) => postCallbackResponse(v, error))
+              .catch((e: any) => postCallbackResponse(undefined, e));
+          } else {
+            postCallbackResponse(result, error);
           }
           break;
         }
         case 'widget.callbackResponse': {
-          const { isComponent, requestId, result } = event.data;
+          const { requestId, result } = event.data;
           if (!(requestId in requests)) {
             console.error(`No request found for request ${requestId}`);
             return;
@@ -190,18 +228,14 @@ export function buildEventHandler({
             return;
           }
 
-          if (isComponent) {
-            resolver(renderDom(value));
-            break;
-          }
-
-          resolver(value);
+          resolver(applyRecursivelyToComponents(value, renderDom));
           break;
         }
         case 'widget.domCallback': {
           let { args, method } = event.data;
           try {
-            ({ isComponent, result, shouldRender } = invokeCallback({ args, method }));
+            result = invokeCallback({ args, method });
+            shouldRender = true; // TODO conditional re-render
           } catch (e: any) {
             error = e as Error;
           }

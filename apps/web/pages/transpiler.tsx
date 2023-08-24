@@ -36,21 +36,66 @@ export default function Transpiler() {
         return name;
       }
       
-      return name + '_' + suffix.replace(/[.\/]/g, '');
+      return name + '_' + suffix.replace(/[.\\/]/g, '');
     }
 
-    function buildComponentFunction({ widgetPath, widgetSource, isChild }) {
-      const signature = (!isChild ? 'async ' : '') + 'function ' + buildComponentFunctionName(isChild ? widgetPath : '');
-      const args = isChild ? '({ props })' : '()';
-      return signature + args + ' {\\n\\n/*' + widgetPath + '*/\\n\\n' + widgetSource + ' }';
+    function buildComponentFunction({ widgetPath, widgetSource, isRoot }) {
+      const componentBody = '\\n\\n/*' + widgetPath + '*/\\n\\n' + widgetSource;
+      if (isRoot) {
+        return 'function ' + buildComponentFunctionName() + '() {' + componentBody + '}';
+      }
+
+      function initState() {
+        let isStateInitialized = false;
+
+        function buildStateProxy(initialState) {
+          return new Proxy({}, {
+            get(target, key) {
+              try {
+                return target[key];
+              } catch {
+                return undefined;
+              }
+            },
+            set() {
+              return false;
+            },
+          });
+        }
+
+        let state = buildStateProxy({});
+
+        const State = {
+          init(obj) {
+            if (!isStateInitialized) {
+              state = buildStateProxy(obj);
+              isStateInitialized = true;
+            }
+          },
+          update(newState = {}, initialState) {
+            state = buildStateProxy(Object.assign({}, state, newState));
+          },
+        };
+
+        return {
+          state,
+          State,
+        };
+      }
+
+      return [
+        'function ' + buildComponentFunctionName(widgetPath) + '({ props }) {',
+        'const { state, State} = (' + initState.toString() + ')();',
+        componentBody,
+        '}'
+      ].join('\\n\\n');
     }
 
     function parseChildWidgetPaths(transpiledWidget) {
-      const widgetRegex = /h\\(Widget,\\s+\\{(?:\\s*src:\\s+(?<source0>[\\w\\d '".\\/]+))?,?\\s*(?:props:\\s*\\s*(?<props>(?:\\w+|{\\s*[\\w\\s.,":_-]+})))(?:\\s*,?(?:\\s*src:\\s+(?<source1>[\\w\\d'".\\/]+))?)/gi;
+      const widgetRegex = /h\\(Widget,\\s*\\{(?:[\w\W]*?)(?:\\s*src:\\s+["|'](?<src>[\\w\\d_]+\\.near\\/widget\\/[\\w\\d_.]+))["|']/ig;
       const matches = [...(transpiledWidget.matchAll(widgetRegex))]
         .reduce((widgetInstances, match) => {
-          const { source0, source1 } = match.groups;
-          const source = (source0 || source1).replace(/["']/ig, '');
+          const source = match.groups.src;
           widgetInstances[source] = {
             source,
             transform: (widgetSource, widgetComponentName) => widgetSource.replaceAll(match[0], match[0].replace('Widget', widgetComponentName))
@@ -63,24 +108,35 @@ export default function Transpiler() {
     }
 
     async function parseWidgetTree({ widgetPath, transpiledWidget, mapped }) {
+      // enumerate the set of Components referenced in the target Component
       const childWidgetPaths = parseChildWidgetPaths(transpiledWidget);
       let transformedWidget = transpiledWidget;
+
+      // replace each child [Widget] reference in the target Component source
+      // with the generated name of the inlined Component function definition
       childWidgetPaths.forEach(({ source, transform }) => {
         transformedWidget = transform(transformedWidget, buildComponentFunctionName(source));
       });
 
+      // add the transformed source to the returned Component tree
       mapped[widgetPath] = {
         transpiled: transformedWidget,
       };
 
-      const childWidgetSources = await fetchWidgetSource(childWidgetPaths.map(({ source }) => source).filter((source) => !(source in mapped)));
+      // fetch the set of child Component sources not already added to the tree
+      const childWidgetSources = await fetchWidgetSource(
+        childWidgetPaths.map(({ source }) => source)
+          .filter((source) => !(source in mapped))
+      );
 
+      // transpile the set of new child Components and recursively parse their Component subtrees
       await Promise.all(
         Object.entries(childWidgetSources)
           .map(async ([childPath, widgetSource]) => {
             const transpiledChild = getTranspiledWidgetSource(
               childPath,
-              buildComponentFunction({ widgetPath: childPath, widgetSource: await widgetSource, isChild: true })
+              buildComponentFunction({ widgetPath: childPath, widgetSource: await widgetSource, isRoot: false }),
+              false
             );
 
             await parseWidgetTree({ widgetPath: childPath, transpiledWidget: transpiledChild, mapped });
@@ -135,16 +191,17 @@ export default function Transpiler() {
       }, {});
     }
 
-    function getTranspiledWidgetSource(widgetPath, widgetSource) {
-      if (!transpiledCache[widgetPath]) {
+    function getTranspiledWidgetSource(widgetPath, widgetSource, isRoot) {
+      const cacheKey = JSON.stringify({ widgetPath, isRoot });
+      if (!transpiledCache[cacheKey]) {
         const { code } = transpileSource(widgetSource);
-        transpiledCache[widgetPath] = code;
+        transpiledCache[cacheKey] = code;
       }
 
-      return transpiledCache[widgetPath];
+      return transpiledCache[cacheKey];
     }
 
-    async function getWidgetSource(widgetId) {
+    async function getWidgetSource({ widgetId, isTrusted }) {
       const widgetPath = widgetId.split('##')[0];
       const [author, , widget] = widgetPath.split('/');
 
@@ -152,19 +209,25 @@ export default function Transpiler() {
         const source = await fetchWidgetSource([widgetPath])[widgetPath];
         const transpiledWidget = getTranspiledWidgetSource(
           widgetPath,
-          buildComponentFunction({ widgetPath, widgetSource: source }),
+          buildComponentFunction({ widgetPath, widgetSource: source, isRoot: true }),
+          true
         );
   
-        // if (isTrustedMode) ...
-        const transformedWidgets = await parseWidgetTree({ widgetPath, transpiledWidget, mapped: {} });
-        const [rootWidget, ...childWidgets] = Object.values(transformedWidgets).map(({ transpiled }) => transpiled);
-        const aggregatedSourceLines = rootWidget.split('\\n')
-        aggregatedSourceLines.splice(1, 0, childWidgets.join('\\n\\n'));
+        let widgetComponent = transpiledWidget;
+
+        if (isTrusted) {
+          // recursively parse the Component tree for child Components
+          const transformedWidgets = await parseWidgetTree({ widgetPath, transpiledWidget, mapped: {} });
+          const [rootWidget, ...childWidgets] = Object.values(transformedWidgets).map(({ transpiled }) => transpiled);
+          const aggregatedSourceLines = rootWidget.split('\\n')
+          aggregatedSourceLines.splice(1, 0, childWidgets.join('\\n\\n'));
+          widgetComponent = aggregatedSourceLines.join('\\n');
+        }
         
         window.parent.postMessage({
           type: 'transpiler.sourceTranspiled',
           source: widgetId,
-          widgetComponent: aggregatedSourceLines.join('\\n'),
+          widgetComponent,
         }, '*');
       } catch (e) {
         console.error(e);
@@ -174,7 +237,7 @@ export default function Transpiler() {
     window.addEventListener('message', (event) => {
       const { data } = event;
       if (data?.type === 'transpiler.widgetFetch') {
-        getWidgetSource(data.source);
+        getWidgetSource({ widgetId: data.source, isTrusted: data.isTrusted });
       }
     });
   </script>

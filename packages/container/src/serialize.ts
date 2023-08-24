@@ -1,4 +1,5 @@
 import type {
+  BuiltinProps,
   DeserializePropsOptions,
   FilesProps,
   InfiniteScrollProps,
@@ -14,11 +15,31 @@ import type {
   TypeaheadProps,
 } from './types';
 
+export function encodeJsonString(value: string) {
+  if (!value) {
+    return value;
+  }
+
+  return value.toString()
+    .replace(/\n/g, '⁣')
+    .replace(/\t/g, '⁤');
+}
+
+export function decodeJsonString(value: string) {
+  if (!value) {
+    return value;
+  }
+
+  return value.toString()
+    .replace(/⁣/g, '\n')
+    .replace(/⁤/g, '\t');
+}
+
 export function serializeProps({ callbacks, h, parentId, props, widgetId }: SerializePropsOptions): Props {
   return Object.entries(props)
     .reduce((newProps, [key, value]: [string, any]) => {
       // TODO better preact component check
-      const isComponent = value?.props && ('__' in value && '__k' in value);
+      const isComponent = value?.props && typeof value === 'object' && ('__' in value && '__k' in value);
       const isFunction = typeof value === 'function';
 
       if (!isFunction) {
@@ -33,7 +54,7 @@ export function serializeProps({ callbacks, h, parentId, props, widgetId }: Seri
             parentId,
           });
         } else if (typeof value === 'string') {
-          serializedValue = serializedValue.replace(/⁣/g, '\n');
+          serializedValue = decodeJsonString(serializedValue);
         }
 
         newProps[key] = serializedValue;
@@ -46,21 +67,26 @@ export function serializeProps({ callbacks, h, parentId, props, widgetId }: Seri
       callbacks[fnKey] = value;
 
       if (widgetId) {
+        if (!newProps.__widgetcallbacks) {
+          newProps.__widgetcallbacks = {};
+        }
+
         newProps.__widgetcallbacks[key] = {
           __widgetMethod: fnKey,
           parentId,
         };
       } else {
+        if (!newProps.__domcallbacks) {
+          newProps.__domcallbacks = {};
+        }
+
         newProps.__domcallbacks[key] = {
           __widgetMethod: fnKey,
         };
       }
 
       return newProps;
-    }, {
-      __domcallbacks: {},
-      __widgetcallbacks: {},
-    } as Props);
+    }, {} as Props);
 }
 
 export function serializeArgs({ args, callbacks, widgetId }: SerializeArgsOptions): SerializedArgs {
@@ -144,40 +170,40 @@ export function deserializeProps({
 export function serializeNode({ h, node, index, childWidgets, callbacks, parentId }: SerializeNodeOptions): SerializedNode {
 // TODO implement these for real
   const BUILTIN_COMPONENTS = {
-    Checkbox: ({ children, props } : { children: any[], props?: object }) => {
+    Checkbox: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    CommitButton: ({ children, props } : { children: any[], props?: object }) => {
+    CommitButton: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    Dialog: ({ children, props } : { children: any[], props?: object }) => {
+    Dialog: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    DropdownMenu: ({ children, props } : { children: any[], props?: object }) => {
+    DropdownMenu: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    Files: ({ children, props } : { children: any[], props?: FilesProps }) => {
+    Files: ({ children, props } : BuiltinProps<FilesProps>) => {
       return h('div', props,  children);
     },
-    Fragment: ({ children, props } : { children: any[], props?: object }) => {
+    Fragment: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    InfiniteScroll: ({ children, props } : { children: any[], props?: InfiniteScrollProps }) => {
+    InfiniteScroll: ({ children, props } : BuiltinProps<InfiniteScrollProps>) => {
       return h('div', props,  children);
     },
-    IpfsImageUpload: ({ children, props } : { children: any[], props?: IpfsImageUploadProps }) => {
+    IpfsImageUpload: ({ children, props } : BuiltinProps<IpfsImageUploadProps>) => {
       return h('div', props,  children);
     },
-    Markdown: ({ children, props } : { children: any[], props?: MarkdownProps }) => {
+    Markdown: ({ children, props } : BuiltinProps<MarkdownProps>) => {
       return h('div', props,  [props?.text, ...children]);
     },
-    OverlayTrigger: ({ children, props } : { children: any[], props?: OverlayTriggerProps }) => {
+    OverlayTrigger: ({ children, props } : BuiltinProps<OverlayTriggerProps>) => {
       return h('div', props, children);
     },
-    Tooltip: ({ children, props } : { children: any[], props?: object }) => {
+    Tooltip: ({ children, props } : BuiltinProps<object>) => {
       return h('div', props,  children);
     },
-    Typeahead: ({ children, props } : { children: any[], props?: TypeaheadProps }) => {
+    Typeahead: ({ children, props } : BuiltinProps<TypeaheadProps>) => {
       return h('div', props,  children);
     },
   };
@@ -197,6 +223,10 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
     );
 
     return [widgetPath, base64Props, parentWidgetId].join('##');
+  }
+
+  if (!node || typeof node !== 'object') {
+    return node;
   }
 
   let { type } = node;
@@ -233,10 +263,11 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
       }));
       unifiedChildren = props.children;
     } else if (component === 'Widget') {
-      const { src, props: widgetProps } = props;
+      const { src, props: widgetProps, isTrusted } = props;
       const widgetId = buildWidgetId({ widgetPath: src, widgetProps, parentWidgetId: parentId });
       try {
         childWidgets.push({
+          isTrusted: !!isTrusted,
           props: widgetProps ? serializeProps({ props: widgetProps, callbacks, h, parentId, widgetId }) : {},
           source: src,
           widgetId,
@@ -251,26 +282,10 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
           id: 'dom-' + widgetId,
         },
       };
-    } else if (typeof type === 'function') {
+    } else {
       // `type` is a Preact component function for a child Widget
       // invoke it with the passed props to render the component and serialize its DOM tree
-      const renderResult = type(props);
-      if (renderResult?.type === undefined) {
-        return renderResult;
-      }
-
-      ({ props, type } = renderResult);
-      if (!props) {
-        props = {};
-      }
-
-      if (Array.isArray(props.children)) {
-        unifiedChildren = props.children;
-      } else if (props.children === undefined) {
-        unifiedChildren = [];
-      } else {
-        unifiedChildren = [props.children];
-      }
+      return serializeNode({ h, node: type(props), parentId, index, callbacks, childWidgets });
     }
   }
 
@@ -288,7 +303,7 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
           callbacks,
           parentId,
         }) : c
-        ),
+      ),
     },
     childWidgets,
   };
