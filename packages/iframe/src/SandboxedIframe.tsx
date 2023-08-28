@@ -16,6 +16,7 @@ import {
   serializeProps,
   decodeJsonString,
   encodeJsonString,
+  getBuiltins,
 } from '@bos-web-engine/container';
 
 function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
@@ -80,12 +81,13 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
           const useComponentCallback = buildUseComponentCallback(renderWidget);
 
+          const builtinComponents = ${getBuiltins.toString()}({ createElement });
           let lastRenderedNode;
           // FIXME circular dependency between [dispatchRenderEvent] (referenced in Preact fork) and [h] (used to render builtin components) 
           const dispatchRenderEvent = (node) => {
             const serializedNode = serializeNode({
               node,
-              createElement,
+              builtinComponents,
               index: -1,
               childWidgets: [],
               callbacks,
@@ -257,8 +259,8 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           const invokeWidgetCallback = ${invokeWidgetCallback.toString()};
           const processEvent = (${buildEventHandler.toString()})({
             buildRequest,
+            builtinComponents,
             callbacks,
-            createElement,
             deserializeProps,
             postCallbackInvocationMessage,
             postCallbackResponseMessage,

@@ -182,8 +182,8 @@ export interface PostMessageWidgetUpdateOptions {
 
 export interface ProcessEventOptions {
   buildRequest: BuildRequestCallback;
+  builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
-  createElement: PreactCreateElement;
   deserializeProps: DeserializePropsCallback;
   postCallbackInvocationMessage: PostMessageWidgetInvocationCallback;
   postCallbackResponseMessage: PostMessageWidgetResponseCallback;
@@ -211,10 +211,35 @@ export interface SerializeArgsOptions {
   widgetId: string;
 }
 
-type PreactCreateElement = (type: string | Function, props: any, children: any) => any;
+interface PreactElement {
+  type: string;
+  props: any;
+}
+
+type PreactCreateElement = (type: string | Function, props: any, children: any) => PreactElement;
+type CreateSerializedBuiltin = ({ props, children }: BuiltinProps<any>) => PreactElement;
+
+export interface GetBuiltinsOptions {
+  createElement: PreactCreateElement;
+}
+
+export interface BuiltinComponents {
+  Checkbox: CreateSerializedBuiltin;
+  CommitButton: CreateSerializedBuiltin
+  Dialog: CreateSerializedBuiltin
+  DropdownMenu: CreateSerializedBuiltin
+  Files: CreateSerializedBuiltin;
+  Fragment: CreateSerializedBuiltin
+  InfiniteScroll: CreateSerializedBuiltin;
+  IpfsImageUpload: CreateSerializedBuiltin;
+  Markdown: CreateSerializedBuiltin;
+  OverlayTrigger: CreateSerializedBuiltin;
+  Tooltip: CreateSerializedBuiltin;
+  Typeahead: CreateSerializedBuiltin;
+}
 
 export interface SerializeNodeOptions {
-  createElement: PreactCreateElement;
+  builtinComponents: BuiltinComponents;
   node: any;
   index: number;
   childWidgets: any[];
@@ -236,8 +261,8 @@ export interface SerializedProps extends KeyValuePair {
 }
 
 export interface SerializePropsOptions {
+  builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
-  createElement: (type: string | Function, props: any, children: any) => any;
   parentId: string;
   props: any;
   widgetId?: string;
@@ -293,7 +318,8 @@ export interface TypeaheadProps {
   placeholder: string;
 }
 
-type BuiltinPropsTypes = FilesProps
+type BuiltinPropsTypes = object // TODO props for remaining builtins
+  | FilesProps
   | IpfsImageUploadProps
   | InfiniteScrollProps
   | MarkdownProps
@@ -301,7 +327,7 @@ type BuiltinPropsTypes = FilesProps
   | TypeaheadProps
   | WidgetProps;
 
-export interface BuiltinProps<T extends object | BuiltinPropsTypes> {
+export interface BuiltinProps<T extends BuiltinPropsTypes> {
   children: any[];
   props: T;
 }
