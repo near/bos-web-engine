@@ -35,7 +35,7 @@ export function decodeJsonString(value: string) {
     .replace(/⁤/g, '\t');
 }
 
-export function serializeProps({ callbacks, h, parentId, props, widgetId }: SerializePropsOptions): Props {
+export function serializeProps({ callbacks, createElement, parentId, props, widgetId }: SerializePropsOptions): Props {
   return Object.entries(props)
     .reduce((newProps, [key, value]: [string, any]) => {
       // TODO better preact component check
@@ -48,7 +48,7 @@ export function serializeProps({ callbacks, h, parentId, props, widgetId }: Seri
           serializedValue = serializeNode({
             callbacks,
             childWidgets: [],
-            h,
+            createElement,
             index: 0,
             node: value,
             parentId,
@@ -167,44 +167,44 @@ export function deserializeProps({
   };
 }
 
-export function serializeNode({ h, node, index, childWidgets, callbacks, parentId }: SerializeNodeOptions): SerializedNode {
+export function serializeNode({ createElement, node, index, childWidgets, callbacks, parentId }: SerializeNodeOptions): SerializedNode {
 // TODO implement these for real
   const BUILTIN_COMPONENTS = {
     Checkbox: ({ children, props } : BuiltinProps<object>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     CommitButton: ({ children, props } : BuiltinProps<object>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     Dialog: ({ children, props } : BuiltinProps<object>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     DropdownMenu: ({ children, props } : BuiltinProps<object>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     Files: ({ children, props } : BuiltinProps<FilesProps>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     Fragment: ({ children, props } : BuiltinProps<object>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     InfiniteScroll: ({ children, props } : BuiltinProps<InfiniteScrollProps>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     IpfsImageUpload: ({ children, props } : BuiltinProps<IpfsImageUploadProps>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     Markdown: ({ children, props } : BuiltinProps<MarkdownProps>) => {
-      return h('div', props,  [props?.text, ...children]);
+      return createElement('div', props,  [props?.text, ...children]);
     },
     OverlayTrigger: ({ children, props } : BuiltinProps<OverlayTriggerProps>) => {
-      return h('div', props, children);
+      return createElement('div', props, children);
     },
     Tooltip: ({ children, props } : BuiltinProps<object>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
     Typeahead: ({ children, props } : BuiltinProps<TypeaheadProps>) => {
-      return h('div', props,  children);
+      return createElement('div', props,  children);
     },
   };
 
@@ -268,7 +268,7 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
       try {
         childWidgets.push({
           isTrusted: !!isTrusted,
-          props: widgetProps ? serializeProps({ props: widgetProps, callbacks, h, parentId, widgetId }) : {},
+          props: widgetProps ? serializeProps({ props: widgetProps, callbacks, createElement, parentId, widgetId }) : {},
           source: src,
           widgetId,
         });
@@ -285,19 +285,19 @@ export function serializeNode({ h, node, index, childWidgets, callbacks, parentI
     } else {
       // `type` is a Preact component function for a child Widget
       // invoke it with the passed props to render the component and serialize its DOM tree
-      return serializeNode({ h, node: type(props), parentId, index, callbacks, childWidgets });
+      return serializeNode({ createElement, node: type(props), parentId, index, callbacks, childWidgets });
     }
   }
 
   return {
     type,
     props: {
-      ...serializeProps({ props, h, callbacks, parentId }),
+      ...serializeProps({ props, createElement, callbacks, parentId }),
       children: unifiedChildren
         .flat()
         .map((c, i) => c?.props ? serializeNode({
           node: c,
-          h,
+          createElement,
           index: i,
           childWidgets,
           callbacks,

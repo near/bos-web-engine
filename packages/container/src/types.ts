@@ -183,8 +183,8 @@ export interface PostMessageWidgetUpdateOptions {
 export interface ProcessEventOptions {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
+  createElement: PreactCreateElement;
   deserializeProps: DeserializePropsCallback;
-  h: PreactCreateElement;
   postCallbackInvocationMessage: PostMessageWidgetInvocationCallback;
   postCallbackResponseMessage: PostMessageWidgetResponseCallback;
   props: any;
@@ -214,7 +214,7 @@ export interface SerializeArgsOptions {
 type PreactCreateElement = (type: string | Function, props: any, children: any) => any;
 
 export interface SerializeNodeOptions {
-  h: PreactCreateElement;
+  createElement: PreactCreateElement;
   node: any;
   index: number;
   childWidgets: any[];
@@ -237,7 +237,7 @@ export interface SerializedProps extends KeyValuePair {
 
 export interface SerializePropsOptions {
   callbacks: CallbackMap;
-  h: (type: string | Function, props: any, children: any) => any;
+  createElement: (type: string | Function, props: any, children: any) => any;
   parentId: string;
   props: any;
   widgetId?: string;

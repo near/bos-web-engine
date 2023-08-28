@@ -149,7 +149,7 @@ export default function Transpiler() {
     function transpileSource(source) {
       return Babel.transform(source, {
         plugins: [
-          [Babel.availablePlugins['transform-react-jsx'], { pragma: 'h' }],
+          [Babel.availablePlugins['transform-react-jsx'], { pragma: 'createElement' }],
         ],
       });
     }
