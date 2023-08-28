@@ -86,9 +86,9 @@ export function invokeWidgetCallback({
 /**
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
  * @param buildRequest Function to build an inter-Widget asynchronous callback request
+ * @param builtinComponents The set of Builtin Components provided by BOS Web Engine
  * @param callbacks The set of callbacks defined on the target Widget
  * @param deserializeProps Function to deserialize props passed on the event
- * @param h Preact's createElement wrapper
  * @param postCallbackInvocationMessage Request invocation on external Widget via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Widget via window.postMessage
  * @param renderDom Callback for rendering DOM within the widget
@@ -101,9 +101,9 @@ export function invokeWidgetCallback({
  */
 export function buildEventHandler({
   buildRequest,
+  builtinComponents,
   callbacks,
   deserializeProps,
-  h,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   renderDom,
@@ -172,7 +172,7 @@ export function buildEventHandler({
             error = e;
           }
 
-          result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ h, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }))
+          result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }))
 
           const postCallbackResponse = (value: any, error: any) => {
             if (requestId) {

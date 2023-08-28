@@ -3,6 +3,9 @@ export {
   initSocial,
 } from './api';
 export {
+  getBuiltins,
+} from './builtins';
+export {
   buildEventHandler,
   invokeCallback,
   invokeWidgetCallback,
