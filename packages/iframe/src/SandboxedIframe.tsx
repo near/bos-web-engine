@@ -74,7 +74,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
 
             return Object.entries(inlinedFunctions)
               .filter(([functionName, minifiedName]) => functionName !== minifiedName)
-              .map(([functionName, minifiedName]) => 'if (!' + functionName + ') { window.' + functionName + ' = ' + minifiedName + '; }')
+              .map(([functionName, minifiedName]) => 'if (typeof ' + functionName + ' === "undefined") { window.' + functionName + ' = ' + minifiedName + '; }')
               .join('\n');
           }()}
 
