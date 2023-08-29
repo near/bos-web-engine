@@ -90,7 +90,7 @@ export default function Web() {
                 if (!rootWidgetSource && source === rootWidget) {
                   setRootWidgetSource(source);
                 }
-                monitor.widgetAdded(widget);
+                monitor.widgetAdded({ source, ...widget });
                 setWidgetUpdates(widgetUpdates + source);
                 widgetProxy[source] = widget;
                 break;
