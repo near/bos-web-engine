@@ -45,47 +45,41 @@ export default function Transpiler() {
         return 'function ' + buildComponentFunctionName() + '() {' + componentBody + '}';
       }
 
-      function initState() {
+      function initState(ComponentState, componentInstanceId) {
         let isStateInitialized = false;
 
-        function buildStateProxy(initialState) {
+        function buildSafeProxyFromMap(map, widgetId) {
           return new Proxy({}, {
-            get(target, key) {
+            get(_, key) {
               try {
-                return target[key];
+                return map.get(widgetId)[key];
               } catch {
                 return undefined;
               }
-            },
-            set() {
-              return false;
-            },
+            }
           });
         }
 
-        let state = buildStateProxy({});
-
         const State = {
           init(obj) {
-            if (!isStateInitialized) {
-              state = buildStateProxy(obj);
-              isStateInitialized = true;
+            if (!ComponentState.has(componentInstanceId)) {
+              ComponentState.set(componentInstanceId, obj);
             }
           },
-          update(newState = {}, initialState) {
-            state = buildStateProxy(Object.assign({}, state, newState));
+          update(newState, initialState) {
+            ComponentState.set(componentInstanceId, Object.assign({}, ComponentState.get(componentInstanceId), newState));
           },
         };
 
         return {
-          state,
+          state: buildSafeProxyFromMap(ComponentState, componentInstanceId),
           State,
         };
       }
 
       return [
         'function ' + buildComponentFunctionName(widgetPath) + '({ props }) {',
-        'const { state, State} = (' + initState.toString() + ')();',
+        'const { state, State} = (' + initState.toString() + ')(ComponentState, "' + widgetPath + '");',
         componentBody,
         '}'
       ].join('\\n\\n');
