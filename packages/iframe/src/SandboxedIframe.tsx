@@ -147,7 +147,18 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             });
           }
 
-          let state = buildSafeProxy({});
+          function buildSafeProxyFromMap(map, widgetId) {
+            return new Proxy({}, {
+              get(_, key) {
+                try {
+                  return map.get(widgetId)[key];
+                } catch {
+                  return undefined;
+                }
+              }
+            });
+          }
+
           let props = buildSafeProxy(deserializeProps({
             buildRequest,
             callbacks,
@@ -189,6 +200,25 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             }
           });
 
+          const ComponentState = new Map(); 
+
+          // TODO remove debug value
+          const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
+          const state = buildSafeProxyFromMap(ComponentState, '${id}');
+          const State = {
+            init(obj) {
+              if (!ComponentState.has('${id}')) {
+                ComponentState.set('${id}', obj);
+              }
+            },
+            update(newState, initialState) {
+              ComponentState.set('${id}', {
+                ...ComponentState.get('${id}'),
+                ...newState,
+              });
+            },
+          };
+
           function WidgetWrapper() {
             try {
               return (
@@ -209,23 +239,6 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
               console.error(e, { widgetId: '${id}' });
             }
           }
-
-          const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
-          const State = {
-            init(obj) {
-              if (!isStateInitialized) {
-                state = buildSafeProxy(obj);
-                isStateInitialized = true;
-              }
-            },
-            update(newState, initialState) {
-              // TODO real implementation
-              state = buildSafeProxy({
-                ...state,
-                ...newState,
-              });
-            },
-          };
           
           renderWidget();
 
