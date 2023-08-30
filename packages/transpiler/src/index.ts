@@ -1,7 +1,8 @@
 // @ts-nocheck
 
 import Babel from '@babel/standalone';
-import { JsonRpcProvider } from '@near-js/providers';
+
+import { fetchComponentSources } from './source';
 
 const sourceCache = {};
 const transpiledCache = {};
@@ -132,31 +133,10 @@ function transpileSource(source) {
   });
 }
 
-function fetchFromRpc(widgetPaths) {
-  const provider = new JsonRpcProvider('https://rpc.near.org');
-  return provider.query({
-    account_id: 'social.near',
-    args_base64: bytesToBase64(new TextEncoder().encode('{"keys":["' + widgetPaths.join('","') + '"]}')),
-    finality: 'optimistic',
-    method_name: 'get',
-    request_type: 'call_function',
-  }).then(({ result }) => {
-    const decodedResult = new TextDecoder().decode(Uint8Array.from(result));
-    return Object.entries(JSON.parse(decodedResult))
-        .reduce((sources, [author, { widget }]) => {
-          Object.entries(widget)
-              .forEach(([widgetKey, widgetSource]) => {
-                sources[author + '/widget/' + widgetKey] = widgetSource;
-              });
-          return sources;
-        }, {});
-  });
-}
-
 function fetchWidgetSource(widgetPaths) {
   const unfetchedPaths = widgetPaths.filter((widgetPath) => !(widgetPath in sourceCache));
   if (unfetchedPaths.length > 0) {
-    const pathsFetch = fetchFromRpc(unfetchedPaths);
+    const pathsFetch = fetchComponentSources('https://rpc.near.org', unfetchedPaths);
     unfetchedPaths.forEach((widgetPath) => {
       sourceCache[widgetPath] = pathsFetch.then((paths) => paths[widgetPath])
           .catch((e) => console.error(e, { widgetPath }));
@@ -181,7 +161,6 @@ function getTranspiledWidgetSource(widgetPath, widgetSource, isRoot) {
 
 export async function getWidgetSource({ widgetId, isTrusted, sendMessage }) {
   const widgetPath = widgetId.split('##')[0];
-  const [author, , widget] = widgetPath.split('/');
 
   try {
     const source = await fetchWidgetSource([widgetPath])[widgetPath];
