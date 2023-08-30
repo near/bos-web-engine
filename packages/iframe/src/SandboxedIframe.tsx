@@ -180,24 +180,8 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             }
           });
 
-          const ComponentState = new Map(); 
-
           // TODO remove debug value
           const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
-          const state = buildSafeProxyFromMap(ComponentState, '${id}');
-          const State = {
-            init(obj) {
-              if (!ComponentState.has('${id}')) {
-                ComponentState.set('${id}', obj);
-              }
-            },
-            update(newState, initialState) {
-              ComponentState.set('${id}', {
-                ...ComponentState.get('${id}'),
-                ...newState,
-              });
-            },
-          };
 
           function WidgetWrapper() {
             try {

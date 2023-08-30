@@ -39,47 +39,53 @@ export default function Transpiler() {
       return name + '_' + suffix.replace(/[.\\/]/g, '');
     }
 
+    function initializeComponentState(ComponentState, componentInstanceId) {
+      let isStateInitialized = false;
+
+      const buildSafeProxyFromMap = (map, widgetId) => new Proxy({}, {
+        get(_, key) {
+          try {
+            return map.get(widgetId)[key];
+          } catch {
+            return undefined;
+          }
+        }
+      });
+
+      const State = {
+        init(obj) {
+          if (!ComponentState.has(componentInstanceId)) {
+            ComponentState.set(componentInstanceId, obj);
+          }
+        },
+        update(newState, initialState) {
+          ComponentState.set(componentInstanceId, Object.assign({}, ComponentState.get(componentInstanceId), newState));
+        },
+      };
+
+      return {
+        state: buildSafeProxyFromMap(ComponentState, componentInstanceId),
+        State,
+      };
+    }
+
     function buildComponentFunction({ widgetPath, widgetSource, isRoot }) {
       const componentBody = '\\n\\n/*' + widgetPath + '*/\\n\\n' + widgetSource;
+
+      const stateInitialization = 'const { state, State} = (' + initializeComponentState.toString() + ')(ComponentState, "' + widgetPath + '");';
       if (isRoot) {
-        return 'function ' + buildComponentFunctionName() + '() {' + componentBody + '}';
-      }
-
-      function initState(ComponentState, componentInstanceId) {
-        let isStateInitialized = false;
-
-        function buildSafeProxyFromMap(map, widgetId) {
-          return new Proxy({}, {
-            get(_, key) {
-              try {
-                return map.get(widgetId)[key];
-              } catch {
-                return undefined;
-              }
-            }
-          });
-        }
-
-        const State = {
-          init(obj) {
-            if (!ComponentState.has(componentInstanceId)) {
-              ComponentState.set(componentInstanceId, obj);
-            }
-          },
-          update(newState, initialState) {
-            ComponentState.set(componentInstanceId, Object.assign({}, ComponentState.get(componentInstanceId), newState));
-          },
-        };
-
-        return {
-          state: buildSafeProxyFromMap(ComponentState, componentInstanceId),
-          State,
-        };
+        return [
+          'function ' + buildComponentFunctionName() + '() {',
+          'const ComponentState = new Map();',
+          stateInitialization,
+          componentBody,
+          '}'
+          ].join('\\n\\n');
       }
 
       return [
         'function ' + buildComponentFunctionName(widgetPath) + '({ props }) {',
-        'const { state, State} = (' + initState.toString() + ')(ComponentState, "' + widgetPath + '");',
+        stateInitialization,
         componentBody,
         '}'
       ].join('\\n\\n');
