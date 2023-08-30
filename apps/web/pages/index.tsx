@@ -6,7 +6,6 @@ import {
   onCallbackInvocation,
   onCallbackResponse,
   onRender,
-  postMessageToIframe,
 } from '@bos-web-engine/application';
 import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/iframe';
 import React, { useEffect, useState } from 'react';
@@ -37,26 +36,14 @@ function mountElement({ widgetId, element }: { widgetId: string, element: Widget
   roots[widgetId].render(element);
 }
 
-function requestWidgetSource({ widgetPath, isTrusted }: { widgetPath: string, isTrusted: boolean }) {
-  postMessageToIframe({
-    id: 'transpiler',
-    message: {
-      isTrusted,
-      source: widgetPath,
-      type: 'transpiler.widgetFetch',
-    },
-    targetOrigin: '*',
-  });
-}
-
 export default function Web() {
   const [rootWidget, setRootWidget] = useState('');
-  const [isRootWidgetLoading, setIsRootWidgetLoading] = useState(false);
   const [rootWidgetInput, setRootWidgetInput] = useState(DEFAULT_ROOT_WIDGET);
-  const [rootWidgetSource, setRootWidgetSource] = useState(null);
+  const [rootWidgetSource, setRootWidgetSource] = useState<string | null>(null);
   const [widgetUpdates, setWidgetUpdates] = useState('');
   const [showMonitor, setShowMonitor] = useState(true);
-  const [showWidgetDebug, setShowWidgetDebug] = useState(false);
+  const [showWidgetDebug, setShowWidgetDebug] = useState(true);
+  const [transpiler, setTranspiler] = useState<any>(null);
 
   const widgetProxy = new Proxy(widgets, {
     get(target, key: string) {
@@ -66,7 +53,7 @@ export default function Web() {
     set(target, key: string, value: any) {
       // if the widget is being added, initiate request for widget component code
       if (!target[key]) {
-        requestWidgetSource({ widgetPath: key, isTrusted: value.isTrusted });
+        transpiler?.postMessage({ source: key, isTrusted: value.isTrusted });
       }
 
       target[key] = value;
@@ -84,17 +71,6 @@ export default function Web() {
 
           const { data } = event;
           switch (eventType) {
-              case 'transpiler.sourceTranspiled': {
-                const { source, widgetComponent } = data;
-                const widget = { ...widgetProxy[source], widgetComponent };
-                if (!rootWidgetSource && source === rootWidget) {
-                  setRootWidgetSource(source);
-                }
-                monitor.widgetAdded({ source, ...widget });
-                setWidgetUpdates(widgetUpdates + source);
-                widgetProxy[source] = widget;
-                break;
-              }
               case 'widget.callbackInvocation': {
                 monitor.widgetCallbackInvoked(data);
                 onCallbackInvocation({ data });
@@ -126,7 +102,6 @@ export default function Web() {
     }
 
     const messageListeners = [
-      buildMessageListener('transpiler.sourceTranspiled'),
       buildMessageListener('widget.callbackInvocation'),
       buildMessageListener('widget.callbackResponse'),
       buildMessageListener('widget.render'),
@@ -137,17 +112,35 @@ export default function Web() {
   }, [rootWidgetSource, showWidgetDebug]);
 
   useEffect(() => {
-    if (!rootWidget || isRootWidgetLoading) {
+    if (!rootWidget) {
       return;
     }
 
-    setIsRootWidgetLoading(true);
-    requestWidgetSource({ widgetPath: rootWidget, isTrusted: false });
-  }, [rootWidget, isRootWidgetLoading]);
+    if (!transpiler) {
+      const worker = new Worker(new URL('../workers/transpiler.ts', import.meta.url));
+      setTranspiler(worker);
+    } else {
+      transpiler.onmessage = ({ data }: MessageEvent<{ source: string, widgetComponent: string }>) => {
+        const { source, widgetComponent } = data;
+        const widget = { ...widgetProxy[source], widgetComponent };
+        if (!rootWidgetSource && source === rootWidget) {
+          setRootWidgetSource(source);
+        }
+        monitor.widgetAdded({ source, ...widget });
+        setWidgetUpdates(widgetUpdates + source);
+        widgetProxy[source] = widget;
+      };
+
+      transpiler.postMessage({
+        isTrusted: false,
+        source: rootWidget,
+        type: 'transpiler.widgetFetch',
+      });
+    }
+  }, [rootWidget, rootWidgetSource, transpiler]);
 
   return (
     <div className='App'>
-      <Transpiler />
       {!rootWidget && (
         <div id='init-widget'>
           <div>

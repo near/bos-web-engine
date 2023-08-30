@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@bos-web-engine/application": "workspace:*",
+    "@bos-web-engine/container": "workspace:*",
     "@bos-web-engine/iframe": "workspace:*",
+    "@bos-web-engine/transpiler": "workspace:*",
     "next": "^13.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
