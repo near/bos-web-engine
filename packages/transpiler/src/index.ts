@@ -20,8 +20,6 @@ function buildComponentFunctionName(suffix) {
 }
 
 function initializeComponentState(ComponentState, componentInstanceId) {
-  let isStateInitialized = false;
-
   const buildSafeProxyFromMap = (map, widgetId) => new Proxy({}, {
     get(_, key) {
       try {
@@ -38,8 +36,8 @@ function initializeComponentState(ComponentState, componentInstanceId) {
         ComponentState.set(componentInstanceId, obj);
       }
     },
-    update(newState, initialState) {
-      ComponentState.set(componentInstanceId, Object.assign({}, ComponentState.get(componentInstanceId), newState));
+    update(newState, initialState = {}) {
+      ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
     },
   };
 
@@ -209,7 +207,6 @@ export async function getWidgetSource({ widgetId, isTrusted, sendMessage }) {
       source: widgetId,
       widgetComponent,
     });
-    console.log("ALLDONE")
   } catch (e) {
     console.error(e);
   }

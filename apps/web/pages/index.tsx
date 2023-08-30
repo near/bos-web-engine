@@ -11,8 +11,6 @@ import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/ifram
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import Transpiler from './transpiler';
-
 const DEFAULT_ROOT_WIDGET = 'andyh.near/widget/MainPage';
 
 const roots = {} as { [key: string]: ReactDOM.Root };
