@@ -92,7 +92,7 @@ export default function Transpiler() {
     }
 
     function parseChildWidgetPaths(transpiledWidget) {
-      const widgetRegex = /h\\(Widget,\\s*\\{(?:[\w\W]*?)(?:\\s*src:\\s+["|'](?<src>[\\w\\d_]+\\.near\\/widget\\/[\\w\\d_.]+))["|']/ig;
+      const widgetRegex = /createElement\\(Widget,\\s*\\{(?:[\w\W]*?)(?:\\s*src:\\s+["|'](?<src>[\\w\\d_]+\\.near\\/widget\\/[\\w\\d_.]+))["|']/ig;
       const matches = [...(transpiledWidget.matchAll(widgetRegex))]
         .reduce((widgetInstances, match) => {
           const source = match.groups.src;
