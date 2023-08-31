@@ -8,6 +8,7 @@ import {
   onRender,
 } from '@bos-web-engine/application';
 import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/iframe';
+import type { ComponentCompilerResponse } from '@bos-web-engine/transpiler';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -51,7 +52,7 @@ export default function Web() {
     set(target, key: string, value: any) {
       // if the widget is being added, initiate request for widget component code
       if (!target[key]) {
-        transpiler?.postMessage({ source: key, isTrusted: value.isTrusted });
+        transpiler?.postMessage({ componentId: key, isTrusted: value.isTrusted });
       }
 
       target[key] = value;
@@ -118,21 +119,20 @@ export default function Web() {
       const worker = new Worker(new URL('../workers/transpiler.ts', import.meta.url));
       setTranspiler(worker);
     } else {
-      transpiler.onmessage = ({ data }: MessageEvent<{ source: string, widgetComponent: string }>) => {
-        const { source, widgetComponent } = data;
-        const widget = { ...widgetProxy[source], widgetComponent };
-        if (!rootWidgetSource && source === rootWidget) {
-          setRootWidgetSource(source);
+      transpiler.onmessage = ({ data }: MessageEvent<ComponentCompilerResponse>) => {
+        const { componentId, componentSource } = data;
+        const component = { ...widgetProxy[componentId], widgetComponent: componentSource };
+        if (!rootWidgetSource && componentId === rootWidget) {
+          setRootWidgetSource(componentId);
         }
-        monitor.widgetAdded({ source, ...widget });
-        setWidgetUpdates(widgetUpdates + source);
-        widgetProxy[source] = widget;
+        monitor.widgetAdded({ source: componentId, ...component });
+        setWidgetUpdates(widgetUpdates + componentId);
+        widgetProxy[componentId] = component;
       };
 
       transpiler.postMessage({
+        componentId: rootWidget,
         isTrusted: false,
-        source: rootWidget,
-        type: 'transpiler.widgetFetch',
       });
     }
   }, [rootWidget, rootWidgetSource, transpiler]);

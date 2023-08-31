@@ -1,15 +1,10 @@
-import { getWidgetSource } from '@bos-web-engine/transpiler';
+import { ComponentCompiler, ComponentCompilerRequest } from '@bos-web-engine/transpiler';
 
-self.onmessage = (event: MessageEvent) => {
-  const { isTrusted, source } = event.data;
-  getWidgetSource({
-    widgetId: source,
-    isTrusted,
-    sendMessage: (message: any) => self.postMessage(message),
-  })
-    .catch((e: Error) => {
-      console.error(`Failed to fetch Component source for ${source} (${isTrusted ? 'trusted' : 'sandboxed' })`, e);
-    });
+const compiler = new ComponentCompiler({ sendMessage: (message: any) => self.postMessage(message) });
+
+self.onmessage = ({ data: compileRequest } : MessageEvent<ComponentCompilerRequest>) => {
+  compiler.compileComponent(compileRequest)
+    .catch((e) => console.error(`Failed to compile component ${compileRequest.componentId}`, e));
 };
 
 export {};

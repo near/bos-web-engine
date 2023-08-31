@@ -1,26 +1,28 @@
 type ComponentStateMap = Map<string, { [key: string | symbol]: any }>;
 
 /**
- * Returns the name to be used for the Component
- * @param componentInstanceId unique identifier for the Component instance
+ * Returns the name to be used for the Component function
+ * @param componentPath
  */
-export function buildComponentFunctionName(componentInstanceId?: string) {
+export function buildComponentFunctionName(componentPath?: string) {
   const name = 'BWEComponent';
-  if (!componentInstanceId) {
+  if (!componentPath) {
     return name;
   }
 
-  return name + '_' + componentInstanceId.replace(/[.\/]/g, '');
+  return name + '_' + componentPath.replace(/[.\/]/g, '');
 }
 
-/**
- * Returns the name to be used for the Component
- * @param componentInstanceId unique identifier for the Component instance
- */
-export function buildComponentFunction({ widgetPath, widgetSource, isRoot }: { widgetPath: string, widgetSource: string, isRoot: boolean }) {
-  const componentBody = '\n\n/*' + widgetPath + '*/\n\n' + widgetSource;
+interface BuildComponentFunctionParams {
+  componentPath: string;
+  componentSource: string;
+  isRoot: boolean;
+}
 
-  const stateInitialization = 'const { state, State} = (' + initializeComponentState.toString() + ')(ComponentState, "' + widgetPath + '");';
+export function buildComponentFunction({ componentPath, componentSource, isRoot }: BuildComponentFunctionParams) {
+  const componentBody = '\n\n/*' + componentPath + '*/\n\n' + componentSource;
+
+  const stateInitialization = 'const { state, State} = (' + initializeComponentState.toString() + ')(ComponentState, "' + componentPath + '");';
   if (isRoot) {
     return `
       function ${buildComponentFunctionName()}() {
@@ -32,17 +34,13 @@ export function buildComponentFunction({ widgetPath, widgetSource, isRoot }: { w
   }
 
   return `
-    function ${buildComponentFunctionName(widgetPath)}({ props }) {
+    function ${buildComponentFunctionName(componentPath)}({ props }) {
       ${stateInitialization}
       ${componentBody}
     }
   `;
 }
 
-/**
- * Returns the name to be used for the Component
- * @param componentInstanceId unique identifier for the Component instance
- */
 function initializeComponentState(ComponentState: ComponentStateMap, componentInstanceId: string) {
   const buildSafeProxyFromMap = (map: ComponentStateMap, widgetId: string) => new Proxy({}, {
     get(_, key) {
