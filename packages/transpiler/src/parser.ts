@@ -3,19 +3,19 @@ import { buildComponentFunction, buildComponentFunctionName } from './component'
 function parseChildWidgetPaths(transpiledWidget: string) {
   const widgetRegex = /createElement\(Widget,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>[\w\d_]+\.near\/widget\/[\w\d_.]+))["|']/ig;
   const matches = [...(transpiledWidget.matchAll(widgetRegex))]
-      .reduce((widgetInstances, match) => {
-        if (!match.groups?.src) {
-          return widgetInstances;
-        }
-
-        const source = match.groups?.src;
-        widgetInstances[source] = {
-          source,
-          transform: (widgetSource: string, widgetComponentName: string) => widgetSource.replaceAll(match[0], match[0].replace('Widget', widgetComponentName))
-        };
-
+    .reduce((widgetInstances, match) => {
+      if (!match.groups?.src) {
         return widgetInstances;
-      }, {} as { [key: string]: { source: string, transform: (s: string, n: string) => string } });
+      }
+
+      const source = match.groups?.src;
+      widgetInstances[source] = {
+        source,
+        transform: (widgetSource: string, widgetComponentName: string) => widgetSource.replaceAll(match[0], match[0].replace('Widget', widgetComponentName)),
+      };
+
+      return widgetInstances;
+    }, {} as { [key: string]: { source: string, transform: (s: string, n: string) => string } });
 
   return Object.values(matches);
 }
@@ -52,8 +52,8 @@ export async function parseWidgetTree({
 
   // fetch the set of child Component sources not already added to the tree
   const childWidgetSources = fetchWidgetSource(
-      childWidgetPaths.map(({ source }) => source)
-          .filter((source) => !(source in mapped))
+    childWidgetPaths.map(({ source }) => source)
+      .filter((source) => !(source in mapped))
   );
 
   // transpile the set of new child Components and recursively parse their Component subtrees
@@ -67,11 +67,11 @@ export async function parseWidgetTree({
         );
 
         await parseWidgetTree({
-            widgetPath: childPath,
-            transpiledWidget: transpiledChild,
-            mapped,
-            getTranspiledWidgetSource,
-            fetchWidgetSource,
+          widgetPath: childPath,
+          transpiledWidget: transpiledChild,
+          mapped,
+          getTranspiledWidgetSource,
+          fetchWidgetSource,
         });
       })
   );

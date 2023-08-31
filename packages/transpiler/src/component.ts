@@ -5,12 +5,12 @@ type ComponentStateMap = Map<string, { [key: string | symbol]: any }>;
  * @param componentInstanceId unique identifier for the Component instance
  */
 export function buildComponentFunctionName(componentInstanceId?: string) {
-    const name = 'BWEComponent';
-    if (!componentInstanceId) {
-        return name;
-    }
+  const name = 'BWEComponent';
+  if (!componentInstanceId) {
+    return name;
+  }
 
-    return name + '_' + componentInstanceId.replace(/[.\/]/g, '');
+  return name + '_' + componentInstanceId.replace(/[.\/]/g, '');
 }
 
 /**
@@ -44,29 +44,29 @@ export function buildComponentFunction({ widgetPath, widgetSource, isRoot }: { w
  * @param componentInstanceId unique identifier for the Component instance
  */
 function initializeComponentState(ComponentState: ComponentStateMap, componentInstanceId: string) {
-    const buildSafeProxyFromMap = (map: ComponentStateMap, widgetId: string) => new Proxy({}, {
-        get(_, key) {
-            try {
-                return map.get(widgetId)?.[key];
-            } catch {
-                return undefined;
-            }
-        }
-    });
+  const buildSafeProxyFromMap = (map: ComponentStateMap, widgetId: string) => new Proxy({}, {
+    get(_, key) {
+      try {
+        return map.get(widgetId)?.[key];
+      } catch {
+        return undefined;
+      }
+    },
+  });
 
-    const State = {
-        init(obj: any) {
-            if (!ComponentState.has(componentInstanceId)) {
-                ComponentState.set(componentInstanceId, obj);
-            }
-        },
-        update(newState: any, initialState = {}) {
-            ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
-        },
-    };
+  const State = {
+    init(obj: any) {
+      if (!ComponentState.has(componentInstanceId)) {
+        ComponentState.set(componentInstanceId, obj);
+      }
+    },
+    update(newState: any, initialState = {}) {
+      ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
+    },
+  };
 
-    return {
-        state: buildSafeProxyFromMap(ComponentState, componentInstanceId),
-        State,
-    };
+  return {
+    state: buildSafeProxyFromMap(ComponentState, componentInstanceId),
+    State,
+  };
 }

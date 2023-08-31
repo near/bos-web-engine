@@ -259,7 +259,7 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
             widgetProps: props,
             parentWidgetId: parentId,
           }),
-        }
+        },
       };
     }
   }
@@ -278,7 +278,7 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
           callbacks,
           parentId,
         }) : c
-      ),
+        ),
     },
     childWidgets,
   };

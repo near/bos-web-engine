@@ -172,7 +172,7 @@ export function buildEventHandler({
             error = e;
           }
 
-          result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }))
+          result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }));
 
           const postCallbackResponse = (value: any, error: any) => {
             if (requestId) {
@@ -183,7 +183,7 @@ export function buildEventHandler({
                 targetId: originator,
               });
             }
-          }
+          };
 
           if (result?.then) {
             result

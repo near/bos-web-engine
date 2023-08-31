@@ -9,12 +9,12 @@ type SocialComponentsByAuthor = { [author: string]: SocialComponent };
 const encodeComponentKeyArgs = (componentPaths: string[]) => {
   const bytes = new TextEncoder().encode(`{"keys":["${componentPaths.join('","')}"]}`);
   return btoa(Array.from(bytes, (b) => String.fromCodePoint(b)).join(''));
-}
+};
 
 const parseComponentResponse = (bytes: number[]): SocialComponentsByAuthor => {
   const decodedResult = new TextDecoder().decode(Uint8Array.from(bytes));
   return JSON.parse(decodedResult);
-}
+};
 
 export function fetchComponentSources(rpcUrl: string, componentPaths: string[]) {
   const provider = new JsonRpcProvider({ url: rpcUrl });

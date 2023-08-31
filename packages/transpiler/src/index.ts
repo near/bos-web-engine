@@ -14,7 +14,7 @@ function fetchWidgetSource(widgetPaths: string[]): ComponentFetchMap {
     const pathsFetch = fetchComponentSources('https://rpc.near.org', unfetchedPaths);
     unfetchedPaths.forEach((widgetPath) => {
       sourceCache[widgetPath] = pathsFetch.then((paths) => paths[widgetPath])
-          .catch((e) => console.error(e, { widgetPath }));
+        .catch((e) => console.error(e, { widgetPath }));
     });
   }
 
@@ -40,9 +40,9 @@ export async function getWidgetSource({ widgetId, isTrusted, sendMessage }: { wi
   try {
     const source = fetchWidgetSource([widgetPath])[widgetPath];
     const transpiledWidget = getTranspiledWidgetSource(
-        widgetPath,
-        buildComponentFunction({ widgetPath, widgetSource: await source, isRoot: true }),
-        true
+      widgetPath,
+      buildComponentFunction({ widgetPath, widgetSource: await source, isRoot: true }),
+      true
     );
 
     let widgetComponent = transpiledWidget;
@@ -56,7 +56,7 @@ export async function getWidgetSource({ widgetId, isTrusted, sendMessage }: { wi
         getTranspiledWidgetSource: (path: string, source: string) => getTranspiledWidgetSource(path, source, false),
       });
       const [rootWidget, ...childWidgets] = Object.values(transformedWidgets).map(({ transpiled }) => transpiled);
-      const aggregatedSourceLines = rootWidget.split('\n')
+      const aggregatedSourceLines = rootWidget.split('\n');
       aggregatedSourceLines.splice(1, 0, childWidgets.join('\n\n'));
       widgetComponent = aggregatedSourceLines.join('\n');
     }

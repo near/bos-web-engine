@@ -20,5 +20,5 @@ export function buildUseComponentCallback(renderComponent: () => void) {
         })
         .catch(console.error);
     };
-  }
+  };
 }
