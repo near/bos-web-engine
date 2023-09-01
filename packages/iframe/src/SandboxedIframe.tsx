@@ -17,6 +17,7 @@ import {
   decodeJsonString,
   encodeJsonString,
   getBuiltins,
+  inlineGlobalDefinition,
 } from '@bos-web-engine/container';
 
 function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
@@ -44,39 +45,18 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           const callbacks = {};
           const requests = {};
 
-          ${buildRequest.toString()}
-          ${postMessage.toString()}
-          ${postWidgetRenderMessage.toString()}
-          ${postCallbackInvocationMessage.toString()}
-          ${postCallbackResponseMessage.toString()}
+          ${inlineGlobalDefinition('buildRequest', buildRequest)}
+          ${inlineGlobalDefinition('postMessage', postMessage)}
+          ${inlineGlobalDefinition('postWidgetRenderMessage', postWidgetRenderMessage)}
+          ${inlineGlobalDefinition('postCallbackInvocationMessage', postCallbackInvocationMessage)}
+          ${inlineGlobalDefinition('postCallbackResponseMessage', postCallbackResponseMessage)}
 
-          ${decodeJsonString.toString()};
-          ${deserializeProps.toString()}
-          ${encodeJsonString.toString()};
-          ${serializeArgs.toString()}
-          ${serializeNode.toString()}
-          ${serializeProps.toString()}
-
-          ${function () {
-            const inlinedFunctions = {
-              buildRequest: buildRequest.name,
-              decodeJsonString: decodeJsonString.name,
-              deserializeProps: deserializeProps.name,
-              encodeJsonString: encodeJsonString.name,
-              postCallbackInvocationMessage: postCallbackInvocationMessage.name,
-              postCallbackResponseMessage: postCallbackResponseMessage.name,
-              postMessage: postMessage.name,
-              postWidgetRenderMessage: postWidgetRenderMessage.name,
-              serializeArgs: serializeArgs.name,
-              serializeNode: serializeNode.name,
-              serializeProps: serializeProps.name,
-            };
-
-            return Object.entries(inlinedFunctions)
-              .filter(([functionName, minifiedName]) => functionName !== minifiedName)
-              .map(([functionName, minifiedName]) => 'if (typeof ' + functionName + ' === "undefined") { window.' + functionName + ' = ' + minifiedName + '; }')
-              .join('\n');
-          }()}
+          ${inlineGlobalDefinition('decodeJsonString', decodeJsonString)}
+          ${inlineGlobalDefinition('deserializeProps', deserializeProps)}
+          ${inlineGlobalDefinition('encodeJsonString', encodeJsonString)}
+          ${inlineGlobalDefinition('serializeArgs', serializeArgs)}
+          ${inlineGlobalDefinition('serializeNode', serializeNode)}
+          ${inlineGlobalDefinition('serializeProps', serializeProps)}
 
           const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
           const useComponentCallback = buildUseComponentCallback(renderWidget);
@@ -147,7 +127,18 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             });
           }
 
-          let state = buildSafeProxy({});
+          function buildSafeProxyFromMap(map, widgetId) {
+            return new Proxy({}, {
+              get(_, key) {
+                try {
+                  return map.get(widgetId)[key];
+                } catch {
+                  return undefined;
+                }
+              }
+            });
+          }
+
           let props = buildSafeProxy(deserializeProps({
             buildRequest,
             callbacks,
@@ -189,6 +180,9 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             }
           });
 
+          // TODO remove debug value
+          const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
+
           function WidgetWrapper() {
             try {
               return (
@@ -209,23 +203,6 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
               console.error(e, { widgetId: '${id}' });
             }
           }
-
-          const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
-          const State = {
-            init(obj) {
-              if (!isStateInitialized) {
-                state = buildSafeProxy(obj);
-                isStateInitialized = true;
-              }
-            },
-            update(newState, initialState) {
-              // TODO real implementation
-              state = buildSafeProxy({
-                ...state,
-                ...newState,
-              });
-            },
-          };
           
           renderWidget();
 

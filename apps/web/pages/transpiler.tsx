@@ -39,60 +39,60 @@ export default function Transpiler() {
       return name + '_' + suffix.replace(/[.\\/]/g, '');
     }
 
+    function initializeComponentState(ComponentState, componentInstanceId) {
+      let isStateInitialized = false;
+
+      const buildSafeProxyFromMap = (map, widgetId) => new Proxy({}, {
+        get(_, key) {
+          try {
+            return map.get(widgetId)[key];
+          } catch {
+            return undefined;
+          }
+        }
+      });
+
+      const State = {
+        init(obj) {
+          if (!ComponentState.has(componentInstanceId)) {
+            ComponentState.set(componentInstanceId, obj);
+          }
+        },
+        update(newState, initialState) {
+          ComponentState.set(componentInstanceId, Object.assign({}, ComponentState.get(componentInstanceId), newState));
+        },
+      };
+
+      return {
+        state: buildSafeProxyFromMap(ComponentState, componentInstanceId),
+        State,
+      };
+    }
+
     function buildComponentFunction({ widgetPath, widgetSource, isRoot }) {
       const componentBody = '\\n\\n/*' + widgetPath + '*/\\n\\n' + widgetSource;
+
+      const stateInitialization = 'const { state, State} = (' + initializeComponentState.toString() + ')(ComponentState, "' + widgetPath + '");';
       if (isRoot) {
-        return 'function ' + buildComponentFunctionName() + '() {' + componentBody + '}';
-      }
-
-      function initState() {
-        let isStateInitialized = false;
-
-        function buildStateProxy(initialState) {
-          return new Proxy({}, {
-            get(target, key) {
-              try {
-                return target[key];
-              } catch {
-                return undefined;
-              }
-            },
-            set() {
-              return false;
-            },
-          });
-        }
-
-        let state = buildStateProxy({});
-
-        const State = {
-          init(obj) {
-            if (!isStateInitialized) {
-              state = buildStateProxy(obj);
-              isStateInitialized = true;
-            }
-          },
-          update(newState = {}, initialState) {
-            state = buildStateProxy(Object.assign({}, state, newState));
-          },
-        };
-
-        return {
-          state,
-          State,
-        };
+        return [
+          'function ' + buildComponentFunctionName() + '() {',
+          'const ComponentState = new Map();',
+          stateInitialization,
+          componentBody,
+          '}'
+          ].join('\\n\\n');
       }
 
       return [
         'function ' + buildComponentFunctionName(widgetPath) + '({ props }) {',
-        'const { state, State} = (' + initState.toString() + ')();',
+        stateInitialization,
         componentBody,
         '}'
       ].join('\\n\\n');
     }
 
     function parseChildWidgetPaths(transpiledWidget) {
-      const widgetRegex = /createElement\\(Widget,\\s*\\{(?:[\w\W]*?)(?:\\s*src:\\s+["|'](?<src>[\\w\\d_]+\\.near\\/widget\\/[\\w\\d_.]+))["|']/ig;
+      const widgetRegex = /createElement\\(Widget,\\s*\\{(?:[\\w\\W]*?)(?:\\s*src:\\s*["|'](?<src>[\\w\\d_]+\\.near\\/widget\\/[\\w\\d_.]+))["|']/ig;
       const matches = [...(transpiledWidget.matchAll(widgetRegex))]
         .reduce((widgetInstances, match) => {
           const source = match.groups.src;

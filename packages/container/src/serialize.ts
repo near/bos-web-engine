@@ -245,7 +245,22 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
     } else {
       // `type` is a Preact component function for a child Widget
       // invoke it with the passed props to render the component and serialize its DOM tree
-      return serializeNode({ builtinComponents, node: type(props), parentId, index, callbacks, childWidgets });
+      const node = serializeNode({ builtinComponents, node: type(props), parentId, index, callbacks, childWidgets });
+      if (!node || typeof node !== 'object') {
+        return node;
+      }
+
+      return {
+        ...node,
+        props: {
+          ...node.props,
+          id: 'dom-' + buildWidgetId({
+            widgetPath: type.name,
+            widgetProps: props,
+            parentWidgetId: parentId,
+          }),
+        }
+      };
     }
   }
 

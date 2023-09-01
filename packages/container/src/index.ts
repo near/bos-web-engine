@@ -14,6 +14,9 @@ export {
   buildUseComponentCallback,
 } from './hooks';
 export {
+  inlineGlobalDefinition,
+} from './injection';
+export {
   buildRequest,
   postMessage,
   postCallbackInvocationMessage,
