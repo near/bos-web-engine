@@ -31,7 +31,6 @@ interface ParseComponentTreeParams {
   componentPath: string;
 }
 
-
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<string>>;
   private compiledSourceCache: Map<string, string>;
