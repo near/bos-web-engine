@@ -7,8 +7,8 @@ import {
   onCallbackResponse,
   onRender,
 } from '@bos-web-engine/application';
+import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/iframe';
-import type { ComponentCompilerResponse } from '@bos-web-engine/transpiler';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -42,7 +42,7 @@ export default function Web() {
   const [widgetUpdates, setWidgetUpdates] = useState('');
   const [showMonitor, setShowMonitor] = useState(true);
   const [showWidgetDebug, setShowWidgetDebug] = useState(true);
-  const [transpiler, setTranspiler] = useState<any>(null);
+  const [compiler, setCompiler] = useState<any>(null);
 
   const widgetProxy = new Proxy(widgets, {
     get(target, key: string) {
@@ -52,7 +52,7 @@ export default function Web() {
     set(target, key: string, value: any) {
       // if the widget is being added, initiate request for widget component code
       if (!target[key]) {
-        transpiler?.postMessage({ componentId: key, isTrusted: value.isTrusted });
+        compiler?.postMessage({ componentId: key, isTrusted: value.isTrusted });
       }
 
       target[key] = value;
@@ -115,11 +115,11 @@ export default function Web() {
       return;
     }
 
-    if (!transpiler) {
-      const worker = new Worker(new URL('../workers/transpiler.ts', import.meta.url));
-      setTranspiler(worker);
+    if (!compiler) {
+      const worker = new Worker(new URL('../workers/compiler.ts', import.meta.url));
+      setCompiler(worker);
     } else {
-      transpiler.onmessage = ({ data }: MessageEvent<ComponentCompilerResponse>) => {
+      compiler.onmessage = ({ data }: MessageEvent<ComponentCompilerResponse>) => {
         const { componentId, componentSource } = data;
         const component = { ...widgetProxy[componentId], widgetComponent: componentSource };
         if (!rootWidgetSource && componentId === rootWidget) {
@@ -130,12 +130,12 @@ export default function Web() {
         widgetProxy[componentId] = component;
       };
 
-      transpiler.postMessage({
+      compiler.postMessage({
         componentId: rootWidget,
         isTrusted: false,
       });
     }
-  }, [rootWidget, rootWidgetSource, transpiler]);
+  }, [rootWidget, rootWidgetSource, compiler]);
 
   return (
     <div className='App'>

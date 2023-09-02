@@ -1,5 +1,5 @@
 {
-  "name": "@bos-web-engine/transpiler",
+  "name": "@bos-web-engine/compiler",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",

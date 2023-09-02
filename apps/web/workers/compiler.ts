@@ -1,4 +1,4 @@
-import { ComponentCompiler, ComponentCompilerRequest } from '@bos-web-engine/transpiler';
+import { ComponentCompiler, ComponentCompilerRequest } from '@bos-web-engine/compiler';
 
 const compiler = new ComponentCompiler({ sendMessage: (message: any) => self.postMessage(message) });
 
