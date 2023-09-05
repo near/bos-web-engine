@@ -26,7 +26,7 @@ module.exports = {
       }
     ],
     "indent": ["error", 2, {
-      "SwitchCase": 2,
+      "SwitchCase": 1,
     }],
     "no-multiple-empty-lines": ["error", {
       "max": 2,
