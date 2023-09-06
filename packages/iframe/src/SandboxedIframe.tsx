@@ -117,7 +117,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
 
           /* NS shims */
           function buildSafeProxy(p) {
-            return new Proxy(p, {
+            return new Proxy({ ...p, __bweMeta: { isProxy: true } }, {
               get(target, key) {
                 try {
                   return target[key];                
