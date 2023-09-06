@@ -12,29 +12,29 @@ const DEFAULT_ROOT_WIDGET = 'andyh.near/widget/MainPage';
 const monitor = new WidgetActivityMonitor();
 
 export default function Web() {
-  const [rootWidget, setRootWidget] = useState('');
-  const [rootWidgetInput, setRootWidgetInput] = useState(DEFAULT_ROOT_WIDGET);
+  const [rootComponentPath, setRootComponentPath] = useState('');
+  const [rootComponentPathInput, setRootComponentPathInput] = useState(DEFAULT_ROOT_WIDGET);
   const [showMonitor, setShowMonitor] = useState(true);
   const [showWidgetDebug, setShowWidgetDebug] = useState(true);
 
   const { components } = useWebEngine({
     monitor,
     showWidgetDebug,
-    rootWidget,
+    rootComponentPath,
   });
 
   return (
     <div className='App'>
-      {!rootWidget && (
+      {!rootComponentPath && (
         <div id='init-widget'>
           <div>
             <input
               type='text'
-              value={rootWidgetInput}
+              value={rootComponentPathInput}
               style={{ width: '400px' }}
-              onChange={(e) => setRootWidgetInput(e.target.value)}
+              onChange={(e) => setRootComponentPathInput(e.target.value)}
             />
-            <button onClick={() => setRootWidget(rootWidgetInput)}>
+            <button onClick={() => setRootComponentPath(rootComponentPathInput)}>
               Update Root Widget
             </button>
           </div>
@@ -56,23 +56,23 @@ export default function Web() {
           </div>
         </div>
       )}
-      {rootWidget && (
+      {rootComponentPath && (
         <>
           {showMonitor && <WidgetMonitor monitor={monitor} />}
-          <div id={getAppDomId(rootWidget)} className='iframe'>
+          <div id={getAppDomId(rootComponentPath)} className='iframe'>
             root widget goes here
           </div>
           <div className="iframes">
             {showWidgetDebug && (<h5>here be hidden iframes</h5>)}
             {
               Object.entries(components)
-                .filter(([, component]) => !!component?.widgetComponent)
-                .map(([widgetId, { isTrusted, props, widgetComponent }]) => (
+                .filter(([, component]) => !!component?.componentSource)
+                .map(([widgetId, { isTrusted, props, componentSource }]) => (
                   <div key={widgetId} widget-id={widgetId}>
                     <SandboxedIframe
                       id={getIframeId(widgetId)}
                       isTrusted={isTrusted}
-                      scriptSrc={widgetComponent}
+                      scriptSrc={componentSource}
                       widgetProps={props}
                     />
                   </div>

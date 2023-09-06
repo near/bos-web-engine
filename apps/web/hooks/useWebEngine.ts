@@ -13,14 +13,14 @@ import ReactDOM from 'react-dom/client';
 
 interface UseWebEngineParams {
   monitor: WidgetActivityMonitor;
-  rootWidget: string;
+  rootComponentPath: string;
   showWidgetDebug: boolean;
 }
 
-export function useWebEngine({ monitor, showWidgetDebug, rootWidget }: UseWebEngineParams) {
+export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: UseWebEngineParams) {
   const [compiler, setCompiler] = useState<any>(null);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
-  const [rootWidgetSource, setRootWidgetSource] = useState<string | null>(null);
+  const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
 
   const domRoots: { [key: string]: ReactDOM.Root } = {};
 
@@ -97,9 +97,10 @@ export function useWebEngine({ monitor, showWidgetDebug, rootWidget }: UseWebEng
 
     window.addEventListener('message', processMessage);
     return () => window.removeEventListener('message', processMessage);
+  }, [rootComponentSource, showWidgetDebug]);
 
   useEffect(() => {
-    if (!rootWidget) {
+    if (!rootComponentPath) {
       return;
     }
 
@@ -109,20 +110,20 @@ export function useWebEngine({ monitor, showWidgetDebug, rootWidget }: UseWebEng
     } else {
       compiler.onmessage = ({ data }: MessageEvent<ComponentCompilerResponse>) => {
         const { componentId, componentSource } = data;
-        const component = { ...components[componentId], componentId, widgetComponent: componentSource };
-        if (!rootWidgetSource && componentId === rootWidget) {
-          setRootWidgetSource(componentId);
+        const component = { ...components[componentId], componentId, componentSource };
+        if (!rootComponentSource && componentId === rootComponentPath) {
+          setRootComponentSource(componentId);
         }
         monitor.widgetAdded({ source: componentId, ...component });
         addComponent(componentId, component);
       };
 
       compiler.postMessage({
-        componentId: rootWidget,
+        componentId: rootComponentPath,
         isTrusted: false,
       });
     }
-  }, [rootWidget, rootWidgetSource, compiler]);
+  }, [rootComponentPath, rootComponentSource, compiler]);
 
   return {
     components,
