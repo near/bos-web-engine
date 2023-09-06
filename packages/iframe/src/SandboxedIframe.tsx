@@ -128,18 +128,6 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             });
           }
 
-          function buildSafeProxyFromMap(map, widgetId) {
-            return new Proxy({}, {
-              get(_, key) {
-                try {
-                  return map.get(widgetId)[key];
-                } catch {
-                  return undefined;
-                }
-              }
-            });
-          }
-
           let props = buildSafeProxy(deserializeProps({
             buildRequest,
             callbacks,
