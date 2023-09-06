@@ -31,12 +31,21 @@ export interface CallbackResponseHandlerOptions {
   data: CallbackResponseEventData;
 }
 
+interface LoadComponentParams {
+  componentId: string;
+  componentPath: string;
+  isTrusted: boolean;
+  parentId: string;
+  props: any;
+}
+
 export interface RenderHandlerOptions {
   data: RenderEventData;
   isDebug?: boolean;
   markWidgetUpdated: (update: WidgetUpdate) => void;
   mountElement: ({ widgetId, element }: { widgetId: string, element: any }) => void;
-  widgets: { [key: string]: any };
+  isComponentLoaded(componentId: string): boolean;
+  loadComponent(component: LoadComponentParams): void;
 }
 
 export interface IframePostMessageOptions {

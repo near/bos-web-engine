@@ -100,12 +100,13 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           // builtin components are resolved during serialization 
           function Checkbox() {}
           function CommitButton() {}
-          function Fragment() {}
-          function IpfsImageUpload() {}
           function Dialog() {}
           function DropdownMenu() {}
           function Files() {}
+          function Fragment() {}
           function InfiniteScroll() {}
+          function IpfsImageUpload() {}
+          function Link() {}
           function Markdown() {}
           function OverlayTrigger() {}
           function Tooltip() {}
@@ -116,22 +117,10 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
 
           /* NS shims */
           function buildSafeProxy(p) {
-            return new Proxy(p, {
+            return new Proxy({ ...p, __bweMeta: { isProxy: true } }, {
               get(target, key) {
                 try {
                   return target[key];                
-                } catch {
-                  return undefined;
-                }
-              }
-            });
-          }
-
-          function buildSafeProxyFromMap(map, widgetId) {
-            return new Proxy({}, {
-              get(_, key) {
-                try {
-                  return map.get(widgetId)[key];
                 } catch {
                   return undefined;
                 }

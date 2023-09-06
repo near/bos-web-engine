@@ -41,6 +41,7 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
       // TODO better preact component check
       const isComponent = value?.props && typeof value === 'object' && ('__' in value && '__k' in value);
       const isFunction = typeof value === 'function';
+      const isProxy = value?.__bweMeta?.isProxy || false;
 
       if (!isFunction) {
         let serializedValue = value;
@@ -55,6 +56,8 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
           });
         } else if (typeof value === 'string') {
           serializedValue = decodeJsonString(serializedValue);
+        } else if (isProxy) {
+          serializedValue = { ...serializedValue };
         }
 
         newProps[key] = serializedValue;

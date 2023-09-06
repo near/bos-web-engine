@@ -55,7 +55,8 @@ export function onRender({
   isDebug = false,
   markWidgetUpdated,
   mountElement,
-  widgets,
+  isComponentLoaded,
+  loadComponent,
 }: RenderHandlerOptions) {
   /* a widget has been rendered and is ready to be updated in the outer window */
   const { widgetId, childWidgets, node } = data;
@@ -82,14 +83,15 @@ export function onRender({
       - this widget is being loaded for the first time
       - the parent widget has updated and is re-rendering this widget
     */
-    if (!widgets[childWidgetId]) {
+    if (!isComponentLoaded(childWidgetId)) {
       /* widget code has not yet been loaded, add to cache and load */
-      widgets[childWidgetId] = {
+      loadComponent({
+        componentId: childWidgetId,
+        componentPath: source,
         isTrusted,
         parentId: widgetId,
         props: widgetProps,
-        source,
-      };
+      });
     } else {
       /* widget iframe is already loaded, post update message to iframe */
       markWidgetUpdated({ props, widgetId });
