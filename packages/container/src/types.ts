@@ -232,6 +232,7 @@ export interface BuiltinComponents {
   Fragment: CreateSerializedBuiltin
   InfiniteScroll: CreateSerializedBuiltin;
   IpfsImageUpload: CreateSerializedBuiltin;
+  Link: CreateSerializedBuiltin;
   Markdown: CreateSerializedBuiltin;
   OverlayTrigger: CreateSerializedBuiltin;
   Tooltip: CreateSerializedBuiltin;

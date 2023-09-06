@@ -36,6 +36,9 @@ export function getBuiltins({ createElement }: GetBuiltinsOptions): BuiltinCompo
     IpfsImageUpload: ({ children, props } : BuiltinProps<IpfsImageUploadProps>) => {
       return createElement('div', props,  children);
     },
+    Link: ({ children, props } : BuiltinProps<object>) => {
+      return createElement('div', props,  children);
+    },
     Markdown: ({ children, props } : BuiltinProps<MarkdownProps>) => {
       return createElement('div', props,  [props?.text, ...children]);
     },

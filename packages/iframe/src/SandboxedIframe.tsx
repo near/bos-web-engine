@@ -100,12 +100,13 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           // builtin components are resolved during serialization 
           function Checkbox() {}
           function CommitButton() {}
-          function Fragment() {}
-          function IpfsImageUpload() {}
           function Dialog() {}
           function DropdownMenu() {}
           function Files() {}
+          function Fragment() {}
           function InfiniteScroll() {}
+          function IpfsImageUpload() {}
+          function Link() {}
           function Markdown() {}
           function OverlayTrigger() {}
           function Tooltip() {}
