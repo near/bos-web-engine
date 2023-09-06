@@ -57,55 +57,46 @@ export function useWebEngine({ monitor, showWidgetDebug, rootWidget }: UseWebEng
   };
 
   useEffect(() => {
-    function buildMessageListener(eventType: string) {
-      return function (event: any) {
-        try {
-          if (typeof event.data !== 'object' || event.data.type !== eventType) {
-            return;
-          }
-
-          const { data } = event;
-          switch (eventType) {
-            case 'widget.callbackInvocation': {
-              monitor.widgetCallbackInvoked(data);
-              onCallbackInvocation({ data });
-              break;
-            }
-            case 'widget.callbackResponse': {
-              monitor.widgetCallbackReturned(data);
-              onCallbackResponse({ data });
-              break;
-            }
-            case 'widget.render': {
-              monitor.widgetRendered(data);
-              onRender({
-                data,
-                isDebug: showWidgetDebug,
-                markWidgetUpdated: (update: WidgetUpdate) => monitor.widgetUpdated(update),
-                mountElement,
-                loadComponent: (component) => loadComponent(component.componentId, component),
-                isComponentLoaded: (c: string) => !!components[c],
-              });
-              break;
-            }
-            default:
-              break;
-          }
-        } catch (e) {
-          console.error({ event }, e);
+    function processMessage(event: any) {
+      try {
+        if (typeof event.data !== 'object') {
+          return;
         }
-      };
+
+        const { data } = event;
+        switch (data.type) {
+          case 'widget.callbackInvocation': {
+            monitor.widgetCallbackInvoked(data);
+            onCallbackInvocation({ data });
+            break;
+          }
+          case 'widget.callbackResponse': {
+            monitor.widgetCallbackReturned(data);
+            onCallbackResponse({ data });
+            break;
+          }
+          case 'widget.render': {
+            monitor.widgetRendered(data);
+            onRender({
+              data,
+              isDebug: showWidgetDebug,
+              markWidgetUpdated: (update: WidgetUpdate) => monitor.widgetUpdated(update),
+              mountElement,
+              loadComponent: (component) => loadComponent(component.componentId, component),
+              isComponentLoaded: (c: string) => !!components[c],
+            });
+            break;
+          }
+          default:
+            break;
+        }
+      } catch (e) {
+        console.error({ event }, e);
+      }
     }
 
-    const messageListeners = [
-      buildMessageListener('widget.callbackInvocation'),
-      buildMessageListener('widget.callbackResponse'),
-      buildMessageListener('widget.render'),
-    ];
-
-    messageListeners.forEach((cb) => window.addEventListener('message', cb));
-    return () => messageListeners.forEach((cb) => window.removeEventListener('message', cb));
-  }, [rootWidgetSource, showWidgetDebug]);
+    window.addEventListener('message', processMessage);
+    return () => window.removeEventListener('message', processMessage);
 
   useEffect(() => {
     if (!rootWidget) {
