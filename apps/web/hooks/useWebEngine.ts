@@ -2,7 +2,6 @@ import {
   onCallbackInvocation,
   onCallbackResponse,
   onRender,
-  WidgetActivityMonitor,
   WidgetDOMElement,
   WidgetUpdate,
 } from '@bos-web-engine/application';
@@ -11,16 +10,25 @@ import { getAppDomId } from '@bos-web-engine/iframe';
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
+import { useComponentMetrics } from './useComponentMetrics';
+
 interface UseWebEngineParams {
-  monitor: WidgetActivityMonitor;
   rootComponentPath: string;
   showWidgetDebug: boolean;
 }
 
-export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: UseWebEngineParams) {
+export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngineParams) {
   const [compiler, setCompiler] = useState<any>(null);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
+  const {
+    metrics,
+    callbackInvoked,
+    callbackReturned,
+    componentMissing,
+    componentRendered,
+    componentUpdated,
+  } = useComponentMetrics();
 
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef({});
 
@@ -45,7 +53,7 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
       const domElement = document.getElementById(getAppDomId(widgetId));
       if (!domElement) {
         const metricKey = widgetId.split('##')[0];
-        monitor.missingWidgetReferenced(metricKey);
+        componentMissing(metricKey);
         console.error(`Node not found: #${getAppDomId(widgetId)}`);
         return;
       }
@@ -54,7 +62,7 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
     }
 
     domRoots.current[widgetId].render(element);
-  }, [domRoots, monitor]);
+  }, [domRoots]);
 
   const processMessage = useCallback((event: any) => {
     try {
@@ -65,22 +73,21 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
       const { data } = event;
       switch (data.type) {
         case 'widget.callbackInvocation': {
-          console.log('invoked!')
-          monitor.widgetCallbackInvoked(data);
+          callbackInvoked(data);
           onCallbackInvocation({ data });
           break;
         }
         case 'widget.callbackResponse': {
-          monitor.widgetCallbackReturned(data);
+          callbackReturned(data);
           onCallbackResponse({ data });
           break;
         }
         case 'widget.render': {
-          monitor.widgetRendered(data);
+          componentRendered(data);
           onRender({
             data,
             isDebug: showWidgetDebug,
-            markWidgetUpdated: (update: WidgetUpdate) => monitor.widgetUpdated(update),
+            markWidgetUpdated: (update: WidgetUpdate) => componentUpdated(update),
             mountElement,
             loadComponent: (component) => loadComponent(component.componentId, component),
             isComponentLoaded: (c: string) => !!components[c],
@@ -93,7 +100,7 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
     } catch (e) {
       console.error({ event }, e);
     }
-  }, [showWidgetDebug, components, loadComponent, mountElement, monitor]);
+  }, [showWidgetDebug, components, loadComponent, mountElement]);
 
   useEffect(() => {
     window.addEventListener('message', processMessage);
@@ -115,7 +122,7 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
         if (!rootComponentSource && componentId === rootComponentPath) {
           setRootComponentSource(componentId);
         }
-        monitor.widgetAdded({ source: componentId, ...component });
+
         addComponent(componentId, component);
       };
 
@@ -128,5 +135,9 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
 
   return {
     components,
+    metrics: {
+      ...metrics,
+      componentsLoaded: Object.keys(components),
+    },
   };
 }
