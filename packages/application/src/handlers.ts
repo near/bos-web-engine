@@ -96,7 +96,7 @@ export function onRender({
       /* widget iframe is already loaded, post update message to iframe */
       markWidgetUpdated({ props, widgetId });
       postMessageToWidgetIframe({
-        id: widgetId,
+        id: childWidgetId,
         message: {
           props: widgetProps,
           type: 'widget.update',
