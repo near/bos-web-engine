@@ -8,7 +8,7 @@ import {
 } from '@bos-web-engine/application';
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import { getAppDomId } from '@bos-web-engine/iframe';
-import { useCallback, useEffect, useState } from 'react';
+import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 interface UseWebEngineParams {
@@ -22,7 +22,7 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
   const [components, setComponents] = useState<{ [key: string]: any }>({});
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
 
-  const domRoots: { [key: string]: ReactDOM.Root } = {};
+  const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef({});
 
   const addComponent = useCallback((componentId: string, component: any) => {
     setComponents((currentComponents) => ({
@@ -38,10 +38,10 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
 
     addComponent(componentId, component);
     compiler?.postMessage({ componentId, isTrusted: component.isTrusted });
-  }, [compiler, components]);
+  }, [compiler, components, addComponent]);
 
-  const mountElement = ({ widgetId, element }: { widgetId: string, element: WidgetDOMElement }) => {
-    if (!domRoots[widgetId]) {
+  const mountElement = useCallback(({ widgetId, element }: { widgetId: string, element: WidgetDOMElement }) => {
+    if (!domRoots.current[widgetId]) {
       const domElement = document.getElementById(getAppDomId(widgetId));
       if (!domElement) {
         const metricKey = widgetId.split('##')[0];
@@ -50,54 +50,55 @@ export function useWebEngine({ monitor, showWidgetDebug, rootComponentPath }: Us
         return;
       }
 
-      domRoots[widgetId] = ReactDOM.createRoot(domElement);
+      domRoots.current[widgetId] = ReactDOM.createRoot(domElement);
     }
 
-    domRoots[widgetId].render(element);
-  };
+    domRoots.current[widgetId].render(element);
+  }, [domRoots, monitor]);
+
+  const processMessage = useCallback((event: any) => {
+    try {
+      if (typeof event.data !== 'object') {
+        return;
+      }
+
+      const { data } = event;
+      switch (data.type) {
+        case 'widget.callbackInvocation': {
+          console.log('invoked!')
+          monitor.widgetCallbackInvoked(data);
+          onCallbackInvocation({ data });
+          break;
+        }
+        case 'widget.callbackResponse': {
+          monitor.widgetCallbackReturned(data);
+          onCallbackResponse({ data });
+          break;
+        }
+        case 'widget.render': {
+          monitor.widgetRendered(data);
+          onRender({
+            data,
+            isDebug: showWidgetDebug,
+            markWidgetUpdated: (update: WidgetUpdate) => monitor.widgetUpdated(update),
+            mountElement,
+            loadComponent: (component) => loadComponent(component.componentId, component),
+            isComponentLoaded: (c: string) => !!components[c],
+          });
+          break;
+        }
+        default:
+          break;
+      }
+    } catch (e) {
+      console.error({ event }, e);
+    }
+  }, [showWidgetDebug, components, loadComponent, mountElement, monitor]);
 
   useEffect(() => {
-    function processMessage(event: any) {
-      try {
-        if (typeof event.data !== 'object') {
-          return;
-        }
-
-        const { data } = event;
-        switch (data.type) {
-          case 'widget.callbackInvocation': {
-            monitor.widgetCallbackInvoked(data);
-            onCallbackInvocation({ data });
-            break;
-          }
-          case 'widget.callbackResponse': {
-            monitor.widgetCallbackReturned(data);
-            onCallbackResponse({ data });
-            break;
-          }
-          case 'widget.render': {
-            monitor.widgetRendered(data);
-            onRender({
-              data,
-              isDebug: showWidgetDebug,
-              markWidgetUpdated: (update: WidgetUpdate) => monitor.widgetUpdated(update),
-              mountElement,
-              loadComponent: (component) => loadComponent(component.componentId, component),
-              isComponentLoaded: (c: string) => !!components[c],
-            });
-            break;
-          }
-          default:
-            break;
-        }
-      } catch (e) {
-        console.error({ event }, e);
-      }
-    }
-
     window.addEventListener('message', processMessage);
     return () => window.removeEventListener('message', processMessage);
-  }, [rootComponentSource, showWidgetDebug]);
+  }, [processMessage]);
 
   useEffect(() => {
     if (!rootComponentPath) {
