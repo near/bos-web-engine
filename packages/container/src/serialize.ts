@@ -170,8 +170,19 @@ export function deserializeProps({
   };
 }
 
+interface BuildWidgetIdParams {
+  instanceId: string | undefined;
+  widgetPath: string;
+  widgetProps: object;
+  parentWidgetId: string;
+}
+
 export function serializeNode({ builtinComponents, node, index, childWidgets, callbacks, parentId }: SerializeNodeOptions): SerializedNode {
-  function buildWidgetId({ widgetPath, widgetProps, parentWidgetId }: { widgetPath: string, widgetProps: object, parentWidgetId: string }) {
+  function buildWidgetId({ instanceId, widgetPath, widgetProps, parentWidgetId }: BuildWidgetIdParams) {
+    if (instanceId !== undefined) {
+      return [widgetPath, instanceId.toString(), parentWidgetId].join('##');
+    }
+
     const serializedProps = JSON.stringify(widgetProps || {}).replace(/[{}\[\]'", ]/g, '');
     const sampleInterval = Math.floor(serializedProps.length / 2048) || 1;
     const sampledProps = serializedProps
@@ -226,8 +237,8 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
       }));
       unifiedChildren = props.children;
     } else if (component === 'Widget') {
-      const { src, props: widgetProps, isTrusted } = props;
-      const widgetId = buildWidgetId({ widgetPath: src, widgetProps, parentWidgetId: parentId });
+      const { id: instanceId, src, props: widgetProps, isTrusted } = props;
+      const widgetId = buildWidgetId({ instanceId, widgetPath: src, widgetProps, parentWidgetId: parentId });
       try {
         childWidgets.push({
           isTrusted: !!isTrusted,
@@ -248,7 +259,15 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
     } else {
       // `type` is a Preact component function for a child Widget
       // invoke it with the passed props to render the component and serialize its DOM tree
-      const node = serializeNode({ builtinComponents, node: type(props), parentId, index, callbacks, childWidgets });
+      const node = serializeNode({
+        builtinComponents,
+        node: type(props),
+        parentId,
+        index,
+        callbacks,
+        childWidgets,
+      });
+
       if (!node || typeof node !== 'object') {
         return node;
       }
@@ -258,8 +277,9 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
         props: {
           ...node.props,
           id: 'dom-' + buildWidgetId({
+            instanceId: props?.id,
             widgetPath: type.name,
-            widgetProps: props,
+            widgetProps: props?.props,
             parentWidgetId: parentId,
           }),
         },
