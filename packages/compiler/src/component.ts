@@ -22,11 +22,10 @@ interface BuildComponentFunctionParams {
 export function buildComponentFunction({ componentPath, componentSource, isRoot }: BuildComponentFunctionParams) {
   const componentBody = '\n\n/*' + componentPath + '*/\n\n' + componentSource;
 
-  const stateInitialization = 'const { state, State} = (' + initializeComponentState.toString() + ')(ComponentState, "' + componentPath + '");';
+  const stateInitialization = 'const { state, State} = (' + initializeComponentState.toString() + ')(ComponentState, "' + componentPath + '", renderWidget);';
   if (isRoot) {
     return `
       function ${buildComponentFunctionName()}() {
-        const ComponentState = new Map();
         ${stateInitialization}
         ${componentBody}
       }
@@ -41,17 +40,16 @@ export function buildComponentFunction({ componentPath, componentSource, isRoot 
   `;
 }
 
-function initializeComponentState(ComponentState: ComponentStateMap, componentInstanceId: string) {
-  const buildSafeProxyFromMap = (map: ComponentStateMap, widgetId: string) => new Proxy({}, {
+function initializeComponentState(ComponentState: ComponentStateMap, componentInstanceId: string, renderWidget: () => void) {
+  const state = new Proxy({}, {
     get(_, key) {
       try {
-        return map.get(widgetId)?.[key];
+        return ComponentState.get(componentInstanceId)?.[key];
       } catch {
         return undefined;
       }
     },
   });
-
   const State = {
     init(obj: any) {
       if (!ComponentState.has(componentInstanceId)) {
@@ -60,11 +58,12 @@ function initializeComponentState(ComponentState: ComponentStateMap, componentIn
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
+      renderWidget();
     },
   };
 
   return {
-    state: buildSafeProxyFromMap(ComponentState, componentInstanceId),
+    state,
     State,
   };
 }

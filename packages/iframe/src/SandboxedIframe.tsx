@@ -171,6 +171,8 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
 
           // TODO remove debug value
           const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
+          
+          const ComponentState = new Map();
 
           function WidgetWrapper() {
             try {
