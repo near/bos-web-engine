@@ -217,6 +217,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           function isMatchingProps(props, compareProps) {
             const getComparable = (p) => Object.keys(p)
               .sort()
+              .filter((k) => k !== '__bweMeta')
               .map((propKey) => propKey + '::' + p[propKey])
               .join(',');
 
