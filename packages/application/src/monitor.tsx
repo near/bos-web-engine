@@ -14,6 +14,8 @@ export function ComponentMonitor({ components, metrics }: { components: any[], m
     componentsBySource[source].push(widget);
     return componentsBySource;
   }, {} as { [key: string]: Widget[] });
+  const sortedByFrequency = Object.entries(groupedComponents) as [string, Widget[]][];
+  sortedByFrequency.sort(([, aComponents], [, bComponents]) => bComponents.length - aComponents.length);
 
   return (
     <div id='widget-monitor'>
@@ -29,8 +31,7 @@ export function ComponentMonitor({ components, metrics }: { components: any[], m
       </div>
       <div className='widgets'>
         {
-          Object.entries(groupedComponents)
-            .sort(([, aComponents], [, bComponents]) => bComponents.length - aComponents.length)
+          sortedByFrequency
             .map(([source, componentsBySource], i) => (
               <div className='widget-row' key={`widget-row-${i}`}>
                 {(componentsBySource as Widget[]).length} {source}
