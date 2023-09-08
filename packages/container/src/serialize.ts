@@ -203,8 +203,9 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
     return node;
   }
 
-  let { type } = node;
-  const { children } = node.props;
+  const { type } = node;
+  let serializedElementType = typeof type === 'string' ? type : '';
+  const children = node?.props?.children || [];
   let props = { ...node.props };
   delete props.children;
 
@@ -219,23 +220,23 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
     });
 
   if (!type) {
-    type = 'div';
+    serializedElementType = 'div';
   } else if (typeof type === 'function') {
     const { name: component } = type;
     if (component === '_') {
-      type = 'div';
+      serializedElementType = 'div';
       // @ts-expect-error
     } else if (builtinComponents[component]) {
       // @ts-expect-error
       const builtin = builtinComponents[component];
       ({
         props,
-        type,
+        type: serializedElementType,
       } = builtin({
         children: unifiedChildren,
         props,
       }));
-      unifiedChildren = props.children;
+      unifiedChildren = props.children || [];
     } else if (component === 'Widget') {
       const { id: instanceId, src, props: widgetProps, isTrusted } = props;
       const widgetId = buildWidgetId({ instanceId, widgetPath: src, widgetProps, parentWidgetId: parentId });
@@ -288,7 +289,7 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
   }
 
   return {
-    type,
+    type: serializedElementType,
     props: {
       ...serializeProps({ props, builtinComponents, callbacks, parentId }),
       children: unifiedChildren

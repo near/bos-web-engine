@@ -239,9 +239,14 @@ export interface BuiltinComponents {
   Typeahead: CreateSerializedBuiltin;
 }
 
+export interface Node {
+  type: string | Function;
+  props?: NodeProps;
+}
+
 export interface SerializeNodeOptions {
   builtinComponents: BuiltinComponents;
-  node: any;
+  node: Node;
   index: number;
   childWidgets: any[];
   callbacks: CallbackMap;
