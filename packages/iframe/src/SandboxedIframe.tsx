@@ -62,26 +62,27 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           const useComponentCallback = buildUseComponentCallback(renderWidget);
 
           const builtinComponents = ${getBuiltins.toString()}({ createElement });
-          let lastRenderedNode;
+
+          const nodeRenders = {};
           // FIXME circular dependency between [dispatchRenderEvent] (referenced in Preact fork) and [h] (used to render builtin components) 
-          const dispatchRenderEvent = (node) => {
+          const dispatchRenderEvent = (node, componentId = '${id}') => {
             const serializedNode = serializeNode({
               node,
               builtinComponents,
               index: -1,
               childWidgets: [],
               callbacks,
-              parentId: '${id}',
+              parentId: componentId,
             });
 
             // TODO is this a band-aid for cascading renders?
             // TODO compare non-serializable properties
             const stringifiedNode = JSON.stringify(serializedNode);
-            if (lastRenderedNode === stringifiedNode) {
+            if (nodeRenders[componentId] === stringifiedNode) {
               return;
             }
-            lastRenderedNode = stringifiedNode;
 
+            nodeRenders[componentId] = stringifiedNode;
             const { childWidgets, ...serialized } = serializedNode;
 
             try {
@@ -89,7 +90,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
                 childWidgets,
                 isTrusted: ${isTrusted},
                 node: serialized,
-                widgetId: '${id}',
+                widgetId: componentId,
               });
             } catch (error) {
               console.warn('failed to dispatch render for ${id}', { error, serialized });
