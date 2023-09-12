@@ -78,7 +78,7 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
     }
 
     domRoots.current[widgetId].render(element);
-  }, [domRoots]);
+  }, [domRoots, componentMissing]);
 
   const processMessage = useCallback((event: any) => {
     try {
@@ -120,7 +120,7 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
     } catch (e) {
       console.error({ event }, e);
     }
-  }, [showWidgetDebug, components, loadComponent, mountElement]);
+  }, [showWidgetDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, callbackInvoked, callbackReturned, componentRendered, componentUpdated]);
 
   useEffect(() => {
     window.addEventListener('message', processMessage);
@@ -151,7 +151,7 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
         isTrusted: false,
       });
     }
-  }, [rootComponentPath, rootComponentSource, compiler]);
+  }, [rootComponentPath, rootComponentSource, compiler, addComponent, components]);
 
   return {
     components,
