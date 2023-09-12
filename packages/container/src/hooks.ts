@@ -13,7 +13,7 @@ export function buildUseComponentCallback(renderComponent: () => void) {
       }
 
       callbackMap.set(key, undefined);
-      callback(...args)
+      Promise.resolve(callback(...args))
         .then((res) => {
           callbackMap.set(key, res);
           renderComponent();
