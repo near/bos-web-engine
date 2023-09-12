@@ -77,6 +77,7 @@ export function onRender({
     type: node.type,
   });
   mountElement({ widgetId, element });
+  markWidgetUpdated({ props, widgetId });
 
   childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source, isTrusted }: { widgetId: string, props: any, source: string, isTrusted: boolean }) => {
     /*
@@ -96,7 +97,7 @@ export function onRender({
       });
     } else {
       /* widget iframe is already loaded, post update message to iframe */
-      markWidgetUpdated({ props, widgetId: childWidgetId });
+      markWidgetUpdated({ props: widgetProps, widgetId: childWidgetId });
       postMessageToWidgetIframe({
         id: childWidgetId,
         message: {
