@@ -4,8 +4,7 @@ export {
   onRender,
 } from './handlers';
 export {
-  WidgetMonitor,
-  WidgetActivityMonitor,
+  ComponentMonitor,
 } from './monitor';
 export {
   createChildElements,

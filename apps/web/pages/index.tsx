@@ -1,15 +1,12 @@
 import {
-  WidgetActivityMonitor,
-  WidgetMonitor,
+  ComponentMonitor,
 } from '@bos-web-engine/application';
 import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/iframe';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { useWebEngine } from '../hooks';
 
 const DEFAULT_ROOT_WIDGET = 'andyh.near/widget/MainPage';
-
-const monitor = new WidgetActivityMonitor();
 
 export default function Web() {
   const [rootComponentPath, setRootComponentPath] = useState('');
@@ -17,8 +14,7 @@ export default function Web() {
   const [showMonitor, setShowMonitor] = useState(true);
   const [showWidgetDebug, setShowWidgetDebug] = useState(true);
 
-  const { components } = useWebEngine({
-    monitor,
+  const { components, metrics } = useWebEngine({
     showWidgetDebug,
     rootComponentPath,
   });
@@ -58,7 +54,7 @@ export default function Web() {
       )}
       {rootComponentPath && (
         <>
-          {showMonitor && <WidgetMonitor monitor={monitor} />}
+          {showMonitor && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
           <div id={getAppDomId(rootComponentPath)} className='iframe'>
             root widget goes here
           </div>

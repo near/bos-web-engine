@@ -62,26 +62,27 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           const useComponentCallback = buildUseComponentCallback(renderWidget);
 
           const builtinComponents = ${getBuiltins.toString()}({ createElement });
-          let lastRenderedNode;
+
+          const nodeRenders = {};
           // FIXME circular dependency between [dispatchRenderEvent] (referenced in Preact fork) and [h] (used to render builtin components) 
-          const dispatchRenderEvent = (node) => {
+          const dispatchRenderEvent = (node, componentId = '${id}') => {
             const serializedNode = serializeNode({
               node,
               builtinComponents,
               index: -1,
               childWidgets: [],
               callbacks,
-              parentId: '${id}',
+              parentId: componentId,
             });
 
             // TODO is this a band-aid for cascading renders?
             // TODO compare non-serializable properties
             const stringifiedNode = JSON.stringify(serializedNode);
-            if (lastRenderedNode === stringifiedNode) {
+            if (nodeRenders[componentId] === stringifiedNode) {
               return;
             }
-            lastRenderedNode = stringifiedNode;
 
+            nodeRenders[componentId] = stringifiedNode;
             const { childWidgets, ...serialized } = serializedNode;
 
             try {
@@ -89,7 +90,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
                 childWidgets,
                 isTrusted: ${isTrusted},
                 node: serialized,
-                widgetId: '${id}',
+                widgetId: componentId,
               });
             } catch (error) {
               console.warn('failed to dispatch render for ${id}', { error, serialized });
@@ -117,7 +118,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
 
           /* NS shims */
           function buildSafeProxy(p) {
-            return new Proxy({ ...p, __bweMeta: { isProxy: true } }, {
+            return new Proxy({ ...p, __bweMeta: { componentId: '${id}', isProxy: true } }, {
               get(target, key) {
                 try {
                   return target[key];                
@@ -171,6 +172,8 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
 
           // TODO remove debug value
           const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
+          
+          const ComponentState = new Map();
 
           function WidgetWrapper() {
             try {
@@ -215,6 +218,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           function isMatchingProps(props, compareProps) {
             const getComparable = (p) => Object.keys(p)
               .sort()
+              .filter((k) => k !== '__bweMeta')
               .map((propKey) => propKey + '::' + p[propKey])
               .join(',');
 

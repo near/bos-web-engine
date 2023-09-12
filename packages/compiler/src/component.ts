@@ -21,12 +21,23 @@ interface BuildComponentFunctionParams {
 
 export function buildComponentFunction({ componentPath, componentSource, isRoot }: BuildComponentFunctionParams) {
   const componentBody = '\n\n/*' + componentPath + '*/\n\n' + componentSource;
+  const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
 
-  const stateInitialization = 'const { state, State} = (' + initializeComponentState.toString() + ')(ComponentState, "' + componentPath + '");';
+  const stateInitialization = `
+    const { state, State } = (
+      ${initializeComponentState.toString()}
+    )({
+      ComponentState,
+      componentInstanceId: props?.__bweMeta?.componentId,
+      componentFunction: ${functionName},
+      componentProps: props,
+      dispatchRenderEvent,
+    });
+  `;
+
   if (isRoot) {
     return `
-      function ${buildComponentFunctionName()}() {
-        const ComponentState = new Map();
+      function ${functionName}() {
         ${stateInitialization}
         ${componentBody}
       }
@@ -34,24 +45,37 @@ export function buildComponentFunction({ componentPath, componentSource, isRoot 
   }
 
   return `
-    function ${buildComponentFunctionName(componentPath)}({ props }) {
+    function ${functionName}({ props }) {
       ${stateInitialization}
       ${componentBody}
     }
   `;
 }
 
-function initializeComponentState(ComponentState: ComponentStateMap, componentInstanceId: string) {
-  const buildSafeProxyFromMap = (map: ComponentStateMap, widgetId: string) => new Proxy({}, {
+interface InitializeComponentStateParams {
+  ComponentState: ComponentStateMap;
+  componentInstanceId: string;
+  componentFunction: (props: any) => any;
+  componentProps: any;
+  dispatchRenderEvent: (node: Node, componentId: string) => void;
+}
+
+function initializeComponentState({
+  ComponentState,
+  componentInstanceId,
+  componentFunction,
+  componentProps,
+  dispatchRenderEvent,
+}: InitializeComponentStateParams) {
+  const state = new Proxy({}, {
     get(_, key) {
       try {
-        return map.get(widgetId)?.[key];
+        return ComponentState.get(componentInstanceId)?.[key];
       } catch {
         return undefined;
       }
     },
   });
-
   const State = {
     init(obj: any) {
       if (!ComponentState.has(componentInstanceId)) {
@@ -60,11 +84,13 @@ function initializeComponentState(ComponentState: ComponentStateMap, componentIn
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
+      // FIXME need to debug empty renders
+      // dispatchRenderEvent(componentFunction({ props: componentProps }), componentInstanceId);
     },
   };
 
   return {
-    state: buildSafeProxyFromMap(ComponentState, componentInstanceId),
+    state,
     State,
   };
 }

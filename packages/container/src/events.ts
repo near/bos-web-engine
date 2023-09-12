@@ -164,97 +164,97 @@ export function buildEventHandler({
     }
 
     switch (event.data.type) {
-        case 'widget.callbackInvocation': {
-          let { args, method, originator, requestId } = event.data;
-          try {
-            result = invokeCallback({ args, method });
-          } catch (e: any) {
-            error = e;
-          }
-
-          result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }));
-
-          const postCallbackResponse = (value: any, error: any) => {
-            if (requestId) {
-              postCallbackResponseMessage({
-                error,
-                requestId,
-                result: value,
-                targetId: originator,
-              });
-            }
-          };
-
-          if (result?.then) {
-            result
-              .then((v: any) => postCallbackResponse(v, error))
-              .catch((e: any) => postCallbackResponse(undefined, e));
-          } else {
-            postCallbackResponse(result, error);
-          }
-          break;
+      case 'widget.callbackInvocation': {
+        let { args, method, originator, requestId } = event.data;
+        try {
+          result = invokeCallback({ args, method });
+        } catch (e: any) {
+          error = e;
         }
-        case 'widget.callbackResponse': {
-          const { requestId, result } = event.data;
-          if (!(requestId in requests)) {
-            console.error(`No request found for request ${requestId}`);
-            return;
-          }
 
-          if (!result) {
-            console.error(`No response for request ${requestId}`);
-            return;
-          }
+        result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }));
 
-          const { rejecter, resolver } = requests[requestId];
-          if (!rejecter || !resolver) {
-            console.error(`No resolver set for request ${requestId}`);
-            return;
+        const postCallbackResponse = (value: any, error: any) => {
+          if (requestId) {
+            postCallbackResponseMessage({
+              error,
+              requestId,
+              result: value,
+              targetId: originator,
+            });
           }
+        };
 
-          let error: any;
-          let value: any;
-          try {
-            ({ error, value } = JSON.parse(result));
-          } catch (e) {
-            console.error('Could not parse returned JSON', { error: e, result });
-            return;
-          }
-
-          if (error) {
-            console.error('External Widget callback failed', { error });
-            // TODO reject w/ Error instance
-            rejecter(error);
-            return;
-          }
-
-          resolver(applyRecursivelyToComponents(value, renderDom));
-          break;
+        if (result?.then) {
+          result
+            .then((v: any) => postCallbackResponse(v, error))
+            .catch((e: any) => postCallbackResponse(undefined, e));
+        } else {
+          postCallbackResponse(result, error);
         }
-        case 'widget.domCallback': {
-          let { args, method } = event.data;
-          try {
-            result = invokeCallback({ args, method });
-            shouldRender = true; // TODO conditional re-render
-          } catch (e: any) {
-            error = e as Error;
-          }
-          break;
-        }
-        case 'widget.update': {
-          shouldRender = setProps(deserializeProps({
-            buildRequest,
-            callbacks,
-            postCallbackInvocationMessage,
-            props: event.data.props,
-            requests,
-            widgetId,
-          }));
-          break;
-        }
-        default: {
+        break;
+      }
+      case 'widget.callbackResponse': {
+        const { requestId, result } = event.data;
+        if (!(requestId in requests)) {
+          console.error(`No request found for request ${requestId}`);
           return;
         }
+
+        if (!result) {
+          console.error(`No response for request ${requestId}`);
+          return;
+        }
+
+        const { rejecter, resolver } = requests[requestId];
+        if (!rejecter || !resolver) {
+          console.error(`No resolver set for request ${requestId}`);
+          return;
+        }
+
+        let error: any;
+        let value: any;
+        try {
+          ({ error, value } = JSON.parse(result));
+        } catch (e) {
+          console.error('Could not parse returned JSON', { error: e, result });
+          return;
+        }
+
+        if (error) {
+          console.error('External Widget callback failed', { error });
+          // TODO reject w/ Error instance
+          rejecter(error);
+          return;
+        }
+
+        resolver(applyRecursivelyToComponents(value, renderDom));
+        break;
+      }
+      case 'widget.domCallback': {
+        let { args, method } = event.data;
+        try {
+          result = invokeCallback({ args, method });
+          shouldRender = true; // TODO conditional re-render
+        } catch (e: any) {
+          error = e as Error;
+        }
+        break;
+      }
+      case 'widget.update': {
+        shouldRender = setProps(deserializeProps({
+          buildRequest,
+          callbacks,
+          postCallbackInvocationMessage,
+          props: event.data.props,
+          requests,
+          widgetId,
+        }));
+        break;
+      }
+      default: {
+        return;
+      }
     }
 
     if (shouldRender) {

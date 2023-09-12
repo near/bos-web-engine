@@ -50,9 +50,17 @@ export function onCallbackResponse({
   });
 }
 
+interface ChildComponent {
+  widgetId: string;
+  props: any;
+  source: string;
+  isTrusted: boolean;
+}
+
 export function onRender({
   data,
   isDebug = false,
+  getComponentRenderCount,
   markWidgetUpdated,
   mountElement,
   isComponentLoaded,
@@ -66,7 +74,11 @@ export function onRender({
   const element = createElement({
     children: [
       ...(isDebug ? [
-        React.createElement('span', { className: 'dom-label' }, `[${widgetId.split('##')[0]}]`),
+        React.createElement(
+          'span',
+          { className: 'dom-label' },
+          `[${widgetId.split('##')[0]} (${getComponentRenderCount(widgetId)})]`
+        ),
         React.createElement('br'),
       ] : []),
       ...(Array.isArray(componentChildren) ? componentChildren : [componentChildren]),
@@ -76,12 +88,13 @@ export function onRender({
     type: node.type,
   });
   mountElement({ widgetId, element });
+  markWidgetUpdated({ props, widgetId });
 
-  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source, isTrusted }: { widgetId: string, props: any, source: string, isTrusted: boolean }) => {
+  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source, isTrusted }: ChildComponent) => {
     /*
-      a widget is being rendered by a parent widget, either:
-      - this widget is being loaded for the first time
-      - the parent widget has updated and is re-rendering this widget
+      a new Component is being rendered by a parent Component, either:
+      - this Component is being loaded for the first time
+      - the parent Component has updated and is re-rendering this Component
     */
     if (!isComponentLoaded(childWidgetId)) {
       /* widget code has not yet been loaded, add to cache and load */
@@ -91,12 +104,13 @@ export function onRender({
         isTrusted,
         parentId: widgetId,
         props: widgetProps,
+        renderCount: 0,
       });
     } else {
       /* widget iframe is already loaded, post update message to iframe */
-      markWidgetUpdated({ props, widgetId });
+      markWidgetUpdated({ props: widgetProps, widgetId: childWidgetId });
       postMessageToWidgetIframe({
-        id: widgetId,
+        id: childWidgetId,
         message: {
           props: widgetProps,
           type: 'widget.update',
