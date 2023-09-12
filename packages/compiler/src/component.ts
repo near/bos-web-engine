@@ -21,11 +21,23 @@ interface BuildComponentFunctionParams {
 
 export function buildComponentFunction({ componentPath, componentSource, isRoot }: BuildComponentFunctionParams) {
   const componentBody = '\n\n/*' + componentPath + '*/\n\n' + componentSource;
+  const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
 
-  const stateInitialization = 'const { state, State} = (' + initializeComponentState.toString() + ')(ComponentState, "' + componentPath + '", renderWidget);';
+  const stateInitialization = `
+    const { state, State } = (
+      ${initializeComponentState.toString()}
+    )({
+      ComponentState,
+      componentInstanceId: props?.__bweMeta?.componentId,
+      componentFunction: ${functionName},
+      componentProps: props,
+      dispatchRenderEvent,
+    });
+  `;
+
   if (isRoot) {
     return `
-      function ${buildComponentFunctionName()}() {
+      function ${functionName}() {
         ${stateInitialization}
         ${componentBody}
       }
@@ -33,14 +45,28 @@ export function buildComponentFunction({ componentPath, componentSource, isRoot 
   }
 
   return `
-    function ${buildComponentFunctionName(componentPath)}({ props }) {
+    function ${functionName}({ props }) {
       ${stateInitialization}
       ${componentBody}
     }
   `;
 }
 
-function initializeComponentState(ComponentState: ComponentStateMap, componentInstanceId: string, renderWidget: () => void) {
+interface InitializeComponentStateParams {
+  ComponentState: ComponentStateMap;
+  componentInstanceId: string;
+  componentFunction: (props: any) => any;
+  componentProps: any;
+  dispatchRenderEvent: (node: Node, componentId: string) => void;
+}
+
+function initializeComponentState({
+  ComponentState,
+  componentInstanceId,
+  componentFunction,
+  componentProps,
+  dispatchRenderEvent,
+}: InitializeComponentStateParams) {
   const state = new Proxy({}, {
     get(_, key) {
       try {
@@ -58,7 +84,8 @@ function initializeComponentState(ComponentState: ComponentStateMap, componentIn
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
-      renderWidget();
+      /* @ts-expect-error */
+      dispatchRenderEvent(componentFunction({ props: componentProps }), componentInstanceId, true);
     },
   };
 
