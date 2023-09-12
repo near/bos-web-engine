@@ -84,8 +84,8 @@ function initializeComponentState({
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
-      /* @ts-expect-error */
-      dispatchRenderEvent(componentFunction({ props: componentProps }), componentInstanceId, true);
+      // FIXME need to debug empty renders
+      // dispatchRenderEvent(componentFunction({ props: componentProps }), componentInstanceId);
     },
   };
 
