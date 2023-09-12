@@ -255,6 +255,9 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
         type: 'div',
         props: {
           id: 'dom-' + widgetId,
+          __bweMeta: {
+            componentId: widgetId,
+          },
         },
       };
     } else {
