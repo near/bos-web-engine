@@ -20,9 +20,9 @@ importers:
     specifiers:
       '@babel/core': ^7.0.0
       '@bos-web-engine/application': workspace:*
+      '@bos-web-engine/compiler': workspace:*
       '@bos-web-engine/container': workspace:*
       '@bos-web-engine/iframe': workspace:*
-      '@bos-web-engine/compiler': workspace:*
       '@types/node': ^17.0.12
       '@types/react': ^18.0.22
       '@types/react-dom': ^18.0.7
@@ -40,9 +40,9 @@ importers:
       uuid: ^9.0.0
     dependencies:
       '@bos-web-engine/application': link:../../packages/application
+      '@bos-web-engine/compiler': link:../../packages/compiler
       '@bos-web-engine/container': link:../../packages/container
       '@bos-web-engine/iframe': link:../../packages/iframe
-      '@bos-web-engine/compiler': link:../../packages/compiler
       next: 13.4.13_w4exofnty45araakomg6jes2wu
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -83,6 +83,31 @@ importers:
       eslint: 7.32.0
       eslint-config-custom: link:../eslint-config-custom
       react: 18.2.0
+      tsconfig: link:../tsconfig
+      typescript: 4.9.5
+
+  packages/compiler:
+    specifiers:
+      '@babel/standalone': ^7.22.14
+      '@bos-web-engine/container': workspace:*
+      '@near-js/providers': ^0.0.7
+      '@near-js/types': ^0.0.4
+      '@types/babel__standalone': ^7.1.4
+      '@types/node': ^17.0.12
+      eslint: ^7.32.0
+      eslint-config-custom: workspace:*
+      tsconfig: workspace:*
+      typescript: ^4.5.2
+    dependencies:
+      '@babel/standalone': 7.22.14
+      '@bos-web-engine/container': link:../container
+      '@near-js/providers': 0.0.7
+    devDependencies:
+      '@near-js/types': 0.0.4
+      '@types/babel__standalone': 7.1.4
+      '@types/node': 17.0.45
+      eslint: 7.32.0
+      eslint-config-custom: link:../eslint-config-custom
       tsconfig: link:../tsconfig
       typescript: 4.9.5
 
@@ -145,31 +170,6 @@ importers:
       eslint: 7.32.0
       eslint-config-custom: link:../eslint-config-custom
       react: 18.2.0
-      tsconfig: link:../tsconfig
-      typescript: 4.9.5
-
-  packages/compiler:
-    specifiers:
-      '@babel/standalone': ^7.22.14
-      '@bos-web-engine/container': workspace:*
-      '@near-js/providers': ^0.0.7
-      '@near-js/types': ^0.0.4
-      '@types/babel__standalone': ^7.1.4
-      '@types/node': ^17.0.12
-      eslint: ^7.32.0
-      eslint-config-custom: workspace:*
-      tsconfig: workspace:*
-      typescript: ^4.5.2
-    dependencies:
-      '@babel/standalone': 7.22.14
-      '@bos-web-engine/container': link:../container
-      '@near-js/providers': 0.0.7
-    devDependencies:
-      '@near-js/types': 0.0.4
-      '@types/babel__standalone': 7.1.4
-      '@types/node': 17.0.45
-      eslint: 7.32.0
-      eslint-config-custom: link:../eslint-config-custom
       tsconfig: link:../tsconfig
       typescript: 4.9.5
 
