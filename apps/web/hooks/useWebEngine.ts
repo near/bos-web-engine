@@ -35,7 +35,7 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
   const addComponent = useCallback((componentId: string, component: any) => {
     setComponents((currentComponents) => ({
       ...currentComponents,
-      [componentId]: { ...currentComponents[componentId], ...component },
+      [componentId]: { ...currentComponents[componentId], ...component, renderCount: 1 },
     }));
   }, []);
 
@@ -47,6 +47,22 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
     addComponent(componentId, component);
     compiler?.postMessage({ componentId, isTrusted: component.isTrusted });
   }, [compiler, components, addComponent]);
+
+  const renderComponent = useCallback((componentId: string) => {
+    setComponents((currentComponents) => {
+      return ({
+        ...currentComponents,
+        [componentId]: {
+          ...currentComponents[componentId],
+          renderCount: (currentComponents?.[componentId]?.renderCount + 1) || 0,
+        },
+      });
+    });
+  }, []);
+
+  const getComponentRenderCount = useCallback((componentId: string) => {
+    return components?.[componentId]?.renderCount;
+  }, [components]);
 
   const mountElement = useCallback(({ widgetId, element }: { widgetId: string, element: WidgetDOMElement }) => {
     if (!domRoots.current[widgetId]) {
@@ -86,8 +102,12 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
           componentRendered(data);
           onRender({
             data,
+            getComponentRenderCount,
             isDebug: showWidgetDebug,
-            markWidgetUpdated: (update: WidgetUpdate) => componentUpdated(update),
+            markWidgetUpdated: (update: WidgetUpdate) => {
+              componentUpdated(update);
+              renderComponent(update.widgetId);
+            },
             mountElement,
             loadComponent: (component) => loadComponent(component.componentId, component),
             isComponentLoaded: (c: string) => !!components[c],
