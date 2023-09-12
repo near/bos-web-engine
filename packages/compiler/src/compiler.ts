@@ -33,7 +33,7 @@ interface ParseComponentTreeParams {
 
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<string>>;
-  private compiledSourceCache: Map<string, string>;
+  private compiledSourceCache: Map<string, string | null>;
   private readonly sendMessage: SendMessageCallback;
 
   constructor({ sendMessage }: ComponentCompilerOptions) {
@@ -68,8 +68,13 @@ export class ComponentCompiler {
   getTranspiledComponentSource({ componentPath, componentSource, isRoot }: TranspiledComponentLookupParams) {
     const cacheKey = JSON.stringify({ componentPath, isRoot });
     if (!this.compiledSourceCache.has(cacheKey)) {
-      const { code } = transpileSource(componentSource);
-      this.compiledSourceCache.set(cacheKey, code);
+      try {
+        const { code } = transpileSource(componentSource);
+        this.compiledSourceCache.set(cacheKey, code);
+      } catch (e) {
+        console.error(`Failed to transpile ${componentPath}`, e);
+        this.compiledSourceCache.set(cacheKey, null);
+      }
     }
 
     return this.compiledSourceCache.get(cacheKey)!;
