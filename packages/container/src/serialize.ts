@@ -273,16 +273,22 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
         return node;
       }
 
+      const componentId = buildWidgetId({
+        instanceId: props?.id,
+        widgetPath: props.src,
+        widgetProps: props?.props,
+        parentWidgetId: parentId,
+      });
+
       return {
         ...node,
         props: {
           ...node.props,
-          id: 'dom-' + buildWidgetId({
-            instanceId: props?.id,
-            widgetPath: type.name,
-            widgetProps: props?.props,
-            parentWidgetId: parentId,
-          }),
+          __bweMeta: {
+            ...node.props?.__bweMeta,
+            componentId,
+          },
+          id: 'dom-' + componentId,
         },
       };
     }
