@@ -1,5 +1,10 @@
 export type Args = Array<Cloneable>;
 
+interface WebEngineMeta {
+  componentId?: string;
+  isProxy?: boolean;
+}
+
 export type BuildRequestCallback = () => CallbackRequest;
 
 export interface CallbackRequest {
@@ -280,6 +285,7 @@ export interface SerializedWidgetCallback {
 }
 
 export interface WidgetProps {
+  __bweMeta?: WebEngineMeta;
   children?: any[];
   id: string;
 }
