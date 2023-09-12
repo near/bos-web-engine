@@ -50,6 +50,13 @@ export function onCallbackResponse({
   });
 }
 
+interface ChildComponent {
+  widgetId: string;
+  props: any;
+  source: string;
+  isTrusted: boolean;
+}
+
 export function onRender({
   data,
   isDebug = false,
@@ -67,7 +74,11 @@ export function onRender({
   const element = createElement({
     children: [
       ...(isDebug ? [
-        React.createElement('span', { className: 'dom-label' }, `[${widgetId.split('##')[0]} (${getComponentRenderCount(widgetId)})]`),
+        React.createElement(
+          'span',
+          { className: 'dom-label' },
+          `[${widgetId.split('##')[0]} (${getComponentRenderCount(widgetId)})]`
+        ),
         React.createElement('br'),
       ] : []),
       ...(Array.isArray(componentChildren) ? componentChildren : [componentChildren]),
@@ -79,7 +90,7 @@ export function onRender({
   mountElement({ widgetId, element });
   markWidgetUpdated({ props, widgetId });
 
-  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source, isTrusted }: { widgetId: string, props: any, source: string, isTrusted: boolean }) => {
+  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source, isTrusted }: ChildComponent) => {
     /*
       a new Component is being rendered by a parent Component, either:
       - this Component is being loaded for the first time
