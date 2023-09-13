@@ -1,3 +1,5 @@
+import type { WebEngineMeta } from '@bos-web-engine/container';
+
 type ComponentStateMap = Map<string, { [key: string | symbol]: any }>;
 
 /**
@@ -20,18 +22,28 @@ interface BuildComponentFunctionParams {
 }
 
 export function buildComponentFunction({ componentPath, componentSource, isRoot }: BuildComponentFunctionParams) {
-  const componentBody = '\n\n/*' + componentPath + '*/\n\n' + componentSource;
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
+  const componentBody = `
+/************************* ${componentPath} *************************/
+${componentSource}
+`;
 
-  const stateInitialization = `
+  const stateInitialization =  `
+    const componentInstanceId = props?.__bweMeta?.componentId || [
+      '${componentPath}',
+      props?.id,
+      __bweMeta?.parentMeta?.componentId,
+    ].filter((c) => c !== undefined).join('##');
+
     const { state, State } = (
       ${initializeComponentState.toString()}
     )({
       ComponentState,
-      componentInstanceId: props?.__bweMeta?.componentId,
+      componentInstanceId,
       componentFunction: ${functionName},
       componentProps: props,
       dispatchRenderEvent,
+      __bweMeta: typeof __bweMeta === 'undefined' ? props.__bweMeta : __bweMeta,
     });
   `;
 
@@ -45,22 +57,29 @@ export function buildComponentFunction({ componentPath, componentSource, isRoot 
   }
 
   return `
-    function ${functionName}({ props }) {
+    function ${functionName}({ id, props, __bweMeta }) {
       ${stateInitialization}
       ${componentBody}
     }
   `;
 }
 
+interface ComponentFunctionProps {
+  props: object;
+  __bweMeta: WebEngineMeta;
+}
+
 interface InitializeComponentStateParams {
+  __bweMeta: WebEngineMeta;
   ComponentState: ComponentStateMap;
   componentInstanceId: string;
-  componentFunction: (props: any) => any;
+  componentFunction: (props: ComponentFunctionProps) => Node;
   componentProps: any;
   dispatchRenderEvent: (node: Node, componentId: string) => void;
 }
 
 function initializeComponentState({
+  __bweMeta,
   ComponentState,
   componentInstanceId,
   componentFunction,
@@ -84,8 +103,14 @@ function initializeComponentState({
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
-      // FIXME need to debug empty renders
-      // dispatchRenderEvent(componentFunction({ props: componentProps }), componentInstanceId);
+      try {
+        dispatchRenderEvent(componentFunction({
+          props: componentProps,
+          __bweMeta,
+        }), componentInstanceId);
+      } catch (e) {
+        console.error(`Failed to dispatch render for ${componentInstanceId}`, e);
+      }
     },
   };
 
