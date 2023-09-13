@@ -104,11 +104,11 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
             data,
             getComponentRenderCount,
             isDebug: showWidgetDebug,
-            markWidgetUpdated: (update: WidgetUpdate) => {
-              componentUpdated(update);
-              renderComponent(update.widgetId);
+            markWidgetUpdated: componentUpdated,
+            mountElement: ({ widgetId, element }) => {
+              renderComponent(widgetId);
+              mountElement({ widgetId, element });
             },
-            mountElement,
             loadComponent: (component) => loadComponent(component.componentId, component),
             isComponentLoaded: (c: string) => !!components[c],
           });
