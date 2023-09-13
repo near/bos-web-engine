@@ -15,7 +15,12 @@ export function postMessageToWidgetIframe({ id, message, targetOrigin }: IframeP
 }
 
 export function deserializeProps({ id, props }: DeserializePropsOptions): any {
-  if (!props || !props.__domcallbacks) {
+  if (!props) {
+    return props;
+  }
+
+  delete props.__bweMeta;
+  if (!props.__domcallbacks) {
     return props;
   }
 
