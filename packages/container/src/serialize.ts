@@ -66,7 +66,7 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
 
       // [widgetId] only applies to props on widgets, use method
       // body to distinguish between non-widget callbacks
-      const fnKey = [key, widgetId || value.toString().replace(/\\n/g, '')].join('::');
+      const fnKey = [key, widgetId || value.toString().replace(/\\n/g, ''), parentId].join('::');
       callbacks[fnKey] = value;
 
       if (widgetId) {
@@ -261,21 +261,6 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
         },
       };
     } else {
-      // `type` is a Preact component function for a child Widget
-      // invoke it with the passed props to render the component and serialize its DOM tree
-      const node = serializeNode({
-        builtinComponents,
-        node: type(props),
-        parentId,
-        index,
-        callbacks,
-        childWidgets,
-      });
-
-      if (!node || typeof node !== 'object') {
-        return node;
-      }
-
       const componentId = buildWidgetId({
         instanceId: props?.id,
         widgetPath: props.src,
@@ -283,17 +268,23 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
         parentWidgetId: parentId,
       });
 
-      return {
-        ...node,
-        props: {
-          ...node.props,
+      // `type` is a Preact component function for a child Widget
+      // invoke it with the passed props to render the component and serialize its DOM tree
+      return serializeNode({
+        builtinComponents,
+        node: type({
+          ...props,
           __bweMeta: {
-            ...node.props?.__bweMeta,
+            ...props?.__bweMeta,
             componentId,
           },
           id: 'dom-' + componentId,
-        },
-      };
+        }),
+        parentId: componentId,
+        index,
+        callbacks,
+        childWidgets,
+      });
     }
   }
 
