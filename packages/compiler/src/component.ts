@@ -29,27 +29,18 @@ ${componentSource}
 `;
 
   const stateInitialization =  `
-    const componentInstanceId = props?.__bweMeta?.componentId || [
-      '${componentPath}',
-      typeof id !== 'undefined' ? id : undefined,
-      __bweMeta?.parentMeta?.componentId,
-    ].filter((c) => c !== undefined).join('##');
-
     const { state, State } = (
       ${initializeComponentState.toString()}
     )({
       ComponentState,
       componentInstanceId,
-      componentFunction: ${functionName},
-      componentProps: props,
-      dispatchRenderEvent,
-      __bweMeta: typeof __bweMeta === 'undefined' ? props.__bweMeta : __bweMeta,
     });
   `;
 
   if (isRoot) {
     return `
       function ${functionName}() {
+        const componentInstanceId = props?.__bweMeta?.componentId;
         ${stateInitialization}
         ${componentBody}
       }
@@ -57,34 +48,27 @@ ${componentSource}
   }
 
   return `
-    function ${functionName}({ id, props, __bweMeta }) {
+    function ${functionName}(__bweInlineComponentProps) {
+      const { props } = __bweInlineComponentProps;
+      const componentInstanceId = [
+        '${componentPath}',
+        __bweInlineComponentProps.id,
+        __bweInlineComponentProps.__bweMeta?.parentMeta?.componentId,
+      ].filter((c) => c !== undefined).join('##');
       ${stateInitialization}
       ${componentBody}
     }
   `;
 }
 
-interface ComponentFunctionProps {
-  props: object;
-  __bweMeta: WebEngineMeta;
-}
-
 interface InitializeComponentStateParams {
-  __bweMeta: WebEngineMeta;
   ComponentState: ComponentStateMap;
   componentInstanceId: string;
-  componentFunction: (props: ComponentFunctionProps) => Node;
-  componentProps: any;
-  dispatchRenderEvent: (node: Node, componentId: string) => void;
 }
 
 function initializeComponentState({
-  __bweMeta,
   ComponentState,
   componentInstanceId,
-  componentFunction,
-  componentProps,
-  dispatchRenderEvent,
 }: InitializeComponentStateParams) {
   const state = new Proxy({}, {
     get(_, key) {
