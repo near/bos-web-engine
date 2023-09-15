@@ -1,5 +1,3 @@
-import type { WebEngineMeta } from '@bos-web-engine/container';
-
 type ComponentStateMap = Map<string, { [key: string | symbol]: any }>;
 
 /**
