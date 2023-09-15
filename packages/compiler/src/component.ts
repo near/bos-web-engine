@@ -31,7 +31,7 @@ ${componentSource}
   const stateInitialization =  `
     const componentInstanceId = props?.__bweMeta?.componentId || [
       '${componentPath}',
-      props?.id,
+      typeof id !== 'undefined' ? id : undefined,
       __bweMeta?.parentMeta?.componentId,
     ].filter((c) => c !== undefined).join('##');
 
@@ -103,14 +103,6 @@ function initializeComponentState({
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
-      try {
-        dispatchRenderEvent(componentFunction({
-          props: componentProps,
-          __bweMeta,
-        }), componentInstanceId);
-      } catch (e) {
-        console.error(`Failed to dispatch render for ${componentInstanceId}`, e);
-      }
     },
   };
 
