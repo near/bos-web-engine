@@ -221,7 +221,9 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
 
   if (!type) {
     serializedElementType = 'div';
-  } else if (typeof type === 'function') {
+  }
+
+  if (typeof type === 'function') {
     const { name: component } = type;
     if (component === '_') {
       serializedElementType = 'div';
@@ -301,8 +303,7 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
           childWidgets,
           callbacks,
           parentId,
-        }) : c
-        ),
+        }) : c),
     },
     childWidgets,
   };
