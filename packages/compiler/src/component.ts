@@ -21,40 +21,36 @@ interface BuildComponentFunctionParams {
 
 export function buildComponentFunction({ componentPath, componentSource, isRoot }: BuildComponentFunctionParams) {
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
-  const componentBody = `
-/************************* ${componentPath} *************************/
-${componentSource}
-`;
-
-  const stateInitialization =  `
-    const { state, State } = (
-      ${initializeComponentState.toString()}
-    )({
-      ComponentState,
-      componentInstanceId,
-    });
-  `;
 
   if (isRoot) {
     return `
       function ${functionName}() {
-        const componentInstanceId = props?.__bweMeta?.componentId;
-        ${stateInitialization}
-        ${componentBody}
+        const { state, State } = (
+          ${initializeComponentState.toString()}
+        )({
+          ComponentState,
+          componentInstanceId: props?.__bweMeta?.componentId,
+        });
+        ${componentSource}
       }
     `;
   }
 
   return `
+    /************************* ${componentPath} *************************/
     function ${functionName}(__bweInlineComponentProps) {
       const { props } = __bweInlineComponentProps;
-      const componentInstanceId = [
-        '${componentPath}',
-        __bweInlineComponentProps.id,
-        __bweInlineComponentProps.__bweMeta?.parentMeta?.componentId,
-      ].filter((c) => c !== undefined).join('##');
-      ${stateInitialization}
-      ${componentBody}
+      const { state, State } = (
+        ${initializeComponentState.toString()}
+      )({
+        ComponentState,
+        componentInstanceId: [
+          '${componentPath}',
+          __bweInlineComponentProps.id,
+          __bweInlineComponentProps.__bweMeta?.parentMeta?.componentId,
+        ].filter((c) => c !== undefined).join('##'),
+      });
+      ${componentSource}
     }
   `;
 }
