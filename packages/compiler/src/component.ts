@@ -20,34 +20,37 @@ interface BuildComponentFunctionParams {
 }
 
 export function buildComponentFunction({ componentPath, componentSource, isRoot }: BuildComponentFunctionParams) {
-  const componentBody = '\n\n/*' + componentPath + '*/\n\n' + componentSource;
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
-
-  const stateInitialization = `
-    const { state, State } = (
-      ${initializeComponentState.toString()}
-    )({
-      ComponentState,
-      componentInstanceId: props?.__bweMeta?.componentId,
-      componentFunction: ${functionName},
-      componentProps: props,
-      dispatchRenderEvent,
-    });
-  `;
 
   if (isRoot) {
     return `
       function ${functionName}() {
-        ${stateInitialization}
-        ${componentBody}
+        const { state, State } = (
+          ${initializeComponentState.toString()}
+        )({
+          ComponentState,
+          componentInstanceId: props?.__bweMeta?.componentId,
+        });
+        ${componentSource}
       }
     `;
   }
 
   return `
-    function ${functionName}({ props }) {
-      ${stateInitialization}
-      ${componentBody}
+    /************************* ${componentPath} *************************/
+    function ${functionName}(__bweInlineComponentProps) {
+      const { props } = __bweInlineComponentProps;
+      const { state, State } = (
+        ${initializeComponentState.toString()}
+      )({
+        ComponentState,
+        componentInstanceId: [
+          '${componentPath}',
+          __bweInlineComponentProps.id,
+          __bweInlineComponentProps.__bweMeta?.parentMeta?.componentId,
+        ].filter((c) => c !== undefined).join('##'),
+      });
+      ${componentSource}
     }
   `;
 }
@@ -55,17 +58,11 @@ export function buildComponentFunction({ componentPath, componentSource, isRoot 
 interface InitializeComponentStateParams {
   ComponentState: ComponentStateMap;
   componentInstanceId: string;
-  componentFunction: (props: any) => any;
-  componentProps: any;
-  dispatchRenderEvent: (node: Node, componentId: string) => void;
 }
 
 function initializeComponentState({
   ComponentState,
   componentInstanceId,
-  componentFunction,
-  componentProps,
-  dispatchRenderEvent,
 }: InitializeComponentStateParams) {
   const state = new Proxy({}, {
     get(_, key) {
@@ -84,8 +81,6 @@ function initializeComponentState({
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
-      // FIXME need to debug empty renders
-      // dispatchRenderEvent(componentFunction({ props: componentProps }), componentInstanceId);
     },
   };
 

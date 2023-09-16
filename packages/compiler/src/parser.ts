@@ -9,7 +9,10 @@ export function parseChildComponentPaths(transpiledWidget: string) {
       const source = match.groups?.src;
       widgetInstances[source] = {
         source,
-        transform: (widgetSource: string, widgetComponentName: string) => widgetSource.replaceAll(match[0], match[0].replace('Widget', widgetComponentName)),
+        transform: (widgetSource: string, widgetComponentName: string) => {
+          const signaturePrefix = `${widgetComponentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
+          return widgetSource.replaceAll(match[0], match[0].replace(/Widget,\s*\{/, signaturePrefix));
+        },
       };
 
       return widgetInstances;

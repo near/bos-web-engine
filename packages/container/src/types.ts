@@ -1,8 +1,9 @@
 export type Args = Array<Cloneable>;
 
-interface WebEngineMeta {
+export interface WebEngineMeta {
   componentId?: string;
   isProxy?: boolean;
+  parentMeta?: WebEngineMeta;
 }
 
 export type BuildRequestCallback = () => CallbackRequest;

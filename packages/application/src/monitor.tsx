@@ -6,7 +6,7 @@ import type {
 
 export function ComponentMonitor({ components, metrics }: { components: any[], metrics: object }) {
   const groupedComponents = components.reduce((componentsBySource, widget) => {
-    const source = widget.componentId.split('##')[0];
+    const source = widget.componentId?.split('##')[0];
     if (!componentsBySource[source]) {
       componentsBySource[source] = [];
     }
