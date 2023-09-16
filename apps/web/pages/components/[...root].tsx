@@ -3,18 +3,20 @@ import {
 } from '@bos-web-engine/application';
 import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/iframe';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
 
 import { useWebEngine } from '../../hooks';
 
 export default function Web() {
   const router = useRouter();
-  const rootComponentPath = (router.query.root as string[])?.join?.('/');
-  const [showMonitor, setShowMonitor] = useState(true);
-  const [showWidgetDebug, setShowWidgetDebug] = useState(true);
 
+  let root: string[];
+  let isDebug: string;
+
+  ({ root, isDebug } = { root: [], isDebug: 'false', ...router.query });
+
+  const rootComponentPath = root.join('/');
   const { components, metrics } = useWebEngine({
-    showWidgetDebug,
+    showWidgetDebug: isDebug === 'true',
     rootComponentPath,
   });
 
@@ -22,12 +24,12 @@ export default function Web() {
     <div className='App'>
       {rootComponentPath && (
         <>
-          {showMonitor && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
+          {isDebug && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
           <div id={getAppDomId(rootComponentPath)} className='iframe'>
             root widget goes here
           </div>
           <div className="iframes">
-            {showWidgetDebug && (<h5>here be hidden iframes</h5>)}
+            {isDebug && (<h5>here be hidden iframes</h5>)}
             {
               Object.entries(components)
                 .filter(([, component]) => !!component?.componentSource)
