@@ -8,15 +8,14 @@ import { useWebEngine } from '../hooks';
 
 export default function Web() {
   const router = useRouter();
+  const { query } = router;
 
-  let root: string[];
-  let isDebug: string;
+  const isDebug = query.isDebug === 'true';
+  const showMonitor = query.showMonitor === 'true';
+  const rootComponentPath = ((query.root || []) as string[]).join('/');
 
-  ({ root, isDebug } = { root: [], isDebug: 'false', ...router.query });
-
-  const rootComponentPath = root.join('/');
   const { components, metrics } = useWebEngine({
-    showWidgetDebug: isDebug === 'true',
+    showWidgetDebug: isDebug,
     rootComponentPath,
   });
 
@@ -24,12 +23,12 @@ export default function Web() {
     <div className='App'>
       {rootComponentPath && (
         <>
-          {isDebug && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
+          {showMonitor && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
           <div id={getAppDomId(rootComponentPath)} className='iframe'>
             root widget goes here
           </div>
           <div className="iframes">
-            {isDebug && (<h5>here be hidden iframes</h5>)}
+            {isDebug && (<h5>[hidden iframes]</h5>)}
             {
               Object.entries(components)
                 .filter(([, component]) => !!component?.componentSource)
