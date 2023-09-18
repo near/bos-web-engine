@@ -11,7 +11,7 @@ export default function Web() {
   const [showWidgetDebug, setShowWidgetDebug] = useState(true);
 
   if (rootComponentPath) {
-    router.push(`components/${rootComponentPath}?isDebug=${showWidgetDebug}`);
+    router.push(`${rootComponentPath}?isDebug=${showWidgetDebug}&showMonitor=${showMonitor}`);
   }
 
   return (

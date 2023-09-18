@@ -4,7 +4,7 @@ import {
 import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/iframe';
 import { useRouter } from 'next/router';
 
-import { useWebEngine } from '../../hooks';
+import { useWebEngine } from '../hooks';
 
 export default function Web() {
   const router = useRouter();
