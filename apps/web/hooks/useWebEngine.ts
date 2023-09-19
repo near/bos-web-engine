@@ -19,6 +19,7 @@ interface UseWebEngineParams {
 
 export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngineParams) {
   const [compiler, setCompiler] = useState<any>(null);
+  const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
   const {
@@ -135,7 +136,7 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
     if (!compiler) {
       const worker = new Worker(new URL('../workers/compiler.ts', import.meta.url));
       setCompiler(worker);
-    } else {
+    } else if (!isCompilerInitialized) {
       compiler.onmessage = ({ data }: MessageEvent<ComponentCompilerResponse>) => {
         const { componentId, componentSource } = data;
         const component = { ...components[componentId], componentId, componentSource };
@@ -150,8 +151,10 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
         componentId: rootComponentPath,
         isTrusted: false,
       });
+
+      setIsCompilerInitialized(true);
     }
-  }, [rootComponentPath, rootComponentSource, compiler, addComponent, components]);
+  }, [rootComponentPath, rootComponentSource, compiler, addComponent, components, isCompilerInitialized]);
 
   return {
     components,
