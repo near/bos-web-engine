@@ -21,6 +21,8 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
   const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const {
     metrics,
     callbackInvoked,
@@ -136,8 +138,15 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
       const worker = new Worker(new URL('../workers/compiler.ts', import.meta.url));
       setCompiler(worker);
     } else if (!isCompilerInitialized) {
+      setIsCompilerInitialized(true);
+
       compiler.onmessage = ({ data }: MessageEvent<ComponentCompilerResponse>) => {
-        const { componentId, componentSource } = data;
+        const { componentId, componentSource, error: loadError } = data;
+        if (loadError) {
+          setError(loadError.message);
+          return;
+        }
+
         const component = { ...components[componentId], componentId, componentSource };
         if (!rootComponentSource && componentId === rootComponentPath) {
           setRootComponentSource(componentId);
@@ -151,12 +160,12 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
         isTrusted: false,
       });
 
-      setIsCompilerInitialized(true);
     }
-  }, [rootComponentPath, rootComponentSource, compiler, addComponent, components, isCompilerInitialized]);
+  }, [rootComponentPath, rootComponentSource, compiler, addComponent, components, isCompilerInitialized, error]);
 
   return {
     components,
+    error,
     metrics: {
       ...metrics,
       componentsLoaded: Object.keys(components),

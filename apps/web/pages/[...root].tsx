@@ -14,14 +14,19 @@ export default function Web() {
   const showMonitor = query.showMonitor === 'true';
   const rootComponentPath = ((query.root || []) as string[]).join('/');
 
-  const { components, metrics } = useWebEngine({
+  const { components, error, metrics } = useWebEngine({
     showComponentDebug: isDebug,
     rootComponentPath,
   });
 
   return (
     <div className='App'>
-      {rootComponentPath && (
+      {error && (
+        <div className='error'>
+          {error}
+        </div>
+      )}
+      {!error && rootComponentPath && (
         <>
           {showMonitor && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
           <div id={getAppDomId(rootComponentPath)} className='iframe'>

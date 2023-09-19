@@ -11,6 +11,7 @@ export interface ComponentCompilerRequest {
 export interface ComponentCompilerResponse {
   componentId: string;
   componentSource: string;
+  error?: Error;
 }
 
 type SendMessageCallback = (res: ComponentCompilerResponse) => void;
@@ -129,41 +130,40 @@ export class ComponentCompiler {
 
   async compileComponent({ componentId, isTrusted }: ComponentCompilerRequest) {
     const componentPath = componentId.split('##')[0];
-
-    try {
-      const source = this.getComponentSources([componentPath]).get(componentPath);
-      const componentFunctionSource = buildComponentFunction({
-        componentPath,
-        componentSource: (await source) || '',
-        isRoot: true,
-      });
-      const transpiledComponent = this.getTranspiledComponentSource({
-        componentPath,
-        componentSource: componentFunctionSource,
-        isRoot: true,
-      });
-
-      let componentSource = transpiledComponent;
-      if (isTrusted) {
-        // recursively parse the Component tree for child Components
-        const transformedComponents = await this.parseComponentTree({
-          componentPath,
-          transpiledComponent,
-          mapped: {},
-        });
-
-        const [rootComponent, ...childComponents] = Object.values(transformedComponents).map(({ transpiled }) => transpiled);
-        const aggregatedSourceLines = rootComponent.split('\n');
-        aggregatedSourceLines.splice(1, 0, childComponents.join('\n\n'));
-        componentSource = aggregatedSourceLines.join('\n');
-      }
-
-      this.sendMessage({
-        componentId,
-        componentSource,
-      });
-    } catch (e) {
-      console.error(e);
+    const source = await this.getComponentSources([componentPath]).get(componentPath);
+    if (!source) {
+      throw new Error(`Component not found at ${componentPath}`);
     }
+
+    const componentFunctionSource = buildComponentFunction({
+      componentPath,
+      componentSource: source,
+      isRoot: true,
+    });
+    const transpiledComponent = this.getTranspiledComponentSource({
+      componentPath,
+      componentSource: componentFunctionSource,
+      isRoot: true,
+    });
+
+    let componentSource = transpiledComponent;
+    if (isTrusted) {
+      // recursively parse the Component tree for child Components
+      const transformedComponents = await this.parseComponentTree({
+        componentPath,
+        transpiledComponent,
+        mapped: {},
+      });
+
+      const [rootComponent, ...childComponents] = Object.values(transformedComponents).map(({ transpiled }) => transpiled);
+      const aggregatedSourceLines = rootComponent.split('\n');
+      aggregatedSourceLines.splice(1, 0, childComponents.join('\n\n'));
+      componentSource = aggregatedSourceLines.join('\n');
+    }
+
+    this.sendMessage({
+      componentId,
+      componentSource,
+    });
   }
 }
