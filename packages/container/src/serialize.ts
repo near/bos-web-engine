@@ -1,15 +1,15 @@
 import type {
   BuiltinProps,
-  DeserializePropsOptions,
+  DeserializePropsParams,
   FilesProps,
   InfiniteScrollProps,
   IpfsImageUploadProps,
   MarkdownProps,
   OverlayTriggerProps,
   Props,
-  SerializeArgsOptions,
-  SerializeNodeOptions,
-  SerializePropsOptions,
+  SerializeArgsParams,
+  SerializeNodeParams,
+  SerializePropsParams,
   SerializedArgs,
   SerializedNode,
   TypeaheadProps,
@@ -35,7 +35,7 @@ export function decodeJsonString(value: string) {
     .replace(/⁤/g, '\t');
 }
 
-export function serializeProps({ builtinComponents, callbacks, parentId, props, widgetId }: SerializePropsOptions): Props {
+export function serializeProps({ builtinComponents, callbacks, parentId, props, componentId }: SerializePropsParams): Props {
   return Object.entries(props)
     .reduce((newProps, [key, value]: [string, any]) => {
       // TODO better preact component check
@@ -49,7 +49,7 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
           serializedValue = serializeNode({
             builtinComponents,
             callbacks,
-            childWidgets: [],
+            childComponents: [],
             index: 0,
             node: value,
             parentId,
@@ -64,18 +64,18 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
         return newProps;
       }
 
-      // [widgetId] only applies to props on widgets, use method
-      // body to distinguish between non-widget callbacks
-      const fnKey = [key, widgetId || value.toString().replace(/\\n/g, ''), parentId].join('::');
+      // [componentId] only applies to props on components, use method
+      // body to distinguish between non-component callbacks
+      const fnKey = [key, componentId || value.toString().replace(/\\n/g, ''), parentId].join('::');
       callbacks[fnKey] = value;
 
-      if (widgetId) {
-        if (!newProps.__widgetcallbacks) {
-          newProps.__widgetcallbacks = {};
+      if (componentId) {
+        if (!newProps.__componentcallbacks) {
+          newProps.__componentcallbacks = {};
         }
 
-        newProps.__widgetcallbacks[key] = {
-          __widgetMethod: fnKey,
+        newProps.__componentcallbacks[key] = {
+          __componentMethod: fnKey,
           parentId,
         };
       } else {
@@ -84,7 +84,7 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
         }
 
         newProps.__domcallbacks[key] = {
-          __widgetMethod: fnKey,
+          __componentMethod: fnKey,
         };
       }
 
@@ -92,14 +92,14 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
     }, {} as Props);
 }
 
-export function serializeArgs({ args, callbacks, widgetId }: SerializeArgsOptions): SerializedArgs {
+export function serializeArgs({ args, callbacks, componentId }: SerializeArgsParams): SerializedArgs {
   return (args || []).map((arg) => {
     if (!arg) {
       return arg;
     }
 
     if (Array.isArray(arg)) {
-      return serializeArgs({ args: arg, callbacks, widgetId });
+      return serializeArgs({ args: arg, callbacks, componentId });
     }
 
     if (typeof arg === 'object') {
@@ -108,7 +108,7 @@ export function serializeArgs({ args, callbacks, widgetId }: SerializeArgsOption
         serializeArgs({
           args: Object.values(arg),
           callbacks,
-          widgetId,
+          componentId,
         })
           .map((value, i) => [argKeys[i], value])
       );
@@ -119,10 +119,10 @@ export function serializeArgs({ args, callbacks, widgetId }: SerializeArgsOption
     }
 
     const callbackBody = arg.toString().replace(/\\n/g, '');
-    const fnKey = callbackBody + '::' + widgetId;
+    const fnKey = callbackBody + '::' + componentId;
     callbacks[fnKey] = arg;
     return {
-      __widgetMethod: fnKey,
+      __componentMethod: fnKey,
     };
   });
 }
@@ -133,57 +133,57 @@ export function deserializeProps({
   postCallbackInvocationMessage,
   props,
   requests,
-  widgetId,
-}: DeserializePropsOptions): object {
-  const { __widgetcallbacks } = props;
-  const widgetProps = { ...props };
-  delete widgetProps.__widgetcallbacks;
+  componentId,
+}: DeserializePropsParams): object {
+  const { __componentcallbacks } = props;
+  const componentProps = { ...props };
+  delete componentProps.__componentcallbacks;
 
   return {
-    ...widgetProps,
-    ...Object.entries(__widgetcallbacks || {}).reduce((widgetCallbacks, [methodName, { __widgetMethod, parentId }]) => {
+    ...componentProps,
+    ...Object.entries(__componentcallbacks || {}).reduce((componentCallbacks, [methodName, { __componentMethod, parentId }]) => {
       if (props[methodName]) {
-        throw new Error(`'duplicate props key ${methodName} on ${widgetId}'`);
+        throw new Error(`'duplicate props key ${methodName} on ${componentId}'`);
       }
 
-      widgetCallbacks[methodName] = (...args: any) => {
+      componentCallbacks[methodName] = (...args: any) => {
         const requestId = window.crypto.randomUUID();
         requests[requestId] = buildRequest();
 
-        // any function arguments are closures in this child widget scope
-        // and must be cached in the widget iframe
+        // any function arguments are closures in this child component scope
+        // and must be cached in the component iframe
         postCallbackInvocationMessage({
           args,
           callbacks,
-          method: __widgetMethod, // the key on the props object passed to this Widget
+          method: __componentMethod, // the key on the props object passed to this Component
           requestId,
           serializeArgs,
           targetId: parentId,
-          widgetId,
+          componentId,
         });
 
         return requests[requestId].promise;
       };
 
-      return widgetCallbacks;
+      return componentCallbacks;
     }, {} as { [key: string]: any }),
   };
 }
 
-interface BuildWidgetIdParams {
+interface BuildComponentIdParams {
   instanceId: string | undefined;
-  widgetPath: string;
-  widgetProps: object;
-  parentWidgetId: string;
+  componentPath: string;
+  componentProps: object;
+  parentComponentId: string;
 }
 
-export function serializeNode({ builtinComponents, node, index, childWidgets, callbacks, parentId }: SerializeNodeOptions): SerializedNode {
-  function buildWidgetId({ instanceId, widgetPath, widgetProps, parentWidgetId }: BuildWidgetIdParams) {
+export function serializeNode({ builtinComponents, node, index, childComponents, callbacks, parentId }: SerializeNodeParams): SerializedNode {
+  function buildComponentId({ instanceId, componentPath, componentProps, parentComponentId }: BuildComponentIdParams) {
     if (instanceId !== undefined) {
-      return [widgetPath, instanceId.toString(), parentWidgetId].join('##');
+      return [componentPath, instanceId.toString(), parentComponentId].join('##');
     }
 
-    const serializedProps = JSON.stringify(widgetProps || {}).replace(/[{}\[\]'", ]/g, '');
+    const serializedProps = JSON.stringify(componentProps || {}).replace(/[{}\[\]'", ]/g, '');
     const sampleInterval = Math.floor(serializedProps.length / 2048) || 1;
     const sampledProps = serializedProps
       .split('')
@@ -196,7 +196,7 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
       ).join('')
     );
 
-    return [widgetPath, base64Props, parentWidgetId].join('##');
+    return [componentPath, base64Props, parentComponentId].join('##');
   }
 
   if (!node || typeof node !== 'object') {
@@ -214,9 +214,9 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
     : [children];
 
   unifiedChildren
-    .filter((child) => child && typeof child === 'object' && 'childWidgets' in child)
+    .filter((child) => child && typeof child === 'object' && 'childComponents' in child)
     .forEach((child) => {
-      child.childWidgets.forEach((childWidget: any) => childWidgets.push(childWidget));
+      child.childComponents.forEach((childComponent: any) => childComponents.push(childComponent));
     });
 
   if (!type) {
@@ -240,37 +240,37 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
       }));
       unifiedChildren = props.children || [];
     } else if (component === 'Widget') {
-      const { id: instanceId, src, props: widgetProps, isTrusted } = props;
-      const widgetId = buildWidgetId({ instanceId, widgetPath: src, widgetProps, parentWidgetId: parentId });
+      const { id: instanceId, src, props: componentProps, isTrusted } = props;
+      const componentId = buildComponentId({ instanceId, componentPath: src, componentProps, parentComponentId: parentId });
       try {
-        childWidgets.push({
+        childComponents.push({
           isTrusted: !!isTrusted,
-          props: widgetProps ? serializeProps({ props: widgetProps, callbacks, builtinComponents, parentId, widgetId }) : {},
+          props: componentProps ? serializeProps({ props: componentProps, callbacks, builtinComponents, parentId, componentId }) : {},
           source: src,
-          widgetId,
+          componentId,
         });
       } catch (error) {
-        console.warn(`failed to dispatch widget load for ${parentId}`, { error, widgetProps });
+        console.warn(`failed to dispatch component load for ${parentId}`, { error, componentProps });
       }
 
       return {
         type: 'div',
         props: {
-          id: 'dom-' + widgetId,
+          id: 'dom-' + componentId,
           __bweMeta: {
-            componentId: widgetId,
+            componentId: componentId,
           },
         },
       };
     } else {
-      const componentId = buildWidgetId({
+      const componentId = buildComponentId({
         instanceId: props?.id,
-        widgetPath: props.src,
-        widgetProps: props?.props,
-        parentWidgetId: parentId,
+        componentPath: props.src,
+        componentProps: props?.props,
+        parentComponentId: parentId,
       });
 
-      // `type` is a Preact component function for a child Widget
+      // `type` is a Preact component function for a child Component
       // invoke it with the passed props to render the component and serialize its DOM tree
       return serializeNode({
         builtinComponents,
@@ -285,7 +285,7 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
         parentId: componentId,
         index,
         callbacks,
-        childWidgets,
+        childComponents,
       });
     }
   }
@@ -300,11 +300,11 @@ export function serializeNode({ builtinComponents, node, index, childWidgets, ca
           node: c,
           builtinComponents,
           index: i,
-          childWidgets,
+          childComponents,
           callbacks,
           parentId,
         }) : c),
     },
-    childWidgets,
+    childComponents,
   };
 }

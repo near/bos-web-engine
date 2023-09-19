@@ -1,21 +1,21 @@
-export function parseChildComponentPaths(transpiledWidget: string) {
-  const widgetRegex = /createElement\(Widget,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>[\w_]+\.near\/widget\/[\w_.]+))["|']/ig;
-  const matches = [...(transpiledWidget.matchAll(widgetRegex))]
-    .reduce((widgetInstances, match) => {
+export function parseChildComponentPaths(transpiledComponent: string) {
+  const componentRegex = /createElement\(Widget,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>[\w.]+\.near\/widget\/[\w.]+))["|']/ig;
+  const matches = [...(transpiledComponent.matchAll(componentRegex))]
+    .reduce((componentInstances, match) => {
       if (!match.groups?.src) {
-        return widgetInstances;
+        return componentInstances;
       }
 
       const source = match.groups?.src;
-      widgetInstances[source] = {
+      componentInstances[source] = {
         source,
-        transform: (widgetSource: string, widgetComponentName: string) => {
-          const signaturePrefix = `${widgetComponentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
-          return widgetSource.replaceAll(match[0], match[0].replace(/Widget,\s*\{/, signaturePrefix));
+        transform: (componentSource: string, componentName: string) => {
+          const signaturePrefix = `${componentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
+          return componentSource.replaceAll(match[0], match[0].replace(/Widget,\s*\{/, signaturePrefix));
         },
       };
 
-      return widgetInstances;
+      return componentInstances;
     }, {} as { [key: string]: { source: string, transform: (s: string, n: string) => string } });
 
   return Object.values(matches);

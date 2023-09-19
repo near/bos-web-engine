@@ -15,7 +15,7 @@ export interface ComponentCompilerResponse {
 
 type SendMessageCallback = (res: ComponentCompilerResponse) => void;
 
-interface ComponentCompilerOptions {
+interface ComponentCompilerParams {
   sendMessage: SendMessageCallback;
 }
 
@@ -36,7 +36,7 @@ export class ComponentCompiler {
   private compiledSourceCache: Map<string, string | null>;
   private readonly sendMessage: SendMessageCallback;
 
-  constructor({ sendMessage }: ComponentCompilerOptions) {
+  constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<string>>();
     this.compiledSourceCache = new Map<string, string>();
     this.sendMessage = sendMessage;

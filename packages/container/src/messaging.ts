@@ -1,14 +1,14 @@
 import type {
   CallbackRequest,
-  PostMessageOptions,
-  PostMessageWidgetCallbackInvocation,
-  PostMessageWidgetCallbackInvocationOptions,
-  PostMessageWidgetCallbackResponse,
-  PostMessageWidgetCallbackResponseOptions,
-  PostMessageWidgetRender,
-  PostMessageWidgetRenderOptions,
-  PostMessageWidgetUpdate,
-  PostMessageWidgetUpdateOptions,
+  PostMessageParams,
+  ComponentCallbackInvocation,
+  PostMessageComponentCallbackInvocationParams,
+  ComponentCallbackResponse,
+  PostMessageComponentCallbackResponseParams,
+  ComponentRender,
+  PostMessageComponentRenderParams,
+  PostMessageComponentUpdate,
+  PostMessageComponentUpdateParams,
 } from './types';
 
 export function buildRequest(): CallbackRequest {
@@ -26,7 +26,7 @@ export function buildRequest(): CallbackRequest {
   };
 }
 
-export function postMessage<T extends PostMessageOptions>(message: T) {
+export function postMessage<T extends PostMessageParams>(message: T) {
   window.parent.postMessage(message, '*');
 }
 
@@ -37,15 +37,15 @@ export function postCallbackInvocationMessage({
   requestId,
   serializeArgs,
   targetId,
-  widgetId,
-}: PostMessageWidgetCallbackInvocationOptions): void {
-  postMessage<PostMessageWidgetCallbackInvocation>({
-    args: serializeArgs({ args, callbacks, widgetId }),
+  componentId,
+}: PostMessageComponentCallbackInvocationParams): void {
+  postMessage<ComponentCallbackInvocation>({
+    args: serializeArgs({ args, callbacks, componentId }),
     method,
-    originator: widgetId,
+    originator: componentId,
     requestId,
     targetId,
-    type: 'widget.callbackInvocation',
+    type: 'component.callbackInvocation',
   });
 }
 
@@ -54,40 +54,31 @@ export function postCallbackResponseMessage({
   requestId,
   result,
   targetId,
-}: PostMessageWidgetCallbackResponseOptions): void {
+}: PostMessageComponentCallbackResponseParams): void {
   const serializedError = error && JSON.stringify(error, Object.getOwnPropertyNames(error));
 
-  postMessage<PostMessageWidgetCallbackResponse>({
+  postMessage<ComponentCallbackResponse>({
     requestId,
     result: JSON.stringify({
       value: result,
       error: serializedError,
     }),
     targetId,
-    type: 'widget.callbackResponse',
+    type: 'component.callbackResponse',
   });
 }
 
-export function postWidgetRenderMessage({
-  childWidgets,
+export function postComponentRenderMessage({
+  childComponents,
   isTrusted,
   node,
-  widgetId,
-}: PostMessageWidgetRenderOptions): void {
-  postMessage<PostMessageWidgetRender>({
-    childWidgets,
+  componentId,
+}: PostMessageComponentRenderParams): void {
+  postMessage<ComponentRender>({
+    childComponents,
     isTrusted,
     node,
-    type: 'widget.render',
-    widgetId,
-  });
-}
-
-export function postWidgetUpdateMessage({
-  props,
-}: PostMessageWidgetUpdateOptions): void {
-  postMessage<PostMessageWidgetUpdate>({
-    props,
-    type: 'widget.update',
+    type: 'component.render',
+    componentId,
   });
 }

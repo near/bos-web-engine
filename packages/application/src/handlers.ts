@@ -1,22 +1,22 @@
 import React from 'react';
 
+import { postMessageToComponentIframe } from './component-container';
 import { createChildElements, createElement } from './react';
 import type {
-  CallbackInvocationHandlerOptions,
-  CallbackResponseHandlerOptions,
-  RenderHandlerOptions,
+  CallbackInvocationHandlerParams,
+  CallbackResponseHandlerParams,
+  RenderHandlerParams,
 } from './types';
-import { postMessageToWidgetIframe } from './widget-container';
 
 export function onCallbackInvocation({
   data,
-}: CallbackInvocationHandlerOptions) {
+}: CallbackInvocationHandlerParams) {
   /*
-    a widget has invoked a callback passed to it as props by its parent widget
-    post a widget callback message to the parent iframe
+    a component has invoked a callback passed to it as props by its parent component
+    post a component callback message to the parent iframe
   */
   const { args, method, originator, requestId, targetId } = data;
-  postMessageToWidgetIframe({
+  postMessageToComponentIframe({
     id: targetId,
     message: {
       args,
@@ -24,7 +24,7 @@ export function onCallbackInvocation({
       originator,
       requestId,
       targetId,
-      type: 'widget.callbackInvocation',
+      type: 'component.callbackInvocation',
     },
     targetOrigin: '*',
   });
@@ -32,26 +32,26 @@ export function onCallbackInvocation({
 
 export function onCallbackResponse({
   data,
-}: CallbackResponseHandlerOptions) {
+}: CallbackResponseHandlerParams) {
   /*
-    a widget has executed a callback invoked from another widget
-    return the value of the callback execution to the calling widget
+    a component has executed a callback invoked from another component
+    return the value of the callback execution to the calling component
   */
   const { requestId, result, targetId } = data;
-  postMessageToWidgetIframe({
+  postMessageToComponentIframe({
     id: targetId,
     message: {
       result,
       requestId,
       targetId,
-      type: 'widget.callbackResponse',
+      type: 'component.callbackResponse',
     },
     targetOrigin: '*',
   });
 }
 
 interface ChildComponent {
-  widgetId: string;
+  componentId: string;
   props: any;
   source: string;
   isTrusted: boolean;
@@ -61,59 +61,59 @@ export function onRender({
   data,
   isDebug = false,
   getComponentRenderCount,
-  markWidgetUpdated,
+  componentUpdated,
   mountElement,
   isComponentLoaded,
   loadComponent,
-}: RenderHandlerOptions) {
-  /* a widget has been rendered and is ready to be updated in the outer window */
-  const { widgetId, childWidgets, node } = data;
+}: RenderHandlerParams) {
+  /* a component has been rendered and is ready to be updated in the outer window */
+  const { componentId, childComponents, node } = data;
   const { children, ...props } = node?.props || { children: [] };
 
-  const componentChildren = createChildElements({ children, depth: 0, parentId: widgetId });
+  const componentChildren = createChildElements({ children, depth: 0, parentId: componentId });
   const element = createElement({
     children: [
       ...(isDebug ? [
         React.createElement(
           'span',
           { className: 'dom-label' },
-          `[${widgetId.split('##')[0]} (${getComponentRenderCount(widgetId)})]`
+          `[${componentId.split('##')[0]} (${getComponentRenderCount(componentId)})]`
         ),
         React.createElement('br'),
       ] : []),
       ...(Array.isArray(componentChildren) ? componentChildren : [componentChildren]),
     ],
-    id: widgetId,
+    id: componentId,
     props: isDebug ? { ...props, className: 'iframe' } : props,
     type: node.type,
   });
-  mountElement({ widgetId, element });
-  markWidgetUpdated({ props, widgetId });
+  mountElement({ componentId, element });
+  componentUpdated({ props, componentId });
 
-  childWidgets.forEach(({ widgetId: childWidgetId, props: widgetProps, source, isTrusted }: ChildComponent) => {
+  childComponents.forEach(({ componentId: childComponentId, props: componentProps, source, isTrusted }: ChildComponent) => {
     /*
       a new Component is being rendered by a parent Component, either:
       - this Component is being loaded for the first time
       - the parent Component has updated and is re-rendering this Component
     */
-    if (!isComponentLoaded(childWidgetId)) {
-      /* widget code has not yet been loaded, add to cache and load */
+    if (!isComponentLoaded(childComponentId)) {
+      /* component code has not yet been loaded, add to cache and load */
       loadComponent({
-        componentId: childWidgetId,
+        componentId: childComponentId,
         componentPath: source,
         isTrusted,
-        parentId: widgetId,
-        props: widgetProps,
+        parentId: componentId,
+        props: componentProps,
         renderCount: 0,
       });
     } else {
-      /* widget iframe is already loaded, post update message to iframe */
-      markWidgetUpdated({ props: widgetProps, widgetId: childWidgetId });
-      postMessageToWidgetIframe({
-        id: childWidgetId,
+      /* component iframe is already loaded, post update message to iframe */
+      componentUpdated({ props: componentProps, componentId: childComponentId });
+      postMessageToComponentIframe({
+        id: childComponentId,
         message: {
-          props: widgetProps,
-          type: 'widget.update',
+          props: componentProps,
+          type: 'component.update',
         },
         targetOrigin: '*',
       });

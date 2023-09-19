@@ -15,7 +15,7 @@ export default function Web() {
   const rootComponentPath = ((query.root || []) as string[]).join('/');
 
   const { components, metrics } = useWebEngine({
-    showWidgetDebug: isDebug,
+    showComponentDebug: isDebug,
     rootComponentPath,
   });
 
@@ -25,20 +25,20 @@ export default function Web() {
         <>
           {showMonitor && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
           <div id={getAppDomId(rootComponentPath)} className='iframe'>
-            root widget goes here
+            root component goes here
           </div>
           <div className="iframes">
             {isDebug && (<h5>[hidden iframes]</h5>)}
             {
               Object.entries(components)
                 .filter(([, component]) => !!component?.componentSource)
-                .map(([widgetId, { isTrusted, props, componentSource }]) => (
-                  <div key={widgetId} widget-id={widgetId}>
+                .map(([componentId, { isTrusted, props, componentSource }]) => (
+                  <div key={componentId} component-id={componentId}>
                     <SandboxedIframe
-                      id={getIframeId(widgetId)}
+                      id={getIframeId(componentId)}
                       isTrusted={isTrusted}
                       scriptSrc={componentSource}
-                      widgetProps={props}
+                      componentProps={props}
                     />
                   </div>
                 ))

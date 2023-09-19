@@ -8,7 +8,7 @@ export {
 export {
   buildEventHandler,
   invokeCallback,
-  invokeWidgetCallback,
+  invokeComponentCallback,
 } from './events';
 export {
   buildUseComponentCallback,
@@ -21,7 +21,7 @@ export {
   postMessage,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
-  postWidgetRenderMessage,
+  postComponentRenderMessage,
 } from './messaging';
 export {
   decodeJsonString,

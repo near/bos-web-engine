@@ -2,7 +2,7 @@ import type {
   BuiltinComponents,
   BuiltinProps,
   FilesProps,
-  GetBuiltinsOptions,
+  GetBuiltinsParams,
   InfiniteScrollProps,
   IpfsImageUploadProps,
   MarkdownProps,
@@ -10,7 +10,7 @@ import type {
   TypeaheadProps,
 } from './types';
 
-export function getBuiltins({ createElement }: GetBuiltinsOptions): BuiltinComponents {
+export function getBuiltins({ createElement }: GetBuiltinsParams): BuiltinComponents {
   return {
     Checkbox: ({ children, props } : BuiltinProps<object>) => {
       return createElement('div', props,  children);

@@ -2,8 +2,7 @@ import {
   onCallbackInvocation,
   onCallbackResponse,
   onRender,
-  WidgetDOMElement,
-  WidgetUpdate,
+  ComponentDOMElement,
 } from '@bos-web-engine/application';
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import { getAppDomId } from '@bos-web-engine/iframe';
@@ -14,10 +13,10 @@ import { useComponentMetrics } from './useComponentMetrics';
 
 interface UseWebEngineParams {
   rootComponentPath: string;
-  showWidgetDebug: boolean;
+  showComponentDebug: boolean;
 }
 
-export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngineParams) {
+export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEngineParams) {
   const [compiler, setCompiler] = useState<any>(null);
   const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
@@ -65,20 +64,20 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
     return components?.[componentId]?.renderCount;
   }, [components]);
 
-  const mountElement = useCallback(({ widgetId, element }: { widgetId: string, element: WidgetDOMElement }) => {
-    if (!domRoots.current[widgetId]) {
-      const domElement = document.getElementById(getAppDomId(widgetId));
+  const mountElement = useCallback(({ componentId, element }: { componentId: string, element: ComponentDOMElement }) => {
+    if (!domRoots.current[componentId]) {
+      const domElement = document.getElementById(getAppDomId(componentId));
       if (!domElement) {
-        const metricKey = widgetId.split('##')[0];
+        const metricKey = componentId.split('##')[0];
         componentMissing(metricKey);
-        console.error(`Node not found: #${getAppDomId(widgetId)}`);
+        console.error(`Node not found: #${getAppDomId(componentId)}`);
         return;
       }
 
-      domRoots.current[widgetId] = ReactDOM.createRoot(domElement);
+      domRoots.current[componentId] = ReactDOM.createRoot(domElement);
     }
 
-    domRoots.current[widgetId].render(element);
+    domRoots.current[componentId].render(element);
   }, [domRoots, componentMissing]);
 
   const processMessage = useCallback((event: any) => {
@@ -89,26 +88,26 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
 
       const { data } = event;
       switch (data.type) {
-        case 'widget.callbackInvocation': {
+        case 'component.callbackInvocation': {
           callbackInvoked(data);
           onCallbackInvocation({ data });
           break;
         }
-        case 'widget.callbackResponse': {
+        case 'component.callbackResponse': {
           callbackReturned(data);
           onCallbackResponse({ data });
           break;
         }
-        case 'widget.render': {
+        case 'component.render': {
           componentRendered(data);
           onRender({
             data,
             getComponentRenderCount,
-            isDebug: showWidgetDebug,
-            markWidgetUpdated: componentUpdated,
-            mountElement: ({ widgetId, element }) => {
-              renderComponent(widgetId);
-              mountElement({ widgetId, element });
+            isDebug: showComponentDebug,
+            componentUpdated,
+            mountElement: ({ componentId, element }) => {
+              renderComponent(componentId);
+              mountElement({ componentId, element });
             },
             loadComponent: (component) => loadComponent(component.componentId, component),
             isComponentLoaded: (c: string) => !!components[c],
@@ -121,7 +120,7 @@ export function useWebEngine({ showWidgetDebug, rootComponentPath }: UseWebEngin
     } catch (e) {
       console.error({ event }, e);
     }
-  }, [showWidgetDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, callbackInvoked, callbackReturned, componentRendered, componentUpdated]);
+  }, [showComponentDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, callbackInvoked, callbackReturned, componentRendered, componentUpdated]);
 
   useEffect(() => {
     window.addEventListener('message', processMessage);

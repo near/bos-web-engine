@@ -4,12 +4,12 @@ import {
   initSocial,
   buildEventHandler,
   invokeCallback,
-  invokeWidgetCallback,
+  invokeComponentCallback,
   buildRequest,
   postMessage,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
-  postWidgetRenderMessage,
+  postComponentRenderMessage,
   deserializeProps,
   serializeArgs,
   serializeNode,
@@ -20,11 +20,11 @@ import {
   inlineGlobalDefinition,
 } from '@bos-web-engine/container';
 
-function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
-  const widgetPath = id.split('::')[0];
-  let jsonWidgetProps = '{}';
-  if (widgetProps) {
-    jsonWidgetProps = encodeJsonString(JSON.stringify(widgetProps));
+function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: SandboxedIframeProps) {
+  const componentPath = id.split('::')[0];
+  let jsonComponentProps = '{}';
+  if (componentProps) {
+    jsonComponentProps = encodeJsonString(JSON.stringify(componentProps));
   }
 
   return `
@@ -41,13 +41,13 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
 
           const { h: createElement, render } = window.preact;
 
-          /* generated code for ${widgetPath} */
+          /* generated code for ${componentPath} */
           const callbacks = {};
           const requests = {};
 
           ${inlineGlobalDefinition('buildRequest', buildRequest)}
           ${inlineGlobalDefinition('postMessage', postMessage)}
-          ${inlineGlobalDefinition('postWidgetRenderMessage', postWidgetRenderMessage)}
+          ${inlineGlobalDefinition('postComponentRenderMessage', postComponentRenderMessage)}
           ${inlineGlobalDefinition('postCallbackInvocationMessage', postCallbackInvocationMessage)}
           ${inlineGlobalDefinition('postCallbackResponseMessage', postCallbackResponseMessage)}
 
@@ -59,7 +59,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           ${inlineGlobalDefinition('serializeProps', serializeProps)}
 
           const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
-          const useComponentCallback = buildUseComponentCallback(renderWidget);
+          const useComponentCallback = buildUseComponentCallback(renderComponent);
 
           const builtinComponents = ${getBuiltins.toString()}({ createElement });
 
@@ -70,7 +70,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
               node,
               builtinComponents,
               index: -1,
-              childWidgets: [],
+              childComponents: [],
               callbacks,
               parentId: componentId,
             });
@@ -83,21 +83,21 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             }
 
             nodeRenders[componentId] = stringifiedNode;
-            const { childWidgets, ...serialized } = serializedNode;
+            const { childComponents, ...serialized } = serializedNode;
 
             try {
-              postWidgetRenderMessage({
-                childWidgets,
+              postComponentRenderMessage({
+                childComponents,
                 isTrusted: ${isTrusted},
                 node: serialized,
-                widgetId: componentId,
+                componentId: componentId,
               });
             } catch (error) {
               console.warn('failed to dispatch render for ${id}', { error, serialized });
             }
           }
 
-          // builtin components must have references defined in order for the Widget to render
+          // builtin components must have references defined in order for the Component to render
           // builtin components are resolved during serialization 
           function Checkbox() {}
           function CommitButton() {}
@@ -133,9 +133,9 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             buildRequest,
             callbacks,
             postCallbackInvocationMessage,
-            props: JSON.parse('${jsonWidgetProps.replace(/'/g, '\\\'').replace(/\\"/g, '\\\\"')}'),
+            props: JSON.parse('${jsonComponentProps.replace(/'/g, '\\\'').replace(/\\"/g, '\\\\"')}'),
             requests,
-            widgetId: '${id}',
+            componentId: '${id}',
           }));
 
           function asyncFetch(url, options) {
@@ -144,15 +144,15 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           }
 
           const Near = (${initNear.toString()})({
-            renderWidget,
+            renderComponent,
             rpcUrl: 'https://rpc.near.org',
           });
 
           const Social = (${initSocial.toString()})({
             endpointBaseUrl: 'https://api.near.social',
-            renderWidget,
+            renderComponent,
             sanitizeString: encodeJsonString,
-            widgetId: '${id}',
+            componentId: '${id}',
           });
 
           const React = {
@@ -175,7 +175,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           
           const ComponentState = new Map();
 
-          function WidgetWrapper() {
+          function ComponentWrapper() {
             try {
               return (
                 /* BEGIN EXTERNAL SOURCE */
@@ -183,20 +183,20 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
                 /* END EXTERNAL SOURCE */
               )();
             } catch (e) {
-              console.error(e, { widgetId: '${id.split('##')[0]}' });
-              return createElement('div', {}, 'failed to load ${widgetPath.split('##')[0]}: ' + e.toString() + '\\n\\n' + e.stack);
+              console.error(e, { componentId: '${id.split('##')[0]}' });
+              return createElement('div', {}, 'failed to load ${componentPath.split('##')[0]}: ' + e.toString() + '\\n\\n' + e.stack);
             }
           }
       
-          function renderWidget() {
+          function renderComponent() {
             try {
-              render(WidgetWrapper(), document.getElementById('${id}'));              
+              render(ComponentWrapper(), document.getElementById('${id}'));              
             } catch (e) {
-              console.error(e, { widgetId: '${id}' });
+              console.error(e, { componentId: '${id}' });
             }
           }
           
-          renderWidget();
+          renderComponent();
 
           function preactify(node) {
             if (!node || typeof node !== 'object') {
@@ -205,11 +205,11 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
 
             const { props, type } = node;
             // TODO handle other builtins
-            const isWidget = !!props.src?.match(/[0-9a-z._-]{5,}\\/widget\\/[0-9a-z._-]+/ig);
+            const isComponent = !!props.src?.match(/[0-9a-z._-]{5,}\\/widget\\/[0-9a-z._-]+/ig);
             const { children } = props;
 
             return createElement(
-              isWidget ? Widget : type,
+              isComponent ? Widget : type,
               { ...props, key: node.key || props.key },
               Array.isArray(children) ? children.map(preactify) : preactify(children)
             );
@@ -226,7 +226,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
           }
 
           const invokeCallback = ${invokeCallback.toString()};
-          const invokeWidgetCallback = ${invokeWidgetCallback.toString()};
+          const invokeComponentCallback = ${invokeComponentCallback.toString()};
           const processEvent = (${buildEventHandler.toString()})({
             buildRequest,
             builtinComponents,
@@ -235,7 +235,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
             postCallbackInvocationMessage,
             postCallbackResponseMessage,
             renderDom: (node) => preactify(node),
-            renderWidget,
+            renderComponent,
             requests,
             serializeArgs,
             serializeNode,
@@ -247,7 +247,7 @@ function buildSandboxedWidget({ id, isTrusted, scriptSrc, widgetProps }: Sandbox
               props = buildSafeProxy({ ...props, ...newProps });
               return true;
             },
-            widgetId: '${id}'
+            componentId: '${id}'
           });
 
           window.addEventListener('message', processEvent);
@@ -261,10 +261,10 @@ interface SandboxedIframeProps {
   id: string;
   isTrusted: boolean;
   scriptSrc: string;
-  widgetProps?: any;
+  componentProps?: any;
 }
 
-export function SandboxedIframe({ id, isTrusted, scriptSrc, widgetProps }: SandboxedIframeProps) {
+export function SandboxedIframe({ id, isTrusted, scriptSrc, componentProps }: SandboxedIframeProps) {
   return (
     <iframe
       id={id}
@@ -280,7 +280,7 @@ export function SandboxedIframe({ id, isTrusted, scriptSrc, widgetProps }: Sandb
       ].join('; ')}
       height={0}
       sandbox='allow-scripts'
-      srcDoc={buildSandboxedWidget({ id: id.replace('iframe-', ''), isTrusted, scriptSrc, widgetProps })}
+      srcDoc={buildSandboxedComponent({ id: id.replace('iframe-', ''), isTrusted, scriptSrc, componentProps })}
       title='code-container'
       width={0}
       style={{ border: 'none' }}

@@ -1,20 +1,20 @@
 import { getIframeId } from '@bos-web-engine/iframe';
 
 import type {
-  DeserializePropsOptions,
-  IframePostMessageOptions,
+  DeserializePropsParams,
+  IframePostMessageParams,
 } from './types';
 
-export function postMessageToIframe({ id, message, targetOrigin }: IframePostMessageOptions): void {
+function postMessageToIframe({ id, message, targetOrigin }: IframePostMessageParams): void {
   (document.getElementById(id) as HTMLIFrameElement)
     ?.contentWindow?.postMessage(message, targetOrigin);
 }
 
-export function postMessageToWidgetIframe({ id, message, targetOrigin }: IframePostMessageOptions): void {
+export function postMessageToComponentIframe({ id, message, targetOrigin }: IframePostMessageParams): void {
   postMessageToIframe({ id: getIframeId(id), message, targetOrigin });
 }
 
-export function deserializeProps({ id, props }: DeserializePropsOptions): any {
+export function deserializeProps({ id, props }: DeserializePropsParams): any {
   if (!props) {
     return props;
   }
@@ -39,12 +39,12 @@ export function deserializeProps({ id, props }: DeserializePropsOptions): any {
           };
         }
 
-        postMessageToWidgetIframe({
+        postMessageToComponentIframe({
           id,
           message: {
             args: serializedArgs,
-            method: callback.__widgetMethod,
-            type: 'widget.domCallback',
+            method: callback.__componentMethod,
+            type: 'component.domCallback',
           },
           targetOrigin: '*',
         });
@@ -52,7 +52,7 @@ export function deserializeProps({ id, props }: DeserializePropsOptions): any {
     });
 
   delete props.__domcallbacks;
-  delete props.__widgetcallbacks;
+  delete props.__componentcallbacks;
 
   return props;
 }

@@ -12,22 +12,22 @@ export interface DomCallback {
   type: string;
 }
 
-export interface WidgetUpdate {
+export interface UpdatedComponent {
   props: any;
-  widgetId: string;
+  componentId: string;
 }
 
-export interface Widget {
+export interface Component {
   parentId: string;
   props: any;
   source: string;
 }
 
-export interface CallbackInvocationHandlerOptions {
+export interface CallbackInvocationHandlerParams {
   data: CallbackInvocationEventData;
 }
 
-export interface CallbackResponseHandlerOptions {
+export interface CallbackResponseHandlerParams {
   data: CallbackResponseEventData;
 }
 
@@ -40,37 +40,37 @@ export interface ComponentInstance {
   renderCount: number;
 }
 
-export interface RenderHandlerOptions {
+export interface RenderHandlerParams {
   data: RenderEventData;
   isDebug?: boolean;
   getComponentRenderCount: (componentId: string) => number;
-  markWidgetUpdated: (update: WidgetUpdate) => void;
-  mountElement: ({ widgetId, element }: { widgetId: string, element: any }) => void;
+  componentUpdated: (update: UpdatedComponent) => void;
+  mountElement: ({ componentId, element }: { componentId: string, element: any }) => void;
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;
 }
 
-export interface IframePostMessageOptions {
+export interface IframePostMessageParams {
   id: string;
   message: EventData;
   targetOrigin: string;
 }
 
-export interface DeserializePropsOptions {
+export interface DeserializePropsParams {
   id: string;
   props: any;
 }
 
-export interface WidgetDOMElement extends DOMElement<any, any> {}
+export interface ComponentDOMElement extends DOMElement<any, any> {}
 
-export interface CreateElementOptions {
+export interface CreateElementParams {
   children?: any;
   id: string;
   props: object;
   type: string;
 }
 
-export interface CreateChildElementOptions {
+export interface CreateChildElementParams {
   children?: any;
   depth: number;
   index?: number;

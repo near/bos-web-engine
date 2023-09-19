@@ -1,18 +1,18 @@
 import type {
-  WidgetUpdate,
+  UpdatedComponent,
 } from '@bos-web-engine/application';
 import type {
-  PostMessageWidgetCallbackInvocation,
-  PostMessageWidgetCallbackResponse,
-  PostMessageWidgetRender,
+  ComponentCallbackInvocation,
+  ComponentCallbackResponse,
+  ComponentRender,
 } from '@bos-web-engine/container';
 import { useState } from 'react';
 
 export function useComponentMetrics() {
-  const [callbackInvocations, setCallbackInvocations] = useState<PostMessageWidgetCallbackInvocation[]>([]);
-  const [callbackResponses, setCallbackResponses] = useState<PostMessageWidgetCallbackResponse[]>([]);
-  const [componentRenders, setComponentRenders] = useState<PostMessageWidgetRender[]>([]);
-  const [componentUpdates, setComponentUpdates] = useState<WidgetUpdate[]>([]);
+  const [callbackInvocations, setCallbackInvocations] = useState<ComponentCallbackInvocation[]>([]);
+  const [callbackResponses, setCallbackResponses] = useState<ComponentCallbackResponse[]>([]);
+  const [componentRenders, setComponentRenders] = useState<ComponentRender[]>([]);
+  const [componentUpdates, setComponentUpdates] = useState<UpdatedComponent[]>([]);
   const [missingComponents, setMissingComponents] = useState<string[]>([]);
 
   return {
@@ -23,10 +23,10 @@ export function useComponentMetrics() {
       componentUpdates,
       missingComponents,
     },
-    callbackInvoked: (callback: PostMessageWidgetCallbackInvocation) => setCallbackInvocations((current) => [...current, callback]),
-    callbackReturned: (response: PostMessageWidgetCallbackResponse) => setCallbackResponses((current) => [...current, response]),
+    callbackInvoked: (callback: ComponentCallbackInvocation) => setCallbackInvocations((current) => [...current, callback]),
+    callbackReturned: (response: ComponentCallbackResponse) => setCallbackResponses((current) => [...current, response]),
     componentMissing: (componentId: string) => setMissingComponents((current) => [...current, componentId]),
-    componentRendered: (component: PostMessageWidgetRender) => setComponentRenders((current) => [...current, component]),
-    componentUpdated: (component: WidgetUpdate) => setComponentUpdates((current) => [...current, component]),
+    componentRendered: (component: ComponentRender) => setComponentRenders((current) => [...current, component]),
+    componentUpdated: (component: UpdatedComponent) => setComponentUpdates((current) => [...current, component]),
   };
 }

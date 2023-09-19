@@ -1,10 +1,10 @@
 import type {
-  InitNearOptions,
-  InitSocialOptions,
+  InitNearParams,
+  InitSocialParams,
   KeyValuePair,
 } from './types';
 
-export function initNear({ renderWidget, rpcUrl }: InitNearOptions): any {
+export function initNear({ renderComponent, rpcUrl }: InitNearParams): any {
   const cache: KeyValuePair = {};
   /* @ts-expect-error */
   const provider = new window.nearApi.providers.JsonRpcProvider(rpcUrl);
@@ -20,7 +20,7 @@ export function initNear({ renderWidget, rpcUrl }: InitNearOptions): any {
       provider.block({ finality: 'final' })
         .then((block: any) => {
           cache[cacheKey] = block;
-          renderWidget();
+          renderComponent();
         })
         .catch(console.error);
     },
@@ -34,7 +34,7 @@ export function initNear({ renderWidget, rpcUrl }: InitNearOptions): any {
       this.asyncView(contractName, methodName, args, 'final', subscribe)
         .then((res: any) => {
           cache[cacheKey] = res;
-          renderWidget();
+          renderComponent();
         })
         .catch((e: Error) => console.error(e, { contractName, methodName, args, blockId, subscribe }));
     },
@@ -65,17 +65,17 @@ interface SocialQueryKey {
   type?: string;
 }
 
-interface SocialQueryOptions {
+interface SocialQueryParams {
   action?: string;
   key?: SocialQueryKey | string;
   options?: any;
   keys?: string | string[];
 }
 
-export function initSocial({ endpointBaseUrl, renderWidget, sanitizeString, widgetId }: InitSocialOptions) {
+export function initSocial({ endpointBaseUrl, renderComponent, sanitizeString, componentId }: InitSocialParams) {
   const cache: KeyValuePair = {};
 
-  function cachedQuery({ apiEndpoint, body, cacheKey }: { apiEndpoint: string, body: SocialQueryOptions, cacheKey: string }) {
+  function cachedQuery({ apiEndpoint, body, cacheKey }: { apiEndpoint: string, body: SocialQueryParams, cacheKey: string }) {
     const cached = cache[cacheKey];
     if (cached || (cacheKey in cache && cached === undefined)) {
       return cached;
@@ -130,9 +130,9 @@ export function initSocial({ endpointBaseUrl, renderWidget, sanitizeString, widg
         }
 
         cache[cacheKey] = escapedJson;
-        renderWidget();
+        renderComponent();
       })
-      .catch((e) => console.log({ apiEndpoint, body, error: e, widgetId }));
+      .catch((e) => console.log({ apiEndpoint, body, error: e, componentId }));
 
     return null;
   }

@@ -1,17 +1,17 @@
 import React from 'react';
 
+import { deserializeProps } from './component-container';
 import type {
-  CreateChildElementOptions,
-  CreateElementOptions,
-  WidgetDOMElement,
+  CreateChildElementParams,
+  CreateElementParams,
+  ComponentDOMElement,
 } from './types';
-import { deserializeProps } from './widget-container';
 
-export function createElement({ children, id, props, type }: CreateElementOptions): WidgetDOMElement {
+export function createElement({ children, id, props, type }: CreateElementParams): ComponentDOMElement {
   return React.createElement(type, deserializeProps({ id, props }), children);
 }
 
-export function createChildElements({ children, depth, index, parentId }: CreateChildElementOptions): any {
+export function createChildElements({ children, depth, index, parentId }: CreateChildElementParams): any {
   // `children` is a literal
   if (typeof children === 'string' || typeof children === 'number') {
     return children;
