@@ -1,3 +1,4 @@
+import { ComponentUpdate } from '@bos-web-engine/container';
 import React from 'react';
 
 import { postMessageToComponentIframe } from './component-container';
@@ -88,7 +89,6 @@ export function onRender({
     type: node.type,
   });
   mountElement({ componentId, element });
-  componentUpdated({ props, componentId });
 
   childComponents.forEach(({ componentId: childComponentId, props: componentProps, source, isTrusted }: ChildComponent) => {
     /*
@@ -108,13 +108,16 @@ export function onRender({
       });
     } else {
       /* component iframe is already loaded, post update message to iframe */
-      componentUpdated({ props: componentProps, componentId: childComponentId });
+      const update: ComponentUpdate = {
+        props: componentProps,
+        componentId: childComponentId,
+        type: 'component.update',
+      };
+
+      componentUpdated(update);
       postMessageToComponentIframe({
         id: childComponentId,
-        message: {
-          props: componentProps,
-          type: 'component.update',
-        },
+        message: update,
         targetOrigin: '*',
       });
     }

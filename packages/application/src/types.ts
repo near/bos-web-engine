@@ -1,10 +1,8 @@
 import type {
   CallbackInvocationEventData,
   CallbackResponseEventData,
-  ComponentCallbackInvocation,
-  ComponentCallbackResponse,
   ComponentEventData,
-  ComponentRender,
+  ComponentUpdate,
   EventData,
   RenderEventData,
 } from '@bos-web-engine/container';
@@ -39,7 +37,6 @@ export interface ComponentInstance {
 }
 
 export interface ComponentMetrics {
-  componentUpdates: UpdatedComponent[];
   componentsLoaded: string[];
   events: ComponentEventData[];
   missingComponents: string[];
@@ -49,7 +46,7 @@ export interface RenderHandlerParams {
   data: RenderEventData;
   isDebug?: boolean;
   getComponentRenderCount: (componentId: string) => number;
-  componentUpdated: (update: UpdatedComponent) => void;
+  componentUpdated: (update: ComponentUpdate) => void;
   mountElement: ({ componentId, element }: { componentId: string, element: any }) => void;
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;

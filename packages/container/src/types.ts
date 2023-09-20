@@ -61,6 +61,7 @@ export interface RenderEventData {
 }
 
 export interface UpdateEventData {
+  componentId: string;
   props: NodeProps | ComponentProps;
   type: ComponentUpdateType;
 }
@@ -140,6 +141,7 @@ export interface ComponentCallbackInvocation extends PostMessageParams {
   targetId: string;
   type: ComponentCallbackInvocationType;
 }
+
 export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
   callbacks: CallbackMap;
@@ -178,7 +180,13 @@ export interface PostMessageComponentRenderParams {
   componentId: string;
 }
 
-export type ComponentEventData = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender;
+export interface ComponentUpdate extends PostMessageParams {
+  props: any;
+  type: ComponentUpdateType;
+  componentId: string;
+}
+
+export type ComponentEventData = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender | ComponentUpdate;
 
 export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;

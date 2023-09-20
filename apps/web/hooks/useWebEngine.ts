@@ -5,7 +5,7 @@ import {
   onRender,
 } from '@bos-web-engine/application';
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
-import type { ComponentEventData } from '@bos-web-engine/container';
+import type { ComponentEventData, ComponentUpdate } from '@bos-web-engine/container';
 import { getAppDomId } from '@bos-web-engine/iframe';
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -29,7 +29,6 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
     metrics,
     eventReceived,
     componentMissing,
-    componentUpdated,
   } = useComponentMetrics();
 
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef({});
@@ -107,7 +106,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
             data,
             getComponentRenderCount,
             isDebug: showComponentDebug,
-            componentUpdated,
+            componentUpdated: (update: ComponentUpdate) => eventReceived(update),
             mountElement: ({ componentId, element }) => {
               renderComponent(componentId);
               mountElement({ componentId, element });
@@ -123,7 +122,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
     } catch (e) {
       console.error({ event }, e);
     }
-  }, [showComponentDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, eventReceived, componentUpdated]);
+  }, [showComponentDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, eventReceived]);
 
   useEffect(() => {
     window.addEventListener('message', processMessage);

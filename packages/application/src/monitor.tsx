@@ -1,5 +1,5 @@
 import type { ComponentEventData } from '@bos-web-engine/container';
-import React, { ComponentType } from 'react';
+import React from 'react';
 
 import type {
   ComponentInstance,
@@ -40,8 +40,8 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
 
   const displayMetrics = {
     'Component Containers Loaded': metrics.componentsLoaded.length,
-    'Components Rendered': metrics.events.filter(({ type }) => type === 'component.render').length,
-    'Components Updated': metrics.componentUpdates.length,
+    'Component Renders': metrics.events.filter(({ type }) => type === 'component.render').length,
+    'Component Updates Requested': metrics.events.filter(({ type }) => type === 'component.update').length,
     'Callbacks Invoked': metrics.events.filter(({ type }) => type === 'component.callbackInvocation').length,
     'Callbacks Returned': metrics.events.filter(({ type }) => type === 'component.callbackResponse').length,
     'Missing Components': metrics.missingComponents.length,
@@ -70,21 +70,41 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           badgeClass: 'bg-danger',
           name: 'render',
           componentId: parseComponentId(event.componentId)!,
-          value: { node: Object.keys(event.node), children: event.childComponents.length },
+          value: {
+            node: Object.keys(event.node),
+            children: event.childComponents.length,
+          },
         };
       case 'component.callbackInvocation':
         return {
           badgeClass: 'bg-primary',
           name: 'invoke',
           componentId: parseComponentId(event.targetId)!,
-          value: { method: event.method, args: event.args, caller: event.originator, requestId: event.requestId },
+          value: {
+            requestId: event.requestId.split('-')[0],
+            method: event.method.split('::')[0],
+            args: event.args,
+            caller: event.originator,
+          },
         };
       case 'component.callbackResponse':
         return {
           badgeClass: 'bg-success',
           name: 'return',
           componentId: parseComponentId(event.targetId)!,
-          value: { result: event.result, requestId: event.requestId },
+          value: {
+            requestId: event.requestId.split('-')[0],
+            result: event.result,
+          },
+        };
+      case 'component.update':
+        return {
+          badgeClass: 'bg-warning',
+          name: 'update',
+          componentId: parseComponentId(event.componentId)!,
+          value: {
+            props: event.props,
+          },
         };
       default:
         return null;
@@ -102,7 +122,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
         ))}
       </div>
       <div className='events'>
-        <div className='metric-section-header'>Renders</div>
+        <div className='metric-section-header'>Events</div>
         {
           reversedEvents
             .map(buildEventSummary)
@@ -111,7 +131,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
                 <span className={`badge ${event.badgeClass} event-type-badge`}>
                   {event.name}
                 </span>
-                {event.componentId.name}{event.componentId.id && `(${event.componentId.id})`}
+                <strong>{event.componentId.name}{event.componentId.id && `(${event.componentId.id})`}</strong>
                 {JSON.stringify(event.value)}
               </div>
             ))

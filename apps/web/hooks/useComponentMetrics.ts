@@ -14,7 +14,6 @@ type MetricCollectionItem = ComponentCallbackInvocation | ComponentCallbackRespo
 
 export function useComponentMetrics() {
   const [metrics, setMetrics] = useState<ComponentMetrics>({
-    componentUpdates: [],
     componentsLoaded: [],
     events: [],
     missingComponents: [],
@@ -34,6 +33,5 @@ export function useComponentMetrics() {
     metrics,
     eventReceived: buildAppender<ComponentEventData>('events'),
     componentMissing: buildAppender<string>('missingComponents'),
-    componentUpdated: buildAppender<UpdatedComponent>('componentUpdates'),
   };
 }
