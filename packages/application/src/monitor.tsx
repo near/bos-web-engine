@@ -1,3 +1,4 @@
+import type { ComponentRender } from '@bos-web-engine/container';
 import React from 'react';
 
 import type {
@@ -34,8 +35,8 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
       <div className='renders'>
         <div className='metric-section-header'>Renders</div>
         {
-          metrics.componentRenders.toReversed().map((render, i) => (
-            <div key={i} className='component-render'>
+          metrics.componentRenders.toReversed().map((render: ComponentRender, i: number) => (
+            <div key={i} className='component-render' onClick={() => console.log(render)}>
               {metrics.componentRenders.length - i}: {render.componentId}
             </div>
           ))
