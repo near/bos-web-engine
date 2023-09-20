@@ -1,8 +1,8 @@
 import {
+  ComponentDOMElement,
   onCallbackInvocation,
   onCallbackResponse,
   onRender,
-  ComponentDOMElement,
 } from '@bos-web-engine/application';
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import { getAppDomId } from '@bos-web-engine/iframe';

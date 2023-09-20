@@ -1,12 +1,9 @@
-import {
-  ComponentMonitor,
-} from '@bos-web-engine/application';
-import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/iframe';
 import { useRouter } from 'next/router';
 
+import { ComponentTree } from '../components';
 import { useWebEngine } from '../hooks';
 
-export default function Web() {
+export default function Root() {
   const router = useRouter();
   const { query } = router;
 
@@ -27,29 +24,13 @@ export default function Web() {
         </div>
       )}
       {!error && rootComponentPath && (
-        <>
-          {showMonitor && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
-          <div id={getAppDomId(rootComponentPath)} className='iframe'>
-            root component goes here
-          </div>
-          <div className="iframes">
-            {isDebug && (<h5>[hidden iframes]</h5>)}
-            {
-              Object.entries(components)
-                .filter(([, component]) => !!component?.componentSource)
-                .map(([componentId, { isTrusted, props, componentSource }]) => (
-                  <div key={componentId} component-id={componentId}>
-                    <SandboxedIframe
-                      id={getIframeId(componentId)}
-                      isTrusted={isTrusted}
-                      scriptSrc={componentSource}
-                      componentProps={props}
-                    />
-                  </div>
-                ))
-            }
-          </div>
-        </>
+        <ComponentTree
+          components={components}
+          isDebug={isDebug}
+          metrics={metrics}
+          rootComponentPath={rootComponentPath}
+          showMonitor={showMonitor}
+        />
       )}
     </div>
   );
