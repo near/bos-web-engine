@@ -253,7 +253,6 @@ export interface Node {
 export interface SerializeNodeParams {
   builtinComponents: BuiltinComponents;
   node: Node;
-  index: number;
   childComponents: any[];
   callbacks: CallbackMap;
   parentId: string;
