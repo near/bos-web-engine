@@ -15,6 +15,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
     componentsBySource[source].push(component);
     return componentsBySource;
   }, {} as { [key: string]: ComponentInstance[] });
+
   const sortedByFrequency = Object.entries(groupedComponents) as [string, ComponentInstance[]][];
   sortedByFrequency.sort(([, aComponents], [, bComponents]) => bComponents.length - aComponents.length);
 
@@ -30,16 +31,18 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           </div>
         ))}
       </div>
-      <div className='components'>
+      <div className='renders'>
+        <div className='metric-section-header'>Renders</div>
         {
-          metrics.componentRenders.map((render, i) => (
-            <div key={i}>
-              {JSON.stringify(render).slice(0, 64)}
+          metrics.componentRenders.toReversed().map((render, i) => (
+            <div key={i} className='component-render'>
+              {metrics.componentRenders.length - i}: {render.componentId}
             </div>
           ))
         }
       </div>
       <div className='components'>
+        <div className='metric-section-header'>Component Containers</div>
         {
           sortedByFrequency
             .map(([source, componentsBySource], i) => (
