@@ -22,6 +22,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
   const [components, setComponents] = useState<{ [key: string]: any }>({});
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isValidRootComponentPath, setIsValidRootComponentPath] = useState(false);
 
   const {
     metrics,
@@ -130,7 +131,11 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
   }, [processMessage]);
 
   useEffect(() => {
-    if (!rootComponentPath) {
+    setIsValidRootComponentPath((/^[\w.]+\.near\/widget\/[\w.]+$/ig).test(rootComponentPath));
+  }, [rootComponentPath]);
+
+  useEffect(() => {
+    if (!rootComponentPath || !isValidRootComponentPath) {
       return;
     }
 
@@ -161,11 +166,11 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
       });
 
     }
-  }, [rootComponentPath, rootComponentSource, compiler, addComponent, components, isCompilerInitialized, error]);
+  }, [rootComponentPath, rootComponentSource, compiler, addComponent, components, isCompilerInitialized, error, isValidRootComponentPath]);
 
   return {
     components,
-    error,
+    error: isValidRootComponentPath ? error : `Invalid Component path ${rootComponentPath}`,
     metrics: {
       ...metrics,
       componentsLoaded: Object.keys(components),
