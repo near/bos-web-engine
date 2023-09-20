@@ -1,12 +1,9 @@
-import {
-  ComponentMonitor,
-} from '@bos-web-engine/application';
-import { getAppDomId, getIframeId, SandboxedIframe } from '@bos-web-engine/iframe';
 import { useRouter } from 'next/router';
 
+import { ComponentTree } from '../components';
 import { useWebEngine } from '../hooks';
 
-export default function Web() {
+export default function Root() {
   const router = useRouter();
   const { query } = router;
 
@@ -14,37 +11,26 @@ export default function Web() {
   const showMonitor = query.showMonitor === 'true';
   const rootComponentPath = ((query.root || []) as string[]).join('/');
 
-  const { components, metrics } = useWebEngine({
-    showWidgetDebug: isDebug,
+  const { components, error, metrics } = useWebEngine({
+    showComponentDebug: isDebug,
     rootComponentPath,
   });
 
   return (
     <div className='App'>
-      {rootComponentPath && (
-        <>
-          {showMonitor && <ComponentMonitor metrics={metrics} components={Object.values(components)} />}
-          <div id={getAppDomId(rootComponentPath)} className='iframe'>
-            root widget goes here
-          </div>
-          <div className="iframes">
-            {isDebug && (<h5>[hidden iframes]</h5>)}
-            {
-              Object.entries(components)
-                .filter(([, component]) => !!component?.componentSource)
-                .map(([widgetId, { isTrusted, props, componentSource }]) => (
-                  <div key={widgetId} widget-id={widgetId}>
-                    <SandboxedIframe
-                      id={getIframeId(widgetId)}
-                      isTrusted={isTrusted}
-                      scriptSrc={componentSource}
-                      widgetProps={props}
-                    />
-                  </div>
-                ))
-            }
-          </div>
-        </>
+      {error && (
+        <div className='error'>
+          {error}
+        </div>
+      )}
+      {!error && rootComponentPath && (
+        <ComponentTree
+          components={components}
+          isDebug={isDebug}
+          metrics={metrics}
+          rootComponentPath={rootComponentPath}
+          showMonitor={showMonitor}
+        />
       )}
     </div>
   );

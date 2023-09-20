@@ -18,14 +18,14 @@ export type CallbackMap = { [key: string]: Function };
 
 export type Cloneable = object | string | number | null | undefined | RegExp;
 
-export type DeserializePropsCallback = (props: DeserializePropsOptions) => any;
-export interface DeserializePropsOptions {
+export type DeserializePropsCallback = (props: DeserializePropsParams) => any;
+export interface DeserializePropsParams {
   buildRequest: BuildRequestCallback;
   props: SerializedProps;
   callbacks: CallbackMap;
-  postCallbackInvocationMessage: PostMessageWidgetInvocationCallback;
+  postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: { [key: string]: CallbackRequest }
-  widgetId: string;
+  componentId: string;
 }
 
 export type EventArgs = { event: any };
@@ -36,39 +36,39 @@ export interface CallbackInvocationEventData {
   originator: string;
   requestId: string;
   targetId: string;
-  type: WidgetCallbackInvocation;
+  type: ComponentCallbackInvocationType;
 }
 
 export interface CallbackResponseEventData {
   requestId: string;
   result: string;
   targetId: string;
-  type: WidgetCallbackResponse;
+  type: ComponentCallbackResponseType;
 }
 
 export interface DomCallbackEventData {
   args: Args;
   method: string;
-  type: WidgetDomCallback;
+  type: ComponentDomCallbackType;
 }
 
 export interface RenderEventData {
-  childWidgets: any[];
+  childComponents: any[];
   isTrusted: boolean;
   node: SerializedNode;
-  widgetId: string;
-  type: WidgetRender;
+  componentId: string;
+  type: ComponentRenderType;
 }
 
 export interface UpdateEventData {
-  props: NodeProps | WidgetProps;
-  type: WidgetUpdate;
+  props: NodeProps | ComponentProps;
+  type: ComponentUpdateType;
 }
 
-export interface WidgetSourceData {
+export interface ComponentSourceData {
   isTrusted: boolean;
   source: string;
-  type: TranspilerWidgetFetch;
+  type: TranspilerComponentFetchType;
 }
 
 export type EventData = CallbackInvocationEventData
@@ -76,42 +76,42 @@ export type EventData = CallbackInvocationEventData
   | DomCallbackEventData
   | RenderEventData
   | UpdateEventData
-  | WidgetSourceData;
+  | ComponentSourceData;
 
-type TranspilerWidgetFetch = 'transpiler.widgetFetch';
-type WidgetCallbackInvocation = 'widget.callbackInvocation';
-type WidgetCallbackResponse = 'widget.callbackResponse';
-type WidgetDomCallback = 'widget.domCallback';
-type WidgetRender = 'widget.render';
-type WidgetUpdate = 'widget.update';
-export type EventType = WidgetCallbackInvocation | WidgetCallbackResponse | WidgetRender | WidgetUpdate;
+type TranspilerComponentFetchType = 'transpiler.componentFetch';
+type ComponentCallbackInvocationType = 'component.callbackInvocation';
+type ComponentCallbackResponseType = 'component.callbackResponse';
+type ComponentDomCallbackType = 'component.domCallback';
+type ComponentRenderType = 'component.render';
+type ComponentUpdateType = 'component.update';
+export type EventType = ComponentCallbackInvocationType | ComponentCallbackResponseType | ComponentDomCallbackType | ComponentRenderType | ComponentUpdateType;
 
-export interface InitNearOptions {
-  renderWidget: () => void;
+export interface InitNearParams {
+  renderComponent: () => void;
   rpcUrl: string;
 }
 
-export interface InitSocialOptions {
+export interface InitSocialParams {
   endpointBaseUrl: string;
-  renderWidget: Function;
+  renderComponent: Function;
   sanitizeString: (s: string) => string;
-  widgetId: string;
+  componentId: string;
 }
 
-export interface InvokeCallbackOptions {
+export interface InvokeCallbackParams {
   args: Args | EventArgs;
   callback: Function;
 }
 
-export interface InvokeWidgetCallbackOptions {
+export interface InvokeComponentCallbackParams {
   args: Args;
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   method: string;
-  postCallbackInvocationMessage: PostMessageWidgetInvocationCallback;
+  postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
-  widgetId: string;
+  componentId: string;
 }
 
 export interface KeyValuePair {
@@ -127,94 +127,94 @@ export interface PostMessageEvent {
   data: EventData;
 }
 
-export interface PostMessageOptions {
+export interface PostMessageParams {
   type: EventType;
 }
 
-export type PostMessageWidgetInvocationCallback = (message: PostMessageWidgetCallbackInvocationOptions) => void;
-export interface PostMessageWidgetCallbackInvocation extends PostMessageOptions {
+export type PostMessageComponentInvocationCallback = (message: PostMessageComponentCallbackInvocationParams) => void;
+export interface ComponentCallbackInvocation extends PostMessageParams {
   args: SerializedArgs;
   method: string;
   originator: string;
   requestId: string;
   targetId: string;
-  type: WidgetCallbackInvocation;
+  type: ComponentCallbackInvocationType;
 }
-export interface PostMessageWidgetCallbackInvocationOptions {
+export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
   callbacks: CallbackMap;
   method: string;
   requestId: string;
   serializeArgs: SerializeArgsCallback;
   targetId: string;
-  widgetId: string;
+  componentId: string;
 }
 
-export type PostMessageWidgetResponseCallback = (message: PostMessageWidgetCallbackResponseOptions) => void;
-export interface PostMessageWidgetCallbackResponse extends PostMessageOptions {
+export type PostMessageComponentResponseCallback = (message: PostMessageComponentCallbackResponseParams) => void;
+export interface ComponentCallbackResponse extends PostMessageParams {
   requestId: string;
   result: string; // stringified JSON in the form of { result: any, error: string }
   targetId: string;
-  type: WidgetCallbackResponse;
+  type: ComponentCallbackResponseType;
 }
-export interface PostMessageWidgetCallbackResponseOptions {
+export interface PostMessageComponentCallbackResponseParams {
   error: Error | null;
   requestId: string;
   result: any;
   targetId: string;
 }
 
-export interface PostMessageWidgetRender extends PostMessageOptions {
-  childWidgets: string[];
+export interface ComponentRender extends PostMessageParams {
+  childComponents: string[];
   isTrusted: boolean;
   node: SerializedNode;
-  type: WidgetRender;
-  widgetId: string;
+  type: ComponentRenderType;
+  componentId: string;
 }
-export interface PostMessageWidgetRenderOptions {
-  childWidgets: string[];
+export interface PostMessageComponentRenderParams {
+  childComponents: string[];
   isTrusted: boolean;
   node: SerializedNode;
-  widgetId: string;
+  componentId: string;
 }
 
-export interface PostMessageWidgetUpdate extends PostMessageOptions {
+export interface PostMessageComponentUpdate extends PostMessageParams {
   props: any;
-  type: WidgetUpdate;
+  type: ComponentUpdateType;
 }
-export interface PostMessageWidgetUpdateOptions {
+export interface PostMessageComponentUpdateParams {
   props: any;
 }
 
-export interface ProcessEventOptions {
+export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   deserializeProps: DeserializePropsCallback;
-  postCallbackInvocationMessage: PostMessageWidgetInvocationCallback;
-  postCallbackResponseMessage: PostMessageWidgetResponseCallback;
+  postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
+  postCallbackResponseMessage: PostMessageComponentResponseCallback;
   props: any;
   renderDom: (node: any) => object;
-  renderWidget: () => void;
+  renderComponent: () => void;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
   setProps: (props: object) => boolean;
-  widgetId: string;
+  componentId: string;
 }
 
 export interface Props extends KeyValuePair {
   __domcallbacks?: { [key: string]: any };
-  __widgetcallbacks?: { [key: string]: any };
+  __componentcallbacks?: { [key: string]: any };
   children?: any[];
 }
 
-export type SerializedArgs = Array<string | number | object | any[] | { __widgetMethod: string }>;
-export type SerializeArgsCallback = (args: SerializeArgsOptions) => SerializedArgs;
-export interface SerializeArgsOptions {
+export type SerializedArgs = Array<string | number | object | any[] | { __componentMethod: string }>;
+export type SerializeArgsCallback = (args: SerializeArgsParams) => SerializedArgs;
+export interface SerializeArgsParams {
   args: any[];
   callbacks: CallbackMap;
-  widgetId: string;
+  componentId: string;
 }
 
 interface PreactElement {
@@ -225,7 +225,7 @@ interface PreactElement {
 type PreactCreateElement = (type: string | Function, props: any, children: any) => PreactElement;
 type CreateSerializedBuiltin = ({ props, children }: BuiltinProps<any>) => PreactElement;
 
-export interface GetBuiltinsOptions {
+export interface GetBuiltinsParams {
   createElement: PreactCreateElement;
 }
 
@@ -250,42 +250,42 @@ export interface Node {
   props?: NodeProps;
 }
 
-export interface SerializeNodeOptions {
+export interface SerializeNodeParams {
   builtinComponents: BuiltinComponents;
   node: Node;
   index: number;
-  childWidgets: any[];
+  childComponents: any[];
   callbacks: CallbackMap;
   parentId: string;
 }
-export type SerializeNodeCallback = (args: SerializeNodeOptions) => SerializedNode;
+export type SerializeNodeCallback = (args: SerializeNodeParams) => SerializedNode;
 
 export interface SerializedNode {
-  childWidgets?: SerializedNode[];
+  childComponents?: SerializedNode[];
   type: string;
-  props: NodeProps | WidgetProps;
+  props: NodeProps | ComponentProps;
 }
 
 export interface SerializedProps extends KeyValuePair {
-  __widgetcallbacks?: {
-    [key: string]: SerializedWidgetCallback;
+  __componentcallbacks?: {
+    [key: string]: SerializedComponentCallback;
   };
 }
 
-export interface SerializePropsOptions {
+export interface SerializePropsParams {
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   parentId: string;
   props: any;
-  widgetId?: string;
+  componentId?: string;
 }
 
-export interface SerializedWidgetCallback {
-  __widgetMethod: string;
+export interface SerializedComponentCallback {
+  __componentMethod: string;
   parentId: string;
 }
 
-export interface WidgetProps {
+export interface ComponentProps {
   __bweMeta?: WebEngineMeta;
   children?: any[];
   id: string;
@@ -338,7 +338,7 @@ type BuiltinPropsTypes = object // TODO props for remaining builtins
   | MarkdownProps
   | OverlayTriggerProps
   | TypeaheadProps
-  | WidgetProps;
+  | ComponentProps;
 
 export interface BuiltinProps<T extends BuiltinPropsTypes> {
   children: any[];

@@ -4,7 +4,10 @@ const compiler = new ComponentCompiler({ sendMessage: (message: any) => self.pos
 
 self.onmessage = ({ data: compileRequest } : MessageEvent<ComponentCompilerRequest>) => {
   compiler.compileComponent(compileRequest)
-    .catch((e) => console.error(`Failed to compile component ${compileRequest.componentId}`, e));
+    .catch((e) => {
+      console.error(`Failed to compile component ${compileRequest.componentId}`, e);
+      self.postMessage({ error: e });
+    });
 };
 
 export {};

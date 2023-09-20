@@ -41,7 +41,7 @@
   color: #888;
 }
 
-#init-widget {
+#init-component {
   padding: 24px;
 }
 
@@ -57,7 +57,7 @@
   font-size: 18px;
 }
 
-#widget-monitor {
+#component-monitor {
   display: flex;
   flex-direction: row;
   font-family: "Roboto Mono for Powerline";

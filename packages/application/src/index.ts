@@ -13,6 +13,5 @@ export {
 export * from './types';
 export {
   deserializeProps,
-  postMessageToIframe,
-  postMessageToWidgetIframe,
-} from './widget-container';
+  postMessageToComponentIframe,
+} from './component-container';

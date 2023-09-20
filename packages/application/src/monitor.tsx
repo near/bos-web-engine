@@ -1,24 +1,24 @@
 import React from 'react';
 
 import type {
-  Widget,
+  Component,
 } from './types';
 
 export function ComponentMonitor({ components, metrics }: { components: any[], metrics: object }) {
-  const groupedComponents = components.reduce((componentsBySource, widget) => {
-    const source = widget.componentId?.split('##')[0];
+  const groupedComponents = components.reduce((componentsBySource, component) => {
+    const source = component.componentId?.split('##')[0];
     if (!componentsBySource[source]) {
       componentsBySource[source] = [];
     }
 
-    componentsBySource[source].push(widget);
+    componentsBySource[source].push(component);
     return componentsBySource;
-  }, {} as { [key: string]: Widget[] });
-  const sortedByFrequency = Object.entries(groupedComponents) as [string, Widget[]][];
+  }, {} as { [key: string]: Component[] });
+  const sortedByFrequency = Object.entries(groupedComponents) as [string, Component[]][];
   sortedByFrequency.sort(([, aComponents], [, bComponents]) => bComponents.length - aComponents.length);
 
   return (
-    <div id='widget-monitor'>
+    <div id='component-monitor'>
       <div className='metrics'>
         {Object.entries(metrics).map(([label, value], i) => (
           <div className='metrics-data-point' key={`data-point-${i}`}>
@@ -29,12 +29,17 @@ export function ComponentMonitor({ components, metrics }: { components: any[], m
           </div>
         ))}
       </div>
-      <div className='widgets'>
+      <div className='components'>
+        {
+
+        }
+      </div>
+      <div className='components'>
         {
           sortedByFrequency
             .map(([source, componentsBySource], i) => (
-              <div className='widget-row' key={`widget-row-${i}`}>
-                {(componentsBySource as Widget[]).length} {source}
+              <div className='component-row' key={`component-row-${i}`}>
+                {(componentsBySource as Component[]).length} {source}
               </div>
             ))
         }

@@ -1,9 +1,9 @@
 import type {
   Args,
-  InvokeCallbackOptions,
-  InvokeWidgetCallbackOptions,
+  InvokeCallbackParams,
+  InvokeComponentCallbackParams,
   PostMessageEvent,
-  ProcessEventOptions,
+  ProcessEventParams,
 } from './types';
 
 /**
@@ -11,7 +11,7 @@ import type {
  * @param args The arguments to the invoked callback
  * @param callback The function to execute
  */
-export function invokeCallback({ args, callback }: InvokeCallbackOptions): any {
+export function invokeCallback({ args, callback }: InvokeCallbackParams): any {
   if (args === undefined) {
     return callback();
   }
@@ -28,17 +28,17 @@ export function invokeCallback({ args, callback }: InvokeCallbackOptions): any {
 }
 
 /**
- * Invoke a callback declared within a Widget
+ * Invoke a callback declared within a Component
  * @param args The arguments to the invoked callback
- * @param buildRequest Function to build an inter-Widget asynchronous callback request
- * @param callbacks The set of callbacks defined on the target Widget
+ * @param buildRequest Function to build an inter-Component asynchronous callback request
+ * @param callbacks The set of callbacks defined on the target Component
  * @param method The name of the callback to be invoked
- * @param postCallbackInvocationMessage Request invocation on external Widget via window.postMessage
- * @param requests The set of inter-Widget callback requests being tracked by the Widget
+ * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
+ * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
- * @param widgetId ID of the Widget invoking the method
+ * @param componentId ID of the Component invoking the method
  */
-export function invokeWidgetCallback({
+export function invokeComponentCallback({
   args,
   buildRequest,
   callbacks,
@@ -46,20 +46,20 @@ export function invokeWidgetCallback({
   postCallbackInvocationMessage,
   requests,
   serializeArgs,
-  widgetId,
-}: InvokeWidgetCallbackOptions): any {
+  componentId,
+}: InvokeComponentCallbackParams): any {
   // unknown method
   if (!callbacks[method]) {
-    console.error(`No method ${method} on widget ${widgetId}`);
+    console.error(`No method ${method} on component ${componentId}`);
     return null;
   }
 
   // some arguments to this callback are methods on other Components
   // these must be replaced with wrappers invoking Component methods
-  if (typeof args?.some === 'function' && args.some((arg: any) => arg.__widgetMethod)) {
+  if (typeof args?.some === 'function' && args.some((arg: any) => arg.__componentMethod)) {
     args = args.map((arg: any) => {
-      const { __widgetMethod: widgetMethod } = arg;
-      if (!widgetMethod) {
+      const { __componentMethod: componentMethod } = arg;
+      if (!componentMethod) {
         return arg;
       }
 
@@ -70,11 +70,11 @@ export function invokeWidgetCallback({
         postCallbackInvocationMessage({
           args: childArgs,
           callbacks,
-          method: widgetMethod,
+          method: componentMethod,
           requestId,
           serializeArgs,
-          targetId: widgetMethod.split('::').slice(1).join('::'),
-          widgetId,
+          targetId: componentMethod.split('::').slice(1).join('::'),
+          componentId,
         });
       };
     });
@@ -85,19 +85,19 @@ export function invokeWidgetCallback({
 
 /**
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
- * @param buildRequest Function to build an inter-Widget asynchronous callback request
+ * @param buildRequest Function to build an inter-Component asynchronous callback request
  * @param builtinComponents The set of Builtin Components provided by BOS Web Engine
- * @param callbacks The set of callbacks defined on the target Widget
+ * @param callbacks The set of callbacks defined on the target Component
  * @param deserializeProps Function to deserialize props passed on the event
- * @param postCallbackInvocationMessage Request invocation on external Widget via window.postMessage
- * @param postCallbackResponseMessage Send callback execution result to calling Widget via window.postMessage
- * @param renderDom Callback for rendering DOM within the widget
- * @param renderWidget Callback for rendering the Widget
- * @param requests The set of inter-Widget callback requests being tracked by the Widget
+ * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
+ * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
+ * @param renderDom Callback for rendering DOM within the component
+ * @param renderComponent Callback for rendering the Component
+ * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  * @param serializeNode Function to serialize Preact DOM trees passed to window.postMessage
- * @param setProps Callback for setting the Widget's props
- * @param widgetId ID of the target Widget on which the
+ * @param setProps Callback for setting the Component's props
+ * @param componentId ID of the target Component on which the
  */
 export function buildEventHandler({
   buildRequest,
@@ -107,20 +107,20 @@ export function buildEventHandler({
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   renderDom,
-  renderWidget,
+  renderComponent,
   requests,
   serializeArgs,
   serializeNode,
   setProps,
-  widgetId,
-}: ProcessEventOptions): Function {
+  componentId,
+}: ProcessEventParams): Function {
   return function processEvent(event: PostMessageEvent) {
     let error: any = null;
     let result: any;
     let shouldRender = false;
 
     function invokeCallback({ args, method }: { args: Args, method: string }) {
-      return invokeWidgetCallback({
+      return invokeComponentCallback({
         args,
         buildRequest,
         callbacks,
@@ -128,7 +128,7 @@ export function buildEventHandler({
         postCallbackInvocationMessage,
         requests,
         serializeArgs,
-        widgetId,
+        componentId,
       });
     }
 
@@ -164,7 +164,7 @@ export function buildEventHandler({
     }
 
     switch (event.data.type) {
-      case 'widget.callbackInvocation': {
+      case 'component.callbackInvocation': {
         let { args, method, originator, requestId } = event.data;
         try {
           result = invokeCallback({ args, method });
@@ -172,7 +172,7 @@ export function buildEventHandler({
           error = e;
         }
 
-        result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childWidgets: [], index: 0 }));
+        result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childComponents: [], index: 0 }));
 
         const postCallbackResponse = (value: any, error: any) => {
           if (requestId) {
@@ -194,7 +194,7 @@ export function buildEventHandler({
         }
         break;
       }
-      case 'widget.callbackResponse': {
+      case 'component.callbackResponse': {
         const { requestId, result } = event.data;
         if (!(requestId in requests)) {
           console.error(`No request found for request ${requestId}`);
@@ -222,7 +222,7 @@ export function buildEventHandler({
         }
 
         if (error) {
-          console.error('External Widget callback failed', { error });
+          console.error('External Component callback failed', { error });
           // TODO reject w/ Error instance
           rejecter(error);
           return;
@@ -231,7 +231,7 @@ export function buildEventHandler({
         resolver(applyRecursivelyToComponents(value, renderDom));
         break;
       }
-      case 'widget.domCallback': {
+      case 'component.domCallback': {
         let { args, method } = event.data;
         try {
           result = invokeCallback({ args, method });
@@ -241,14 +241,14 @@ export function buildEventHandler({
         }
         break;
       }
-      case 'widget.update': {
+      case 'component.update': {
         shouldRender = setProps(deserializeProps({
           buildRequest,
           callbacks,
           postCallbackInvocationMessage,
           props: event.data.props,
           requests,
-          widgetId,
+          componentId,
         }));
         break;
       }
@@ -258,7 +258,7 @@ export function buildEventHandler({
     }
 
     if (shouldRender) {
-      renderWidget();
+      renderComponent();
     }
   };
 }
