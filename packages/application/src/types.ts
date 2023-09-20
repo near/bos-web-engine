@@ -1,6 +1,9 @@
 import type {
   CallbackInvocationEventData,
   CallbackResponseEventData,
+  ComponentCallbackInvocation,
+  ComponentCallbackResponse,
+  ComponentRender,
   EventData,
   RenderEventData,
 } from '@bos-web-engine/container';
@@ -15,12 +18,6 @@ export interface DomCallback {
 export interface UpdatedComponent {
   props: any;
   componentId: string;
-}
-
-export interface Component {
-  parentId: string;
-  props: any;
-  source: string;
 }
 
 export interface CallbackInvocationHandlerParams {
@@ -38,6 +35,14 @@ export interface ComponentInstance {
   parentId: string;
   props: any;
   renderCount: number;
+}
+
+export interface ComponentMetrics {
+  callbackInvocations: ComponentCallbackInvocation[];
+  callbackResponses: ComponentCallbackResponse[];
+  componentRenders: ComponentRender[];
+  componentUpdates: UpdatedComponent[];
+  missingComponents: string[];
 }
 
 export interface RenderHandlerParams {

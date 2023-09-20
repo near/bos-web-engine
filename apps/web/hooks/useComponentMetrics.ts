@@ -1,4 +1,5 @@
 import type {
+  ComponentMetrics,
   UpdatedComponent,
 } from '@bos-web-engine/application';
 import type {
@@ -6,27 +7,35 @@ import type {
   ComponentCallbackResponse,
   ComponentRender,
 } from '@bos-web-engine/container';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+
+type MetricCollectionItem = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender | UpdatedComponent | string;
 
 export function useComponentMetrics() {
-  const [callbackInvocations, setCallbackInvocations] = useState<ComponentCallbackInvocation[]>([]);
-  const [callbackResponses, setCallbackResponses] = useState<ComponentCallbackResponse[]>([]);
-  const [componentRenders, setComponentRenders] = useState<ComponentRender[]>([]);
-  const [componentUpdates, setComponentUpdates] = useState<UpdatedComponent[]>([]);
-  const [missingComponents, setMissingComponents] = useState<string[]>([]);
+  const [metrics, setMetrics] = useState<ComponentMetrics>({
+    callbackInvocations: [],
+    callbackResponses: [],
+    componentRenders: [],
+    componentUpdates: [],
+    missingComponents: [],
+  });
+
+  const buildAppender = useCallback(
+    function buildCollectionAppender<T extends MetricCollectionItem>(metricsKey: keyof ComponentMetrics) {
+      return (item: T) => setMetrics((currentMetrics) => ({
+        ...currentMetrics,
+        [metricsKey]: [...currentMetrics[metricsKey], item],
+      }));
+    },
+    []
+  );
 
   return {
-    metrics: {
-      callbackInvocations,
-      callbackResponses,
-      componentRenders,
-      componentUpdates,
-      missingComponents,
-    },
-    callbackInvoked: (callback: ComponentCallbackInvocation) => setCallbackInvocations((current) => [...current, callback]),
-    callbackReturned: (response: ComponentCallbackResponse) => setCallbackResponses((current) => [...current, response]),
-    componentMissing: (componentId: string) => setMissingComponents((current) => [...current, componentId]),
-    componentRendered: (component: ComponentRender) => setComponentRenders((current) => [...current, component]),
-    componentUpdated: (component: UpdatedComponent) => setComponentUpdates((current) => [...current, component]),
+    metrics,
+    callbackInvoked: buildAppender<ComponentCallbackInvocation>('callbackInvocations'),
+    callbackReturned: buildAppender<ComponentCallbackResponse>('callbackResponses'),
+    componentMissing: buildAppender<string>('missingComponents'),
+    componentRendered: buildAppender<ComponentRender>('componentRenders'),
+    componentUpdated: buildAppender<UpdatedComponent>('componentUpdates'),
   };
 }

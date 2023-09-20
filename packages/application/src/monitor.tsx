@@ -1,20 +1,21 @@
 import React from 'react';
 
 import type {
-  Component,
+  ComponentInstance,
+  ComponentMetrics,
 } from './types';
 
-export function ComponentMonitor({ components, metrics }: { components: any[], metrics: object }) {
+export function ComponentMonitor({ components, metrics }: { components: ComponentInstance[], metrics: ComponentMetrics }) {
   const groupedComponents = components.reduce((componentsBySource, component) => {
-    const source = component.componentId?.split('##')[0];
+    const source = component.componentId?.split('##')[0] || '';
     if (!componentsBySource[source]) {
       componentsBySource[source] = [];
     }
 
     componentsBySource[source].push(component);
     return componentsBySource;
-  }, {} as { [key: string]: Component[] });
-  const sortedByFrequency = Object.entries(groupedComponents) as [string, Component[]][];
+  }, {} as { [key: string]: ComponentInstance[] });
+  const sortedByFrequency = Object.entries(groupedComponents) as [string, ComponentInstance[]][];
   sortedByFrequency.sort(([, aComponents], [, bComponents]) => bComponents.length - aComponents.length);
 
   return (
@@ -31,7 +32,11 @@ export function ComponentMonitor({ components, metrics }: { components: any[], m
       </div>
       <div className='components'>
         {
-
+          metrics.componentRenders.map((render, i) => (
+            <div key={i}>
+              {JSON.stringify(render).slice(0, 64)}
+            </div>
+          ))
         }
       </div>
       <div className='components'>
@@ -39,7 +44,7 @@ export function ComponentMonitor({ components, metrics }: { components: any[], m
           sortedByFrequency
             .map(([source, componentsBySource], i) => (
               <div className='component-row' key={`component-row-${i}`}>
-                {(componentsBySource as Component[]).length} {source}
+                {componentsBySource.length} {source}
               </div>
             ))
         }
