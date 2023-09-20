@@ -5,6 +5,7 @@ import type {
 import type {
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
+  ComponentEventData,
   ComponentRender,
 } from '@bos-web-engine/container';
 import { useCallback, useState } from 'react';
@@ -13,10 +14,9 @@ type MetricCollectionItem = ComponentCallbackInvocation | ComponentCallbackRespo
 
 export function useComponentMetrics() {
   const [metrics, setMetrics] = useState<ComponentMetrics>({
-    callbackInvocations: [],
-    callbackResponses: [],
-    componentRenders: [],
     componentUpdates: [],
+    componentsLoaded: [],
+    events: [],
     missingComponents: [],
   });
 
@@ -32,10 +32,8 @@ export function useComponentMetrics() {
 
   return {
     metrics,
-    callbackInvoked: buildAppender<ComponentCallbackInvocation>('callbackInvocations'),
-    callbackReturned: buildAppender<ComponentCallbackResponse>('callbackResponses'),
+    eventReceived: buildAppender<ComponentEventData>('events'),
     componentMissing: buildAppender<string>('missingComponents'),
-    componentRendered: buildAppender<ComponentRender>('componentRenders'),
     componentUpdated: buildAppender<UpdatedComponent>('componentUpdates'),
   };
 }

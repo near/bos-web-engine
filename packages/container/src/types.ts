@@ -178,13 +178,7 @@ export interface PostMessageComponentRenderParams {
   componentId: string;
 }
 
-export interface PostMessageComponentUpdate extends PostMessageParams {
-  props: any;
-  type: ComponentUpdateType;
-}
-export interface PostMessageComponentUpdateParams {
-  props: any;
-}
+export type ComponentEventData = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender;
 
 export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;

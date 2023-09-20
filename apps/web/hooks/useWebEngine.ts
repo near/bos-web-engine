@@ -5,6 +5,7 @@ import {
   onRender,
 } from '@bos-web-engine/application';
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
+import type { ComponentEventData } from '@bos-web-engine/container';
 import { getAppDomId } from '@bos-web-engine/iframe';
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -26,10 +27,8 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
 
   const {
     metrics,
-    callbackInvoked,
-    callbackReturned,
+    eventReceived,
     componentMissing,
-    componentRendered,
     componentUpdated,
   } = useComponentMetrics();
 
@@ -83,26 +82,27 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
     domRoots.current[componentId].render(element);
   }, [domRoots, componentMissing]);
 
-  const processMessage = useCallback((event: any) => {
+  const processMessage = useCallback((event: MessageEvent<ComponentEventData>) => {
     try {
       if (typeof event.data !== 'object') {
         return;
       }
 
       const { data } = event;
+      if (data?.type) {
+        eventReceived(data);
+      }
+
       switch (data.type) {
         case 'component.callbackInvocation': {
-          callbackInvoked(data);
           onCallbackInvocation({ data });
           break;
         }
         case 'component.callbackResponse': {
-          callbackReturned(data);
           onCallbackResponse({ data });
           break;
         }
         case 'component.render': {
-          componentRendered(data);
           onRender({
             data,
             getComponentRenderCount,
@@ -123,7 +123,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
     } catch (e) {
       console.error({ event }, e);
     }
-  }, [showComponentDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, callbackInvoked, callbackReturned, componentRendered, componentUpdated]);
+  }, [showComponentDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, eventReceived, componentUpdated]);
 
   useEffect(() => {
     window.addEventListener('message', processMessage);

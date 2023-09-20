@@ -81,40 +81,42 @@
   overflow-y: scroll;
 }
 
-.renders {
-  flex: 1;
+.events {
+  flex: 2;
   padding: 8px;
   font-size: 10px;
   overflow: scroll;
   white-space: nowrap;
 }
 
-.component-render {
+.event {
   float: left;
   display: inline;
+}
+
+.event-type-badge {
+  width: 48px;
+  margin-right: 4px;
 }
 
 .metrics {
   flex: 1;
   display: flex;
   padding: 8px;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
 }
 
 .metrics-data-point {
-  border: 1px solid #2bc;
-  margin: 2px 4px;
-  padding: 4px;
-}
-
-.data-point-header {
+  display: flex;
   font-size: 11px;
 }
 
+.data-point-header {
+  flex: 3;
+}
+
 .data-point-value {
-  font-size: 24px;
-  text-align: right;
+  flex: 1;
 }
 
 .iframe {

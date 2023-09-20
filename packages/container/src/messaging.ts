@@ -7,8 +7,6 @@ import type {
   PostMessageComponentCallbackResponseParams,
   ComponentRender,
   PostMessageComponentRenderParams,
-  PostMessageComponentUpdate,
-  PostMessageComponentUpdateParams,
 } from './types';
 
 export function buildRequest(): CallbackRequest {

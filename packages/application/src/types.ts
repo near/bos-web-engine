@@ -3,6 +3,7 @@ import type {
   CallbackResponseEventData,
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
+  ComponentEventData,
   ComponentRender,
   EventData,
   RenderEventData,
@@ -38,10 +39,9 @@ export interface ComponentInstance {
 }
 
 export interface ComponentMetrics {
-  callbackInvocations: ComponentCallbackInvocation[];
-  callbackResponses: ComponentCallbackResponse[];
-  componentRenders: ComponentRender[];
   componentUpdates: UpdatedComponent[];
+  componentsLoaded: string[];
+  events: ComponentEventData[];
   missingComponents: string[];
 }
 
