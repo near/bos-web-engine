@@ -1,10 +1,11 @@
-import type { ComponentEventData } from '@bos-web-engine/container';
+import type { EventType, MessagePayload } from '@bos-web-engine/container';
 import React from 'react';
 
 import type {
   ComponentInstance,
-  ComponentMetrics,
+  ComponentMetrics, SendMessageParams,
 } from './types';
+import { BWEMessage } from './types';
 
 interface ComponentId {
   author: string;
@@ -14,12 +15,12 @@ interface ComponentId {
   parent: ComponentId | null;
 }
 
-interface ComponentEvent {
+interface ComponentMessage {
   badgeClass: string;
   name: string;
   componentId?: ComponentId;
-  event: ComponentEventData;
-  message: string,
+  message: MessagePayload;
+  summary: string,
 }
 
 export function ComponentMonitor({ components, metrics }: { components: ComponentInstance[], metrics: ComponentMetrics }) {
@@ -36,16 +37,29 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
   const sortedByFrequency = Object.entries(groupedComponents) as [string, ComponentInstance[]][];
   sortedByFrequency.sort(([, aComponents], [, bComponents]) => bComponents.length - aComponents.length);
 
-  const reversedEvents = [...metrics.events];
+  const reversedEvents = [...metrics.messages];
   reversedEvents.reverse();
+
+  const messageMetrics = metrics.messages.reduce((grouped, { componentId, message }) => {
+    if (!message) {
+      return grouped;
+    }
+
+    if (!grouped.has(message.type)) {
+      grouped.set(message.type, []);
+    }
+
+    grouped.set(message.type, [...grouped.get(message.type)!, { componentId, message }]);
+    return grouped;
+  }, new Map<EventType, BWEMessage[]>());
 
   const displayMetrics = {
     'Component Containers Loaded': metrics.componentsLoaded.length,
-    'Component Renders': metrics.events.filter(({ type }) => type === 'component.render').length,
-    'Component Updates Requested': metrics.events.filter(({ type }) => type === 'component.update').length,
-    'DOM Event Handlers Invoked': metrics.events.filter(({ type }) => type === 'component.domCallback').length,
-    'Callbacks Invoked': metrics.events.filter(({ type }) => type === 'component.callbackInvocation').length,
-    'Callbacks Returned': metrics.events.filter(({ type }) => type === 'component.callbackResponse').length,
+    'Component Renders': messageMetrics.get('component.render')?.length || 0,
+    'Component Updates Requested': messageMetrics.get('component.update')?.length || 0,
+    'DOM Event Handlers Invoked': messageMetrics.get('component.domCallback')?.length || 0,
+    'Callbacks Invoked': messageMetrics.get('component.callbackInvocation')?.length || 0,
+    'Callbacks Returned': messageMetrics.get('component.callbackResponse')?.length || 0,
     'Missing Components': metrics.missingComponents.length,
   };
 
@@ -98,60 +112,61 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
     return `${componentId.name}#${componentId.id}`;
   };
 
-  const buildEventSummary = (event: ComponentEventData): ComponentEvent | null => {
-    switch (event.type) {
+  const buildEventSummary = (params: SendMessageParams): ComponentMessage | null => {
+    const { componentId, message } = params;
+    switch (message.type) {
       case 'component.render': {
-        const { type, props } = event.node;
-        const formattedChildren = event.childComponents.length
-          ? `with children ${event.childComponents.map(({ componentId }) => formatComponentId(parseComponentId(componentId))).join(', ')}`
+        const { type, props } = message.node;
+        const formattedChildren = message.childComponents.length
+          ? `with children ${message.childComponents.map(({ componentId }) => formatComponentId(parseComponentId(componentId))).join(', ')}`
           : '';
 
         return {
-          event,
+          message,
           badgeClass: 'bg-danger',
           name: 'render',
-          componentId: parseComponentId(event.componentId)!,
-          message: `rendered <${type} ${formatProps(props, true).slice(0, 64)}...> ${formattedChildren}`,
+          componentId: parseComponentId(message.componentId)!,
+          summary: `rendered <${type} ${formatProps(props, true).slice(0, 64)}...> ${formattedChildren}`,
         };
       }
       case 'component.callbackInvocation': {
-        const targetComponent = formatComponentId(parseComponentId(event.targetId));
-        const { requestId, method, args } = event;
+        const targetComponent = formatComponentId(parseComponentId(message.targetId));
+        const { requestId, method, args } = message;
         return {
-          event,
+          message,
           badgeClass: 'bg-primary',
           name: 'invoke',
-          componentId: parseComponentId(event.originator)!,
-          message: `[${requestId.split('-')[0]}] called ${method.split('::')[0]}(${args}) on ${targetComponent}`,
+          componentId: parseComponentId(message.originator)!,
+          summary: `[${requestId.split('-')[0]}] called ${method.split('::')[0]}(${args}) on ${targetComponent}`,
         };
       }
       case 'component.callbackResponse': {
-        const { requestId, result } = event;
+        const { requestId, result } = message;
         return {
-          event,
+          message,
           badgeClass: 'bg-success',
           name: 'return',
-          componentId: parseComponentId(event.componentId)!,
-          message: `[${requestId.split('-')[0]}] returned ${result} to ${formatComponentId(parseComponentId(event.targetId))}`,
+          componentId: parseComponentId(message.componentId)!,
+          summary: `[${requestId.split('-')[0]}] returned ${result} to ${formatComponentId(parseComponentId(message.targetId))}`,
         };
       }
       case 'component.update': {
-        const { __componentcallbacks, ...simpleProps } = event.props || {};
+        const { __componentcallbacks, ...simpleProps } = message.props || {};
         return {
-          event,
+          message,
           badgeClass: 'bg-warning',
           name: 'update',
-          componentId: parseComponentId(event.componentId)!,
-          message: `updated props ${JSON.stringify(simpleProps)}`,
+          componentId: parseComponentId(componentId)!,
+          summary: `updated props ${JSON.stringify(simpleProps)}`,
         };
       }
       case 'component.domCallback': {
         return {
-          event,
+          message,
           badgeClass: 'bg-info',
           name: 'DOM',
-          componentId: parseComponentId(event.componentId!)!,
-          message: `${event.method.split('::')[0]}() invoked from event DOM handler`,
+          componentId: parseComponentId(componentId!)!,
+          summary: `${message.method.split('::')[0]}() invoked from event DOM handler`,
         };
       }
       default:
@@ -169,14 +184,14 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           </div>
         ))}
       </div>
-      <div className='events'>
+      <div className='messages'>
         <div className='metric-section-header'>Events</div>
         {
           reversedEvents
             .map(buildEventSummary)
-            .map((event: ComponentEvent | null, i) => event && (
-              <div key={i} className='event' onClick={() => console.log(event.event)}>
-                <span className={`badge ${event.badgeClass} event-type-badge`}>
+            .map((event: ComponentMessage | null, i) => event && (
+              <div key={i} className='event' onClick={() => console.log(event.message)}>
+                <span className={`badge ${event.badgeClass} message-type-badge`}>
                   {event.name}
                 </span>
                 {event.componentId && (
@@ -184,7 +199,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
                     {formatComponentId(event.componentId)}
                   </span>
                 )}
-                &nbsp;{event.message}
+                &nbsp;{event.summary}
               </div>
             ))
         }

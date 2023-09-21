@@ -1,22 +1,15 @@
 import type {
   ComponentMetrics,
-  UpdatedComponent,
+  BWEMessage,
 } from '@bos-web-engine/application';
-import type {
-  ComponentCallbackInvocation,
-  ComponentCallbackResponse,
-  ComponentEventData,
-  ComponentRender,
-  DomCallback,
-} from '@bos-web-engine/container';
 import { useCallback, useState } from 'react';
 
-type MetricCollectionItem = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender | UpdatedComponent | string | DomCallback;
+type MetricCollectionItem = BWEMessage | string;
 
 export function useComponentMetrics() {
   const [metrics, setMetrics] = useState<ComponentMetrics>({
     componentsLoaded: [],
-    events: [],
+    messages: [],
     missingComponents: [],
   });
 
@@ -32,7 +25,7 @@ export function useComponentMetrics() {
 
   return {
     metrics,
-    eventReceived: buildAppender<ComponentEventData>('events'),
+    recordMessage: buildAppender<BWEMessage>('messages'),
     componentMissing: buildAppender<string>('missingComponents'),
   };
 }

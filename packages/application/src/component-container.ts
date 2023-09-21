@@ -4,6 +4,7 @@ import { getIframeId } from '@bos-web-engine/iframe';
 import type {
   DeserializePropsParams,
   IframePostMessageParams,
+  SendMessageParams,
 } from './types';
 
 function postMessageToIframe({ id, message, targetOrigin }: IframePostMessageParams): void {
@@ -11,11 +12,12 @@ function postMessageToIframe({ id, message, targetOrigin }: IframePostMessagePar
     ?.contentWindow?.postMessage(message, targetOrigin);
 }
 
-export function postMessageToComponentIframe({ id, message, targetOrigin }: IframePostMessageParams): void {
-  postMessageToIframe({ id: getIframeId(id), message, targetOrigin });
+export function sendMessage({ componentId, message, onMessageSent }: SendMessageParams): void {
+  onMessageSent({ componentId, message });
+  postMessageToIframe({ id: getIframeId(componentId), message, targetOrigin: '*' });
 }
 
-export function deserializeProps({ id, props, onDomCallback }: DeserializePropsParams): any {
+export function deserializeProps({ id, props, onMessageSent }: DeserializePropsParams): any {
   if (!props) {
     return props;
   }
@@ -40,22 +42,14 @@ export function deserializeProps({ id, props, onDomCallback }: DeserializePropsP
           };
         }
 
-        const domCallback: DomCallback = {
-          args: serializedArgs,
-          method: callback.__componentMethod,
-          type: 'component.domCallback',
-        };
-
-        onDomCallback?.({
-          ...domCallback,
+        sendMessage({
           componentId: id,
-          event: args,
-        });
-
-        postMessageToComponentIframe({
-          id,
-          message: domCallback,
-          targetOrigin: '*',
+          message: {
+            args: serializedArgs,
+            method: callback.__componentMethod,
+            type: 'component.domCallback',
+          },
+          onMessageSent,
         });
       };
     });

@@ -11,7 +11,3 @@ export {
   createElement,
 } from './react';
 export * from './types';
-export {
-  deserializeProps,
-  postMessageToComponentIframe,
-} from './component-container';

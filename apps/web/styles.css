@@ -81,7 +81,7 @@
   overflow-y: scroll;
 }
 
-.events {
+.messages {
   flex: 2;
   padding: 8px;
   font-size: 10px;
@@ -89,12 +89,12 @@
   white-space: nowrap;
 }
 
-.event {
+.message {
   float: left;
   display: inline;
 }
 
-.event-type-badge {
+.message-type-badge {
   width: 48px;
   margin-right: 4px;
 }

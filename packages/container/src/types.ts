@@ -26,13 +26,6 @@ export interface DeserializePropsParams {
 
 export type EventArgs = { event: any };
 
-export interface ComponentSourceData {
-  isTrusted: boolean;
-  source: string;
-  type: TranspilerComponentFetchType;
-}
-
-type TranspilerComponentFetchType = 'transpiler.componentFetch';
 type ComponentCallbackInvocationType = 'component.callbackInvocation';
 type ComponentCallbackResponseType = 'component.callbackResponse';
 type ComponentDomCallbackType = 'component.domCallback';
@@ -78,21 +71,18 @@ export interface NodeProps extends Props {
 
 export interface DomCallback {
   args: SerializedArgs;
-  componentId?: string;
-  event?: any;
   method: string;
   type: ComponentDomCallbackType;
 }
 
-export type EventData = ComponentCallbackInvocation
+export type MessagePayload = ComponentCallbackInvocation
     | ComponentCallbackResponse
     | DomCallback
     | ComponentRender
-    | ComponentUpdate
-    | ComponentSourceData;
+    | ComponentUpdate;
 
 export interface PostMessageEvent {
-  data: EventData;
+  data: MessagePayload;
 }
 
 export interface PostMessageParams {
@@ -154,8 +144,6 @@ export interface ComponentUpdate extends PostMessageParams {
   type: ComponentUpdateType;
   componentId: string;
 }
-
-export type ComponentEventData = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender | ComponentUpdate | DomCallback;
 
 export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;

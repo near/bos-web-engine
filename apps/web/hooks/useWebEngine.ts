@@ -2,10 +2,11 @@ import {
   ComponentDOMElement,
   onCallbackInvocation,
   onCallbackResponse,
+  BWEMessage,
   onRender,
 } from '@bos-web-engine/application';
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
-import type { ComponentEventData, ComponentUpdate, DomCallback } from '@bos-web-engine/container';
+import type { MessagePayload } from '@bos-web-engine/container';
 import { getAppDomId } from '@bos-web-engine/iframe';
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -27,7 +28,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
 
   const {
     metrics,
-    eventReceived,
+    recordMessage,
     componentMissing,
   } = useComponentMetrics();
 
@@ -81,7 +82,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
     domRoots.current[componentId].render(element);
   }, [domRoots, componentMissing]);
 
-  const processMessage = useCallback((event: MessageEvent<ComponentEventData>) => {
+  const processMessage = useCallback((event: MessageEvent<MessagePayload>) => {
     try {
       if (typeof event.data !== 'object') {
         return;
@@ -89,16 +90,18 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
 
       const { data } = event;
       if (data?.type) {
-        eventReceived(data);
+        recordMessage({ message: data, componentId: '' });
       }
+
+      const onMessageSent = ({ componentId, message }: BWEMessage) => recordMessage({ componentId, message });
 
       switch (data.type) {
         case 'component.callbackInvocation': {
-          onCallbackInvocation({ data });
+          onCallbackInvocation({ data, onMessageSent });
           break;
         }
         case 'component.callbackResponse': {
-          onCallbackResponse({ data });
+          onCallbackResponse({ data, onMessageSent });
           break;
         }
         case 'component.render': {
@@ -106,14 +109,13 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
             data,
             getComponentRenderCount,
             isDebug: showComponentDebug,
-            componentUpdated: (update: ComponentUpdate) => eventReceived(update),
             mountElement: ({ componentId, element }) => {
               renderComponent(componentId);
               mountElement({ componentId, element });
             },
             loadComponent: (component) => loadComponent(component.componentId, component),
             isComponentLoaded: (c: string) => !!components[c],
-            onDomCallback: (domCallback: DomCallback) => eventReceived(domCallback),
+            onMessageSent,
           });
           break;
         }
@@ -123,7 +125,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
     } catch (e) {
       console.error({ event }, e);
     }
-  }, [showComponentDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, eventReceived]);
+  }, [showComponentDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, recordMessage]);
 
   useEffect(() => {
     window.addEventListener('message', processMessage);

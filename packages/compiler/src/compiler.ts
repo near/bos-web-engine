@@ -35,12 +35,12 @@ interface ParseComponentTreeParams {
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<string>>;
   private compiledSourceCache: Map<string, string | null>;
-  private readonly sendMessage: SendMessageCallback;
+  private readonly sendWorkerMessage: SendMessageCallback;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<string>>();
     this.compiledSourceCache = new Map<string, string>();
-    this.sendMessage = sendMessage;
+    this.sendWorkerMessage = sendMessage;
   }
 
   getComponentSources(componentPaths: string[]) {
@@ -161,7 +161,7 @@ export class ComponentCompiler {
       componentSource = aggregatedSourceLines.join('\n');
     }
 
-    this.sendMessage({
+    this.sendWorkerMessage({
       componentId,
       componentSource,
     });
