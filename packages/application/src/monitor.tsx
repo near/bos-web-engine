@@ -43,6 +43,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
     'Component Containers Loaded': metrics.componentsLoaded.length,
     'Component Renders': metrics.events.filter(({ type }) => type === 'component.render').length,
     'Component Updates Requested': metrics.events.filter(({ type }) => type === 'component.update').length,
+    'DOM Event Handlers Invoked': metrics.events.filter(({ type }) => type === 'component.domCallback').length,
     'Callbacks Invoked': metrics.events.filter(({ type }) => type === 'component.callbackInvocation').length,
     'Callbacks Returned': metrics.events.filter(({ type }) => type === 'component.callbackResponse').length,
     'Missing Components': metrics.missingComponents.length,
@@ -85,12 +86,24 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
     return `"${props.toString()}"`;
   };
 
+  const formatComponentId = (componentId: ComponentId | null) => {
+    if (!componentId) {
+      return '';
+    }
+
+    if (!componentId.id) {
+      return componentId.name;
+    }
+
+    return `${componentId.name}#${componentId.id}`;
+  };
+
   const buildEventSummary = (event: ComponentEventData): ComponentEvent | null => {
     switch (event.type) {
       case 'component.render': {
         const { type, props } = event.node;
         const formattedChildren = event.childComponents.length
-          ? `with children ${event.childComponents.map(({ componentId }) => parseComponentId(componentId)?.name).join(', ')}`
+          ? `with children ${event.childComponents.map(({ componentId }) => formatComponentId(parseComponentId(componentId))).join(', ')}`
           : '';
 
         return {
@@ -102,14 +115,14 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
         };
       }
       case 'component.callbackInvocation': {
-        const { id, name } = parseComponentId(event.originator) || {};
+        const targetComponent = formatComponentId(parseComponentId(event.targetId));
         const { requestId, method, args } = event;
         return {
           event,
           badgeClass: 'bg-primary',
           name: 'invoke',
-          componentId: parseComponentId(event.targetId)!,
-          message: `[${requestId.split('-')[0]}] ${name}${id ? `(${id})` : ''} called ${method.split('::')[0]}(${args})`,
+          componentId: parseComponentId(event.originator)!,
+          message: `[${requestId.split('-')[0]}] called ${method.split('::')[0]}(${args}) on ${targetComponent}`,
         };
       }
       case 'component.callbackResponse': {
@@ -118,17 +131,18 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           event,
           badgeClass: 'bg-success',
           name: 'return',
-          componentId: parseComponentId(event.targetId)!,
-          message: `[${requestId.split('-')[0]}] returned ${result}`,
+          componentId: parseComponentId(event.componentId)!,
+          message: `[${requestId.split('-')[0]}] returned ${result} to ${formatComponentId(parseComponentId(event.targetId))}`,
         };
       }
       case 'component.update': {
+        const { __componentcallbacks, ...simpleProps } = event.props || {};
         return {
           event,
           badgeClass: 'bg-warning',
           name: 'update',
           componentId: parseComponentId(event.componentId)!,
-          message: `updated props ${JSON.stringify(event.props)}`,
+          message: `updated props ${JSON.stringify(simpleProps)}`,
         };
       }
       case 'component.domCallback': {
@@ -165,8 +179,12 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
                 <span className={`badge ${event.badgeClass} event-type-badge`}>
                   {event.name}
                 </span>
-                {event.componentId && <strong>{event.componentId.name}{event.componentId.id && `(${event.componentId.id})`}&nbsp;</strong>}
-                {event.message}
+                {event.componentId && (
+                  <span className='event-source-component'>
+                    {formatComponentId(event.componentId)}
+                  </span>
+                )}
+                &nbsp;{event.message}
               </div>
             ))
         }

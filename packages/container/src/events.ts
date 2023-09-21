@@ -172,12 +172,19 @@ export function buildEventHandler({
           error = e;
         }
 
-        result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childComponents: [] }));
+        result = applyRecursivelyToComponents(result, (n: any) => serializeNode({
+          builtinComponents,
+          node: n,
+          callbacks,
+          parentId: method,
+          childComponents: [],
+        }));
 
         const postCallbackResponse = (value: any, error: any) => {
           if (requestId) {
             postCallbackResponseMessage({
               error,
+              componentId,
               requestId,
               result: value,
               targetId: originator,

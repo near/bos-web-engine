@@ -121,12 +121,14 @@ export interface PostMessageComponentCallbackInvocationParams {
 
 export type PostMessageComponentResponseCallback = (message: PostMessageComponentCallbackResponseParams) => void;
 export interface ComponentCallbackResponse extends PostMessageParams {
+  componentId: string;
   requestId: string;
   result: string; // stringified JSON in the form of { result: any, error: string }
   targetId: string;
   type: ComponentCallbackResponseType;
 }
 export interface PostMessageComponentCallbackResponseParams {
+  componentId: string;
   error: Error | null;
   requestId: string;
   result: any;

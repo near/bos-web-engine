@@ -49,6 +49,7 @@ export function postCallbackInvocationMessage({
 
 export function postCallbackResponseMessage({
   error,
+  componentId,
   requestId,
   result,
   targetId,
@@ -57,6 +58,7 @@ export function postCallbackResponseMessage({
 
   postMessage<ComponentCallbackResponse>({
     requestId,
+    componentId,
     result: JSON.stringify({
       value: result,
       error: serializedError,
