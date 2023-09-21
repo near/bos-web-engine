@@ -167,14 +167,14 @@ export interface PostMessageComponentCallbackResponseParams {
 }
 
 export interface ComponentRender extends PostMessageParams {
-  childComponents: string[];
+  childComponents: ComponentChildMetadata[];
   isTrusted: boolean;
   node: SerializedNode;
   type: ComponentRenderType;
   componentId: string;
 }
 export interface PostMessageComponentRenderParams {
-  childComponents: string[];
+  childComponents: ComponentChildMetadata[];
   isTrusted: boolean;
   node: SerializedNode;
   componentId: string;
@@ -252,17 +252,24 @@ export interface Node {
   props?: NodeProps;
 }
 
+interface ComponentChildMetadata {
+  componentId: string;
+  isTrusted: boolean;
+  props: Props;
+  source: string;
+}
+
 export interface SerializeNodeParams {
   builtinComponents: BuiltinComponents;
   node: Node;
-  childComponents: any[];
+  childComponents: ComponentChildMetadata[];
   callbacks: CallbackMap;
   parentId: string;
 }
 export type SerializeNodeCallback = (args: SerializeNodeParams) => SerializedNode;
 
 export interface SerializedNode {
-  childComponents?: SerializedNode[];
+  childComponents?: ComponentChildMetadata[];
   type: string;
   props: NodeProps | ComponentProps;
 }

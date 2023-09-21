@@ -18,7 +18,8 @@ interface ComponentEvent {
   badgeClass: string;
   name: string;
   componentId: ComponentId;
-  value: object,
+  event: ComponentEventData;
+  message: string,
 }
 
 export function ComponentMonitor({ components, metrics }: { components: ComponentInstance[], metrics: ComponentMetrics }) {
@@ -63,49 +64,73 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
     };
   };
 
+  const formatProps = (props: any, isRoot = false): any => {
+    if (!props || typeof props === 'number') {
+      return props;
+    }
+
+    if (Array.isArray(props)) {
+      return `[${props.map((p) => formatProps(p)).join(', ')}]`;
+    }
+
+    if (typeof props === 'object') {
+      const formatted = Object.entries(props).map(([k, v]) => `${k}=${formatProps(v)}`).join(', ');
+      if (isRoot) {
+        return formatted;
+      }
+
+      return `{ ${formatted} }`;
+    }
+
+    return `"${props.toString()}"`;
+  };
+
   const buildEventSummary = (event: ComponentEventData): ComponentEvent | null => {
     switch (event.type) {
-      case 'component.render':
+      case 'component.render': {
+        const { type, props } = event.node;
+        const formattedChildren = event.childComponents.length
+          ? `with children ${event.childComponents.map(({ componentId }) => parseComponentId(componentId)?.name).join(', ')}`
+          : '';
+
         return {
+          event,
           badgeClass: 'bg-danger',
           name: 'render',
           componentId: parseComponentId(event.componentId)!,
-          value: {
-            node: Object.keys(event.node),
-            children: event.childComponents.length,
-          },
+          message: `rendered <${type} ${formatProps(props, true).slice(0, 64)}...> ${formattedChildren}`,
         };
-      case 'component.callbackInvocation':
+      }
+      case 'component.callbackInvocation': {
+        const { id, name } = parseComponentId(event.originator) || {};
+        const { requestId, method, args } = event;
         return {
+          event,
           badgeClass: 'bg-primary',
           name: 'invoke',
           componentId: parseComponentId(event.targetId)!,
-          value: {
-            requestId: event.requestId.split('-')[0],
-            method: event.method.split('::')[0],
-            args: event.args,
-            caller: event.originator,
-          },
+          message: `[${requestId.split('-')[0]}] ${name}${id ? `(${id})` : ''} called ${method.split('::')[0]}(${args})`,
         };
-      case 'component.callbackResponse':
+      }
+      case 'component.callbackResponse': {
+        const { requestId, result } = event;
         return {
+          event,
           badgeClass: 'bg-success',
           name: 'return',
           componentId: parseComponentId(event.targetId)!,
-          value: {
-            requestId: event.requestId.split('-')[0],
-            result: event.result,
-          },
+          message: `[${requestId.split('-')[0]}] returned ${result}`,
         };
-      case 'component.update':
+      }
+      case 'component.update': {
         return {
+          event,
           badgeClass: 'bg-warning',
           name: 'update',
           componentId: parseComponentId(event.componentId)!,
-          value: {
-            props: event.props,
-          },
+          message: `updated props ${JSON.stringify(event.props)}`,
         };
+      }
       default:
         return null;
     }
@@ -127,12 +152,12 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           reversedEvents
             .map(buildEventSummary)
             .map((event: ComponentEvent | null, i) => event && (
-              <div key={i} className='event' onClick={() => console.log(event)}>
+              <div key={i} className='event' onClick={() => console.log(event.event)}>
                 <span className={`badge ${event.badgeClass} event-type-badge`}>
                   {event.name}
                 </span>
                 <strong>{event.componentId.name}{event.componentId.id && `(${event.componentId.id})`}</strong>
-                {JSON.stringify(event.value)}
+                {event.message}
               </div>
             ))
         }
