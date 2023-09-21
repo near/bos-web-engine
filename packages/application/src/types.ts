@@ -1,18 +1,12 @@
 import type {
-  CallbackInvocationEventData,
-  CallbackResponseEventData,
+  ComponentCallbackInvocation,
+  ComponentCallbackResponse,
   ComponentEventData,
+  ComponentRender,
   ComponentUpdate,
   EventData,
-  RenderEventData,
 } from '@bos-web-engine/container';
 import type { DOMElement } from 'react';
-
-export interface DomCallback {
-  args: { event: any };
-  method: string;
-  type: string;
-}
 
 export interface UpdatedComponent {
   props: any;
@@ -20,11 +14,11 @@ export interface UpdatedComponent {
 }
 
 export interface CallbackInvocationHandlerParams {
-  data: CallbackInvocationEventData;
+  data: ComponentCallbackInvocation;
 }
 
 export interface CallbackResponseHandlerParams {
-  data: CallbackResponseEventData;
+  data: ComponentCallbackResponse;
 }
 
 export interface ComponentInstance {
@@ -43,7 +37,7 @@ export interface ComponentMetrics {
 }
 
 export interface RenderHandlerParams {
-  data: RenderEventData;
+  data: ComponentRender;
   isDebug?: boolean;
   getComponentRenderCount: (componentId: string) => number;
   componentUpdated: (update: ComponentUpdate) => void;

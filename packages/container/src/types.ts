@@ -1,5 +1,3 @@
-export type Args = Array<Cloneable>;
-
 export interface WebEngineMeta {
   componentId?: string;
   isProxy?: boolean;
@@ -16,8 +14,6 @@ export interface CallbackRequest {
 
 export type CallbackMap = { [key: string]: Function };
 
-export type Cloneable = object | string | number | null | undefined | RegExp;
-
 export type DeserializePropsCallback = (props: DeserializePropsParams) => any;
 export interface DeserializePropsParams {
   buildRequest: BuildRequestCallback;
@@ -30,54 +26,11 @@ export interface DeserializePropsParams {
 
 export type EventArgs = { event: any };
 
-export interface CallbackInvocationEventData {
-  args: Args;
-  method: string;
-  originator: string;
-  requestId: string;
-  targetId: string;
-  type: ComponentCallbackInvocationType;
-}
-
-export interface CallbackResponseEventData {
-  requestId: string;
-  result: string;
-  targetId: string;
-  type: ComponentCallbackResponseType;
-}
-
-export interface DomCallbackEventData {
-  args: Args;
-  method: string;
-  type: ComponentDomCallbackType;
-}
-
-export interface RenderEventData {
-  childComponents: any[];
-  isTrusted: boolean;
-  node: SerializedNode;
-  componentId: string;
-  type: ComponentRenderType;
-}
-
-export interface UpdateEventData {
-  componentId: string;
-  props: NodeProps | ComponentProps;
-  type: ComponentUpdateType;
-}
-
 export interface ComponentSourceData {
   isTrusted: boolean;
   source: string;
   type: TranspilerComponentFetchType;
 }
-
-export type EventData = CallbackInvocationEventData
-  | CallbackResponseEventData
-  | DomCallbackEventData
-  | RenderEventData
-  | UpdateEventData
-  | ComponentSourceData;
 
 type TranspilerComponentFetchType = 'transpiler.componentFetch';
 type ComponentCallbackInvocationType = 'component.callbackInvocation';
@@ -100,12 +53,12 @@ export interface InitSocialParams {
 }
 
 export interface InvokeCallbackParams {
-  args: Args | EventArgs;
+  args: SerializedArgs | EventArgs;
   callback: Function;
 }
 
 export interface InvokeComponentCallbackParams {
-  args: Args;
+  args: SerializedArgs;
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   method: string;
@@ -123,6 +76,18 @@ export interface NodeProps extends Props {
   children: any[];
 }
 
+export interface DomCallbackEventData {
+  args: SerializedArgs;
+  method: string;
+  type: ComponentDomCallbackType;
+}
+
+export type EventData = ComponentCallbackInvocation
+    | ComponentCallbackResponse
+    | DomCallbackEventData
+    | ComponentRender
+    | ComponentUpdate
+    | ComponentSourceData;
 
 export interface PostMessageEvent {
   data: EventData;

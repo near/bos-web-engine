@@ -1,9 +1,9 @@
 import type {
-  Args,
   InvokeCallbackParams,
   InvokeComponentCallbackParams,
   PostMessageEvent,
   ProcessEventParams,
+  SerializedArgs,
 } from './types';
 
 /**
@@ -119,7 +119,7 @@ export function buildEventHandler({
     let result: any;
     let shouldRender = false;
 
-    function invokeCallback({ args, method }: { args: Args, method: string }) {
+    function invokeCallback({ args, method }: { args: SerializedArgs, method: string }) {
       return invokeComponentCallback({
         args,
         buildRequest,
