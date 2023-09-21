@@ -1,3 +1,4 @@
+import type { DomCallback } from '@bos-web-engine/container';
 import { getIframeId } from '@bos-web-engine/iframe';
 
 import type {
@@ -14,7 +15,7 @@ export function postMessageToComponentIframe({ id, message, targetOrigin }: Ifra
   postMessageToIframe({ id: getIframeId(id), message, targetOrigin });
 }
 
-export function deserializeProps({ id, props }: DeserializePropsParams): any {
+export function deserializeProps({ id, props, onDomCallback }: DeserializePropsParams): any {
   if (!props) {
     return props;
   }
@@ -39,13 +40,21 @@ export function deserializeProps({ id, props }: DeserializePropsParams): any {
           };
         }
 
+        const domCallback: DomCallback = {
+          args: serializedArgs,
+          method: callback.__componentMethod,
+          type: 'component.domCallback',
+        };
+
+        onDomCallback?.({
+          ...domCallback,
+          componentId: id,
+          event: args,
+        });
+
         postMessageToComponentIframe({
           id,
-          message: {
-            args: serializedArgs,
-            method: callback.__componentMethod,
-            type: 'component.domCallback',
-          },
+          message: domCallback,
           targetOrigin: '*',
         });
       };

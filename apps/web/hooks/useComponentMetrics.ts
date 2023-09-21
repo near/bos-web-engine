@@ -7,10 +7,11 @@ import type {
   ComponentCallbackResponse,
   ComponentEventData,
   ComponentRender,
+  DomCallback,
 } from '@bos-web-engine/container';
 import { useCallback, useState } from 'react';
 
-type MetricCollectionItem = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender | UpdatedComponent | string;
+type MetricCollectionItem = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender | UpdatedComponent | string | DomCallback;
 
 export function useComponentMetrics() {
   const [metrics, setMetrics] = useState<ComponentMetrics>({

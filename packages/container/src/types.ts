@@ -76,15 +76,17 @@ export interface NodeProps extends Props {
   children: any[];
 }
 
-export interface DomCallbackEventData {
+export interface DomCallback {
   args: SerializedArgs;
+  componentId?: string;
+  event?: any;
   method: string;
   type: ComponentDomCallbackType;
 }
 
 export type EventData = ComponentCallbackInvocation
     | ComponentCallbackResponse
-    | DomCallbackEventData
+    | DomCallback
     | ComponentRender
     | ComponentUpdate
     | ComponentSourceData;
@@ -151,7 +153,7 @@ export interface ComponentUpdate extends PostMessageParams {
   componentId: string;
 }
 
-export type ComponentEventData = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender | ComponentUpdate;
+export type ComponentEventData = ComponentCallbackInvocation | ComponentCallbackResponse | ComponentRender | ComponentUpdate | DomCallback;
 
 export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;

@@ -5,7 +5,7 @@ import {
   onRender,
 } from '@bos-web-engine/application';
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
-import type { ComponentEventData, ComponentUpdate } from '@bos-web-engine/container';
+import type { ComponentEventData, ComponentUpdate, DomCallback } from '@bos-web-engine/container';
 import { getAppDomId } from '@bos-web-engine/iframe';
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -113,6 +113,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
             },
             loadComponent: (component) => loadComponent(component.componentId, component),
             isComponentLoaded: (c: string) => !!components[c],
+            onDomCallback: (domCallback: DomCallback) => eventReceived(domCallback),
           });
           break;
         }

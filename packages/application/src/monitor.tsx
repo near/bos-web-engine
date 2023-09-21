@@ -17,7 +17,7 @@ interface ComponentId {
 interface ComponentEvent {
   badgeClass: string;
   name: string;
-  componentId: ComponentId;
+  componentId?: ComponentId;
   event: ComponentEventData;
   message: string,
 }
@@ -131,6 +131,15 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           message: `updated props ${JSON.stringify(event.props)}`,
         };
       }
+      case 'component.domCallback': {
+        return {
+          event,
+          badgeClass: 'bg-info',
+          name: 'DOM',
+          componentId: parseComponentId(event.componentId!)!,
+          message: `${event.method.split('::')[0]}() invoked from event DOM handler`,
+        };
+      }
       default:
         return null;
     }
@@ -156,7 +165,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
                 <span className={`badge ${event.badgeClass} event-type-badge`}>
                   {event.name}
                 </span>
-                <strong>{event.componentId.name}{event.componentId.id && `(${event.componentId.id})`}</strong>
+                {event.componentId && <strong>{event.componentId.name}{event.componentId.id && `(${event.componentId.id})`}&nbsp;</strong>}
                 {event.message}
               </div>
             ))

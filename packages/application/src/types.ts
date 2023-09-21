@@ -4,6 +4,7 @@ import type {
   ComponentEventData,
   ComponentRender,
   ComponentUpdate,
+  DomCallback,
   EventData,
 } from '@bos-web-engine/container';
 import type { DOMElement } from 'react';
@@ -44,6 +45,7 @@ export interface RenderHandlerParams {
   mountElement: ({ componentId, element }: { componentId: string, element: any }) => void;
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;
+  onDomCallback: OnDomCallback;
 }
 
 export interface IframePostMessageParams {
@@ -52,9 +54,12 @@ export interface IframePostMessageParams {
   targetOrigin: string;
 }
 
+type OnDomCallback = (domCallback: DomCallback) => void;
+
 export interface DeserializePropsParams {
   id: string;
   props: any;
+  onDomCallback?: OnDomCallback;
 }
 
 export interface ComponentDOMElement extends DOMElement<any, any> {}
@@ -64,6 +69,7 @@ export interface CreateElementParams {
   id: string;
   props: object;
   type: string;
+  onDomCallback?: OnDomCallback;
 }
 
 export interface CreateChildElementParams {
@@ -71,4 +77,5 @@ export interface CreateChildElementParams {
   depth: number;
   index?: number;
   parentId: string;
+  onDomCallback?: OnDomCallback;
 }

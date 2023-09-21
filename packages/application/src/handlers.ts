@@ -66,12 +66,13 @@ export function onRender({
   mountElement,
   isComponentLoaded,
   loadComponent,
+  onDomCallback,
 }: RenderHandlerParams) {
   /* a component has been rendered and is ready to be updated in the outer window */
   const { componentId, childComponents, node } = data;
   const { children, ...props } = node?.props || { children: [] };
 
-  const componentChildren = createChildElements({ children, depth: 0, parentId: componentId });
+  const componentChildren = createChildElements({ children, depth: 0, parentId: componentId, onDomCallback });
   const element = createElement({
     children: [
       ...(isDebug ? [
@@ -87,6 +88,7 @@ export function onRender({
     id: componentId,
     props: isDebug ? { ...props, className: 'iframe' } : props,
     type: node.type,
+    onDomCallback,
   });
   mountElement({ componentId, element });
 
