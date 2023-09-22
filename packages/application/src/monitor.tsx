@@ -56,10 +56,10 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
   }, new Map<EventType, BWEMessage[]>());
 
   const displayMetrics = {
-    'Component Containers Loaded': metrics.componentsLoaded.length,
+    'Containers Loaded': metrics.componentsLoaded.length,
     'Component Renders': messageMetrics.get('component.render')?.length || 0,
-    'Component Updates Requested': messageMetrics.get('component.update')?.length || 0,
-    'DOM Event Handlers Invoked': messageMetrics.get('component.domCallback')?.length || 0,
+    'Updates Requested': messageMetrics.get('component.update')?.length || 0,
+    'DOM Handlers Invoked': messageMetrics.get('component.domCallback')?.length || 0,
     'Callbacks Invoked': messageMetrics.get('component.callbackInvocation')?.length || 0,
     'Callbacks Returned': messageMetrics.get('component.callbackResponse')?.length || 0,
     'Missing Components': metrics.missingComponents.length,
@@ -174,7 +174,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           badgeClass: 'bg-info',
           name: 'DOM',
           componentId: parseComponentId(toComponent!)!,
-          summary: `invoked from event DOM ${message.method.split('::')[0]}() handler on`,
+          summary: `invoked event DOM handler [${message.method.split('::')[0]}()] on`,
         };
       }
       default:
@@ -184,57 +184,69 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
 
   return (
     <div id='component-monitor'>
-      <div className='metrics'>
-        {Object.entries(displayMetrics).map(([label, value], i) => (
-          <div className='metrics-data-point' key={`data-point-${i}`}>
-            <div className='data-point-header'>{label}</div>
-            <div className='data-point-value'>{value}</div>
-          </div>
-        ))}
+      <div className='metrics-dashboard-row'>
+        <div className='metrics metric-section-header'>
+          Stats
+        </div>
+        <div className='components metric-section-header'>
+          Containers
+        </div>
+        <div className='messages metric-section-header'>
+            Messages
+        </div>
       </div>
-      <div className='messages'>
-        <div className='metric-section-header'>Events</div>
-        {
-          reversedEvents
-            .map(buildEventSummary)
-            .map((event: ComponentMessage | null, i) => event && (
-              <div key={i} className='event' onClick={() => console.log(event.message)}>
-                <span className='message-index'>
-                  {reversedEvents.length - i}|
-                </span>
-                <span className={`badge ${event.badgeClass} message-type-badge`}>
-                  {event.name}
-                </span>
-                {!event.isFromComponent && (
-                  <span className='message-source message-source-application'>
+      <div className='metrics-dashboard-row metrics-dashboard-data'>
+        <div className='metrics metrics-data'>
+          {Object.entries(displayMetrics).map(([label, value], i) => (
+            <div className='metrics-data-point' key={`data-point-${i}`}>
+              <div className='data-point-header'>{label}</div>
+              <div className='data-point-value'>{value}</div>
+            </div>
+          ))}
+        </div>
+        <div className='components components-data'>
+          {
+            sortedByFrequency
+              .map(([source, componentsBySource], i) => (
+                <div className='metrics-data-point' key={`component-row-${i}`}>
+                  <div className='data-point-header'>{source}</div>
+                  <div className='data-point-value'>{componentsBySource.length}</div>
+                </div>
+              ))
+          }
+        </div>
+        <div className='messages messages-data'>
+          {
+            reversedEvents
+              .map(buildEventSummary)
+              .map((event: ComponentMessage | null, i) => event && (
+                <div key={i} className='event' onClick={() => console.log(event.message)}>
+                  <span className='message-index'>
+                    {reversedEvents.length - i}|
+                  </span>
+                  <span className={`badge ${event.badgeClass} message-type-badge`}>
+                    {event.name}
+                  </span>
+                  {!event.isFromComponent && (
+                    <span className='message-source message-source-application'>
                     Application
-                  </span>
-                )}
-                {event.isFromComponent && event.componentId && (
-                  <span className='message-source message-source-component'>
-                    {formatComponentId(event.componentId)}
-                  </span>
-                )}
-                &nbsp;{event.summary}&nbsp;
-                {!event.isFromComponent && event.componentId && (
-                  <span className='message-source message-source-component'>
-                    {formatComponentId(event.componentId)}
-                  </span>
-                )}
-              </div>
-            ))
-        }
-      </div>
-      <div className='components'>
-        <div className='metric-section-header'>Component Containers</div>
-        {
-          sortedByFrequency
-            .map(([source, componentsBySource], i) => (
-              <div className='component-row' key={`component-row-${i}`}>
-                {componentsBySource.length} {source}
-              </div>
-            ))
-        }
+                    </span>
+                  )}
+                  {event.isFromComponent && event.componentId && (
+                    <span className='message-source message-source-component'>
+                      {formatComponentId(event.componentId)}
+                    </span>
+                  )}
+                      &nbsp;{event.summary}&nbsp;
+                  {!event.isFromComponent && event.componentId && (
+                    <span className='message-source message-source-component'>
+                      {formatComponentId(event.componentId)}
+                    </span>
+                  )}
+                </div>
+              ))
+          }
+        </div>
       </div>
     </div>
   );

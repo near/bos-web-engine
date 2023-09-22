@@ -59,32 +59,58 @@
 
 #component-monitor {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   font-family: "Roboto Mono for Powerline";
   height: 200px;
+}
+
+.metrics-dashboard-row {
+  flex: 1;
+  display: flex;
+  font-size: 0.7em;
+}
+
+.metrics-dashboard-data {
+  overflow: scroll;
+  flex: 7;
   justify-content: space-around;
   padding: 2px;
 }
 
 .metric-section-header {
-  font-size: 11px;
+  font-size: 1.6em;
   font-weight: bold;
   position: relative;
-  top: 1px;
-  left: 1px;
+  top: 8px;
+  left: 8px;
+  text-decoration: underline;
+}
+
+.metrics {
+  flex: 1;
 }
 
 .components {
-  flex: 1;
-  padding: 8px;
-  font-size: 10px;
-  overflow-y: scroll;
+  flex: 2;
 }
 
 .messages {
-  flex: 2;
+  flex: 5;
+}
+
+.metrics-data {
+  display: flex;
   padding: 8px;
-  font-size: 10px;
+  flex-direction: column;
+}
+
+.components-data {
+  padding: 8px;
+  overflow-y: scroll;
+}
+
+.messages-data {
+  padding: 8px;
   overflow: scroll;
   white-space: nowrap;
 }
@@ -95,24 +121,24 @@
 }
 
 .message-type-badge {
-  width: 48px;
+  width: 6em;
   margin-right: 4px;
 }
 
 .message-source {
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 2px;
-  padding: 1px 2px;
+  font-size: 0.9em;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 2px 6px;
 }
 
 .message-source-application {
-  background-color: rgba(255, 102, 0, 0.6);
+  background-color: rgba(187, 0, 187, 0.6);
   color: white;
 }
 
 .message-source-component {
-  background-color: rgba(0, 204, 187, 0.15);
+  background-color: rgba(0, 255, 17, 0.4);
 }
 
 .message-index {
@@ -121,24 +147,19 @@
   padding-top: 4px;
 }
 
-.metrics {
-  flex: 1;
-  display: flex;
-  padding: 8px;
-  flex-direction: column;
-}
-
 .metrics-data-point {
   display: flex;
-  font-size: 11px;
+  font-size: 1em;
 }
 
 .data-point-header {
-  flex: 3;
+  flex: 5;
 }
 
 .data-point-value {
   flex: 1;
+  text-align: right;
+  font-weight: 700;
 }
 
 .iframe {
@@ -159,6 +180,6 @@ span {
 }
 
 .dom-label {
-  font-size: 10px;
+  font-size: 0.7em;
   font-family: "Roboto Mono for Powerline";
 }

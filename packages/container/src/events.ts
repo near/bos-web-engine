@@ -1,87 +1,8 @@
 import type {
-  InvokeCallbackParams,
-  InvokeComponentCallbackParams,
   PostMessageEvent,
   ProcessEventParams,
   SerializedArgs,
 } from './types';
-
-/**
- * Execute the callback and return the value
- * @param args The arguments to the invoked callback
- * @param callback The function to execute
- */
-export function invokeCallback({ args, callback }: InvokeCallbackParams): any {
-  if (args === undefined) {
-    return callback();
-  }
-
-  // TODO real implementation for event passing
-  // @ts-expect-error
-  if (args?.event) {
-    // @ts-expect-error
-    return callback(args.event);
-  }
-
-  // @ts-expect-error
-  return callback(...args);
-}
-
-/**
- * Invoke a callback declared within a Component
- * @param args The arguments to the invoked callback
- * @param buildRequest Function to build an inter-Component asynchronous callback request
- * @param callbacks The set of callbacks defined on the target Component
- * @param method The name of the callback to be invoked
- * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
- * @param requests The set of inter-Component callback requests being tracked by the Component
- * @param serializeArgs Function to serialize arguments passed to window.postMessage
- * @param componentId ID of the Component invoking the method
- */
-export function invokeComponentCallback({
-  args,
-  buildRequest,
-  callbacks,
-  method,
-  postCallbackInvocationMessage,
-  requests,
-  serializeArgs,
-  componentId,
-}: InvokeComponentCallbackParams): any {
-  // unknown method
-  if (!callbacks[method]) {
-    console.error(`No method ${method} on component ${componentId}`);
-    return null;
-  }
-
-  // some arguments to this callback are methods on other Components
-  // these must be replaced with wrappers invoking Component methods
-  if (typeof args?.some === 'function' && args.some((arg: any) => arg.__componentMethod)) {
-    args = args.map((arg: any) => {
-      const { __componentMethod: componentMethod } = arg;
-      if (!componentMethod) {
-        return arg;
-      }
-
-      return (...childArgs: any[]) => {
-        const requestId = window.crypto.randomUUID();
-        requests[requestId] = buildRequest();
-
-        postCallbackInvocationMessage({
-          args: childArgs,
-          callbacks,
-          method: componentMethod,
-          requestId,
-          serializeArgs,
-          targetId: componentMethod.split('::').slice(1).join('::'),
-          componentId,
-        });
-      };
-    });
-  }
-
-  return invokeCallback({ args, callback: callbacks[method] });
-}
 
 /**
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
@@ -89,6 +10,8 @@ export function invokeComponentCallback({
  * @param builtinComponents The set of Builtin Components provided by BOS Web Engine
  * @param callbacks The set of callbacks defined on the target Component
  * @param deserializeProps Function to deserialize props passed on the event
+ * @param invokeCallback Function to execute the specified function in the current context
+ * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
  * @param renderDom Callback for rendering DOM within the component
@@ -104,6 +27,8 @@ export function buildEventHandler({
   builtinComponents,
   callbacks,
   deserializeProps,
+  invokeCallback,
+  invokeComponentCallback,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   renderDom,
@@ -119,16 +44,17 @@ export function buildEventHandler({
     let result: any;
     let shouldRender = false;
 
-    function invokeCallback({ args, method }: { args: SerializedArgs, method: string }) {
+    function invokeCallbackFromEvent({ args, method }: { args: SerializedArgs, method: string }) {
       return invokeComponentCallback({
         args,
         buildRequest,
         callbacks,
+        componentId,
+        invokeCallback,
         method,
         postCallbackInvocationMessage,
         requests,
         serializeArgs,
-        componentId,
       });
     }
 
@@ -167,7 +93,7 @@ export function buildEventHandler({
       case 'component.callbackInvocation': {
         let { args, method, originator, requestId } = event.data;
         try {
-          result = invokeCallback({ args, method });
+          result = invokeCallbackFromEvent({ args, method });
         } catch (e: any) {
           error = e;
         }
@@ -241,7 +167,7 @@ export function buildEventHandler({
       case 'component.domCallback': {
         let { args, method } = event.data;
         try {
-          result = invokeCallback({ args, method });
+          result = invokeCallbackFromEvent({ args, method });
           shouldRender = true; // TODO conditional re-render
         } catch (e: any) {
           error = e as Error;
@@ -262,6 +188,10 @@ export function buildEventHandler({
       default: {
         return;
       }
+    }
+
+    if (error) {
+      console.error(error);
     }
 
     if (shouldRender) {

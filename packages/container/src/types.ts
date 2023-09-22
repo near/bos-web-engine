@@ -54,11 +54,12 @@ export interface InvokeComponentCallbackParams {
   args: SerializedArgs;
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
+  componentId: string;
+  invokeCallback: (args: InvokeCallbackParams) => any;
   method: string;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
-  componentId: string;
 }
 
 export interface KeyValuePair {
@@ -151,6 +152,8 @@ export interface ProcessEventParams {
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   deserializeProps: DeserializePropsCallback;
+  invokeCallback: (args: InvokeCallbackParams) => any,
+  invokeComponentCallback: (args: InvokeComponentCallbackParams) => any,
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   props: any;
