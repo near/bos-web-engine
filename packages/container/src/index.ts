@@ -6,9 +6,11 @@ export {
   getBuiltins,
 } from './builtins';
 export {
-  buildEventHandler,
   invokeCallback,
   invokeComponentCallback,
+} from './callbacks';
+export {
+  buildEventHandler,
 } from './events';
 export {
   buildUseComponentCallback,
