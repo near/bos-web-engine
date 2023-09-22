@@ -1,5 +1,3 @@
-export type Args = Array<Cloneable>;
-
 export interface WebEngineMeta {
   componentId?: string;
   isProxy?: boolean;
@@ -16,8 +14,6 @@ export interface CallbackRequest {
 
 export type CallbackMap = { [key: string]: Function };
 
-export type Cloneable = object | string | number | null | undefined | RegExp;
-
 export type DeserializePropsCallback = (props: DeserializePropsParams) => any;
 export interface DeserializePropsParams {
   buildRequest: BuildRequestCallback;
@@ -30,55 +26,6 @@ export interface DeserializePropsParams {
 
 export type EventArgs = { event: any };
 
-export interface CallbackInvocationEventData {
-  args: Args;
-  method: string;
-  originator: string;
-  requestId: string;
-  targetId: string;
-  type: ComponentCallbackInvocationType;
-}
-
-export interface CallbackResponseEventData {
-  requestId: string;
-  result: string;
-  targetId: string;
-  type: ComponentCallbackResponseType;
-}
-
-export interface DomCallbackEventData {
-  args: Args;
-  method: string;
-  type: ComponentDomCallbackType;
-}
-
-export interface RenderEventData {
-  childComponents: any[];
-  isTrusted: boolean;
-  node: SerializedNode;
-  componentId: string;
-  type: ComponentRenderType;
-}
-
-export interface UpdateEventData {
-  props: NodeProps | ComponentProps;
-  type: ComponentUpdateType;
-}
-
-export interface ComponentSourceData {
-  isTrusted: boolean;
-  source: string;
-  type: TranspilerComponentFetchType;
-}
-
-export type EventData = CallbackInvocationEventData
-  | CallbackResponseEventData
-  | DomCallbackEventData
-  | RenderEventData
-  | UpdateEventData
-  | ComponentSourceData;
-
-type TranspilerComponentFetchType = 'transpiler.componentFetch';
 type ComponentCallbackInvocationType = 'component.callbackInvocation';
 type ComponentCallbackResponseType = 'component.callbackResponse';
 type ComponentDomCallbackType = 'component.domCallback';
@@ -99,12 +46,12 @@ export interface InitSocialParams {
 }
 
 export interface InvokeCallbackParams {
-  args: Args | EventArgs;
+  args: SerializedArgs | EventArgs;
   callback: Function;
 }
 
 export interface InvokeComponentCallbackParams {
-  args: Args;
+  args: SerializedArgs;
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   method: string;
@@ -122,9 +69,21 @@ export interface NodeProps extends Props {
   children: any[];
 }
 
+export interface DomCallback {
+  args: SerializedArgs;
+  componentId?: string;
+  method: string;
+  type: ComponentDomCallbackType;
+}
+
+export type MessagePayload = ComponentCallbackInvocation
+    | ComponentCallbackResponse
+    | DomCallback
+    | ComponentRender
+    | ComponentUpdate;
 
 export interface PostMessageEvent {
-  data: EventData;
+  data: MessagePayload;
 }
 
 export interface PostMessageParams {
@@ -140,6 +99,7 @@ export interface ComponentCallbackInvocation extends PostMessageParams {
   targetId: string;
   type: ComponentCallbackInvocationType;
 }
+
 export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
   callbacks: CallbackMap;
@@ -152,12 +112,14 @@ export interface PostMessageComponentCallbackInvocationParams {
 
 export type PostMessageComponentResponseCallback = (message: PostMessageComponentCallbackResponseParams) => void;
 export interface ComponentCallbackResponse extends PostMessageParams {
+  componentId: string;
   requestId: string;
   result: string; // stringified JSON in the form of { result: any, error: string }
   targetId: string;
   type: ComponentCallbackResponseType;
 }
 export interface PostMessageComponentCallbackResponseParams {
+  componentId: string;
   error: Error | null;
   requestId: string;
   result: any;
@@ -165,25 +127,23 @@ export interface PostMessageComponentCallbackResponseParams {
 }
 
 export interface ComponentRender extends PostMessageParams {
-  childComponents: string[];
+  childComponents: ComponentChildMetadata[];
   isTrusted: boolean;
   node: SerializedNode;
   type: ComponentRenderType;
   componentId: string;
 }
 export interface PostMessageComponentRenderParams {
-  childComponents: string[];
+  childComponents: ComponentChildMetadata[];
   isTrusted: boolean;
   node: SerializedNode;
   componentId: string;
 }
 
-export interface PostMessageComponentUpdate extends PostMessageParams {
+export interface ComponentUpdate extends PostMessageParams {
   props: any;
   type: ComponentUpdateType;
-}
-export interface PostMessageComponentUpdateParams {
-  props: any;
+  componentId: string;
 }
 
 export interface ProcessEventParams {
@@ -250,18 +210,24 @@ export interface Node {
   props?: NodeProps;
 }
 
+interface ComponentChildMetadata {
+  componentId: string;
+  isTrusted: boolean;
+  props: Props;
+  source: string;
+}
+
 export interface SerializeNodeParams {
   builtinComponents: BuiltinComponents;
   node: Node;
-  index: number;
-  childComponents: any[];
+  childComponents: ComponentChildMetadata[];
   callbacks: CallbackMap;
   parentId: string;
 }
 export type SerializeNodeCallback = (args: SerializeNodeParams) => SerializedNode;
 
 export interface SerializedNode {
-  childComponents?: SerializedNode[];
+  childComponents?: ComponentChildMetadata[];
   type: string;
   props: NodeProps | ComponentProps;
 }

@@ -1,6 +1,7 @@
+import { ComponentUpdate } from '@bos-web-engine/container';
 import React from 'react';
 
-import { postMessageToComponentIframe } from './component-container';
+import { sendMessage } from './component-container';
 import { createChildElements, createElement } from './react';
 import type {
   CallbackInvocationHandlerParams,
@@ -10,14 +11,15 @@ import type {
 
 export function onCallbackInvocation({
   data,
+  onMessageSent,
 }: CallbackInvocationHandlerParams) {
   /*
     a component has invoked a callback passed to it as props by its parent component
     post a component callback message to the parent iframe
   */
   const { args, method, originator, requestId, targetId } = data;
-  postMessageToComponentIframe({
-    id: targetId,
+  sendMessage({
+    componentId: targetId,
     message: {
       args,
       method,
@@ -26,27 +28,29 @@ export function onCallbackInvocation({
       targetId,
       type: 'component.callbackInvocation',
     },
-    targetOrigin: '*',
+    onMessageSent,
   });
 }
 
 export function onCallbackResponse({
   data,
+  onMessageSent,
 }: CallbackResponseHandlerParams) {
   /*
     a component has executed a callback invoked from another component
     return the value of the callback execution to the calling component
   */
-  const { requestId, result, targetId } = data;
-  postMessageToComponentIframe({
-    id: targetId,
+  const { requestId, result, targetId, componentId } = data;
+  sendMessage({
+    componentId: targetId,
     message: {
+      componentId,
       result,
       requestId,
       targetId,
       type: 'component.callbackResponse',
     },
-    targetOrigin: '*',
+    onMessageSent,
   });
 }
 
@@ -61,16 +65,16 @@ export function onRender({
   data,
   isDebug = false,
   getComponentRenderCount,
-  componentUpdated,
   mountElement,
   isComponentLoaded,
   loadComponent,
+  onMessageSent,
 }: RenderHandlerParams) {
   /* a component has been rendered and is ready to be updated in the outer window */
   const { componentId, childComponents, node } = data;
   const { children, ...props } = node?.props || { children: [] };
 
-  const componentChildren = createChildElements({ children, depth: 0, parentId: componentId });
+  const componentChildren = createChildElements({ children, depth: 0, parentId: componentId, onMessageSent });
   const element = createElement({
     children: [
       ...(isDebug ? [
@@ -86,9 +90,9 @@ export function onRender({
     id: componentId,
     props: isDebug ? { ...props, className: 'iframe' } : props,
     type: node.type,
+    onMessageSent,
   });
   mountElement({ componentId, element });
-  componentUpdated({ props, componentId });
 
   childComponents.forEach(({ componentId: childComponentId, props: componentProps, source, isTrusted }: ChildComponent) => {
     /*
@@ -108,14 +112,14 @@ export function onRender({
       });
     } else {
       /* component iframe is already loaded, post update message to iframe */
-      componentUpdated({ props: componentProps, componentId: childComponentId });
-      postMessageToComponentIframe({
-        id: childComponentId,
+      sendMessage({
+        componentId: childComponentId,
+        onMessageSent,
         message: {
           props: componentProps,
+          componentId: childComponentId,
           type: 'component.update',
         },
-        targetOrigin: '*',
       });
     }
   });

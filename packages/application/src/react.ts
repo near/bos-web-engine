@@ -7,11 +7,11 @@ import type {
   ComponentDOMElement,
 } from './types';
 
-export function createElement({ children, id, props, type }: CreateElementParams): ComponentDOMElement {
-  return React.createElement(type, deserializeProps({ id, props }), children);
+export function createElement({ children, id, props, type, onMessageSent }: CreateElementParams): ComponentDOMElement {
+  return React.createElement(type, deserializeProps({ id, props, onMessageSent }), children);
 }
 
-export function createChildElements({ children, depth, index, parentId }: CreateChildElementParams): any {
+export function createChildElements({ children, depth, index, parentId, onMessageSent }: CreateChildElementParams): any {
   // `children` is a literal
   if (typeof children === 'string' || typeof children === 'number') {
     return children;
@@ -26,7 +26,7 @@ export function createChildElements({ children, depth, index, parentId }: Create
   if (children.type) {
     const { type, props: { children: subChildren, ...props } } = children;
     const childProps = {
-      ...deserializeProps({ id: parentId, props }),
+      ...deserializeProps({ id: parentId, props, onMessageSent }),
       key: `${parentId}-${depth}-${index}`,
     };
 
@@ -39,6 +39,7 @@ export function createChildElements({ children, depth, index, parentId }: Create
       depth: depth + 1,
       index,
       parentId,
+      onMessageSent,
     }));
   }
 
@@ -48,5 +49,6 @@ export function createChildElements({ children, depth, index, parentId }: Create
     depth: depth + 1,
     index: i,
     parentId,
+    onMessageSent,
   }));
 }

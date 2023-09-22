@@ -50,7 +50,6 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
             builtinComponents,
             callbacks,
             childComponents: [],
-            index: 0,
             node: value,
             parentId,
           });
@@ -177,7 +176,7 @@ interface BuildComponentIdParams {
   parentComponentId: string;
 }
 
-export function serializeNode({ builtinComponents, node, index, childComponents, callbacks, parentId }: SerializeNodeParams): SerializedNode {
+export function serializeNode({ builtinComponents, node, childComponents, callbacks, parentId }: SerializeNodeParams): SerializedNode {
   function buildComponentId({ instanceId, componentPath, componentProps, parentComponentId }: BuildComponentIdParams) {
     if (instanceId !== undefined) {
       return [componentPath, instanceId.toString(), parentComponentId].join('##');
@@ -283,7 +282,6 @@ export function serializeNode({ builtinComponents, node, index, childComponents,
           id: 'dom-' + componentId,
         }),
         parentId: componentId,
-        index,
         callbacks,
         childComponents,
       });
@@ -299,7 +297,6 @@ export function serializeNode({ builtinComponents, node, index, childComponents,
         .map((c, i) => c?.props ? serializeNode({
           node: c,
           builtinComponents,
-          index: i,
           childComponents,
           callbacks,
           parentId,

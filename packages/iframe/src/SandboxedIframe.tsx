@@ -69,7 +69,6 @@ function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: S
             const serializedNode = serializeNode({
               node,
               builtinComponents,
-              index: -1,
               childComponents: [],
               callbacks,
               parentId: componentId,

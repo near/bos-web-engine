@@ -1,9 +1,9 @@
 import type {
-  Args,
   InvokeCallbackParams,
   InvokeComponentCallbackParams,
   PostMessageEvent,
   ProcessEventParams,
+  SerializedArgs,
 } from './types';
 
 /**
@@ -119,7 +119,7 @@ export function buildEventHandler({
     let result: any;
     let shouldRender = false;
 
-    function invokeCallback({ args, method }: { args: Args, method: string }) {
+    function invokeCallback({ args, method }: { args: SerializedArgs, method: string }) {
       return invokeComponentCallback({
         args,
         buildRequest,
@@ -172,12 +172,19 @@ export function buildEventHandler({
           error = e;
         }
 
-        result = applyRecursivelyToComponents(result, (n: any) => serializeNode({ builtinComponents, node: n, callbacks, parentId: method, childComponents: [], index: 0 }));
+        result = applyRecursivelyToComponents(result, (n: any) => serializeNode({
+          builtinComponents,
+          node: n,
+          callbacks,
+          parentId: method,
+          childComponents: [],
+        }));
 
         const postCallbackResponse = (value: any, error: any) => {
           if (requestId) {
             postCallbackResponseMessage({
               error,
+              componentId,
               requestId,
               result: value,
               targetId: originator,

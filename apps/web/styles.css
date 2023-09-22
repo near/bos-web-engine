@@ -66,33 +66,79 @@
   padding: 2px;
 }
 
-.widgets {
+.metric-section-header {
+  font-size: 11px;
+  font-weight: bold;
+  position: relative;
+  top: 1px;
+  left: 1px;
+}
+
+.components {
+  flex: 1;
+  padding: 8px;
+  font-size: 10px;
+  overflow-y: scroll;
+}
+
+.messages {
+  flex: 2;
   padding: 8px;
   font-size: 10px;
   overflow: scroll;
+  white-space: nowrap;
+}
+
+.message {
+  float: left;
+  display: inline;
+}
+
+.message-type-badge {
+  width: 48px;
+  margin-right: 4px;
+}
+
+.message-source {
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+.message-source-application {
+  background-color: rgba(255, 102, 0, 0.6);
+  color: white;
+}
+
+.message-source-component {
+  background-color: rgba(0, 204, 187, 0.15);
+}
+
+.message-index {
+  font-size: 9px;
+  padding-right: 4px;
+  padding-top: 4px;
 }
 
 .metrics {
+  flex: 1;
   display: flex;
   padding: 8px;
-  flex-direction: row;
-  flex-wrap: wrap;
-  width: 400px;
+  flex-direction: column;
 }
 
 .metrics-data-point {
-  border: 1px solid #2bc;
-  margin: 2px 4px;
-  padding: 4px;
+  display: flex;
+  font-size: 11px;
 }
 
 .data-point-header {
-  font-size: 14px;
+  flex: 3;
 }
 
 .data-point-value {
-  font-size: 24px;
-  text-align: right;
+  flex: 1;
 }
 
 .iframe {
