@@ -99,12 +99,26 @@
   margin-right: 4px;
 }
 
-.event-source-component {
+.message-source {
   font-size: 11px;
   font-weight: 500;
-  background-color: rgba(0, 204, 187, 0.15);
   border-radius: 2px;
   padding: 1px 2px;
+}
+
+.message-source-application {
+  background-color: rgba(255, 102, 0, 0.6);
+  color: white;
+}
+
+.message-source-component {
+  background-color: rgba(0, 204, 187, 0.15);
+}
+
+.message-index {
+  font-size: 9px;
+  padding-right: 4px;
+  padding-top: 4px;
 }
 
 .metrics {

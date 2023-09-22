@@ -13,7 +13,7 @@ function postMessageToIframe({ id, message, targetOrigin }: IframePostMessagePar
 }
 
 export function sendMessage({ componentId, message, onMessageSent }: SendMessageParams): void {
-  onMessageSent({ componentId, message });
+  onMessageSent({ toComponent: componentId, message });
   postMessageToIframe({ id: getIframeId(componentId), message, targetOrigin: '*' });
 }
 

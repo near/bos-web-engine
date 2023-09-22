@@ -48,7 +48,8 @@ export interface IframePostMessageParams {
 }
 
 export interface BWEMessage {
-  componentId: string;
+  toComponent?: string;
+  fromComponent?: string;
   message: MessagePayload;
 }
 

@@ -89,11 +89,13 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
       }
 
       const { data } = event;
-      if (data?.type) {
-        recordMessage({ message: data, componentId: '' });
+      if (data.type) {
+        // @ts-expect-error FIXME
+        const fromComponent = data.componentId || data.originator;
+        recordMessage({ fromComponent, message: data });
       }
 
-      const onMessageSent = ({ componentId, message }: BWEMessage) => recordMessage({ componentId, message });
+      const onMessageSent = ({ toComponent, message }: BWEMessage) => recordMessage({ toComponent, message });
 
       switch (data.type) {
         case 'component.callbackInvocation': {

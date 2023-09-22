@@ -71,6 +71,7 @@ export interface NodeProps extends Props {
 
 export interface DomCallback {
   args: SerializedArgs;
+  componentId?: string;
   method: string;
   type: ComponentDomCallbackType;
 }

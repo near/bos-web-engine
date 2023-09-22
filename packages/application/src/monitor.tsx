@@ -17,6 +17,7 @@ interface ComponentId {
 
 interface ComponentMessage {
   badgeClass: string;
+  isFromComponent: boolean;
   name: string;
   componentId?: ComponentId;
   message: MessagePayload;
@@ -40,7 +41,8 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
   const reversedEvents = [...metrics.messages];
   reversedEvents.reverse();
 
-  const messageMetrics = metrics.messages.reduce((grouped, { componentId, message }) => {
+  const messageMetrics = metrics.messages.reduce((grouped, bweMessage) => {
+    const { message } = bweMessage;
     if (!message) {
       return grouped;
     }
@@ -49,7 +51,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
       grouped.set(message.type, []);
     }
 
-    grouped.set(message.type, [...grouped.get(message.type)!, { componentId, message }]);
+    grouped.set(message.type, [...grouped.get(message.type)!, bweMessage]);
     return grouped;
   }, new Map<EventType, BWEMessage[]>());
 
@@ -112,8 +114,9 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
     return `${componentId.name}#${componentId.id}`;
   };
 
-  const buildEventSummary = (params: SendMessageParams): ComponentMessage | null => {
-    const { componentId, message } = params;
+  const buildEventSummary = (params: BWEMessage): ComponentMessage | null => {
+    const { toComponent, fromComponent, message } = params;
+    const isFromComponent = fromComponent !== undefined;
     switch (message.type) {
       case 'component.render': {
         const { type, props } = message.node;
@@ -123,6 +126,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
 
         return {
           message,
+          isFromComponent,
           badgeClass: 'bg-danger',
           name: 'render',
           componentId: parseComponentId(message.componentId)!,
@@ -134,39 +138,43 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
         const { requestId, method, args } = message;
         return {
           message,
+          isFromComponent,
           badgeClass: 'bg-primary',
           name: 'invoke',
           componentId: parseComponentId(message.originator)!,
-          summary: `[${requestId.split('-')[0]}] called ${method.split('::')[0]}(${args}) on ${targetComponent}`,
+          summary: `[${requestId.split('-')[0]}] called ${targetComponent}.${method.split('::')[0]}(${args})${!isFromComponent ? ' for' : ''}`,
         };
       }
       case 'component.callbackResponse': {
         const { requestId, result } = message;
         return {
           message,
+          isFromComponent,
           badgeClass: 'bg-success',
           name: 'return',
-          componentId: parseComponentId(message.componentId)!,
-          summary: `[${requestId.split('-')[0]}] returned ${result} to ${formatComponentId(parseComponentId(message.targetId))}`,
+          componentId: parseComponentId(isFromComponent ? message.componentId : message.targetId)!,
+          summary: `[${requestId.split('-')[0]}] returned ${result} ${!isFromComponent ? 'to' : ''}`,
         };
       }
       case 'component.update': {
         const { __componentcallbacks, ...simpleProps } = message.props || {};
         return {
           message,
+          isFromComponent,
           badgeClass: 'bg-warning',
           name: 'update',
-          componentId: parseComponentId(componentId)!,
-          summary: `updated props ${JSON.stringify(simpleProps)}`,
+          componentId: parseComponentId(toComponent!)!,
+          summary: `updated props ${JSON.stringify(simpleProps)} on`,
         };
       }
       case 'component.domCallback': {
         return {
           message,
+          isFromComponent,
           badgeClass: 'bg-info',
           name: 'DOM',
-          componentId: parseComponentId(componentId!)!,
-          summary: `${message.method.split('::')[0]}() invoked from event DOM handler`,
+          componentId: parseComponentId(toComponent!)!,
+          summary: `invoked from event DOM ${message.method.split('::')[0]}() handler on`,
         };
       }
       default:
@@ -191,15 +199,28 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
             .map(buildEventSummary)
             .map((event: ComponentMessage | null, i) => event && (
               <div key={i} className='event' onClick={() => console.log(event.message)}>
+                <span className='message-index'>
+                  {reversedEvents.length - i}|
+                </span>
                 <span className={`badge ${event.badgeClass} message-type-badge`}>
                   {event.name}
                 </span>
-                {event.componentId && (
-                  <span className='event-source-component'>
+                {!event.isFromComponent && (
+                  <span className='message-source message-source-application'>
+                    Application
+                  </span>
+                )}
+                {event.isFromComponent && event.componentId && (
+                  <span className='message-source message-source-component'>
                     {formatComponentId(event.componentId)}
                   </span>
                 )}
-                &nbsp;{event.summary}
+                &nbsp;{event.summary}&nbsp;
+                {!event.isFromComponent && event.componentId && (
+                  <span className='message-source message-source-component'>
+                    {formatComponentId(event.componentId)}
+                  </span>
+                )}
               </div>
             ))
         }
