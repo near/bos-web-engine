@@ -264,6 +264,10 @@ export function buildEventHandler({
       }
     }
 
+    if (error) {
+      console.error(error);
+    }
+
     if (shouldRender) {
       renderComponent();
     }
