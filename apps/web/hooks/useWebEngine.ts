@@ -1,8 +1,9 @@
 import {
+  BWEMessage,
   ComponentDOMElement,
+  DebugConfig,
   onCallbackInvocation,
   onCallbackResponse,
-  BWEMessage,
   onRender,
 } from '@bos-web-engine/application';
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
@@ -15,10 +16,10 @@ import { useComponentMetrics } from './useComponentMetrics';
 
 interface UseWebEngineParams {
   rootComponentPath: string;
-  showComponentDebug: boolean;
+  debugConfig: DebugConfig;
 }
 
-export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEngineParams) {
+export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEngineParams) {
   const [compiler, setCompiler] = useState<any>(null);
   const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
@@ -110,7 +111,6 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
           onRender({
             data,
             getComponentRenderCount,
-            isDebug: showComponentDebug,
             mountElement: ({ componentId, element }) => {
               renderComponent(componentId);
               mountElement({ componentId, element });
@@ -118,6 +118,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
             loadComponent: (component) => loadComponent(component.componentId, component),
             isComponentLoaded: (c: string) => !!components[c],
             onMessageSent,
+            debugConfig,
           });
           break;
         }
@@ -127,7 +128,7 @@ export function useWebEngine({ showComponentDebug, rootComponentPath }: UseWebEn
     } catch (e) {
       console.error({ event }, e);
     }
-  }, [showComponentDebug, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, recordMessage]);
+  }, [debugConfig, components, loadComponent, mountElement, getComponentRenderCount, renderComponent, recordMessage]);
 
   useEffect(() => {
     window.addEventListener('message', processMessage);

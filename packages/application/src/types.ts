@@ -39,6 +39,7 @@ export interface RenderHandlerParams {
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;
   onMessageSent: OnMessageSentCallback;
+  debugConfig: DebugConfig;
 }
 
 export interface IframePostMessageParams {
@@ -83,4 +84,9 @@ export interface CreateChildElementParams {
   index?: number;
   onMessageSent: OnMessageSentCallback;
   parentId: string;
+}
+
+export interface DebugConfig {
+  isDebug: boolean;
+  showMonitor: boolean;
 }

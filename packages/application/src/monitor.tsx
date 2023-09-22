@@ -174,7 +174,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           badgeClass: 'bg-info',
           name: 'DOM',
           componentId: parseComponentId(toComponent!)!,
-          summary: `invoked from event DOM ${message.method.split('::')[0]}() handler on`,
+          summary: `invoked event DOM handler [${message.method.split('::')[0]}()] on`,
         };
       }
       default:
@@ -193,7 +193,7 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
         ))}
       </div>
       <div className='messages'>
-        <div className='metric-section-header'>Events</div>
+        <div className='metric-section-header'>Messages</div>
         {
           reversedEvents
             .map(buildEventSummary)

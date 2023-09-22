@@ -63,25 +63,35 @@ interface ChildComponent {
 
 export function onRender({
   data,
-  isDebug = false,
   getComponentRenderCount,
   mountElement,
   isComponentLoaded,
   loadComponent,
   onMessageSent,
+  debugConfig,
 }: RenderHandlerParams) {
   /* a component has been rendered and is ready to be updated in the outer window */
   const { componentId, childComponents, node } = data;
   const { children, ...props } = node?.props || { children: [] };
 
   const componentChildren = createChildElements({ children, depth: 0, parentId: componentId, onMessageSent });
+  const [componentPath] = componentId.split('##');
+  const { isDebug, showMonitor } = debugConfig;
   const element = createElement({
     children: [
       ...(isDebug ? [
         React.createElement(
           'span',
           { className: 'dom-label' },
-          `[${componentId.split('##')[0]} (${getComponentRenderCount(componentId)})]`
+          [
+            '[',
+            React.createElement(
+              'a',
+              { href: `/${componentPath}?isDebug=${isDebug}&showMonitor=${showMonitor}` },
+              componentPath
+            ),
+            `(${getComponentRenderCount(componentId)})]`,
+          ]
         ),
         React.createElement('br'),
       ] : []),

@@ -12,8 +12,11 @@ export default function Root() {
   const rootComponentPath = ((query.root || []) as string[]).join('/');
 
   const { components, error, metrics } = useWebEngine({
-    showComponentDebug: isDebug,
     rootComponentPath,
+    debugConfig: {
+      isDebug,
+      showMonitor,
+    },
   });
 
   return (
