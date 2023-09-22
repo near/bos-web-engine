@@ -58,6 +58,9 @@ function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: S
           ${inlineGlobalDefinition('serializeNode', serializeNode)}
           ${inlineGlobalDefinition('serializeProps', serializeProps)}
 
+          ${inlineGlobalDefinition('invokeCallback', invokeCallback)}
+          ${inlineGlobalDefinition('invokeComponentCallback', invokeComponentCallback)}
+          
           const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
           const useComponentCallback = buildUseComponentCallback(renderComponent);
 
@@ -224,13 +227,13 @@ function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: S
             return getComparable(props) === getComparable(compareProps);
           }
 
-          const invokeCallback = ${invokeCallback.toString()};
-          const invokeComponentCallback = ${invokeComponentCallback.toString()};
           const processEvent = (${buildEventHandler.toString()})({
             buildRequest,
             builtinComponents,
             callbacks,
             deserializeProps,
+            invokeCallback,
+            invokeComponentCallback,
             postCallbackInvocationMessage,
             postCallbackResponseMessage,
             renderDom: (node) => preactify(node),

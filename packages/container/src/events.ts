@@ -10,6 +10,8 @@ import type {
  * @param builtinComponents The set of Builtin Components provided by BOS Web Engine
  * @param callbacks The set of callbacks defined on the target Component
  * @param deserializeProps Function to deserialize props passed on the event
+ * @param invokeCallback Function to execute the specified function in the current context
+ * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
  * @param renderDom Callback for rendering DOM within the component
@@ -25,6 +27,8 @@ export function buildEventHandler({
   builtinComponents,
   callbacks,
   deserializeProps,
+  invokeCallback,
+  invokeComponentCallback,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   renderDom,
@@ -40,16 +44,17 @@ export function buildEventHandler({
     let result: any;
     let shouldRender = false;
 
-    function invokeCallback({ args, method }: { args: SerializedArgs, method: string }) {
+    function invokeCallbackFromEvent({ args, method }: { args: SerializedArgs, method: string }) {
       return invokeComponentCallback({
         args,
         buildRequest,
         callbacks,
+        componentId,
+        invokeCallback,
         method,
         postCallbackInvocationMessage,
         requests,
         serializeArgs,
-        componentId,
       });
     }
 
@@ -88,7 +93,7 @@ export function buildEventHandler({
       case 'component.callbackInvocation': {
         let { args, method, originator, requestId } = event.data;
         try {
-          result = invokeCallback({ args, method });
+          result = invokeCallbackFromEvent({ args, method });
         } catch (e: any) {
           error = e;
         }
@@ -162,7 +167,7 @@ export function buildEventHandler({
       case 'component.domCallback': {
         let { args, method } = event.data;
         try {
-          result = invokeCallback({ args, method });
+          result = invokeCallbackFromEvent({ args, method });
           shouldRender = true; // TODO conditional re-render
         } catch (e: any) {
           error = e as Error;

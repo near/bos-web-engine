@@ -29,21 +29,23 @@ export function invokeCallback({ args, callback }: InvokeCallbackParams): any {
  * @param args The arguments to the invoked callback
  * @param buildRequest Function to build an inter-Component asynchronous callback request
  * @param callbacks The set of callbacks defined on the target Component
+ * @param componentId ID of the Component invoking the method
+ * @param invokeCallback Function to execute the specified function in the current Component's context
  * @param method The name of the callback to be invoked
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
- * @param componentId ID of the Component invoking the method
  */
 export function invokeComponentCallback({
   args,
   buildRequest,
   callbacks,
+  componentId,
+  invokeCallback,
   method,
   postCallbackInvocationMessage,
   requests,
   serializeArgs,
-  componentId,
 }: InvokeComponentCallbackParams): any {
   // unknown method
   if (!callbacks[method]) {
