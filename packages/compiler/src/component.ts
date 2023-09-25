@@ -30,6 +30,7 @@ export function buildComponentFunction({ componentPath, componentSource, isRoot 
         )({
           ComponentState,
           componentInstanceId: props?.__bweMeta?.componentId,
+          renderComponent,
         });
         ${componentSource}
       }
@@ -58,11 +59,13 @@ export function buildComponentFunction({ componentPath, componentSource, isRoot 
 interface InitializeComponentStateParams {
   ComponentState: ComponentStateMap;
   componentInstanceId: string;
+  renderComponent?: () => void;
 }
 
 function initializeComponentState({
   ComponentState,
   componentInstanceId,
+  renderComponent,
 }: InitializeComponentStateParams) {
   const state = new Proxy({}, {
     get(_, key) {
@@ -81,6 +84,7 @@ function initializeComponentState({
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
+      renderComponent?.();
     },
   };
 
