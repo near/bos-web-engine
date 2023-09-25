@@ -136,7 +136,7 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
   }, [processMessage]);
 
   useEffect(() => {
-    setIsValidRootComponentPath((/^[\w.]+\.near\/widget\/[\w.]+$/ig).test(rootComponentPath));
+    setIsValidRootComponentPath((/^((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.]+$/ig).test(rootComponentPath));
   }, [rootComponentPath]);
 
   useEffect(() => {
