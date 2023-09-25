@@ -1,18 +1,11 @@
 import type {
-  BuiltinProps,
   DeserializePropsParams,
-  FilesProps,
-  InfiniteScrollProps,
-  IpfsImageUploadProps,
-  MarkdownProps,
-  OverlayTriggerProps,
   Props,
   SerializeArgsParams,
   SerializeNodeParams,
   SerializePropsParams,
   SerializedArgs,
   SerializedNode,
-  TypeaheadProps,
 } from './types';
 
 export function encodeJsonString(value: string) {
@@ -232,7 +225,13 @@ export function serializeNode({ builtinComponents, node, childComponents, callba
       try {
         childComponents.push({
           isTrusted: !!isTrusted,
-          props: componentProps ? serializeProps({ props: componentProps, callbacks, builtinComponents, parentId, componentId }) : {},
+          props: componentProps ? serializeProps({
+            props: componentProps,
+            callbacks,
+            builtinComponents,
+            parentId,
+            componentId,
+          }) : {},
           source: src,
           componentId,
         });
