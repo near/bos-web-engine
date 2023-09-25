@@ -59,7 +59,7 @@ export function buildComponentFunction({ componentPath, componentSource, isRoot 
 interface InitializeComponentStateParams {
   ComponentState: ComponentStateMap;
   componentInstanceId: string;
-  renderComponent?: () => void;
+  renderComponent?: ({ fromState }: { fromState: true }) => void;
 }
 
 function initializeComponentState({
@@ -84,7 +84,7 @@ function initializeComponentState({
     },
     update(newState: any, initialState = {}) {
       ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
-      renderComponent?.();
+      renderComponent?.({ fromState: true });
     },
   };
 

@@ -190,9 +190,21 @@ function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: S
             }
           }
       
-          function renderComponent() {
+          let renderCount = 0;
+          let lastStateRender = 0;
+
+          function renderComponent({ fromState } = { fromState: false }) {
             try {
-              render(ComponentWrapper(), document.getElementById('${id}'));              
+              // TODO remove this kludge-y stopgap preventing State.update() calls on render from triggering cascading renders.
+              //  This likely has unintended consequences for Components calling State.update() at render time, but that should
+              //  be considered an antipattern to be replaced by a [useEffect] implementation.
+              if (fromState && (renderCount === 0 || lastStateRender === renderCount - 1)) {
+                lastStateRender = ++renderCount;
+                return;
+              }
+
+              render(ComponentWrapper(), document.getElementById('${id}'));
+              renderCount++;
             } catch (e) {
               console.error(e, { componentId: '${id}' });
             }
