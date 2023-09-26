@@ -1,5 +1,5 @@
 export function parseChildComponentPaths(transpiledComponent: string) {
-  const componentRegex = /createElement\(Widget,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>[\w.]+\.near\/widget\/[\w.]+))["|']/ig;
+  const componentRegex = /createElement\(Widget,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.]+))["|']/ig;
   const matches = [...(transpiledComponent.matchAll(componentRegex))]
     .reduce((componentInstances, match) => {
       if (!match.groups?.src) {
