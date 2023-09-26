@@ -1,18 +1,11 @@
 import type {
-  BuiltinProps,
   DeserializePropsParams,
-  FilesProps,
-  InfiniteScrollProps,
-  IpfsImageUploadProps,
-  MarkdownProps,
-  OverlayTriggerProps,
   Props,
   SerializeArgsParams,
   SerializeNodeParams,
   SerializePropsParams,
   SerializedArgs,
   SerializedNode,
-  TypeaheadProps,
 } from './types';
 
 export function encodeJsonString(value: string) {
@@ -172,30 +165,13 @@ export function deserializeProps({
 interface BuildComponentIdParams {
   instanceId: string | undefined;
   componentPath: string;
-  componentProps: object;
   parentComponentId: string;
 }
 
 export function serializeNode({ builtinComponents, node, childComponents, callbacks, parentId }: SerializeNodeParams): SerializedNode {
-  function buildComponentId({ instanceId, componentPath, componentProps, parentComponentId }: BuildComponentIdParams) {
-    if (instanceId !== undefined) {
-      return [componentPath, instanceId.toString(), parentComponentId].join('##');
-    }
-
-    const serializedProps = JSON.stringify(componentProps || {}).replace(/[{}\[\]'", ]/g, '');
-    const sampleInterval = Math.floor(serializedProps.length / 2048) || 1;
-    const sampledProps = serializedProps
-      .split('')
-      .reduce((sampled, c, i) => i % sampleInterval === 0 ? sampled + c : sampled, '');
-
-    const base64Props = btoa(
-      Array.from(
-        new TextEncoder().encode(sampledProps),
-        (byte) => String.fromCodePoint(byte)
-      ).join('')
-    );
-
-    return [componentPath, base64Props, parentComponentId].join('##');
+  function buildComponentId({ instanceId, componentPath, parentComponentId }: BuildComponentIdParams) {
+    // TODO warn on missing instanceId (<Widget>'s id prop) here?
+    return [componentPath, instanceId?.toString(), parentComponentId].join('##');
   }
 
   if (!node || typeof node !== 'object') {
@@ -240,11 +216,22 @@ export function serializeNode({ builtinComponents, node, childComponents, callba
       unifiedChildren = props.children || [];
     } else if (component === 'Widget') {
       const { id: instanceId, src, props: componentProps, isTrusted } = props;
-      const componentId = buildComponentId({ instanceId, componentPath: src, componentProps, parentComponentId: parentId });
+      const componentId = buildComponentId({
+        instanceId,
+        componentPath: src,
+        parentComponentId: parentId,
+      });
+
       try {
         childComponents.push({
           isTrusted: !!isTrusted,
-          props: componentProps ? serializeProps({ props: componentProps, callbacks, builtinComponents, parentId, componentId }) : {},
+          props: componentProps ? serializeProps({
+            props: componentProps,
+            callbacks,
+            builtinComponents,
+            parentId,
+            componentId,
+          }) : {},
           source: src,
           componentId,
         });
@@ -265,7 +252,6 @@ export function serializeNode({ builtinComponents, node, childComponents, callba
       const componentId = buildComponentId({
         instanceId: props?.id,
         componentPath: props.src,
-        componentProps: props?.props,
         parentComponentId: parentId,
       });
 

@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-const DEFAULT_ROOT_COMPONENT = 'andyh.near/widget/ComponentIdTestRoot';
+const DEFAULT_ROOT_COMPONENT = 'andyh.near/widget/LandingPage';
 
 export default function Web() {
   const router = useRouter();

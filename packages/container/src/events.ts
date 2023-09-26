@@ -168,6 +168,10 @@ export function buildEventHandler({
         let { args, method } = event.data;
         try {
           result = invokeCallbackFromEvent({ args, method });
+          if (typeof result?.then === 'function') {
+            result.catch((e: Error) => console.error('DOM event handler async callback failed', e));
+          }
+
           shouldRender = true; // TODO conditional re-render
         } catch (e: any) {
           error = e as Error;
