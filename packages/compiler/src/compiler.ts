@@ -1,11 +1,24 @@
-import { buildComponentFunction, buildComponentFunctionName } from './component';
-import { parseChildComponentPaths } from './parser';
-import { fetchComponentSources } from './source';
-import { transpileSource } from './transpile';
+import {
+  buildComponentFunction,
+  buildComponentFunctionName,
+} from "./component";
+import { parseChildComponentPaths } from "./parser";
+import { fetchComponentSources } from "./source";
+import { transpileSource } from "./transpile";
 
-export interface ComponentCompilerRequest {
+export type ComponentCompilerRequest =
+  | CompilerExecuteAction
+  | CompilerInitAction;
+
+interface CompilerExecuteAction {
+  action: "execute";
   componentId: string;
   isTrusted: boolean;
+}
+
+interface CompilerInitAction {
+  action: "init";
+  localFetchUrl?: string;
 }
 
 export interface ComponentCompilerResponse {
@@ -36,6 +49,8 @@ export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<string>>;
   private compiledSourceCache: Map<string, string | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
+  private hasFetchedLocal: boolean = false;
+  private localFetchUrl?: string;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<string>>();
@@ -43,14 +58,24 @@ export class ComponentCompiler {
     this.sendWorkerMessage = sendMessage;
   }
 
+  init({ localFetchUrl }: CompilerInitAction) {
+    this.localFetchUrl = localFetchUrl;
+  }
+
   getComponentSources(componentPaths: string[]) {
-    const unfetchedPaths = componentPaths.filter((componentPath) => !this.bosSourceCache.has(componentPath));
+    const unfetchedPaths = componentPaths.filter(
+      (componentPath) => !this.bosSourceCache.has(componentPath)
+    );
     if (unfetchedPaths.length > 0) {
-      const pathsFetch = fetchComponentSources('https://rpc.near.org', unfetchedPaths);
+      const pathsFetch = fetchComponentSources(
+        "https://rpc.near.org",
+        unfetchedPaths
+      );
       unfetchedPaths.forEach((componentPath) => {
         this.bosSourceCache.set(
           componentPath,
-          pathsFetch.then((paths) => paths[componentPath])
+          pathsFetch
+            .then((paths) => paths[componentPath])
             .catch((e) => console.error(e, { componentPath }))
         );
       });
@@ -66,7 +91,11 @@ export class ComponentCompiler {
     }, new Map<string, Promise<string>>());
   }
 
-  getTranspiledComponentSource({ componentPath, componentSource, isRoot }: TranspiledComponentLookupParams) {
+  getTranspiledComponentSource({
+    componentPath,
+    componentSource,
+    isRoot,
+  }: TranspiledComponentLookupParams) {
     const cacheKey = JSON.stringify({ componentPath, isRoot });
     if (!this.compiledSourceCache.has(cacheKey)) {
       try {
@@ -93,7 +122,10 @@ export class ComponentCompiler {
     // replace each child [Component] reference in the target Component source
     // with the generated name of the inlined Component function definition
     childComponentPaths.forEach(({ source, transform }) => {
-      transformedComponent = transform(transformedComponent, buildComponentFunctionName(source));
+      transformedComponent = transform(
+        transformedComponent,
+        buildComponentFunctionName(source)
+      );
     });
 
     // add the transformed source to the returned Component tree
@@ -103,17 +135,22 @@ export class ComponentCompiler {
 
     // fetch the set of child Component sources not already added to the tree
     const childComponentSources = this.getComponentSources(
-      childComponentPaths.map(({ source }) => source)
+      childComponentPaths
+        .map(({ source }) => source)
         .filter((source) => !(source in mapped))
     );
 
     // transpile the set of new child Components and recursively parse their Component subtrees
     await Promise.all(
-      [...childComponentSources.entries()]
-        .map(async ([childPath, componentSource]) => {
+      [...childComponentSources.entries()].map(
+        async ([childPath, componentSource]) => {
           const transpiledChild = this.getTranspiledComponentSource({
             componentPath: childPath,
-            componentSource: buildComponentFunction({ componentPath: childPath, componentSource: await componentSource, isRoot: false }),
+            componentSource: buildComponentFunction({
+              componentPath: childPath,
+              componentSource: await componentSource,
+              isRoot: false,
+            }),
             isRoot: false,
           });
 
@@ -122,15 +159,27 @@ export class ComponentCompiler {
             transpiledComponent: transpiledChild,
             mapped,
           });
-        })
+        }
+      )
     );
 
     return mapped;
   }
 
-  async compileComponent({ componentId, isTrusted }: ComponentCompilerRequest) {
-    const componentPath = componentId.split('##')[0];
-    const source = await this.getComponentSources([componentPath]).get(componentPath);
+  async compileComponent({ componentId, isTrusted }: CompilerExecuteAction) {
+    if (this.localFetchUrl && !this.hasFetchedLocal) {
+      try {
+        await this.fetchLocalComponents();
+      } catch (e) {
+        console.error("Failed to fetch local components", e);
+      }
+      this.hasFetchedLocal = true;
+    }
+    const componentPath = componentId.split("##")[0];
+    const source = await this.getComponentSources([componentPath]).get(
+      componentPath
+    );
+    console.log("this.bosSourceCache", this.bosSourceCache);
     if (!source) {
       throw new Error(`Component not found at ${componentPath}`);
     }
@@ -155,15 +204,50 @@ export class ComponentCompiler {
         mapped: {},
       });
 
-      const [rootComponent, ...childComponents] = Object.values(transformedComponents).map(({ transpiled }) => transpiled);
-      const aggregatedSourceLines = rootComponent.split('\n');
-      aggregatedSourceLines.splice(1, 0, childComponents.join('\n\n'));
-      componentSource = aggregatedSourceLines.join('\n');
+      const [rootComponent, ...childComponents] = Object.values(
+        transformedComponents
+      ).map(({ transpiled }) => transpiled);
+      const aggregatedSourceLines = rootComponent.split("\n");
+      aggregatedSourceLines.splice(1, 0, childComponents.join("\n\n"));
+      componentSource = aggregatedSourceLines.join("\n");
     }
 
     this.sendWorkerMessage({
       componentId,
       componentSource,
     });
+  }
+
+  /**
+   * Fetch local component source from a bos-loader instance
+   */
+  async fetchLocalComponents() {
+    if (!this.localFetchUrl) {
+      return;
+    }
+
+    const res = await fetch(this.localFetchUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Network response was not OK");
+    }
+
+    type ComponentResponse = { components: Record<string, { code: string }> };
+    const data = (await res.json()) as ComponentResponse;
+    console.log("fetchLocalComponents", data);
+    // const cacheCompat = data.components.map(({code}, ))
+    for (const [componentPath, componentSource] of Object.entries(
+      data.components
+    )) {
+      this.bosSourceCache.set(
+        componentPath,
+        Promise.resolve(componentSource.code)
+      );
+    }
   }
 }
