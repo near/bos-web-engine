@@ -20,8 +20,12 @@ interface UseWebEngineParams {
   debugConfig: DebugConfig;
 }
 
+interface CompilerWorker extends Omit<Worker, 'postMessage'> {
+  postMessage(comilerRequest: ComponentCompilerRequest): void;
+}
+
 export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEngineParams) {
-  const [compiler, setCompiler] = useState<any>(null);
+  const [compiler, setCompiler] = useState<CompilerWorker | null>(null);
   const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
@@ -51,7 +55,7 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
     }
 
     addComponent(componentId, component);
-    compiler?.postMessage({ componentId, isTrusted: component.isTrusted });
+    compiler?.postMessage({ action: 'execute', componentId, isTrusted: component.isTrusted });
   }, [compiler, components, addComponent]);
 
   const renderComponent = useCallback((componentId: string) => {
@@ -174,6 +178,7 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
       };
 
       compiler.postMessage({
+        action: 'execute',
         componentId: rootComponentPath,
         isTrusted: false,
       });
