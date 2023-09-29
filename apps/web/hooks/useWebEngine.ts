@@ -6,13 +6,14 @@ import {
   onCallbackResponse,
   onRender,
 } from '@bos-web-engine/application';
-import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
+import type { ComponentCompilerRequest, ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import type { MessagePayload } from '@bos-web-engine/container';
 import { getAppDomId } from '@bos-web-engine/iframe';
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { useComponentMetrics } from './useComponentMetrics';
+import { useFlags } from "./useFlags";
 
 interface UseWebEngineParams {
   rootComponentPath: string;
@@ -26,6 +27,8 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isValidRootComponentPath, setIsValidRootComponentPath] = useState(false);
+
+  const [flags] = useFlags();
 
   const {
     metrics,
@@ -146,6 +149,11 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
 
     if (!compiler) {
       const worker = new Worker(new URL('../workers/compiler.ts', import.meta.url));
+      const initPayload: ComponentCompilerRequest = {
+        action: "init",
+        localFetchUrl: flags?.bosLoaderUrl,
+      };
+      worker.postMessage(initPayload);
       setCompiler(worker);
     } else if (!isCompilerInitialized) {
       setIsCompilerInitialized(true);
