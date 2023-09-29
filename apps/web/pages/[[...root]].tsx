@@ -1,8 +1,8 @@
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
-import { ComponentTree } from "../components";
-import { useWebEngine } from "../hooks";
-import { useEffect } from "react";
+import { ComponentTree } from '../components';
+import { useWebEngine } from '../hooks';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;
 
@@ -10,10 +10,10 @@ export default function Root() {
   const router = useRouter();
   const { query } = router;
 
-  const isDebug = query.isDebug === "true";
-  const showMonitor = query.showMonitor === "true";
+  const isDebug = query.isDebug === 'true';
+  const showMonitor = query.showMonitor === 'true';
   const rootComponentPath = Array.isArray(query.root)
-    ? query.root.join("/")
+    ? query.root.join('/')
     : null;
 
   useEffect(() => {
