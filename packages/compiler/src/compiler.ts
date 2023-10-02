@@ -211,8 +211,7 @@ export class ComponentCompiler {
       throw new Error("Network response was not OK");
     }
 
-    type ComponentResponse = { components: Record<string, { code: string }> };
-    const data = (await res.json()) as ComponentResponse;
+    const data = (await res.json()) as { components: Record<string, { code: string }> };
     for (const [componentPath, componentSource] of Object.entries(
       data.components
     )) {
