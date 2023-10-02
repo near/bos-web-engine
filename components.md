@@ -35,7 +35,7 @@ same context.
 
 By default, Components are loaded in **sandboxed** mode. To opt in to **trusted** loading, use the `isTrusted` prop:
 ```jsx
-<Widget isTrusted={true} />
+<Widget isTrusted />
 ```
 
 The root Component is always loaded as **sandboxed**.
