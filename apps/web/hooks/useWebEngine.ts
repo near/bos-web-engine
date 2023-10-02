@@ -6,26 +6,33 @@ import {
   onCallbackResponse,
   onRender,
 } from '@bos-web-engine/application';
-import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
+import type { ComponentCompilerRequest, ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import type { MessagePayload } from '@bos-web-engine/container';
 import { getAppDomId } from '@bos-web-engine/iframe';
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { useComponentMetrics } from './useComponentMetrics';
+import { useFlags } from "./useFlags";
 
 interface UseWebEngineParams {
-  rootComponentPath: string;
+  rootComponentPath?: string;
   debugConfig: DebugConfig;
 }
 
+interface CompilerWorker extends Omit<Worker, 'postMessage'> {
+  postMessage(comilerRequest: ComponentCompilerRequest): void;
+}
+
 export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEngineParams) {
-  const [compiler, setCompiler] = useState<any>(null);
+  const [compiler, setCompiler] = useState<CompilerWorker | null>(null);
   const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isValidRootComponentPath, setIsValidRootComponentPath] = useState(false);
+
+  const [flags] = useFlags();
 
   const {
     metrics,
@@ -48,7 +55,7 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
     }
 
     addComponent(componentId, component);
-    compiler?.postMessage({ componentId, isTrusted: component.isTrusted });
+    compiler?.postMessage({ action: 'execute', componentId, isTrusted: component.isTrusted });
   }, [compiler, components, addComponent]);
 
   const renderComponent = useCallback((componentId: string) => {
@@ -136,7 +143,7 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
   }, [processMessage]);
 
   useEffect(() => {
-    setIsValidRootComponentPath((/^((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.]+$/ig).test(rootComponentPath));
+    setIsValidRootComponentPath(!!rootComponentPath && (/^((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.]+$/ig).test(rootComponentPath));
   }, [rootComponentPath]);
 
   useEffect(() => {
@@ -146,6 +153,11 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
 
     if (!compiler) {
       const worker = new Worker(new URL('../workers/compiler.ts', import.meta.url));
+      const initPayload: ComponentCompilerRequest = {
+        action: "init",
+        localFetchUrl: flags?.bosLoaderUrl,
+      };
+      worker.postMessage(initPayload);
       setCompiler(worker);
     } else if (!isCompilerInitialized) {
       setIsCompilerInitialized(true);
@@ -166,6 +178,7 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
       };
 
       compiler.postMessage({
+        action: 'execute',
         componentId: rootComponentPath,
         isTrusted: false,
       });
