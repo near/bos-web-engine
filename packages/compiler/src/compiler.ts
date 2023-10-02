@@ -214,8 +214,6 @@ export class ComponentCompiler {
 
     type ComponentResponse = { components: Record<string, { code: string }> };
     const data = (await res.json()) as ComponentResponse;
-    console.log("fetchLocalComponents", data);
-    // const cacheCompat = data.components.map(({code}, ))
     for (const [componentPath, componentSource] of Object.entries(
       data.components
     )) {
