@@ -7,7 +7,10 @@ import Babel from '@babel/standalone';
 export function transpileSource(source: string) {
   return Babel.transform(source, {
     plugins: [
-      [Babel.availablePlugins['transform-react-jsx'], { pragma: 'createElement' }],
+      [
+        Babel.availablePlugins['transform-react-jsx'],
+        { pragma: 'createElement' },
+      ],
     ],
   });
 }

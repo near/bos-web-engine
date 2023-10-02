@@ -74,28 +74,35 @@ export function onRender({
   const { componentId, childComponents, node } = data;
   const { children, ...props } = node?.props || { children: [] };
 
-  const componentChildren = createChildElements({ children, depth: 0, parentId: componentId, onMessageSent });
+  const componentChildren = createChildElements({
+    children,
+    depth: 0,
+    parentId: componentId,
+    onMessageSent,
+  });
   const [componentPath] = componentId.split('##');
   const { isDebug, showMonitor } = debugConfig;
   const element = createElement({
     children: [
-      ...(isDebug ? [
-        React.createElement(
-          'span',
-          { className: 'dom-label' },
-          [
-            '[',
-            React.createElement(
-              'a',
-              { href: `/${componentPath}?isDebug=${isDebug}&showMonitor=${showMonitor}` },
-              componentPath
-            ),
-            `(${getComponentRenderCount(componentId)})]`,
+      ...(isDebug
+        ? [
+            React.createElement('span', { className: 'dom-label' }, [
+              '[',
+              React.createElement(
+                'a',
+                {
+                  href: `/${componentPath}?isDebug=${isDebug}&showMonitor=${showMonitor}`,
+                },
+                componentPath
+              ),
+              `(${getComponentRenderCount(componentId)})]`,
+            ]),
+            React.createElement('br'),
           ]
-        ),
-        React.createElement('br'),
-      ] : []),
-      ...(Array.isArray(componentChildren) ? componentChildren : [componentChildren]),
+        : []),
+      ...(Array.isArray(componentChildren)
+        ? componentChildren
+        : [componentChildren]),
     ],
     id: componentId,
     props: isDebug ? { ...props, className: 'iframe' } : props,
@@ -104,33 +111,40 @@ export function onRender({
   });
   mountElement({ componentId, element });
 
-  childComponents.forEach(({ componentId: childComponentId, props: componentProps, source, isTrusted }: ChildComponent) => {
-    /*
+  childComponents.forEach(
+    ({
+      componentId: childComponentId,
+      props: componentProps,
+      source,
+      isTrusted,
+    }: ChildComponent) => {
+      /*
       a new Component is being rendered by a parent Component, either:
       - this Component is being loaded for the first time
       - the parent Component has updated and is re-rendering this Component
     */
-    if (!isComponentLoaded(childComponentId)) {
-      /* component code has not yet been loaded, add to cache and load */
-      loadComponent({
-        componentId: childComponentId,
-        componentPath: source,
-        isTrusted,
-        parentId: componentId,
-        props: componentProps,
-        renderCount: 0,
-      });
-    } else {
-      /* component iframe is already loaded, post update message to iframe */
-      sendMessage({
-        componentId: childComponentId,
-        onMessageSent,
-        message: {
-          props: componentProps,
+      if (!isComponentLoaded(childComponentId)) {
+        /* component code has not yet been loaded, add to cache and load */
+        loadComponent({
           componentId: childComponentId,
-          type: 'component.update',
-        },
-      });
+          componentPath: source,
+          isTrusted,
+          parentId: componentId,
+          props: componentProps,
+          renderCount: 0,
+        });
+      } else {
+        /* component iframe is already loaded, post update message to iframe */
+        sendMessage({
+          componentId: childComponentId,
+          onMessageSent,
+          message: {
+            props: componentProps,
+            componentId: childComponentId,
+            type: 'component.update',
+          },
+        });
+      }
     }
-  });
+  );
 }

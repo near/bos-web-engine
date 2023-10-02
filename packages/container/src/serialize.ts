@@ -13,9 +13,7 @@ export function encodeJsonString(value: string) {
     return value;
   }
 
-  return value.toString()
-    .replace(/\n/g, '⁣')
-    .replace(/\t/g, '⁤');
+  return value.toString().replace(/\n/g, '⁣').replace(/\t/g, '⁤');
 }
 
 export function decodeJsonString(value: string) {
@@ -23,16 +21,24 @@ export function decodeJsonString(value: string) {
     return value;
   }
 
-  return value.toString()
-    .replace(/⁣/g, '\n')
-    .replace(/⁤/g, '\t');
+  return value.toString().replace(/⁣/g, '\n').replace(/⁤/g, '\t');
 }
 
-export function serializeProps({ builtinComponents, callbacks, parentId, props, componentId }: SerializePropsParams): Props {
-  return Object.entries(props)
-    .reduce((newProps, [key, value]: [string, any]) => {
+export function serializeProps({
+  builtinComponents,
+  callbacks,
+  parentId,
+  props,
+  componentId,
+}: SerializePropsParams): Props {
+  return Object.entries(props).reduce(
+    (newProps, [key, value]: [string, any]) => {
       // TODO better preact component check
-      const isComponent = value?.props && typeof value === 'object' && ('__' in value && '__k' in value);
+      const isComponent =
+        value?.props &&
+        typeof value === 'object' &&
+        '__' in value &&
+        '__k' in value;
       const isFunction = typeof value === 'function';
       const isProxy = value?.__bweMeta?.isProxy || false;
 
@@ -58,7 +64,11 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
 
       // [componentId] only applies to props on components, use method
       // body to distinguish between non-component callbacks
-      const fnKey = [key, componentId || value.toString().replace(/\\n/g, ''), parentId].join('::');
+      const fnKey = [
+        key,
+        componentId || value.toString().replace(/\\n/g, ''),
+        parentId,
+      ].join('::');
       callbacks[fnKey] = value;
 
       if (componentId) {
@@ -81,10 +91,16 @@ export function serializeProps({ builtinComponents, callbacks, parentId, props, 
       }
 
       return newProps;
-    }, {} as Props);
+    },
+    {} as Props
+  );
 }
 
-export function serializeArgs({ args, callbacks, componentId }: SerializeArgsParams): SerializedArgs {
+export function serializeArgs({
+  args,
+  callbacks,
+  componentId,
+}: SerializeArgsParams): SerializedArgs {
   return (args || []).map((arg) => {
     if (!arg) {
       return arg;
@@ -101,8 +117,7 @@ export function serializeArgs({ args, callbacks, componentId }: SerializeArgsPar
           args: Object.values(arg),
           callbacks,
           componentId,
-        })
-          .map((value, i) => [argKeys[i], value])
+        }).map((value, i) => [argKeys[i], value])
       );
     }
 
@@ -133,32 +148,37 @@ export function deserializeProps({
 
   return {
     ...componentProps,
-    ...Object.entries(__componentcallbacks || {}).reduce((componentCallbacks, [methodName, { __componentMethod, parentId }]) => {
-      if (props[methodName]) {
-        throw new Error(`'duplicate props key ${methodName} on ${componentId}'`);
-      }
+    ...Object.entries(__componentcallbacks || {}).reduce(
+      (componentCallbacks, [methodName, { __componentMethod, parentId }]) => {
+        if (props[methodName]) {
+          throw new Error(
+            `'duplicate props key ${methodName} on ${componentId}'`
+          );
+        }
 
-      componentCallbacks[methodName] = (...args: any) => {
-        const requestId = window.crypto.randomUUID();
-        requests[requestId] = buildRequest();
+        componentCallbacks[methodName] = (...args: any) => {
+          const requestId = window.crypto.randomUUID();
+          requests[requestId] = buildRequest();
 
-        // any function arguments are closures in this child component scope
-        // and must be cached in the component iframe
-        postCallbackInvocationMessage({
-          args,
-          callbacks,
-          method: __componentMethod, // the key on the props object passed to this Component
-          requestId,
-          serializeArgs,
-          targetId: parentId,
-          componentId,
-        });
+          // any function arguments are closures in this child component scope
+          // and must be cached in the component iframe
+          postCallbackInvocationMessage({
+            args,
+            callbacks,
+            method: __componentMethod, // the key on the props object passed to this Component
+            requestId,
+            serializeArgs,
+            targetId: parentId,
+            componentId,
+          });
 
-        return requests[requestId].promise;
-      };
+          return requests[requestId].promise;
+        };
 
-      return componentCallbacks;
-    }, {} as { [key: string]: any }),
+        return componentCallbacks;
+      },
+      {} as { [key: string]: any }
+    ),
   };
 }
 
@@ -168,10 +188,22 @@ interface BuildComponentIdParams {
   parentComponentId: string;
 }
 
-export function serializeNode({ builtinComponents, node, childComponents, callbacks, parentId }: SerializeNodeParams): SerializedNode {
-  function buildComponentId({ instanceId, componentPath, parentComponentId }: BuildComponentIdParams) {
+export function serializeNode({
+  builtinComponents,
+  node,
+  childComponents,
+  callbacks,
+  parentId,
+}: SerializeNodeParams): SerializedNode {
+  function buildComponentId({
+    instanceId,
+    componentPath,
+    parentComponentId,
+  }: BuildComponentIdParams) {
     // TODO warn on missing instanceId (<Widget>'s id prop) here?
-    return [componentPath, instanceId?.toString(), parentComponentId].join('##');
+    return [componentPath, instanceId?.toString(), parentComponentId].join(
+      '##'
+    );
   }
 
   if (!node || typeof node !== 'object') {
@@ -184,14 +216,17 @@ export function serializeNode({ builtinComponents, node, childComponents, callba
   let props = { ...node.props };
   delete props.children;
 
-  let unifiedChildren = Array.isArray(children)
-    ? children
-    : [children];
+  let unifiedChildren = Array.isArray(children) ? children : [children];
 
   unifiedChildren
-    .filter((child) => child && typeof child === 'object' && 'childComponents' in child)
+    .filter(
+      (child) =>
+        child && typeof child === 'object' && 'childComponents' in child
+    )
     .forEach((child) => {
-      child.childComponents.forEach((childComponent: any) => childComponents.push(childComponent));
+      child.childComponents.forEach((childComponent: any) =>
+        childComponents.push(childComponent)
+      );
     });
 
   if (!type) {
@@ -206,10 +241,7 @@ export function serializeNode({ builtinComponents, node, childComponents, callba
     } else if (builtinComponents[component]) {
       // @ts-expect-error
       const builtin = builtinComponents[component];
-      ({
-        props,
-        type: serializedElementType,
-      } = builtin({
+      ({ props, type: serializedElementType } = builtin({
         children: unifiedChildren,
         props,
       }));
@@ -225,18 +257,23 @@ export function serializeNode({ builtinComponents, node, childComponents, callba
       try {
         childComponents.push({
           isTrusted: !!isTrusted,
-          props: componentProps ? serializeProps({
-            props: componentProps,
-            callbacks,
-            builtinComponents,
-            parentId,
-            componentId,
-          }) : {},
+          props: componentProps
+            ? serializeProps({
+                props: componentProps,
+                callbacks,
+                builtinComponents,
+                parentId,
+                componentId,
+              })
+            : {},
           source: src,
           componentId,
         });
       } catch (error) {
-        console.warn(`failed to dispatch component load for ${parentId}`, { error, componentProps });
+        console.warn(`failed to dispatch component load for ${parentId}`, {
+          error,
+          componentProps,
+        });
       }
 
       return {
@@ -278,15 +315,17 @@ export function serializeNode({ builtinComponents, node, childComponents, callba
     type: serializedElementType,
     props: {
       ...serializeProps({ props, builtinComponents, callbacks, parentId }),
-      children: unifiedChildren
-        .flat()
-        .map((c, i) => c?.props ? serializeNode({
-          node: c,
-          builtinComponents,
-          childComponents,
-          callbacks,
-          parentId,
-        }) : c),
+      children: unifiedChildren.flat().map((c, i) =>
+        c?.props
+          ? serializeNode({
+              node: c,
+              builtinComponents,
+              childComponents,
+              callbacks,
+              parentId,
+            })
+          : c
+      ),
     },
     childComponents,
   };

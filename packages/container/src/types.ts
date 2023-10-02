@@ -7,7 +7,7 @@ export interface WebEngineMeta {
 export type BuildRequestCallback = () => CallbackRequest;
 
 export interface CallbackRequest {
-  promise: Promise<any>,
+  promise: Promise<any>;
   rejecter?: (reason: any) => void;
   resolver?: (value: any) => void;
 }
@@ -20,7 +20,7 @@ export interface DeserializePropsParams {
   props: SerializedProps;
   callbacks: CallbackMap;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
-  requests: { [key: string]: CallbackRequest }
+  requests: { [key: string]: CallbackRequest };
   componentId: string;
 }
 
@@ -31,7 +31,12 @@ type ComponentCallbackResponseType = 'component.callbackResponse';
 type ComponentDomCallbackType = 'component.domCallback';
 type ComponentRenderType = 'component.render';
 type ComponentUpdateType = 'component.update';
-export type EventType = ComponentCallbackInvocationType | ComponentCallbackResponseType | ComponentDomCallbackType | ComponentRenderType | ComponentUpdateType;
+export type EventType =
+  | ComponentCallbackInvocationType
+  | ComponentCallbackResponseType
+  | ComponentDomCallbackType
+  | ComponentRenderType
+  | ComponentUpdateType;
 
 export interface InitNearParams {
   renderComponent: () => void;
@@ -77,11 +82,12 @@ export interface DomCallback {
   type: ComponentDomCallbackType;
 }
 
-export type MessagePayload = ComponentCallbackInvocation
-    | ComponentCallbackResponse
-    | DomCallback
-    | ComponentRender
-    | ComponentUpdate;
+export type MessagePayload =
+  | ComponentCallbackInvocation
+  | ComponentCallbackResponse
+  | DomCallback
+  | ComponentRender
+  | ComponentUpdate;
 
 export interface PostMessageEvent {
   data: MessagePayload;
@@ -91,7 +97,9 @@ export interface PostMessageParams {
   type: EventType;
 }
 
-export type PostMessageComponentInvocationCallback = (message: PostMessageComponentCallbackInvocationParams) => void;
+export type PostMessageComponentInvocationCallback = (
+  message: PostMessageComponentCallbackInvocationParams
+) => void;
 export interface ComponentCallbackInvocation extends PostMessageParams {
   args: SerializedArgs;
   method: string;
@@ -111,7 +119,9 @@ export interface PostMessageComponentCallbackInvocationParams {
   componentId: string;
 }
 
-export type PostMessageComponentResponseCallback = (message: PostMessageComponentCallbackResponseParams) => void;
+export type PostMessageComponentResponseCallback = (
+  message: PostMessageComponentCallbackResponseParams
+) => void;
 export interface ComponentCallbackResponse extends PostMessageParams {
   componentId: string;
   requestId: string;
@@ -152,8 +162,8 @@ export interface ProcessEventParams {
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   deserializeProps: DeserializePropsCallback;
-  invokeCallback: (args: InvokeCallbackParams) => any,
-  invokeComponentCallback: (args: InvokeComponentCallbackParams) => any,
+  invokeCallback: (args: InvokeCallbackParams) => any;
+  invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   props: any;
@@ -172,8 +182,12 @@ export interface Props extends KeyValuePair {
   children?: any[];
 }
 
-export type SerializedArgs = Array<string | number | object | any[] | { __componentMethod: string }>;
-export type SerializeArgsCallback = (args: SerializeArgsParams) => SerializedArgs;
+export type SerializedArgs = Array<
+  string | number | object | any[] | { __componentMethod: string }
+>;
+export type SerializeArgsCallback = (
+  args: SerializeArgsParams
+) => SerializedArgs;
 export interface SerializeArgsParams {
   args: any[];
   callbacks: CallbackMap;
@@ -185,8 +199,15 @@ interface PreactElement {
   props: any;
 }
 
-type PreactCreateElement = (type: string | Function, props: any, children: any) => PreactElement;
-type CreateSerializedBuiltin = ({ props, children }: BuiltinProps<any>) => PreactElement;
+type PreactCreateElement = (
+  type: string | Function,
+  props: any,
+  children: any
+) => PreactElement;
+type CreateSerializedBuiltin = ({
+  props,
+  children,
+}: BuiltinProps<any>) => PreactElement;
 
 export interface GetBuiltinsParams {
   createElement: PreactCreateElement;
@@ -194,11 +215,11 @@ export interface GetBuiltinsParams {
 
 export interface BuiltinComponents {
   Checkbox: CreateSerializedBuiltin;
-  CommitButton: CreateSerializedBuiltin
-  Dialog: CreateSerializedBuiltin
-  DropdownMenu: CreateSerializedBuiltin
+  CommitButton: CreateSerializedBuiltin;
+  Dialog: CreateSerializedBuiltin;
+  DropdownMenu: CreateSerializedBuiltin;
   Files: CreateSerializedBuiltin;
-  Fragment: CreateSerializedBuiltin
+  Fragment: CreateSerializedBuiltin;
   InfiniteScroll: CreateSerializedBuiltin;
   IpfsImageUpload: CreateSerializedBuiltin;
   Link: CreateSerializedBuiltin;
@@ -227,7 +248,9 @@ export interface SerializeNodeParams {
   callbacks: CallbackMap;
   parentId: string;
 }
-export type SerializeNodeCallback = (args: SerializeNodeParams) => SerializedNode;
+export type SerializeNodeCallback = (
+  args: SerializeNodeParams
+) => SerializedNode;
 
 export interface SerializedNode {
   childComponents?: ComponentChildMetadata[];
@@ -300,7 +323,8 @@ export interface TypeaheadProps {
   placeholder: string;
 }
 
-type BuiltinPropsTypes = object // TODO props for remaining builtins
+type BuiltinPropsTypes =
+  | object // TODO props for remaining builtins
   | FilesProps
   | IpfsImageUploadProps
   | InfiniteScrollProps

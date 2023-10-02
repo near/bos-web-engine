@@ -60,7 +60,7 @@
 #component-monitor {
   display: flex;
   flex-direction: column;
-  font-family: "Roboto Mono for Powerline";
+  font-family: 'Roboto Mono for Powerline';
   height: 200px;
 }
 
@@ -181,5 +181,5 @@ span {
 
 .dom-label {
   font-size: 0.7em;
-  font-family: "Roboto Mono for Powerline";
+  font-family: 'Roboto Mono for Powerline';
 }

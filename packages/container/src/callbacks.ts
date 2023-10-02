@@ -55,7 +55,10 @@ export function invokeComponentCallback({
 
   // some arguments to this callback are methods on other Components
   // these must be replaced with wrappers invoking Component methods
-  if (typeof args?.some === 'function' && args.some((arg: any) => arg.__componentMethod)) {
+  if (
+    typeof args?.some === 'function' &&
+    args.some((arg: any) => arg.__componentMethod)
+  ) {
     args = args.map((arg: any) => {
       const { __componentMethod: componentMethod } = arg;
       if (!componentMethod) {

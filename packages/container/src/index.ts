@@ -1,23 +1,9 @@
-export {
-  initNear,
-  initSocial,
-} from './api';
-export {
-  getBuiltins,
-} from './builtins';
-export {
-  invokeCallback,
-  invokeComponentCallback,
-} from './callbacks';
-export {
-  buildEventHandler,
-} from './events';
-export {
-  buildUseComponentCallback,
-} from './hooks';
-export {
-  inlineGlobalDefinition,
-} from './injection';
+export { initNear, initSocial } from './api';
+export { getBuiltins } from './builtins';
+export { invokeCallback, invokeComponentCallback } from './callbacks';
+export { buildEventHandler } from './events';
+export { buildUseComponentCallback } from './hooks';
+export { inlineGlobalDefinition } from './injection';
 export {
   buildRequest,
   postMessage,

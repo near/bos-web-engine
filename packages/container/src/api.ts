@@ -1,8 +1,4 @@
-import type {
-  InitNearParams,
-  InitSocialParams,
-  KeyValuePair,
-} from './types';
+import type { InitNearParams, InitSocialParams, KeyValuePair } from './types';
 
 export function initNear({ renderComponent, rpcUrl }: InitNearParams): any {
   const cache: KeyValuePair = {};
@@ -10,23 +6,46 @@ export function initNear({ renderComponent, rpcUrl }: InitNearParams): any {
   const provider = new window.nearApi.providers.JsonRpcProvider(rpcUrl);
   return {
     block(blockHeightOrFinality: string) {
-      const cacheKey = JSON.stringify({ blockHeightOrFinality: blockHeightOrFinality.toString(), type: 'block' });
+      const cacheKey = JSON.stringify({
+        blockHeightOrFinality: blockHeightOrFinality.toString(),
+        type: 'block',
+      });
       const block = cache[cacheKey];
       if (block || (cacheKey in cache && block === undefined)) {
         setTimeout(() => delete cache[cacheKey], 5000);
         return block;
       }
       // TODO parameterize correctly
-      provider.block({ finality: 'final' })
+      provider
+        .block({ finality: 'final' })
         .then((block: any) => {
           cache[cacheKey] = block;
           renderComponent();
         })
         .catch(console.error);
     },
-    call(contractName: string, methodName: string, args: string, gas: string, deposit: number) {},
-    view(contractName: string, methodName: string, args: string, blockId: string | number | object, subscribe: any) {
-      const cacheKey = JSON.stringify({ contractName, methodName, args, blockId: 'final', subscribe, type: 'view' });
+    call(
+      contractName: string,
+      methodName: string,
+      args: string,
+      gas: string,
+      deposit: number
+    ) {},
+    view(
+      contractName: string,
+      methodName: string,
+      args: string,
+      blockId: string | number | object,
+      subscribe: any
+    ) {
+      const cacheKey = JSON.stringify({
+        contractName,
+        methodName,
+        args,
+        blockId: 'final',
+        subscribe,
+        type: 'view',
+      });
       if (cache[cacheKey]) {
         return cache[cacheKey];
       }
@@ -36,22 +55,50 @@ export function initNear({ renderComponent, rpcUrl }: InitNearParams): any {
           cache[cacheKey] = res;
           renderComponent();
         })
-        .catch((e: Error) => console.error(e, { contractName, methodName, args, blockId, subscribe }));
+        .catch((e: Error) =>
+          console.error(e, {
+            contractName,
+            methodName,
+            args,
+            blockId,
+            subscribe,
+          })
+        );
     },
-    asyncView(contractName: string, methodName: string, args: string, blockId: string | number | object, subscribe: any) {
-      const cacheKey = JSON.stringify({ contractName, methodName, args, blockId, subscribe, type: 'view' });
+    asyncView(
+      contractName: string,
+      methodName: string,
+      args: string,
+      blockId: string | number | object,
+      subscribe: any
+    ) {
+      const cacheKey = JSON.stringify({
+        contractName,
+        methodName,
+        args,
+        blockId,
+        subscribe,
+        type: 'view',
+      });
       if (cache[cacheKey]) {
         return cache[cacheKey];
       }
-      return provider.query({
-        request_type: 'call_function',
-        finality: blockId,
-        account_id: contractName,
-        method_name: methodName,
-        args_base64: btoa(Array.from(new TextEncoder().encode(JSON.stringify(args)), (byte) => String.fromCodePoint(byte)).join('')),
-      })
+      return provider
+        .query({
+          request_type: 'call_function',
+          finality: blockId,
+          account_id: contractName,
+          method_name: methodName,
+          args_base64: btoa(
+            Array.from(new TextEncoder().encode(JSON.stringify(args)), (byte) =>
+              String.fromCodePoint(byte)
+            ).join('')
+          ),
+        })
         .then(({ result }: { result: Uint8Array }) => {
-          const deserialized = JSON.parse(new TextDecoder().decode(Uint8Array.from(result)));
+          const deserialized = JSON.parse(
+            new TextDecoder().decode(Uint8Array.from(result))
+          );
           cache[cacheKey] = deserialized;
           return deserialized;
         });
@@ -72,10 +119,23 @@ interface SocialQueryParams {
   keys?: string | string[];
 }
 
-export function initSocial({ endpointBaseUrl, renderComponent, sanitizeString, componentId }: InitSocialParams) {
+export function initSocial({
+  endpointBaseUrl,
+  renderComponent,
+  sanitizeString,
+  componentId,
+}: InitSocialParams) {
   const cache: KeyValuePair = {};
 
-  function cachedQuery({ apiEndpoint, body, cacheKey }: { apiEndpoint: string, body: SocialQueryParams, cacheKey: string }) {
+  function cachedQuery({
+    apiEndpoint,
+    body,
+    cacheKey,
+  }: {
+    apiEndpoint: string;
+    body: SocialQueryParams;
+    cacheKey: string;
+  }) {
     const cached = cache[cacheKey];
     if (cached || (cacheKey in cache && cached === undefined)) {
       return cached;
@@ -91,11 +151,13 @@ export function initSocial({ endpointBaseUrl, renderComponent, sanitizeString, c
       }
 
       if (value?.toString() === '[object Object]') {
-        return Object.entries(value)
-          .reduce((escaped, [k, v]) => {
+        return Object.entries(value).reduce(
+          (escaped, [k, v]) => {
             escaped[k] = deepEscape(v);
             return escaped;
-          }, {} as { [key: string]: any });
+          },
+          {} as { [key: string]: any }
+        );
       }
 
       return value;
@@ -105,7 +167,9 @@ export function initSocial({ endpointBaseUrl, renderComponent, sanitizeString, c
     fetch(apiEndpoint, {
       body: JSON.stringify({
         ...body,
-        ...(body.keys && { keys: Array.isArray(body.keys) ? body.keys : [body.keys] }),
+        ...(body.keys && {
+          keys: Array.isArray(body.keys) ? body.keys : [body.keys],
+        }),
       }),
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
@@ -114,8 +178,12 @@ export function initSocial({ endpointBaseUrl, renderComponent, sanitizeString, c
       .then((json) => {
         let escapedJson = deepEscape(json);
         const { keys } = body;
-        const unwrap = (result: { [key: string]: any }, path: string): object | string => {
-          return path.split('/')
+        const unwrap = (
+          result: { [key: string]: any },
+          path: string
+        ): object | string => {
+          return path
+            .split('/')
             .filter((p) => p !== '*' && p !== '**')
             .reduce((val, pathComponent) => {
               if (!val) {
@@ -138,14 +206,14 @@ export function initSocial({ endpointBaseUrl, renderComponent, sanitizeString, c
   }
 
   return {
-    get(patterns: string | string[]/*, finality, options*/) {
+    get(patterns: string | string[] /*, finality, options*/) {
       return cachedQuery({
         apiEndpoint: `${endpointBaseUrl}/get`,
         body: { keys: patterns },
         cacheKey: JSON.stringify(patterns),
       });
     },
-    getr(patterns: string | string[]/*, finality, options*/) {
+    getr(patterns: string | string[] /*, finality, options*/) {
       if (typeof patterns === 'string') {
         return this.get(`${patterns}/**`);
       }
@@ -159,7 +227,7 @@ export function initSocial({ endpointBaseUrl, renderComponent, sanitizeString, c
         cacheKey: JSON.stringify({ action, key, options }),
       });
     },
-    keys(patterns: string[]/*, finality, options*/) {
+    keys(patterns: string[] /*, finality, options*/) {
       return cachedQuery({
         apiEndpoint: `${endpointBaseUrl}/keys`,
         body: { keys: Array.isArray(patterns) ? patterns : [patterns] },

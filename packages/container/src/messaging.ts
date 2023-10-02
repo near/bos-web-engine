@@ -54,7 +54,8 @@ export function postCallbackResponseMessage({
   result,
   targetId,
 }: PostMessageComponentCallbackResponseParams): void {
-  const serializedError = error && JSON.stringify(error, Object.getOwnPropertyNames(error));
+  const serializedError =
+    error && JSON.stringify(error, Object.getOwnPropertyNames(error));
 
   postMessage<ComponentCallbackResponse>({
     requestId,

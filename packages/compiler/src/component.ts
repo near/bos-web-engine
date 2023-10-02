@@ -19,7 +19,11 @@ interface BuildComponentFunctionParams {
   isRoot: boolean;
 }
 
-export function buildComponentFunction({ componentPath, componentSource, isRoot }: BuildComponentFunctionParams) {
+export function buildComponentFunction({
+  componentPath,
+  componentSource,
+  isRoot,
+}: BuildComponentFunctionParams) {
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
 
   if (isRoot) {
@@ -67,15 +71,18 @@ function initializeComponentState({
   componentInstanceId,
   renderComponent,
 }: InitializeComponentStateParams) {
-  const state = new Proxy({}, {
-    get(_, key) {
-      try {
-        return ComponentState.get(componentInstanceId)?.[key];
-      } catch {
-        return undefined;
-      }
-    },
-  });
+  const state = new Proxy(
+    {},
+    {
+      get(_, key) {
+        try {
+          return ComponentState.get(componentInstanceId)?.[key];
+        } catch {
+          return undefined;
+        }
+      },
+    }
+  );
   const State = {
     init(obj: any) {
       if (!ComponentState.has(componentInstanceId)) {
@@ -83,7 +90,14 @@ function initializeComponentState({
       }
     },
     update(newState: any, initialState = {}) {
-      ComponentState.set(componentInstanceId, Object.assign(initialState, ComponentState.get(componentInstanceId), newState));
+      ComponentState.set(
+        componentInstanceId,
+        Object.assign(
+          initialState,
+          ComponentState.get(componentInstanceId),
+          newState
+        )
+      );
       renderComponent?.({ fromState: true });
     },
   };

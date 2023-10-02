@@ -3,7 +3,8 @@ import React from 'react';
 
 import type {
   ComponentInstance,
-  ComponentMetrics, SendMessageParams,
+  ComponentMetrics,
+  SendMessageParams,
 } from './types';
 import { BWEMessage } from './types';
 
@@ -21,22 +22,37 @@ interface ComponentMessage {
   name: string;
   componentId?: ComponentId;
   message: MessagePayload;
-  summary: string,
+  summary: string;
 }
 
-export function ComponentMonitor({ components, metrics }: { components: ComponentInstance[], metrics: ComponentMetrics }) {
-  const groupedComponents = components.reduce((componentsBySource, component) => {
-    const source = component.componentId?.split('##')[0] || '';
-    if (!componentsBySource[source]) {
-      componentsBySource[source] = [];
-    }
+export function ComponentMonitor({
+  components,
+  metrics,
+}: {
+  components: ComponentInstance[];
+  metrics: ComponentMetrics;
+}) {
+  const groupedComponents = components.reduce(
+    (componentsBySource, component) => {
+      const source = component.componentId?.split('##')[0] || '';
+      if (!componentsBySource[source]) {
+        componentsBySource[source] = [];
+      }
 
-    componentsBySource[source].push(component);
-    return componentsBySource;
-  }, {} as { [key: string]: ComponentInstance[] });
+      componentsBySource[source].push(component);
+      return componentsBySource;
+    },
+    {} as { [key: string]: ComponentInstance[] }
+  );
 
-  const sortedByFrequency = Object.entries(groupedComponents) as [string, ComponentInstance[]][];
-  sortedByFrequency.sort(([, aComponents], [, bComponents]) => bComponents.length - aComponents.length);
+  const sortedByFrequency = Object.entries(groupedComponents) as [
+    string,
+    ComponentInstance[],
+  ][];
+  sortedByFrequency.sort(
+    ([, aComponents], [, bComponents]) =>
+      bComponents.length - aComponents.length
+  );
 
   const reversedEvents = [...metrics.messages];
   reversedEvents.reverse();
@@ -59,9 +75,12 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
     'Containers Loaded': metrics.componentsLoaded.length,
     'Component Renders': messageMetrics.get('component.render')?.length || 0,
     'Updates Requested': messageMetrics.get('component.update')?.length || 0,
-    'DOM Handlers Invoked': messageMetrics.get('component.domCallback')?.length || 0,
-    'Callbacks Invoked': messageMetrics.get('component.callbackInvocation')?.length || 0,
-    'Callbacks Returned': messageMetrics.get('component.callbackResponse')?.length || 0,
+    'DOM Handlers Invoked':
+      messageMetrics.get('component.domCallback')?.length || 0,
+    'Callbacks Invoked':
+      messageMetrics.get('component.callbackInvocation')?.length || 0,
+    'Callbacks Returned':
+      messageMetrics.get('component.callbackResponse')?.length || 0,
     'Missing Components': metrics.missingComponents.length,
   };
 
@@ -91,7 +110,9 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
     }
 
     if (typeof props === 'object') {
-      const formatted = Object.entries(props).map(([k, v]) => `${k}=${formatProps(v)}`).join(', ');
+      const formatted = Object.entries(props)
+        .map(([k, v]) => `${k}=${formatProps(v)}`)
+        .join(', ');
       if (isRoot) {
         return formatted;
       }
@@ -121,7 +142,11 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
       case 'component.render': {
         const { type, props } = message.node;
         const formattedChildren = message.childComponents.length
-          ? `with children ${message.childComponents.map(({ componentId }) => formatComponentId(parseComponentId(componentId))).join(', ')}`
+          ? `with children ${message.childComponents
+              .map(({ componentId }) =>
+                formatComponentId(parseComponentId(componentId))
+              )
+              .join(', ')}`
           : '';
 
         return {
@@ -130,11 +155,16 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           badgeClass: 'bg-danger',
           name: 'render',
           componentId: parseComponentId(message.componentId)!,
-          summary: `rendered <${type} ${formatProps(props, true).slice(0, 64)}...> ${formattedChildren}`,
+          summary: `rendered <${type} ${formatProps(props, true).slice(
+            0,
+            64
+          )}...> ${formattedChildren}`,
         };
       }
       case 'component.callbackInvocation': {
-        const targetComponent = formatComponentId(parseComponentId(message.targetId));
+        const targetComponent = formatComponentId(
+          parseComponentId(message.targetId)
+        );
         const { requestId, method, args } = message;
         return {
           message,
@@ -142,7 +172,9 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           badgeClass: 'bg-primary',
           name: 'invoke',
           componentId: parseComponentId(message.originator)!,
-          summary: `[${requestId.split('-')[0]}] called ${targetComponent}.${method.split('::')[0]}(${args})${!isFromComponent ? ' for' : ''}`,
+          summary: `[${requestId.split('-')[0]}] called ${targetComponent}.${
+            method.split('::')[0]
+          }(${args})${!isFromComponent ? ' for' : ''}`,
         };
       }
       case 'component.callbackResponse': {
@@ -152,8 +184,12 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           isFromComponent,
           badgeClass: 'bg-success',
           name: 'return',
-          componentId: parseComponentId(isFromComponent ? message.componentId : message.targetId)!,
-          summary: `[${requestId.split('-')[0]}] returned ${result} ${!isFromComponent ? 'to' : ''}`,
+          componentId: parseComponentId(
+            isFromComponent ? message.componentId : message.targetId
+          )!,
+          summary: `[${requestId.split('-')[0]}] returned ${result} ${
+            !isFromComponent ? 'to' : ''
+          }`,
         };
       }
       case 'component.update': {
@@ -174,7 +210,9 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
           badgeClass: 'bg-info',
           name: 'DOM',
           componentId: parseComponentId(toComponent!)!,
-          summary: `invoked event DOM handler [${message.method.split('::')[0]}()] on`,
+          summary: `invoked event DOM handler [${
+            message.method.split('::')[0]
+          }()] on`,
         };
       }
       default:
@@ -183,69 +221,67 @@ export function ComponentMonitor({ components, metrics }: { components: Componen
   };
 
   return (
-    <div id='component-monitor'>
-      <div className='metrics-dashboard-row'>
-        <div className='metrics metric-section-header'>
-          Stats
-        </div>
-        <div className='components metric-section-header'>
-          Containers
-        </div>
-        <div className='messages metric-section-header'>
-            Messages
-        </div>
+    <div id="component-monitor">
+      <div className="metrics-dashboard-row">
+        <div className="metrics metric-section-header">Stats</div>
+        <div className="components metric-section-header">Containers</div>
+        <div className="messages metric-section-header">Messages</div>
       </div>
-      <div className='metrics-dashboard-row metrics-dashboard-data'>
-        <div className='metrics metrics-data'>
+      <div className="metrics-dashboard-row metrics-dashboard-data">
+        <div className="metrics metrics-data">
           {Object.entries(displayMetrics).map(([label, value], i) => (
-            <div className='metrics-data-point' key={`data-point-${i}`}>
-              <div className='data-point-header'>{label}</div>
-              <div className='data-point-value'>{value}</div>
+            <div className="metrics-data-point" key={`data-point-${i}`}>
+              <div className="data-point-header">{label}</div>
+              <div className="data-point-value">{value}</div>
             </div>
           ))}
         </div>
-        <div className='components components-data'>
-          {
-            sortedByFrequency
-              .map(([source, componentsBySource], i) => (
-                <div className='metrics-data-point' key={`component-row-${i}`}>
-                  <div className='data-point-header'>{source}</div>
-                  <div className='data-point-value'>{componentsBySource.length}</div>
-                </div>
-              ))
-          }
+        <div className="components components-data">
+          {sortedByFrequency.map(([source, componentsBySource], i) => (
+            <div className="metrics-data-point" key={`component-row-${i}`}>
+              <div className="data-point-header">{source}</div>
+              <div className="data-point-value">
+                {componentsBySource.length}
+              </div>
+            </div>
+          ))}
         </div>
-        <div className='messages messages-data'>
-          {
-            reversedEvents
-              .map(buildEventSummary)
-              .map((event: ComponentMessage | null, i) => event && (
-                <div key={i} className='event' onClick={() => console.log(event.message)}>
-                  <span className='message-index'>
+        <div className="messages messages-data">
+          {reversedEvents.map(buildEventSummary).map(
+            (event: ComponentMessage | null, i) =>
+              event && (
+                <div
+                  key={i}
+                  className="event"
+                  onClick={() => console.log(event.message)}
+                >
+                  <span className="message-index">
                     {reversedEvents.length - i}|
                   </span>
-                  <span className={`badge ${event.badgeClass} message-type-badge`}>
+                  <span
+                    className={`badge ${event.badgeClass} message-type-badge`}
+                  >
                     {event.name}
                   </span>
                   {!event.isFromComponent && (
-                    <span className='message-source message-source-application'>
-                    Application
+                    <span className="message-source message-source-application">
+                      Application
                     </span>
                   )}
                   {event.isFromComponent && event.componentId && (
-                    <span className='message-source message-source-component'>
+                    <span className="message-source message-source-component">
                       {formatComponentId(event.componentId)}
                     </span>
                   )}
-                      &nbsp;{event.summary}&nbsp;
+                  &nbsp;{event.summary}&nbsp;
                   {!event.isFromComponent && event.componentId && (
-                    <span className='message-source message-source-component'>
+                    <span className="message-source message-source-component">
                       {formatComponentId(event.componentId)}
                     </span>
                   )}
                 </div>
-              ))
-          }
+              )
+          )}
         </div>
       </div>
     </div>
