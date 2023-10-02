@@ -153,7 +153,6 @@ export class ComponentCompiler {
       }
       this.hasFetchedLocal = true;
     }
-    console.log("this.bosSourceCache", this.bosSourceCache);
 
     const componentPath = componentId.split('##')[0];
     const source = await this.getComponentSources([componentPath]).get(componentPath);
