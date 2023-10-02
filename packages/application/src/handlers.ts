@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { sendMessage } from './component-container';
+import { sendMessage } from './container';
 import { createChildElements, createElement } from './react';
 import type {
   CallbackInvocationHandlerParams,

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { deserializeProps } from './component-container';
+import { deserializeProps } from './container';
 import type {
   CreateChildElementParams,
   CreateElementParams,
