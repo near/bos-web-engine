@@ -16,7 +16,7 @@ import { useComponentMetrics } from './useComponentMetrics';
 import { useFlags } from "./useFlags";
 
 interface UseWebEngineParams {
-  rootComponentPath: string;
+  rootComponentPath?: string;
   debugConfig: DebugConfig;
 }
 
@@ -143,7 +143,7 @@ export function useWebEngine({ rootComponentPath, debugConfig }: UseWebEnginePar
   }, [processMessage]);
 
   useEffect(() => {
-    setIsValidRootComponentPath((/^((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.]+$/ig).test(rootComponentPath));
+    setIsValidRootComponentPath(!!rootComponentPath && (/^((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.]+$/ig).test(rootComponentPath));
   }, [rootComponentPath]);
 
   useEffect(() => {

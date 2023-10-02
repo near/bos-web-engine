@@ -14,7 +14,15 @@ export default function Root() {
   const showMonitor = query.showMonitor === 'true';
   const rootComponentPath = Array.isArray(query.root)
     ? query.root.join('/')
-    : null;
+    : undefined;
+
+  const { components, error, metrics } = useWebEngine({
+    rootComponentPath,
+    debugConfig: {
+      isDebug,
+      showMonitor,
+    },
+  });
 
   useEffect(() => {
     if (router.isReady && !query.root && DEFAULT_COMPONENT) {
@@ -25,50 +33,17 @@ export default function Root() {
 
   return (
     <div className="App">
-      {rootComponentPath && (
-        <WebEngineRoot
-          rootComponentPath={rootComponentPath}
-          isDebug={isDebug}
-          showMonitor={showMonitor}
-        />
-      )}
-    </div>
-  );
-}
-
-// conditionally rendered when rootComponentPath is defined so that
-// we do not have to account for invocations of hook before router
-// params are ready for consumption
-function WebEngineRoot({
-  rootComponentPath,
-  isDebug,
-  showMonitor,
-}: {
-  rootComponentPath: string;
-  isDebug: boolean;
-  showMonitor: boolean;
-}) {
-  const { components, error, metrics } = useWebEngine({
-    rootComponentPath,
-    debugConfig: {
-      isDebug,
-      showMonitor,
-    },
-  });
-
-  return (
-    <>
-      {error ? (
+      {error && (
         <div className="error">{error}</div>
-      ) : (
+      )}
+      {rootComponentPath && (
         <ComponentTree
           components={components}
           isDebug={isDebug}
           metrics={metrics}
           rootComponentPath={rootComponentPath}
           showMonitor={showMonitor}
-        />
-      )}
-    </>
+        />)}
+    </div>
   );
 }
