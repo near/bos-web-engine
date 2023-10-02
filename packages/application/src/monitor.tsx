@@ -1,10 +1,8 @@
 import type { EventType, MessagePayload } from '@bos-web-engine/container';
-import React from 'react';
 
 import type {
   ComponentInstance,
   ComponentMetrics,
-  SendMessageParams,
 } from './types';
 import { BWEMessage } from './types';
 

@@ -1,4 +1,3 @@
-import type { DomCallback } from '@bos-web-engine/container';
 import { getIframeId } from '@bos-web-engine/iframe';
 
 import type {

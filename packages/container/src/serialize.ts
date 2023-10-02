@@ -315,7 +315,7 @@ export function serializeNode({
     type: serializedElementType,
     props: {
       ...serializeProps({ props, builtinComponents, callbacks, parentId }),
-      children: unifiedChildren.flat().map((c, i) =>
+      children: unifiedChildren.flat().map((c) =>
         c?.props
           ? serializeNode({
               node: c,

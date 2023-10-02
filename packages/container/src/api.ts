@@ -24,13 +24,13 @@ export function initNear({ renderComponent, rpcUrl }: InitNearParams): any {
         })
         .catch(console.error);
     },
-    call(
+    call(/*
       contractName: string,
       methodName: string,
       args: string,
       gas: string,
       deposit: number
-    ) {},
+    */) {},
     view(
       contractName: string,
       methodName: string,

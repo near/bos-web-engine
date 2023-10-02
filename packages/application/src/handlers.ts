@@ -1,4 +1,3 @@
-import { ComponentUpdate } from '@bos-web-engine/container';
 import React from 'react';
 
 import { sendMessage } from './component-container';
