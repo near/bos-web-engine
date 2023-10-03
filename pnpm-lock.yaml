@@ -18,7 +18,6 @@ importers:
 
   apps/web:
     specifiers:
-      '@babel/core': ^7.0.0
       '@bos-web-engine/application': workspace:*
       '@bos-web-engine/compiler': workspace:*
       '@bos-web-engine/container': workspace:*
@@ -45,14 +44,13 @@ importers:
       '@bos-web-engine/compiler': link:../../packages/compiler
       '@bos-web-engine/container': link:../../packages/container
       '@bos-web-engine/iframe': link:../../packages/iframe
-      next: 13.4.13_w4exofnty45araakomg6jes2wu
+      next: 13.4.13_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.46.2_react@18.2.0
       styled-components: 6.0.8_biqbaboplfbrettd7655fr4n2y
       uuid: 9.0.0
     devDependencies:
-      '@babel/core': 7.22.10
       '@types/node': 17.0.45
       '@types/react': 18.2.20
       '@types/react-dom': 18.2.7
@@ -3556,7 +3554,7 @@ packages:
       - babel-plugin-macros
     dev: true
 
-  /next/13.4.13_w4exofnty45araakomg6jes2wu:
+  /next/13.4.13_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-A3YVbVDNeXLhWsZ8Nf6IkxmNlmTNz0yVg186NJ97tGZqPDdPzTrHotJ+A1cuJm2XfuWPrKOUZILl5iBQkIf8Jw==}
     engines: {node: '>=16.8.0'}
     hasBin: true
@@ -3578,7 +3576,7 @@ packages:
       postcss: 8.4.14
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      styled-jsx: 5.1.1_rieqahbfozcw6pn6t2yoby4jsq
+      styled-jsx: 5.1.1_react@18.2.0
       watchpack: 2.4.0
       zod: 3.21.4
     optionalDependencies:
@@ -4180,7 +4178,7 @@ packages:
       client-only: 0.0.1
     dev: true
 
-  /styled-jsx/5.1.1_rieqahbfozcw6pn6t2yoby4jsq:
+  /styled-jsx/5.1.1_react@18.2.0:
     resolution: {integrity: sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==}
     engines: {node: '>= 12.0.0'}
     peerDependencies:
@@ -4193,7 +4191,6 @@ packages:
       babel-plugin-macros:
         optional: true
     dependencies:
-      '@babel/core': 7.22.10
       client-only: 0.0.1
       react: 18.2.0
     dev: false
