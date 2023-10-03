@@ -20,7 +20,12 @@ import {
   inlineGlobalDefinition,
 } from '@bos-web-engine/container';
 
-function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: SandboxedIframeProps) {
+function buildSandboxedComponent({
+  id,
+  isTrusted,
+  scriptSrc,
+  componentProps,
+}: SandboxedIframeProps) {
   const componentPath = id.split('::')[0];
   let jsonComponentProps = '{}';
   if (componentProps) {
@@ -47,9 +52,18 @@ function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: S
 
           ${inlineGlobalDefinition('buildRequest', buildRequest)}
           ${inlineGlobalDefinition('postMessage', postMessage)}
-          ${inlineGlobalDefinition('postComponentRenderMessage', postComponentRenderMessage)}
-          ${inlineGlobalDefinition('postCallbackInvocationMessage', postCallbackInvocationMessage)}
-          ${inlineGlobalDefinition('postCallbackResponseMessage', postCallbackResponseMessage)}
+          ${inlineGlobalDefinition(
+            'postComponentRenderMessage',
+            postComponentRenderMessage
+          )}
+          ${inlineGlobalDefinition(
+            'postCallbackInvocationMessage',
+            postCallbackInvocationMessage
+          )}
+          ${inlineGlobalDefinition(
+            'postCallbackResponseMessage',
+            postCallbackResponseMessage
+          )}
 
           ${inlineGlobalDefinition('decodeJsonString', decodeJsonString)}
           ${inlineGlobalDefinition('deserializeProps', deserializeProps)}
@@ -59,7 +73,10 @@ function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: S
           ${inlineGlobalDefinition('serializeProps', serializeProps)}
 
           ${inlineGlobalDefinition('invokeCallback', invokeCallback)}
-          ${inlineGlobalDefinition('invokeComponentCallback', invokeComponentCallback)}
+          ${inlineGlobalDefinition(
+            'invokeComponentCallback',
+            invokeComponentCallback
+          )}
           
           const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
           const useComponentCallback = buildUseComponentCallback(renderComponent);
@@ -135,7 +152,9 @@ function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: S
             buildRequest,
             callbacks,
             postCallbackInvocationMessage,
-            props: JSON.parse('${jsonComponentProps.replace(/'/g, '\\\'').replace(/\\"/g, '\\\\"')}'),
+            props: JSON.parse('${jsonComponentProps
+              .replace(/'/g, "\\'")
+              .replace(/\\"/g, '\\\\"')}'),
             requests,
             componentId: '${id}',
           }));
@@ -186,7 +205,9 @@ function buildSandboxedComponent({ id, isTrusted, scriptSrc, componentProps }: S
               )();
             } catch (e) {
               console.error(e, { componentId: '${id.split('##')[0]}' });
-              return createElement('div', {}, 'failed to load ${componentPath.split('##')[0]}: ' + e.toString() + '\\n\\n' + e.stack);
+              return createElement('div', {}, 'failed to load ${
+                componentPath.split('##')[0]
+              }: ' + e.toString() + '\\n\\n' + e.stack);
             }
           }
       
@@ -278,24 +299,34 @@ interface SandboxedIframeProps {
   componentProps?: any;
 }
 
-export function SandboxedIframe({ id, isTrusted, scriptSrc, componentProps }: SandboxedIframeProps) {
+export function SandboxedIframe({
+  id,
+  isTrusted,
+  scriptSrc,
+  componentProps,
+}: SandboxedIframeProps) {
   return (
     <iframe
       id={id}
-      className='sandboxed-iframe'
+      className="sandboxed-iframe"
       // @ts-expect-error: you're wrong about this one, TypeScript
       csp={[
-        'default-src \'self\'',
+        "default-src 'self'",
         'connect-src *',
         'img-src * data:',
-        'script-src \'unsafe-inline\' \'unsafe-eval\'',
-        'script-src-elem https://cdn.jsdelivr.net http://localhost http://localhost:3001 \'unsafe-inline\'',
+        "script-src 'unsafe-inline' 'unsafe-eval'",
+        "script-src-elem https://cdn.jsdelivr.net http://localhost http://localhost:3001 'unsafe-inline'",
         '',
       ].join('; ')}
       height={0}
-      sandbox='allow-scripts'
-      srcDoc={buildSandboxedComponent({ id: id.replace('iframe-', ''), isTrusted, scriptSrc, componentProps })}
-      title='code-container'
+      sandbox="allow-scripts"
+      srcDoc={buildSandboxedComponent({
+        id: id.replace('iframe-', ''),
+        isTrusted,
+        scriptSrc,
+        componentProps,
+      })}
+      title="code-container"
       width={0}
       style={{ border: 'none' }}
     />

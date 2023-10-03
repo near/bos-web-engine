@@ -1,4 +1,3 @@
-import type { DomCallback } from '@bos-web-engine/container';
 import { getIframeId } from '@bos-web-engine/iframe';
 
 import type {
@@ -7,17 +6,34 @@ import type {
   SendMessageParams,
 } from './types';
 
-function postMessageToIframe({ id, message, targetOrigin }: IframePostMessageParams): void {
-  (document.getElementById(id) as HTMLIFrameElement)
-    ?.contentWindow?.postMessage(message, targetOrigin);
+function postMessageToIframe({
+  id,
+  message,
+  targetOrigin,
+}: IframePostMessageParams): void {
+  (
+    document.getElementById(id) as HTMLIFrameElement
+  )?.contentWindow?.postMessage(message, targetOrigin);
 }
 
-export function sendMessage({ componentId, message, onMessageSent }: SendMessageParams): void {
+export function sendMessage({
+  componentId,
+  message,
+  onMessageSent,
+}: SendMessageParams): void {
   onMessageSent({ toComponent: componentId, message });
-  postMessageToIframe({ id: getIframeId(componentId), message, targetOrigin: '*' });
+  postMessageToIframe({
+    id: getIframeId(componentId),
+    message,
+    targetOrigin: '*',
+  });
 }
 
-export function deserializeProps({ id, props, onMessageSent }: DeserializePropsParams): any {
+export function deserializeProps({
+  id,
+  props,
+  onMessageSent,
+}: DeserializePropsParams): any {
   if (!props) {
     return props;
   }
@@ -27,8 +43,8 @@ export function deserializeProps({ id, props, onMessageSent }: DeserializePropsP
     return props;
   }
 
-  Object.entries(props.__domcallbacks)
-    .forEach(([propKey, callback]: [string, any]) => {
+  Object.entries(props.__domcallbacks).forEach(
+    ([propKey, callback]: [string, any]) => {
       props[propKey.split('::')[0]] = (...args: any[]) => {
         let serializedArgs: any = args;
         // is this a DOM event?
@@ -52,7 +68,8 @@ export function deserializeProps({ id, props, onMessageSent }: DeserializePropsP
           onMessageSent,
         });
       };
-    });
+    }
+  );
 
   delete props.__domcallbacks;
   delete props.__componentcallbacks;

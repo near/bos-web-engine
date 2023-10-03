@@ -41,7 +41,7 @@ export default function FlagsPage() {
     form.setValue('bosLoaderUrl', flags?.bosLoaderUrl || '');
   }, [form, flags]);
 
-  const submitHandler: SubmitHandler<FormData> = (data) => {
+  const submitHandler: SubmitHandler<FormData> = (data: any) => {
     setFlags(data);
   };
 

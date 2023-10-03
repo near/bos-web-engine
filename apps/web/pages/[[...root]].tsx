@@ -33,9 +33,7 @@ export default function Root() {
 
   return (
     <div className="App">
-      {error && (
-        <div className="error">{error}</div>
-      )}
+      {error && <div className="error">{error}</div>}
       {rootComponentPath && (
         <ComponentTree
           components={components}
@@ -43,7 +41,8 @@ export default function Root() {
           metrics={metrics}
           rootComponentPath={rootComponentPath}
           showMonitor={showMonitor}
-        />)}
+        />
+      )}
     </div>
   );
 }

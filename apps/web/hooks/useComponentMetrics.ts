@@ -1,7 +1,4 @@
-import type {
-  ComponentMetrics,
-  BWEMessage,
-} from '@bos-web-engine/application';
+import type { ComponentMetrics, BWEMessage } from '@bos-web-engine/application';
 import { useCallback, useState } from 'react';
 
 type MetricCollectionItem = BWEMessage | string;
@@ -13,15 +10,15 @@ export function useComponentMetrics() {
     missingComponents: [],
   });
 
-  const buildAppender = useCallback(
-    function buildCollectionAppender<T extends MetricCollectionItem>(metricsKey: keyof ComponentMetrics) {
-      return (item: T) => setMetrics((currentMetrics) => ({
+  const buildAppender = useCallback(function buildCollectionAppender<
+    T extends MetricCollectionItem,
+  >(metricsKey: keyof ComponentMetrics) {
+    return (item: T) =>
+      setMetrics((currentMetrics) => ({
         ...currentMetrics,
         [metricsKey]: [...currentMetrics[metricsKey], item],
       }));
-    },
-    []
-  );
+  }, []);
 
   return {
     metrics,

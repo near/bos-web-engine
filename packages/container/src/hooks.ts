@@ -1,8 +1,11 @@
 export function buildUseComponentCallback(renderComponent: () => void) {
   const callbackMap = new Map<string, any>();
 
-  return function useComponentCallback(callback: (...args: any[]) => Promise<any>, ...args: any[]) {
-    return function() {
+  return function useComponentCallback(
+    callback: (...args: any[]) => Promise<any>,
+    ...args: any[]
+  ) {
+    return function () {
       if (typeof callback !== 'function') {
         return;
       }

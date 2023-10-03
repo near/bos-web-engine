@@ -44,7 +44,13 @@ export function buildEventHandler({
     let result: any;
     let shouldRender = false;
 
-    function invokeCallbackFromEvent({ args, method }: { args: SerializedArgs, method: string }) {
+    function invokeCallbackFromEvent({
+      args,
+      method,
+    }: {
+      args: SerializedArgs;
+      method: string;
+    }) {
       return invokeComponentCallback({
         args,
         buildRequest,
@@ -58,31 +64,33 @@ export function buildEventHandler({
       });
     }
 
-    function applyRecursivelyToComponents(target: any, cb: (n: any) => any): any {
-      const isComponent = (c: any) =>  !!c
-        && typeof c === 'object'
-        && '__k' in c
-        && '__' in c;
+    function applyRecursivelyToComponents(
+      target: any,
+      cb: (n: any) => any
+    ): any {
+      const isComponent = (c: any) =>
+        !!c && typeof c === 'object' && '__k' in c && '__' in c;
 
       if (isComponent(target)) {
         return cb(target);
       }
 
       if (Array.isArray(target)) {
-        return target
-          .map((i) => {
-            if (!isComponent(i)) {
-              return i;
-            }
+        return target.map((i) => {
+          if (!isComponent(i)) {
+            return i;
+          }
 
-            return applyRecursivelyToComponents(i, cb);
-          });
+          return applyRecursivelyToComponents(i, cb);
+        });
       }
 
       if (target && typeof target === 'object') {
         return Object.fromEntries(
-          Object.entries(target)
-            .map(([k, v]) => [k, applyRecursivelyToComponents(v, cb)])
+          Object.entries(target).map(([k, v]) => [
+            k,
+            applyRecursivelyToComponents(v, cb),
+          ])
         );
       }
 
@@ -98,13 +106,15 @@ export function buildEventHandler({
           error = e;
         }
 
-        result = applyRecursivelyToComponents(result, (n: any) => serializeNode({
-          builtinComponents,
-          node: n,
-          callbacks,
-          parentId: method,
-          childComponents: [],
-        }));
+        result = applyRecursivelyToComponents(result, (n: any) =>
+          serializeNode({
+            builtinComponents,
+            node: n,
+            callbacks,
+            parentId: method,
+            childComponents: [],
+          })
+        );
 
         const postCallbackResponse = (value: any, error: any) => {
           if (requestId) {
@@ -169,7 +179,9 @@ export function buildEventHandler({
         try {
           result = invokeCallbackFromEvent({ args, method });
           if (typeof result?.then === 'function') {
-            result.catch((e: Error) => console.error('DOM event handler async callback failed', e));
+            result.catch((e: Error) =>
+              console.error('DOM event handler async callback failed', e)
+            );
           }
 
           shouldRender = true; // TODO conditional re-render
@@ -179,14 +191,16 @@ export function buildEventHandler({
         break;
       }
       case 'component.update': {
-        shouldRender = setProps(deserializeProps({
-          buildRequest,
-          callbacks,
-          postCallbackInvocationMessage,
-          props: event.data.props,
-          requests,
-          componentId,
-        }));
+        shouldRender = setProps(
+          deserializeProps({
+            buildRequest,
+            callbacks,
+            postCallbackInvocationMessage,
+            props: event.data.props,
+            requests,
+            componentId,
+          })
+        );
         break;
       }
       default: {

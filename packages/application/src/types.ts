@@ -8,12 +8,12 @@ import type { DOMElement } from 'react';
 
 export interface CallbackInvocationHandlerParams {
   data: ComponentCallbackInvocation;
-  onMessageSent: OnMessageSentCallback,
+  onMessageSent: OnMessageSentCallback;
 }
 
 export interface CallbackResponseHandlerParams {
   data: ComponentCallbackResponse;
-  onMessageSent: OnMessageSentCallback,
+  onMessageSent: OnMessageSentCallback;
 }
 
 export interface ComponentInstance {
@@ -35,7 +35,13 @@ export interface RenderHandlerParams {
   data: ComponentRender;
   isDebug?: boolean;
   getComponentRenderCount: (componentId: string) => number;
-  mountElement: ({ componentId, element }: { componentId: string, element: any }) => void;
+  mountElement: ({
+    componentId,
+    element,
+  }: {
+    componentId: string;
+    element: any;
+  }) => void;
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;
   onMessageSent: OnMessageSentCallback;
