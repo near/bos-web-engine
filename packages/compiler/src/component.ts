@@ -55,6 +55,7 @@ export function buildComponentFunction({
           __bweInlineComponentProps.id,
           __bweMeta?.parentMeta?.componentId,
         ].filter((c) => c !== undefined).join('##'),
+        renderComponent,
       });
       ${componentSource}
     }
