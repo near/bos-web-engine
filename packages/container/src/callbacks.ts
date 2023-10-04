@@ -75,6 +75,7 @@ export function invokeComponentCallback({
           method: componentMethod,
           requestId,
           serializeArgs,
+          // TODO must specify a real value here
           targetId: componentMethod.split('::').slice(1).join('::'),
           componentId,
         });
