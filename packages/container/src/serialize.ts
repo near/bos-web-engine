@@ -137,10 +137,11 @@ export function serializeArgs({
 export function deserializeProps({
   buildRequest,
   callbacks,
+  componentId,
+  parentContainerId,
   postCallbackInvocationMessage,
   props,
   requests,
-  componentId,
 }: DeserializePropsParams): object {
   const { __componentcallbacks } = props;
   const componentProps = { ...props };
@@ -149,7 +150,7 @@ export function deserializeProps({
   return {
     ...componentProps,
     ...Object.entries(__componentcallbacks || {}).reduce(
-      (componentCallbacks, [methodName, { __componentMethod, parentId }]) => {
+      (componentCallbacks, [methodName, { __componentMethod }]) => {
         if (props[methodName]) {
           throw new Error(
             `'duplicate props key ${methodName} on ${componentId}'`
@@ -157,6 +158,11 @@ export function deserializeProps({
         }
 
         componentCallbacks[methodName] = (...args: any) => {
+          if (!parentContainerId) {
+            console.error('Root Component cannot invoke method on parent');
+            return;
+          }
+
           const requestId = window.crypto.randomUUID();
           requests[requestId] = buildRequest();
 
@@ -168,7 +174,7 @@ export function deserializeProps({
             method: __componentMethod, // the key on the props object passed to this Component
             requestId,
             serializeArgs,
-            targetId: parentId,
+            targetId: parentContainerId,
             componentId,
           });
 

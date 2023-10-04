@@ -26,9 +26,11 @@ export function buildEventHandler({
   buildRequest,
   builtinComponents,
   callbacks,
+  componentId,
   deserializeProps,
   invokeCallback,
   invokeComponentCallback,
+  parentContainerId,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   renderDom,
@@ -37,7 +39,6 @@ export function buildEventHandler({
   serializeArgs,
   serializeNode,
   setProps,
-  componentId,
 }: ProcessEventParams): Function {
   return function processEvent(event: PostMessageEvent) {
     let error: any = null;
@@ -51,6 +52,11 @@ export function buildEventHandler({
       args: SerializedArgs;
       method: string;
     }) {
+      if (!parentContainerId) {
+        console.error(`no parent container for ${componentId}`);
+        return;
+      }
+
       return invokeComponentCallback({
         args,
         buildRequest,
@@ -61,6 +67,7 @@ export function buildEventHandler({
         postCallbackInvocationMessage,
         requests,
         serializeArgs,
+        targetId: parentContainerId,
       });
     }
 
@@ -195,10 +202,11 @@ export function buildEventHandler({
           deserializeProps({
             buildRequest,
             callbacks,
+            componentId,
+            parentContainerId,
             postCallbackInvocationMessage,
             props: event.data.props,
             requests,
-            componentId,
           })
         );
         break;

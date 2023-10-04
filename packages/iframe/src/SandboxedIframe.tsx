@@ -25,6 +25,7 @@ function buildSandboxedComponent({
   isTrusted,
   scriptSrc,
   componentProps,
+  parentContainerId,
 }: SandboxedIframeProps) {
   const componentPath = id.split('::')[0];
   let jsonComponentProps = '{}';
@@ -151,12 +152,13 @@ function buildSandboxedComponent({
           let props = buildSafeProxy(deserializeProps({
             buildRequest,
             callbacks,
+            componentId: '${id}',
+            parentContainerId: '${parentContainerId}',
             postCallbackInvocationMessage,
             props: JSON.parse('${jsonComponentProps
               .replace(/'/g, "\\'")
               .replace(/\\"/g, '\\\\"')}'),
             requests,
-            componentId: '${id}',
           }));
 
           function asyncFetch(url, options) {
@@ -267,6 +269,7 @@ function buildSandboxedComponent({
             deserializeProps,
             invokeCallback,
             invokeComponentCallback,
+            parentContainerId: '${parentContainerId}',
             postCallbackInvocationMessage,
             postCallbackResponseMessage,
             renderDom: (node) => preactify(node),
@@ -297,6 +300,7 @@ interface SandboxedIframeProps {
   isTrusted: boolean;
   scriptSrc: string;
   componentProps?: any;
+  parentContainerId: string | null;
 }
 
 export function SandboxedIframe({
@@ -304,6 +308,7 @@ export function SandboxedIframe({
   isTrusted,
   scriptSrc,
   componentProps,
+  parentContainerId,
 }: SandboxedIframeProps) {
   return (
     <iframe
@@ -325,6 +330,7 @@ export function SandboxedIframe({
         isTrusted,
         scriptSrc,
         componentProps,
+        parentContainerId,
       })}
       title="code-container"
       width={0}

@@ -17,11 +17,12 @@ export type CallbackMap = { [key: string]: Function };
 export type DeserializePropsCallback = (props: DeserializePropsParams) => any;
 export interface DeserializePropsParams {
   buildRequest: BuildRequestCallback;
-  props: SerializedProps;
   callbacks: CallbackMap;
+  componentId: string;
+  parentContainerId: string | null;
+  props: SerializedProps;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: { [key: string]: CallbackRequest };
-  componentId: string;
 }
 
 export type EventArgs = { event: any };
@@ -65,6 +66,7 @@ export interface InvokeComponentCallbackParams {
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
+  targetId: string;
 }
 
 export interface KeyValuePair {
@@ -161,9 +163,11 @@ export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
+  componentId: string;
   deserializeProps: DeserializePropsCallback;
   invokeCallback: (args: InvokeCallbackParams) => any;
   invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
+  parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   props: any;
@@ -173,7 +177,6 @@ export interface ProcessEventParams {
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
   setProps: (props: object) => boolean;
-  componentId: string;
 }
 
 export interface Props extends KeyValuePair {
