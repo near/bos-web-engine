@@ -116,7 +116,9 @@ export class ComponentCompiler {
     mapped,
   }: ParseComponentTreeParams) {
     // enumerate the set of Components referenced in the target Component
-    const childComponentPaths = parseChildComponentPaths(transpiledComponent);
+    const childComponentPaths = parseChildComponentPaths(
+      transpiledComponent
+    ).filter(({ isTrusted }) => isTrusted);
     let transformedComponent = transpiledComponent;
 
     // replace each child [Component] reference in the target Component source
