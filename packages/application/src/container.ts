@@ -11,9 +11,13 @@ function postMessageToIframe({
   message,
   targetOrigin,
 }: IframePostMessageParams): void {
-  (
-    document.getElementById(id) as HTMLIFrameElement
-  )?.contentWindow?.postMessage(message, targetOrigin);
+  const iframe = document.getElementById(id) as HTMLIFrameElement;
+  if (!iframe) {
+    console.error(`failed to send message to invalid iframe ${id}`, message);
+    return;
+  }
+
+  iframe.contentWindow?.postMessage(message, targetOrigin);
 }
 
 export function sendMessage({
