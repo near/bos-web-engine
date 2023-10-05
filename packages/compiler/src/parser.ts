@@ -29,12 +29,14 @@ export function parseChildComponentPaths(transpiledComponent: string) {
   return parseWidgetRenders(transpiledComponent).map(
     ({ expression, source }) => {
       const [trustMatch] = [
-        ...expression.matchAll(/isTrusted(?:\s*:\s*(true|false))/gi),
+        ...expression.matchAll(
+          /trust(?:\s*:\s*{(?:[\w\W])*?mode\s*:\s*['"](trusted|sandboxed))/gi
+        ),
       ];
 
       return {
         source,
-        isTrusted: trustMatch?.[1] === 'true',
+        isTrusted: trustMatch?.[1] === 'trusted',
         transform: (componentSource: string, componentName: string) => {
           const signaturePrefix = `${componentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
           return componentSource.replaceAll(

@@ -1,3 +1,4 @@
+import type { ComponentTrust } from '@bos-web-engine/common';
 import React from 'react';
 
 import { sendMessage } from './container';
@@ -57,7 +58,7 @@ interface ChildComponent {
   componentId: string;
   props: any;
   source: string;
-  isTrusted: boolean;
+  trust: ComponentTrust;
 }
 
 export function onRender({
@@ -115,7 +116,7 @@ export function onRender({
       componentId: childComponentId,
       props: componentProps,
       source,
-      isTrusted,
+      trust,
     }: ChildComponent) => {
       /*
       a new Component is being rendered by a parent Component, either:
@@ -127,7 +128,7 @@ export function onRender({
         loadComponent({
           componentId: childComponentId,
           componentPath: source,
-          isTrusted,
+          trust,
           parentId: componentId,
           props: componentProps,
           renderCount: 0,

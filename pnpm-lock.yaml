@@ -65,6 +65,7 @@ importers:
 
   packages/application:
     specifiers:
+      '@bos-web-engine/common': workspace:*
       '@bos-web-engine/container': workspace:*
       '@bos-web-engine/iframe': workspace:*
       '@types/node': ^17.0.12
@@ -78,6 +79,7 @@ importers:
     dependencies:
       '@bos-web-engine/iframe': link:../iframe
     devDependencies:
+      '@bos-web-engine/common': link:../common
       '@bos-web-engine/container': link:../container
       '@types/node': 17.0.45
       '@types/react': 18.2.20
@@ -133,12 +135,14 @@ importers:
 
   packages/container:
     specifiers:
+      '@bos-web-engine/common': workspace:*
       '@types/node': ^17.0.12
       eslint: ^7.32.0
       eslint-config-custom: workspace:*
       tsconfig: workspace:*
       typescript: ^4.5.2
     devDependencies:
+      '@bos-web-engine/common': link:../common
       '@types/node': 17.0.45
       eslint: 7.32.0
       eslint-config-custom: link:../eslint-config-custom
@@ -164,6 +168,7 @@ importers:
 
   packages/iframe:
     specifiers:
+      '@bos-web-engine/common': workspace:*
       '@bos-web-engine/container': workspace:*
       '@types/node': ^17.0.12
       '@types/react': ^18.0.17
@@ -176,6 +181,7 @@ importers:
     dependencies:
       '@bos-web-engine/container': link:../container
     devDependencies:
+      '@bos-web-engine/common': link:../common
       '@types/node': 17.0.45
       '@types/react': 18.2.20
       '@types/react-dom': 18.2.7
