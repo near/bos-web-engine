@@ -65,7 +65,7 @@ export function buildComponentFunction({
 interface InitializeComponentStateParams {
   ComponentState: ComponentStateMap;
   componentInstanceId: string;
-  renderComponent?: ({ fromState }: { fromState: true }) => void;
+  renderComponent?: ({ stateUpdate }: { stateUpdate: string }) => void;
 }
 
 function initializeComponentState({
@@ -100,7 +100,7 @@ function initializeComponentState({
           newState
         )
       );
-      renderComponent?.({ fromState: true });
+      renderComponent?.({ stateUpdate: JSON.stringify(newState) });
     },
   };
 
