@@ -19,7 +19,7 @@
     "next": "^13.1.1",
     "prettier": "latest",
     "rimraf": "^5.0.1",
-    "turbo": "latest"
+    "turbo": "^1.10.15"
   },
   "engines": {
     "node": ">=14.0.0"
