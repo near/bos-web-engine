@@ -88,6 +88,24 @@ importers:
       tsconfig: link:../tsconfig
       typescript: 4.9.5
 
+  packages/common:
+    specifiers:
+      '@types/node': ^17.0.12
+      '@types/react': ^18.2.25
+      eslint: ^7.32.0
+      eslint-config-custom: workspace:*
+      react: ^18.2.0
+      tsconfig: workspace:*
+      typescript: ^4.5.2
+    devDependencies:
+      '@types/node': 17.0.45
+      '@types/react': 18.2.25
+      eslint: 7.32.0
+      eslint-config-custom: link:../eslint-config-custom
+      react: 18.2.0
+      tsconfig: link:../tsconfig
+      typescript: 4.9.5
+
   packages/compiler:
     specifiers:
       '@babel/standalone': ^7.22.14
@@ -1882,6 +1900,14 @@ packages:
 
   /@types/react/18.2.20:
     resolution: {integrity: sha512-WKNtmsLWJM/3D5mG4U84cysVY31ivmyw85dE84fOCk5Hx78wezB/XEjVPWl2JTZ5FkEeaTJf+VgUAUn3PE7Isw==}
+    dependencies:
+      '@types/prop-types': 15.7.5
+      '@types/scheduler': 0.16.3
+      csstype: 3.1.2
+    dev: true
+
+  /@types/react/18.2.25:
+    resolution: {integrity: sha512-24xqse6+VByVLIr+xWaQ9muX1B4bXJKXBbjszbld/UEDslGLY53+ZucF44HCmLbMPejTzGG9XgR+3m2/Wqu1kw==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
