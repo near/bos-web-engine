@@ -29,7 +29,7 @@ export default function Root() {
       // change URL in place to accurately reflect default param values
       router.push(`/${DEFAULT_COMPONENT}`, undefined, { shallow: true });
     }
-  }, [router.isReady, query.root]);
+  }, [router, router.isReady, query.root]);
 
   return (
     <div className="App">

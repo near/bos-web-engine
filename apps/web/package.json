@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "next lint --fix"
+    "lint:fix": "next lint --fix",
+    "lint:check": "eslint --cache --max-warnings 0 .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@bos-web-engine/application": "workspace:*",

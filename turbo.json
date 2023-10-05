@@ -15,6 +15,12 @@
     },
     "dev": {
       "cache": false
+    },
+    "lint:check": {
+      "outputs": []
+    },
+    "format:check": {
+      "outputs": []
     }
   }
 }
