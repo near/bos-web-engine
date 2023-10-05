@@ -12,14 +12,16 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "autoclave": "rimraf rimraf apps/**/.next && rimraf apps/**/node_modules && rimraf apps/**/.turbo && rimraf packages/**/lib && rimraf packages/**/node_modules && rimraf packages/**/.turbo && rm -rf node_modules"
+    "autoclave": "rimraf rimraf apps/**/.next && rimraf apps/**/node_modules && rimraf apps/**/.turbo && rimraf packages/**/lib && rimraf packages/**/node_modules && rimraf packages/**/.turbo && rm -rf node_modules",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
     "next": "^13.1.1",
     "prettier": "latest",
     "rimraf": "^5.0.1",
-    "turbo": "^1.10.15"
+    "turbo": "^1.10.15",
+    "husky": "^8.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
