@@ -21,30 +21,41 @@ function parseWidgetRenders(transpiledComponent: string) {
         idx
       ),
       source: match.groups?.src || '',
+      index: match.index!,
     };
   });
 }
 
-export function parseChildComponentPaths(transpiledComponent: string) {
-  return parseWidgetRenders(transpiledComponent).map(
-    ({ expression, source }) => {
-      const [trustMatch] = [
-        ...expression.matchAll(
-          /trust(?:\s*:\s*{(?:[\w\W])*?mode\s*:\s*['"](trusted|sandboxed))/gi
-        ),
-      ];
+export interface ParsedChildComponent {
+  path: string;
+  transform: (componentSource: string, componentName: string) => string;
+  index: number;
+  trustMode: string;
+}
 
-      return {
-        source,
-        trustMode: trustMatch?.[1],
-        transform: (componentSource: string, componentName: string) => {
-          const signaturePrefix = `${componentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
-          return componentSource.replaceAll(
-            expression,
-            expression.replace(/Widget,\s*\{/, signaturePrefix)
-          );
-        },
-      };
-    }
-  );
+export function parseChildComponents(
+  transpiledComponent: string
+): ParsedChildComponent[] {
+  const widgetRenders = parseWidgetRenders(transpiledComponent);
+  widgetRenders.sort((a, b) => a.index - b.index);
+  return widgetRenders.map(({ expression, index, source }) => {
+    const [trustMatch] = [
+      ...expression.matchAll(
+        /trust(?:\s*:\s*{(?:[\w\W])*?mode\s*:\s*['"](trusted-author|trusted|sandboxed))/gi
+      ),
+    ];
+
+    return {
+      index,
+      path: source,
+      trustMode: trustMatch?.[1],
+      transform: (componentSource: string, componentName: string) => {
+        const signaturePrefix = `${componentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
+        return componentSource.replaceAll(
+          expression,
+          expression.replace(/Widget,\s*\{/, signaturePrefix)
+        );
+      },
+    };
+  });
 }
