@@ -111,6 +111,7 @@ importers:
   packages/compiler:
     specifiers:
       '@babel/standalone': ^7.22.14
+      '@bos-web-engine/common': workspace:*
       '@bos-web-engine/container': workspace:*
       '@near-js/providers': ^0.0.7
       '@near-js/types': ^0.0.4
@@ -122,6 +123,7 @@ importers:
       typescript: ^4.5.2
     dependencies:
       '@babel/standalone': 7.22.14
+      '@bos-web-engine/common': link:../common
       '@bos-web-engine/container': link:../container
       '@near-js/providers': 0.0.7
     devDependencies:

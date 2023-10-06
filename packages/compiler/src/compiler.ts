@@ -115,14 +115,24 @@ export class ComponentCompiler {
     mapped,
   }: ParseComponentTreeParams) {
     // enumerate the set of Components referenced in the target Component
-    const childComponentPaths = parseChildComponentPaths(
-      transpiledComponent
-    ).filter(({ isTrusted }) => isTrusted);
+    const childComponentPaths = parseChildComponentPaths(transpiledComponent);
+    const trustedPaths = childComponentPaths.filter(({ trustMode }) => {
+      if (trustMode === TrustMode.Trusted) {
+        return true;
+      }
+
+      if (trustMode === TrustMode.Sandboxed) {
+        return false;
+      }
+
+      return false;
+    });
+
     let transformedComponent = transpiledComponent;
 
     // replace each child [Component] reference in the target Component source
     // with the generated name of the inlined Component function definition
-    childComponentPaths.forEach(({ source, transform }) => {
+    trustedPaths.forEach(({ source, transform }) => {
       transformedComponent = transform(
         transformedComponent,
         buildComponentFunctionName(source)
@@ -136,7 +146,7 @@ export class ComponentCompiler {
 
     // fetch the set of child Component sources not already added to the tree
     const childComponentSources = this.getComponentSources(
-      childComponentPaths
+      trustedPaths
         .map(({ source }) => source)
         .filter((source) => !(source in mapped))
     );

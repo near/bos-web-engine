@@ -36,7 +36,7 @@ export function parseChildComponentPaths(transpiledComponent: string) {
 
       return {
         source,
-        isTrusted: trustMatch?.[1] === 'trusted',
+        trustMode: trustMatch?.[1],
         transform: (componentSource: string, componentName: string) => {
           const signaturePrefix = `${componentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
           return componentSource.replaceAll(

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.22.14",
+    "@bos-web-engine/common": "workspace:*",
     "@bos-web-engine/container": "workspace:*",
     "@near-js/providers": "^0.0.7"
   },

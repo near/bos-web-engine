@@ -1,4 +1,4 @@
-enum TrustMode {
+export enum TrustMode {
   Sandboxed = 'sandboxed',
   Trusted = 'trusted',
 }
