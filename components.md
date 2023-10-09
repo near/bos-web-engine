@@ -13,7 +13,7 @@ communicating with other containers via the outer application's `window.postMess
 - **Component ID**s uniquely identify Components rendered within a parent Component. They are roughly analogous to `key`
 in React.
 
-### Loading Mode
+### Trust Mode
 
 There are two modes for loading a Component: **sandboxed** and **trusted**. These modes make it possible to create boundaries
 within Component trees, granting developers more control over the balance of performance and security in their applications.
@@ -26,19 +26,56 @@ the outer application.
 
 #### Trusted
 
-When a Component is loaded as **trusted**, the parent Component loads the child Component and its descendants within its
-own container. The definitions of all Components in the child Component tree are inlined into the parent Component definition.
-This approach avoids the overhead in rendering via event propagation at the cost of executing external JSX code within the
-same context.
+When a Component is loaded as **trusted**, the parent Component inlines the child Component definition into its
+own container and renders it as a child DOM subtree. This approach avoids the overhead in rendering via event propagation
+at the cost of executing external JSX code within the same context.
 
 #### Usage
 
-By default, Components are loaded in **sandboxed** mode. To opt in to **trusted** loading, use the `isTrusted` prop:
+By default, Components are loaded in **sandboxed** mode. To configure Component loading, use the `trust` prop to configure
+the loading policy via the `mode` property. The following modes are supported:
+ - **sandboxed** (default): load this Component in its own container
+ - **trusted**: load this Component within the parent Component
+ - **trusted-author**: extends the **trusted** mode by inlining this Component and all descendant Components from the same author
+
+##### Sandboxed
 ```jsx
-<Widget isTrusted />
+{/* omitting the `trust` prop would have the same behavior */}
+<Widget trust={{ mode: "sandboxed" }} src="ex.near/widget/Parent" />
 ```
 
-The root Component is always loaded as **sandboxed**.
+##### Trusted
+```jsx
+<Widget trust={{ mode: "trusted" }} src="ex.near/widget/Parent" />
+```
+
+##### Trusted Author
+```jsx
+{/* Root Component  */}
+<Widget trust={{ mode: "trusted-author" }} src="ex.near/widget/Parent" />
+
+{/* Parent Component  */}
+<>
+  {/* trusted: same author  */}
+  <Widget src="ex.near/widget/X" id="x-implicit" />
+
+  {/* trusted: same author, explicitly trusted; note that descendants of Y authored by ex.near will still be trusted */}
+  <Widget src="ex.near/widget/Y" trust={{ mode: "trusted" }} id="y" />
+
+  {/* sandboxed: explicitly sandboxed, same author behavior is overridden */}
+  <Widget src="ex.near/widget/X" trust={{ mode: "sandboxed" }} id="x-sandboxed" />
+
+  {/* sandboxed: different author, no trust specified */}
+  <Widget src="mal.near/widget/X" id="x-mal" />
+</>
+```
+
+#### Notes
+
+- The root Component is always loaded as **sandboxed**.
+- The `trust` prop must be specified as an object literal with literal values; i.e. the value may not contain any variables
+    or be returned from a function. Loading happens prior to rendering, so the trust must be statically parseable. Any
+    Component renders with a `trust` value that cannot be parsed statically are treated as **sandboxed**.
 
 ### Component IDs
 
