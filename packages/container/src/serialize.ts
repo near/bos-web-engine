@@ -241,7 +241,7 @@ export function serializeNode({
 
   if (typeof type === 'function') {
     const { name: component } = type;
-    if (component === '_') {
+    if (component === 'I') {
       serializedElementType = 'div';
       // @ts-expect-error
     } else if (builtinComponents[component]) {
