@@ -1,3 +1,4 @@
+import { ComponentTrust } from '@bos-web-engine/common';
 import type {
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
@@ -19,10 +20,10 @@ export interface CallbackResponseHandlerParams {
 export interface ComponentInstance {
   componentId: string;
   componentPath: string;
-  isTrusted: boolean;
   parentId: string;
   props: any;
   renderCount: number;
+  trust: ComponentTrust;
 }
 
 export interface ComponentMetrics {

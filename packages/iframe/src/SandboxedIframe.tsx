@@ -1,3 +1,4 @@
+import type { ComponentTrust } from '@bos-web-engine/common';
 import {
   buildUseComponentCallback,
   initNear,
@@ -22,7 +23,7 @@ import {
 
 function buildSandboxedComponent({
   id,
-  isTrusted,
+  trust,
   scriptSrc,
   componentProps,
   parentContainerId,
@@ -108,7 +109,7 @@ function buildSandboxedComponent({
             try {
               postComponentRenderMessage({
                 childComponents,
-                isTrusted: ${isTrusted},
+                trust: ${JSON.stringify(trust)},
                 node: serialized,
                 componentId: componentId,
               });
@@ -302,7 +303,7 @@ function buildSandboxedComponent({
 
 interface SandboxedIframeProps {
   id: string;
-  isTrusted: boolean;
+  trust: ComponentTrust;
   scriptSrc: string;
   componentProps?: any;
   parentContainerId: string | null;
@@ -310,7 +311,7 @@ interface SandboxedIframeProps {
 
 export function SandboxedIframe({
   id,
-  isTrusted,
+  trust,
   scriptSrc,
   componentProps,
   parentContainerId,
@@ -332,7 +333,7 @@ export function SandboxedIframe({
       sandbox="allow-scripts"
       srcDoc={buildSandboxedComponent({
         id: id.replace('iframe-', ''),
-        isTrusted,
+        trust,
         scriptSrc,
         componentProps,
         parentContainerId,

@@ -1,5 +1,5 @@
 {
-  "name": "@bos-web-engine/iframe",
+  "name": "@bos-web-engine/common",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -9,14 +9,9 @@
     "lint": "eslint ./src/**/*.ts*",
     "lint:fix": "eslint . --fix"
   },
-  "dependencies": {
-    "@bos-web-engine/container": "workspace:*"
-  },
   "devDependencies": {
-    "@bos-web-engine/common": "workspace:*",
     "@types/node": "^17.0.12",
-    "@types/react": "^18.0.17",
-    "@types/react-dom": "^18.0.6",
+    "@types/react": "^18.2.25",
     "eslint": "^7.32.0",
     "eslint-config-custom": "workspace:*",
     "react": "^18.2.0",

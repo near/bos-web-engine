@@ -253,7 +253,7 @@ export function serializeNode({
       }));
       unifiedChildren = props.children || [];
     } else if (component === 'Widget') {
-      const { id: instanceId, src, props: componentProps, isTrusted } = props;
+      const { id: instanceId, src, props: componentProps, trust } = props;
       const componentId = buildComponentId({
         instanceId,
         componentPath: src,
@@ -262,7 +262,7 @@ export function serializeNode({
 
       try {
         childComponents.push({
-          isTrusted: !!isTrusted,
+          trust,
           props: componentProps
             ? serializeProps({
                 props: componentProps,

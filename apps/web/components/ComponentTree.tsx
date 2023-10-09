@@ -37,14 +37,11 @@ export default function ComponentTree({
           {Object.entries(components)
             .filter(([, component]) => !!component?.componentSource)
             .map(
-              ([
-                componentId,
-                { isTrusted, props, componentSource, parentId },
-              ]) => (
+              ([componentId, { trust, props, componentSource, parentId }]) => (
                 <div key={componentId} component-id={componentId}>
                   <SandboxedIframe
                     id={getIframeId(componentId)}
-                    isTrusted={isTrusted}
+                    trust={trust}
                     scriptSrc={componentSource}
                     componentProps={props}
                     parentContainerId={parentId}

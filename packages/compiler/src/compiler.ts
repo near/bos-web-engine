@@ -1,8 +1,10 @@
+import { TrustMode } from '@bos-web-engine/common';
+
 import {
   buildComponentFunction,
   buildComponentFunctionName,
 } from './component';
-import { parseChildComponentPaths } from './parser';
+import { parseChildComponents, ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
 
@@ -42,6 +44,15 @@ interface ParseComponentTreeParams {
   mapped: { [key: string]: { transpiled: string } };
   transpiledComponent: string;
   componentPath: string;
+  isComponentPathTrusted?: (path: string) => boolean;
+  trustedRoot?: TrustedRoot;
+}
+
+interface TrustedRoot {
+  rootPath: string;
+  trustMode: string;
+  /* predicates for determining trust under a trusted root */
+  matchesRootAuthor: (path: string) => boolean;
 }
 
 export class ComponentCompiler {
@@ -80,14 +91,14 @@ export class ComponentCompiler {
       });
     }
 
-    return componentPaths.reduce((sources, componentPath) => {
+    const componentSources = new Map<string, Promise<string>>();
+    componentPaths.forEach((componentPath) => {
       const componentSource = this.bosSourceCache.get(componentPath);
       if (componentSource) {
-        sources.set(componentPath, componentSource);
+        componentSources.set(componentPath, componentSource);
       }
-
-      return sources;
-    }, new Map<string, Promise<string>>());
+    });
+    return componentSources;
   }
 
   getTranspiledComponentSource({
@@ -109,59 +120,119 @@ export class ComponentCompiler {
     return this.compiledSourceCache.get(cacheKey)!;
   }
 
+  static isChildComponentTrusted(
+    { trustMode, path }: ParsedChildComponent,
+    isComponentPathTrusted?: (p: string) => boolean
+  ) {
+    if (
+      trustMode === TrustMode.Trusted ||
+      trustMode === TrustMode.TrustAuthor
+    ) {
+      return true;
+    }
+
+    if (trustMode === TrustMode.Sandboxed) {
+      return false;
+    }
+
+    // if the Component is not explicitly trusted or sandboxed, use the parent's
+    // predicate to determine whether the Component should be trusted
+    if (isComponentPathTrusted) {
+      return isComponentPathTrusted(path);
+    }
+
+    return false;
+  }
+
   async parseComponentTree({
     componentPath,
     transpiledComponent,
     mapped,
+    isComponentPathTrusted,
+    trustedRoot,
   }: ParseComponentTreeParams) {
     // enumerate the set of Components referenced in the target Component
-    const childComponentPaths = parseChildComponentPaths(
-      transpiledComponent
-    ).filter(({ isTrusted }) => isTrusted);
-    let transformedComponent = transpiledComponent;
+    const childComponents = parseChildComponents(transpiledComponent);
 
-    // replace each child [Component] reference in the target Component source
-    // with the generated name of the inlined Component function definition
-    childComponentPaths.forEach(({ source, transform }) => {
-      transformedComponent = transform(
-        transformedComponent,
-        buildComponentFunctionName(source)
-      );
-    });
+    // each child Component being rendered as a new trusted root (i.e. trust mode `trusted-author`)
+    // will track inclusion criteria when evaluating trust for their children in turn
+    const buildTrustedRootKey = ({ index, path }: ParsedChildComponent) =>
+      `${index}:${path}`;
+    const trustedRoots = childComponents.reduce((trusted, childComponent) => {
+      const { trustMode } = childComponent;
+
+      // trust Components with the same author as the trusted root Component
+      if (trustMode === TrustMode.TrustAuthor) {
+        const rootComponentAuthor = componentPath.split('/')[0];
+        trusted.set(buildTrustedRootKey(childComponent), {
+          rootPath: componentPath,
+          trustMode,
+          matchesRootAuthor: (path: string) =>
+            path.split('/')[0] === rootComponentAuthor,
+        });
+      }
+
+      return trusted;
+    }, new Map<string, TrustedRoot>());
+
+    const trustedChildComponents = childComponents.filter((child) =>
+      ComponentCompiler.isChildComponentTrusted(child, isComponentPathTrusted)
+    );
 
     // add the transformed source to the returned Component tree
     mapped[componentPath] = {
-      transpiled: transformedComponent,
+      // replace each child [Component] reference in the target Component source
+      // with the generated name of the inlined Component function definition
+      transpiled: trustedChildComponents.reduce(
+        (transformed, { path, transform }) =>
+          transform(transformed, buildComponentFunctionName(path)),
+        transpiledComponent
+      ),
     };
 
     // fetch the set of child Component sources not already added to the tree
     const childComponentSources = this.getComponentSources(
-      childComponentPaths
-        .map(({ source }) => source)
-        .filter((source) => !(source in mapped))
+      trustedChildComponents
+        .map(({ path }) => path)
+        .filter((path) => !(path in mapped))
     );
 
     // transpile the set of new child Components and recursively parse their Component subtrees
     await Promise.all(
-      [...childComponentSources.entries()].map(
-        async ([childPath, componentSource]) => {
-          const transpiledChild = this.getTranspiledComponentSource({
-            componentPath: childPath,
+      trustedChildComponents.map(async (childComponent) => {
+        const { path } = childComponent;
+        let transpiledChild = mapped[path]?.transpiled;
+        if (!transpiledChild) {
+          transpiledChild = this.getTranspiledComponentSource({
+            componentPath: path,
             componentSource: buildComponentFunction({
-              componentPath: childPath,
-              componentSource: await componentSource,
+              componentPath: path,
+              componentSource: (await childComponentSources.get(path))!,
               isRoot: false,
             }),
             isRoot: false,
           });
-
-          await this.parseComponentTree({
-            componentPath: childPath,
-            transpiledComponent: transpiledChild,
-            mapped,
-          });
         }
-      )
+
+        const childTrustedRoot =
+          trustedRoots.get(buildTrustedRootKey(childComponent)) || trustedRoot;
+
+        await this.parseComponentTree({
+          componentPath: path,
+          transpiledComponent: transpiledChild,
+          mapped,
+          trustedRoot: childTrustedRoot,
+          isComponentPathTrusted:
+            trustedRoot?.trustMode === TrustMode.Sandboxed
+              ? undefined
+              : () => {
+                  if (childTrustedRoot?.trustMode === TrustMode.TrustAuthor) {
+                    return !!childTrustedRoot?.matchesRootAuthor(path);
+                  }
+                  return false;
+                },
+        });
+      })
     );
 
     return mapped;

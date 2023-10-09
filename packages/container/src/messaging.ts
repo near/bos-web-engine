@@ -71,13 +71,13 @@ export function postCallbackResponseMessage({
 
 export function postComponentRenderMessage({
   childComponents,
-  isTrusted,
+  trust,
   node,
   componentId,
 }: PostMessageComponentRenderParams): void {
   postMessage<ComponentRender>({
     childComponents,
-    isTrusted,
+    trust,
     node,
     type: 'component.render',
     componentId,

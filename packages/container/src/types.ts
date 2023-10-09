@@ -1,3 +1,5 @@
+import type { ComponentTrust } from '@bos-web-engine/common';
+
 export interface WebEngineMeta {
   componentId?: string;
   isProxy?: boolean;
@@ -141,15 +143,15 @@ export interface PostMessageComponentCallbackResponseParams {
 
 export interface ComponentRender extends PostMessageParams {
   childComponents: ComponentChildMetadata[];
-  isTrusted: boolean;
   node: SerializedNode;
+  trust: ComponentTrust;
   type: ComponentRenderType;
   componentId: string;
 }
 export interface PostMessageComponentRenderParams {
   childComponents: ComponentChildMetadata[];
-  isTrusted: boolean;
   node: SerializedNode;
+  trust: ComponentTrust;
   componentId: string;
 }
 
@@ -239,9 +241,9 @@ export interface Node {
 
 interface ComponentChildMetadata {
   componentId: string;
-  isTrusted: boolean;
   props: Props;
   source: string;
+  trust: ComponentTrust;
 }
 
 export interface SerializeNodeParams {
