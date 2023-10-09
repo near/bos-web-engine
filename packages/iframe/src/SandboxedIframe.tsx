@@ -55,6 +55,7 @@ function buildSandboxedComponent({
           import { useEffect, useState } from 'preact/hooks';
           
           // register handler executed upon vnode render
+          const hooksDiffed = options.diffed;
           options.diffed = (vnode) => {
             // this handler will fire for every descendant node rendered,
             // but the 'I' component appears to always be the root Component
@@ -62,6 +63,7 @@ function buildSandboxedComponent({
             if (containerComponent && vnode.type?.name === 'I') {
               dispatchRenderEvent(containerComponent());
             }
+            hooksDiffed?.(vnode);
           };
 
           /* generated code for ${componentPath} */
