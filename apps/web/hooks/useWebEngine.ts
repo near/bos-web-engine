@@ -76,7 +76,6 @@ export function useWebEngine({
       compiler?.postMessage({
         action: 'execute',
         componentId,
-        isTrusted: component.isTrusted,
       });
     },
     [compiler, components, addComponent]
@@ -242,7 +241,6 @@ export function useWebEngine({
       compiler.postMessage({
         action: 'execute',
         componentId: rootComponentPath,
-        isTrusted: false,
       });
     }
   }, [

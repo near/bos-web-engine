@@ -25,6 +25,7 @@ function buildSandboxedComponent({
   isTrusted,
   scriptSrc,
   componentProps,
+  parentContainerId,
 }: SandboxedIframeProps) {
   const componentPath = id.split('::')[0];
   let jsonComponentProps = '{}';
@@ -151,12 +152,13 @@ function buildSandboxedComponent({
           let props = buildSafeProxy(deserializeProps({
             buildRequest,
             callbacks,
+            componentId: '${id}',
+            parentContainerId: '${parentContainerId}',
             postCallbackInvocationMessage,
             props: JSON.parse('${jsonComponentProps
               .replace(/'/g, "\\'")
               .replace(/\\"/g, '\\\\"')}'),
             requests,
-            componentId: '${id}',
           }));
 
           function asyncFetch(url, options) {
@@ -211,21 +213,26 @@ function buildSandboxedComponent({
             }
           }
       
-          let renderCount = 0;
-          let lastStateRender = 0;
+          const stateUpdates = new Map();
 
-          function renderComponent({ fromState } = { fromState: false }) {
+          function renderComponent({ stateUpdate } = {}) {
             try {
               // TODO remove this kludge-y stopgap preventing State.update() calls on render from triggering cascading renders.
               //  This likely has unintended consequences for Components calling State.update() at render time, but that should
               //  be considered an antipattern to be replaced by a [useEffect] implementation.
-              if (fromState && (renderCount === 0 || lastStateRender === renderCount - 1)) {
-                lastStateRender = ++renderCount;
-                return;
+              if (stateUpdate) {
+                if (!stateUpdates.has(stateUpdate)) {
+                  stateUpdates.set(stateUpdate, []);
+                }
+
+                const updates = stateUpdates.get(stateUpdate);
+                stateUpdates.set(stateUpdate, [...updates, (new Date()).valueOf()]);
+                if (updates.length > 5) {
+                  return;
+                }
               }
 
               render(ComponentWrapper(), document.getElementById('${id}'));
-              renderCount++;
             } catch (e) {
               console.error(e, { componentId: '${id}' });
             }
@@ -267,6 +274,7 @@ function buildSandboxedComponent({
             deserializeProps,
             invokeCallback,
             invokeComponentCallback,
+            parentContainerId: '${parentContainerId}',
             postCallbackInvocationMessage,
             postCallbackResponseMessage,
             renderDom: (node) => preactify(node),
@@ -297,6 +305,7 @@ interface SandboxedIframeProps {
   isTrusted: boolean;
   scriptSrc: string;
   componentProps?: any;
+  parentContainerId: string | null;
 }
 
 export function SandboxedIframe({
@@ -304,6 +313,7 @@ export function SandboxedIframe({
   isTrusted,
   scriptSrc,
   componentProps,
+  parentContainerId,
 }: SandboxedIframeProps) {
   return (
     <iframe
@@ -325,6 +335,7 @@ export function SandboxedIframe({
         isTrusted,
         scriptSrc,
         componentProps,
+        parentContainerId,
       })}
       title="code-container"
       width={0}

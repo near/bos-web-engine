@@ -44,7 +44,8 @@ export function buildComponentFunction({
   return `
     /************************* ${componentPath} *************************/
     function ${functionName}(__bweInlineComponentProps) {
-      const { props } = __bweInlineComponentProps;
+      const { __bweMeta, props: __componentProps } = __bweInlineComponentProps;
+      const props = Object.assign({ __bweMeta }, __componentProps); 
       const { state, State } = (
         ${initializeComponentState.toString()}
       )({
@@ -52,8 +53,9 @@ export function buildComponentFunction({
         componentInstanceId: [
           '${componentPath}',
           __bweInlineComponentProps.id,
-          __bweInlineComponentProps.__bweMeta?.parentMeta?.componentId,
+          __bweMeta?.parentMeta?.componentId,
         ].filter((c) => c !== undefined).join('##'),
+        renderComponent,
       });
       ${componentSource}
     }
@@ -63,7 +65,7 @@ export function buildComponentFunction({
 interface InitializeComponentStateParams {
   ComponentState: ComponentStateMap;
   componentInstanceId: string;
-  renderComponent?: ({ fromState }: { fromState: true }) => void;
+  renderComponent?: ({ stateUpdate }: { stateUpdate: string }) => void;
 }
 
 function initializeComponentState({
@@ -98,7 +100,7 @@ function initializeComponentState({
           newState
         )
       );
-      renderComponent?.({ fromState: true });
+      renderComponent?.({ stateUpdate: JSON.stringify(newState) });
     },
   };
 

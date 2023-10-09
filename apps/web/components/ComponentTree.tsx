@@ -36,16 +36,22 @@ export default function ComponentTree({
           {isDebug && <h5>[hidden iframes]</h5>}
           {Object.entries(components)
             .filter(([, component]) => !!component?.componentSource)
-            .map(([componentId, { isTrusted, props, componentSource }]) => (
-              <div key={componentId} component-id={componentId}>
-                <SandboxedIframe
-                  id={getIframeId(componentId)}
-                  isTrusted={isTrusted}
-                  scriptSrc={componentSource}
-                  componentProps={props}
-                />
-              </div>
-            ))}
+            .map(
+              ([
+                componentId,
+                { isTrusted, props, componentSource, parentId },
+              ]) => (
+                <div key={componentId} component-id={componentId}>
+                  <SandboxedIframe
+                    id={getIframeId(componentId)}
+                    isTrusted={isTrusted}
+                    scriptSrc={componentSource}
+                    componentProps={props}
+                    parentContainerId={parentId}
+                  />
+                </div>
+              )
+            )}
         </div>
       </>
     </div>

@@ -13,7 +13,6 @@ export type ComponentCompilerRequest =
 interface CompilerExecuteAction {
   action: 'execute';
   componentId: string;
-  isTrusted: boolean;
 }
 
 interface CompilerInitAction {
@@ -116,7 +115,9 @@ export class ComponentCompiler {
     mapped,
   }: ParseComponentTreeParams) {
     // enumerate the set of Components referenced in the target Component
-    const childComponentPaths = parseChildComponentPaths(transpiledComponent);
+    const childComponentPaths = parseChildComponentPaths(
+      transpiledComponent
+    ).filter(({ isTrusted }) => isTrusted);
     let transformedComponent = transpiledComponent;
 
     // replace each child [Component] reference in the target Component source
@@ -166,7 +167,7 @@ export class ComponentCompiler {
     return mapped;
   }
 
-  async compileComponent({ componentId, isTrusted }: CompilerExecuteAction) {
+  async compileComponent({ componentId }: CompilerExecuteAction) {
     if (this.localFetchUrl && !this.hasFetchedLocal) {
       try {
         await this.fetchLocalComponents();
@@ -196,21 +197,19 @@ export class ComponentCompiler {
     });
 
     let componentSource = transpiledComponent;
-    if (isTrusted) {
-      // recursively parse the Component tree for child Components
-      const transformedComponents = await this.parseComponentTree({
-        componentPath,
-        transpiledComponent,
-        mapped: {},
-      });
+    // recursively parse the Component tree for child Components
+    const transformedComponents = await this.parseComponentTree({
+      componentPath,
+      transpiledComponent,
+      mapped: {},
+    });
 
-      const [rootComponent, ...childComponents] = Object.values(
-        transformedComponents
-      ).map(({ transpiled }) => transpiled);
-      const aggregatedSourceLines = rootComponent.split('\n');
-      aggregatedSourceLines.splice(1, 0, childComponents.join('\n\n'));
-      componentSource = aggregatedSourceLines.join('\n');
-    }
+    const [rootComponent, ...childComponents] = Object.values(
+      transformedComponents
+    ).map(({ transpiled }) => transpiled);
+    const aggregatedSourceLines = rootComponent.split('\n');
+    aggregatedSourceLines.splice(1, 0, childComponents.join('\n\n'));
+    componentSource = aggregatedSourceLines.join('\n');
 
     this.sendWorkerMessage({
       componentId,
