@@ -50,16 +50,19 @@ function buildSandboxedComponent({
           }
           </script>
         <script type="module">
-          import { createElement, render, options, Component } from 'preact';
+          import { createElement, render, options, Fragment as __Fragment } from 'preact';
           import { useEffect, useState } from 'preact/hooks';
+
+          const PREACT_ROOT_COMPONENT_NAME = __Fragment.name;
           
           // register handler executed upon vnode render
           const hooksDiffed = options.diffed;
           options.diffed = (vnode) => {
-            // this handler will fire for every descendant node rendered,
-            // but the 'I' component appears to always be the root Component
+            // TODO this handler will fire for every descendant node rendered,
+            //  could be a good way to optimize renders within a container without
+            //  re-rendering the entire thing
             const [containerComponent] = vnode.props?.children || [];
-            if (containerComponent && vnode.type?.name === 'I') {
+            if (containerComponent && vnode.type?.name === PREACT_ROOT_COMPONENT_NAME) {
               dispatchRenderEvent(containerComponent());
             }
             hooksDiffed?.(vnode);
