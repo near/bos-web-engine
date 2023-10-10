@@ -50,8 +50,7 @@ function buildSandboxedComponent({
           }
           </script>
         <script type="module">
-
-          import { h as createElement, render, options, Component } from 'preact';
+          import { createElement, render, options, Component } from 'preact';
           import { useEffect, useState } from 'preact/hooks';
           
           // register handler executed upon vnode render
