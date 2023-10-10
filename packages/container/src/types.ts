@@ -261,6 +261,7 @@ export type SerializeNodeCallback = (
 
 export interface SerializedNode {
   childComponents?: ComponentChildMetadata[];
+  className?: string;
   type: string;
   props: NodeProps | ComponentProps;
 }
@@ -288,6 +289,7 @@ export interface SerializedComponentCallback {
 export interface ComponentProps {
   __bweMeta?: WebEngineMeta;
   children?: any[];
+  className?: string;
   id: string;
 }
 

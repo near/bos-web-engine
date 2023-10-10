@@ -21,7 +21,7 @@ export default function ComponentTree({
   showMonitor,
 }: ComponentTreeParams) {
   return (
-    <div className="App">
+    <div className={`App ${isDebug ? 'bwe-debug' : ''}`}>
       <>
         {showMonitor && (
           <ComponentMonitor
@@ -29,7 +29,7 @@ export default function ComponentTree({
             components={Object.values(components)}
           />
         )}
-        <div id={getAppDomId(rootComponentPath)} className="iframe">
+        <div id={getAppDomId(rootComponentPath)} className="container-child">
           {isDebug && '[root component placeholder]'}
         </div>
         <div className="iframes">

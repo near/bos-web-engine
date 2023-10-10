@@ -314,6 +314,7 @@ export function serializeNode({
           __bweMeta: {
             componentId: componentId,
           },
+          className: 'container-child',
         },
       };
     } else {

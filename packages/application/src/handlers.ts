@@ -86,18 +86,17 @@ export function onRender({
     children: [
       ...(isDebug
         ? [
-            React.createElement('span', { className: 'dom-label' }, [
+            React.createElement('div', { className: 'dom-label' }, [
               '[',
               React.createElement(
                 'a',
                 {
                   href: `/${componentPath}?isDebug=${isDebug}&showMonitor=${showMonitor}`,
                 },
-                componentPath
+                componentPath.split('/')[2]
               ),
               `(${getComponentRenderCount(componentId)})]`,
             ]),
-            React.createElement('br'),
           ]
         : []),
       ...(Array.isArray(componentChildren)
@@ -105,7 +104,7 @@ export function onRender({
         : [componentChildren]),
     ],
     id: componentId,
-    props: isDebug ? { ...props, className: 'iframe' } : props,
+    props,
     type: node.type,
     onMessageSent,
   });
