@@ -5,12 +5,14 @@ importers:
   .:
     specifiers:
       eslint-config-custom: workspace:*
+      husky: ^8.0.0
       next: ^13.1.1
       prettier: latest
       rimraf: ^5.0.1
-      turbo: latest
+      turbo: ^1.10.15
     devDependencies:
       eslint-config-custom: link:packages/eslint-config-custom
+      husky: 8.0.3
       next: 13.4.13
       prettier: 3.0.3
       rimraf: 5.0.1
@@ -3196,6 +3198,12 @@ packages:
       statuses: 1.5.0
       toidentifier: 1.0.1
     dev: false
+
+  /husky/8.0.3:
+    resolution: {integrity: sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: true
 
   /iconv-lite/0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}

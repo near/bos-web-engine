@@ -252,6 +252,7 @@ export function useWebEngine({
     isCompilerInitialized,
     error,
     isValidRootComponentPath,
+    flags?.bosLoaderUrl,
   ]);
 
   return {
