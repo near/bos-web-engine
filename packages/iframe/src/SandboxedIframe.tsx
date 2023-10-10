@@ -113,6 +113,7 @@ function buildSandboxedComponent({
               childComponents: [],
               callbacks,
               parentId: componentId,
+              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
             });
 
             function stringify(value) {
@@ -324,6 +325,7 @@ function buildSandboxedComponent({
             parentContainerId: '${parentContainerId}',
             postCallbackInvocationMessage,
             postCallbackResponseMessage,
+            preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
             renderDom: (node) => preactify(node),
             renderComponent,
             requests,

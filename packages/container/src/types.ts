@@ -172,6 +172,7 @@ export interface ProcessEventParams {
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
+  preactRootComponentName: string;
   props: any;
   renderDom: (node: any) => object;
   renderComponent: () => void;
@@ -252,6 +253,7 @@ export interface SerializeNodeParams {
   childComponents: ComponentChildMetadata[];
   callbacks: CallbackMap;
   parentId: string;
+  preactRootComponentName: string;
 }
 export type SerializeNodeCallback = (
   args: SerializeNodeParams
@@ -273,6 +275,7 @@ export interface SerializePropsParams {
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   parentId: string;
+  preactRootComponentName: string;
   props: any;
   componentId?: string;
 }
