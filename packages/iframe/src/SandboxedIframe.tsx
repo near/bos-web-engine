@@ -19,6 +19,7 @@ import {
   encodeJsonString,
   getBuiltins,
   inlineGlobalDefinition,
+  dispatchRenderEvent,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -54,24 +55,12 @@ function buildSandboxedComponent({
           import { useEffect, useState } from 'preact/hooks';
 
           const PREACT_ROOT_COMPONENT_NAME = __Fragment.name;
-          
-          // register handler executed upon vnode render
-          const hooksDiffed = options.diffed;
-          options.diffed = (vnode) => {
-            // TODO this handler will fire for every descendant node rendered,
-            //  could be a good way to optimize renders within a container without
-            //  re-rendering the entire thing
-            const [containerComponent] = vnode.props?.children || [];
-            if (containerComponent && vnode.type?.name === PREACT_ROOT_COMPONENT_NAME) {
-              dispatchRenderEvent(containerComponent());
-            }
-            hooksDiffed?.(vnode);
-          };
 
           /* generated code for ${componentPath} */
           const callbacks = {};
           const requests = {};
 
+          ${inlineGlobalDefinition('dispatchRenderEvent', dispatchRenderEvent)}
           ${inlineGlobalDefinition('buildRequest', buildRequest)}
           ${inlineGlobalDefinition('postMessage', postMessage)}
           ${inlineGlobalDefinition(
@@ -105,70 +94,6 @@ function buildSandboxedComponent({
 
           const builtinComponents = ${getBuiltins.toString()}({ createElement });
 
-          const nodeRenders = {};
-          const dispatchRenderEvent = (node, componentId = '${id}') => {
-            const serializedNode = serializeNode({
-              node,
-              builtinComponents,
-              childComponents: [],
-              callbacks,
-              parentId: componentId,
-              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-            });
-
-            if (!serializedNode?.type) {
-              return;
-            }
-
-            function stringify(value) {
-              if (!value) {
-                return '';
-              }
-
-              if (Array.isArray(value)) {
-                return value.map(stringify).join(',');
-              }
-
-              if (typeof value === 'object') {
-                return stringifyObject(value);
-              }
-
-              return value.toString();
-            }
-
-            function stringifyObject(obj) {
-              if (Array.isArray(obj) || typeof obj !== 'object') {
-                return stringify(obj);
-              }
-
-              const sortedEntries = Object.entries(obj);
-              sortedEntries.sort();
-              return sortedEntries
-                .reduce(
-                  (acc, [key, value]) => [acc, key, stringify(value)].join(':'),
-                  ''
-                );
-            }
-            const stringifiedNode = stringifyObject(serializedNode);
-            if (nodeRenders[componentId] === stringifiedNode) {
-              return;
-            }
-
-            nodeRenders[componentId] = stringifiedNode;
-            const { childComponents, ...serialized } = serializedNode;
-
-            try {
-              postComponentRenderMessage({
-                childComponents,
-                trust: ${JSON.stringify(trust)},
-                node: serialized,
-                componentId: componentId,
-              });
-            } catch (error) {
-              console.warn('failed to dispatch render for ${id}', { error, serialized });
-            }
-          }
-
           // builtin components must have references defined in order for the Component to render
           // builtin components are resolved during serialization 
           function Checkbox() {}
@@ -185,8 +110,32 @@ function buildSandboxedComponent({
           function Tooltip() {}
           function Typeahead() {}
           function Widget() {}
-
-          let isStateInitialized = false;
+          
+          // cache previous renders
+          const nodeRenders = new Map();
+          
+          // register handler executed upon vnode render
+          const hooksDiffed = options.diffed;
+          options.diffed = (vnode) => {
+            // TODO this handler will fire for every descendant node rendered,
+            //  could be a good way to optimize renders within a container without
+            //  re-rendering the entire thing
+            const [containerComponent] = vnode.props?.children || [];
+            if (containerComponent && vnode.type?.name === PREACT_ROOT_COMPONENT_NAME) {
+              dispatchRenderEvent({
+                builtinComponents,
+                callbacks,
+                componentId: '${id}',
+                node: containerComponent(),
+                nodeRenders,
+                postComponentRenderMessage,
+                preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
+                serializeNode,
+                trust: '${JSON.stringify(trust)}',
+              });
+            }
+            hooksDiffed?.(vnode);
+          };
 
           /* NS shims */
           function buildSafeProxy(p) {

@@ -11,6 +11,7 @@ export {
   postCallbackResponseMessage,
   postComponentRenderMessage,
 } from './messaging';
+export { dispatchRenderEvent } from './render';
 export {
   decodeJsonString,
   deserializeProps,
