@@ -7,6 +7,10 @@ import type {
   ComponentDOMElement,
 } from './types';
 
+function isChildrenAllowed(elementType: string) {
+  return !(elementType in ['img']);
+}
+
 export function createElement({
   children,
   id,
@@ -17,7 +21,7 @@ export function createElement({
   return React.createElement(
     type,
     deserializeProps({ id, props, onMessageSent }),
-    children
+    isChildrenAllowed(type) ? children : undefined
   );
 }
 

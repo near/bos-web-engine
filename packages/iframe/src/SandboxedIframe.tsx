@@ -116,6 +116,10 @@ function buildSandboxedComponent({
               preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
             });
 
+            if (!serializedNode?.type) {
+              return;
+            }
+
             function stringify(value) {
               if (!value) {
                 return '';
