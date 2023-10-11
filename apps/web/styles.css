@@ -162,24 +162,18 @@
   font-weight: 700;
 }
 
-.iframe {
-  flex: 1;
-  justify-content: space-between;
-  margin: 4px;
-  padding: 8px;
-  border: 1px solid blue;
-}
-
-.iframe > div {
-  min-width: 60px;
-  min-height: 60px;
-}
-
 span {
   font-size: 12px;
+}
+
+.bwe-debug .container-child {
+  border: 1px solid blue;
+  padding: 0.5em;
+  margin-bottom: 1em;
 }
 
 .dom-label {
   font-size: 0.7em;
   font-family: 'Roboto Mono for Powerline';
+  text-align: center;
 }

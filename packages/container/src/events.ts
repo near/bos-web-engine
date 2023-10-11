@@ -12,8 +12,10 @@ import type {
  * @param deserializeProps Function to deserialize props passed on the event
  * @param invokeCallback Function to execute the specified function in the current context
  * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
+ * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
+ * @param preactRootComponentName Name of the Preact Fragment Component function (i.e. the root Component's name)
  * @param renderDom Callback for rendering DOM within the component
  * @param renderComponent Callback for rendering the Component
  * @param requests The set of inter-Component callback requests being tracked by the Component
@@ -33,6 +35,7 @@ export function buildEventHandler({
   parentContainerId,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
+  preactRootComponentName,
   renderDom,
   renderComponent,
   requests,
@@ -120,6 +123,7 @@ export function buildEventHandler({
             callbacks,
             parentId: method,
             childComponents: [],
+            preactRootComponentName,
           })
         );
 

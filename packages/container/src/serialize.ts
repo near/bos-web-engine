@@ -24,10 +24,23 @@ export function decodeJsonString(value: string) {
   return value.toString().replace(/⁣/g, '\n').replace(/⁤/g, '\t');
 }
 
+/**
+ * Serialize props of a child Component to be rendered in the outer application
+ * NB there is a circular dependency between this function and `serializeNode`
+ * due to the fact that a rendered Component may be passed as props to a child
+ * Component.
+ * @param builtinComponents Set of builtin BOS Web Engine Components
+ * @param callbacks Component container's callbacks
+ * @param parentId Component's parent container
+ * @param preactRootComponentName The name of the root/Fragment Preact function
+ * @param props The props for this container's Component
+ * @param componentId The target Component ID
+ */
 export function serializeProps({
   builtinComponents,
   callbacks,
   parentId,
+  preactRootComponentName,
   props,
   componentId,
 }: SerializePropsParams): Props {
@@ -51,6 +64,7 @@ export function serializeProps({
             childComponents: [],
             node: value,
             parentId,
+            preactRootComponentName,
           });
         } else if (typeof value === 'string') {
           serializedValue = decodeJsonString(serializedValue);
@@ -194,12 +208,22 @@ interface BuildComponentIdParams {
   parentComponentId: string;
 }
 
+/**
+ * Given a Preact node, build its Component tree and serialize for transmission
+ * @param builtinComponents Set of builtin BOS Web Engine Components
+ * @param callbacks Component container's callbacks
+ * @param childComponents Set of descendant Components accumulated across recursive invocations
+ * @param node The Preact Component to serialize
+ * @param parentId Component's parent container
+ * @param preactRootComponentName The name of the root/Fragment Preact function
+ */
 export function serializeNode({
   builtinComponents,
   node,
   childComponents,
   callbacks,
   parentId,
+  preactRootComponentName,
 }: SerializeNodeParams): SerializedNode {
   function buildComponentId({
     instanceId,
@@ -241,7 +265,7 @@ export function serializeNode({
 
   if (typeof type === 'function') {
     const { name: component } = type;
-    if (component === '_') {
+    if (component === preactRootComponentName) {
       serializedElementType = 'div';
       // @ts-expect-error
     } else if (builtinComponents[component]) {
@@ -270,6 +294,7 @@ export function serializeNode({
                 builtinComponents,
                 parentId,
                 componentId,
+                preactRootComponentName,
               })
             : {},
           source: src,
@@ -289,6 +314,7 @@ export function serializeNode({
           __bweMeta: {
             componentId: componentId,
           },
+          className: 'container-child',
         },
       };
     } else {
@@ -313,6 +339,7 @@ export function serializeNode({
         parentId: componentId,
         callbacks,
         childComponents,
+        preactRootComponentName,
       });
     }
   }
@@ -320,7 +347,13 @@ export function serializeNode({
   return {
     type: serializedElementType,
     props: {
-      ...serializeProps({ props, builtinComponents, callbacks, parentId }),
+      ...serializeProps({
+        props,
+        builtinComponents,
+        callbacks,
+        parentId,
+        preactRootComponentName,
+      }),
       children: unifiedChildren.flat().map((c) =>
         c?.props
           ? serializeNode({
@@ -329,6 +362,7 @@ export function serializeNode({
               childComponents,
               callbacks,
               parentId,
+              preactRootComponentName,
             })
           : c
       ),

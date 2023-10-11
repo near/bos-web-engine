@@ -1,9 +1,6 @@
 import type { EventType, MessagePayload } from '@bos-web-engine/container';
 
-import type {
-  ComponentInstance,
-  ComponentMetrics,
-} from './types';
+import type { ComponentInstance, ComponentMetrics } from './types';
 import { BWEMessage } from './types';
 
 interface ComponentId {
@@ -139,7 +136,7 @@ export function ComponentMonitor({
     switch (message.type) {
       case 'component.render': {
         const { type, props } = message.node;
-        const formattedChildren = message.childComponents.length
+        const formattedChildren = message.childComponents?.length
           ? `with children ${message.childComponents
               .map(({ componentId }) =>
                 formatComponentId(parseComponentId(componentId))
