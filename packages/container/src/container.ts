@@ -1,4 +1,4 @@
-import { InitContainerParams } from './types';
+import { InitContainerParams, Node } from './types';
 
 /**
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
@@ -12,7 +12,6 @@ import { InitContainerParams } from './types';
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
  * @param preactRootComponentName Name of the Preact Fragment Component function (i.e. the root Component's name)
- * @param renderDom Callback for rendering DOM within the component
  * @param renderComponent Callback for rendering the Component
  * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
@@ -29,16 +28,18 @@ export function initContainer({
     invokeComponentCallback,
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
+    preactify,
     serializeArgs,
     serializeNode,
   },
   context: {
     builtinComponents,
+    builtinPlaceholders,
     callbacks,
     componentId,
+    createElement,
     parentContainerId,
     preactRootComponentName,
-    renderDom,
     renderComponent,
     requests,
     setProps,
@@ -56,8 +57,9 @@ export function initContainer({
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     preactRootComponentName,
-    renderDom,
     renderComponent,
+    renderDom: (node: Node) =>
+      preactify({ node, builtinPlaceholders, createElement }),
     requests,
     serializeArgs,
     serializeNode,

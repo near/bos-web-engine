@@ -161,6 +161,14 @@ export interface ComponentUpdate extends PostMessageParams {
   componentId: string;
 }
 
+interface PreactifyParams {
+  node: Node;
+  builtinPlaceholders: BuiltinComponentPlaceholders;
+  createElement: PreactCreateElement;
+}
+
+export type PreactifyCallback = (params: PreactifyParams) => any;
+
 export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;
   builtinComponents: BuiltinComponents;
@@ -190,13 +198,16 @@ export interface InitContainerParams {
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
+    preactify: PreactifyCallback;
     serializeArgs: SerializeArgsCallback;
     serializeNode: SerializeNodeCallback;
   };
   context: {
     builtinComponents: BuiltinComponents;
+    builtinPlaceholders: BuiltinComponentPlaceholders;
     callbacks: CallbackMap;
     componentId: string;
+    createElement: PreactCreateElement;
     parentContainerId: string | null;
     preactRootComponentName: string;
     props: any;
@@ -230,7 +241,7 @@ interface PreactElement {
   props: any;
 }
 
-type PreactCreateElement = (
+export type PreactCreateElement = (
   type: string | Function,
   props: any,
   children: any
@@ -263,6 +274,7 @@ export interface BuiltinComponents {
 export interface Node {
   type: string | Function;
   props?: NodeProps;
+  key?: string;
 }
 
 interface ComponentChildMetadata {
@@ -371,4 +383,8 @@ type BuiltinPropsTypes =
 export interface BuiltinProps<T extends BuiltinPropsTypes> {
   children: any[];
   props: T;
+}
+
+export interface BuiltinComponentPlaceholders {
+  Widget: Function;
 }

@@ -21,6 +21,8 @@ import {
   inlineGlobalDefinition,
   dispatchRenderEvent,
   initContainer,
+  isMatchingProps,
+  preactify,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -111,7 +113,9 @@ function buildSandboxedComponent({
           function Tooltip() {}
           function Typeahead() {}
           function Widget() {}
-          
+
+          const builtinPlaceholders = { Widget };
+
           // cache previous renders
           const nodeRenders = new Map();
           
@@ -242,35 +246,10 @@ function buildSandboxedComponent({
           
           renderComponent();
 
-          function preactify(node) {
-            if (!node || typeof node !== 'object') {
-              return node;
-            }
-
-            const { props, type } = node;
-            // TODO handle other builtins
-            const isComponent = !!props.src?.match(/[0-9a-z._-]{5,}\\/widget\\/[0-9a-z._-]+/ig);
-            const { children } = props;
-
-            return createElement(
-              isComponent ? Widget : type,
-              { ...props, key: node.key || props.key },
-              Array.isArray(children) ? children.map(preactify) : preactify(children)
-            );
-          }
-
-          function isMatchingProps(props, compareProps) {
-            const getComparable = (p) => Object.keys(p)
-              .sort()
-              .filter((k) => k !== '__bweMeta')
-              .map((propKey) => propKey + '::' + p[propKey])
-              .join(',');
-
-            return getComparable(props) === getComparable(compareProps);
-          }
-
           ${inlineGlobalDefinition('buildEventHandler', buildEventHandler)}
           ${inlineGlobalDefinition('initContainer', initContainer)}
+          ${inlineGlobalDefinition('isMatchingProps', isMatchingProps)}
+          ${inlineGlobalDefinition('preactify', preactify)}
 
           const {
             processEvent,
@@ -288,8 +267,10 @@ function buildSandboxedComponent({
             },
             context: {
               builtinComponents,
+              builtinPlaceholders,
               callbacks,
               componentId: '${id}',
+              createElement,
               parentContainerId: '${parentContainerId}',
               preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
               renderComponent,
