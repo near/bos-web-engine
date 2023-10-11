@@ -20,6 +20,7 @@ import {
   getBuiltins,
   inlineGlobalDefinition,
   dispatchRenderEvent,
+  initContainer,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -268,31 +269,41 @@ function buildSandboxedComponent({
             return getComparable(props) === getComparable(compareProps);
           }
 
-          const processEvent = (${buildEventHandler.toString()})({
-            buildRequest,
-            builtinComponents,
-            callbacks,
-            deserializeProps,
-            invokeCallback,
-            invokeComponentCallback,
-            parentContainerId: '${parentContainerId}',
-            postCallbackInvocationMessage,
-            postCallbackResponseMessage,
-            preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-            renderDom: (node) => preactify(node),
-            renderComponent,
-            requests,
-            serializeArgs,
-            serializeNode,
-            setProps: (newProps) => {
-              if (isMatchingProps({ ...props }, newProps)) {
-                return false;
-              }
+          ${inlineGlobalDefinition('buildEventHandler', buildEventHandler)}
+          ${inlineGlobalDefinition('initContainer', initContainer)}
 
-              props = buildSafeProxy({ ...props, ...newProps });
-              return true;
+          const {
+            processEvent,
+          } = initContainer({
+            containerMethods: {
+              buildEventHandler,
+              buildRequest,
+              deserializeProps,
+              invokeCallback,
+              invokeComponentCallback,
+              postCallbackInvocationMessage,
+              postCallbackResponseMessage,
+              serializeArgs,
+              serializeNode,
             },
-            componentId: '${id}'
+            context: {
+              builtinComponents,
+              callbacks,
+              componentId: '${id}',
+              parentContainerId: '${parentContainerId}',
+              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
+              renderComponent,
+              renderDom: (node) => preactify(node),
+              requests,
+              setProps: (newProps) => {
+                if (isMatchingProps({ ...props }, newProps)) {
+                  return false;
+                }
+  
+                props = buildSafeProxy({ ...props, ...newProps });
+                return true;
+              },
+            },
           });
 
           window.addEventListener('message', processEvent);

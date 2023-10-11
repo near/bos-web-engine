@@ -1,6 +1,7 @@
 export { initNear, initSocial } from './api';
 export { getBuiltins } from './builtins';
 export { invokeCallback, invokeComponentCallback } from './callbacks';
+export { initContainer } from './container';
 export { buildEventHandler } from './events';
 export { buildUseComponentCallback } from './hooks';
 export { inlineGlobalDefinition } from './injection';

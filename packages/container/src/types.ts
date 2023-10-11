@@ -173,13 +173,38 @@ export interface ProcessEventParams {
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   preactRootComponentName: string;
-  props: any;
   renderDom: (node: any) => object;
   renderComponent: () => void;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
   setProps: (props: object) => boolean;
+}
+
+export interface InitContainerParams {
+  containerMethods: {
+    buildEventHandler: (params: ProcessEventParams) => Function;
+    buildRequest: BuildRequestCallback;
+    deserializeProps: DeserializePropsCallback;
+    invokeCallback: (args: InvokeCallbackParams) => any;
+    invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
+    postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
+    postCallbackResponseMessage: PostMessageComponentResponseCallback;
+    serializeArgs: SerializeArgsCallback;
+    serializeNode: SerializeNodeCallback;
+  };
+  context: {
+    builtinComponents: BuiltinComponents;
+    callbacks: CallbackMap;
+    componentId: string;
+    parentContainerId: string | null;
+    preactRootComponentName: string;
+    props: any;
+    renderDom: (node: any) => object;
+    renderComponent: () => void;
+    requests: { [key: string]: CallbackRequest };
+    setProps: (props: object) => boolean;
+  };
 }
 
 export interface Props extends KeyValuePair {
