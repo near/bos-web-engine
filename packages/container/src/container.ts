@@ -7,8 +7,8 @@ export function initContainer({
     buildEventHandler,
     buildRequest,
     buildSafeProxy,
+    composeSerializationMethods,
     decodeJsonString,
-    deserializeProps,
     dispatchRenderEvent,
     getBuiltins,
     invokeCallback,
@@ -18,14 +18,10 @@ export function initContainer({
     postComponentRenderMessage,
     postMessage,
     preactify,
-    serializeArgs,
-    serializeNode,
-    serializeProps,
   },
   context: {
     builtinPlaceholders,
     BWEComponent,
-    callbacks,
     componentId,
     createElement,
     componentPropsJson,
@@ -40,7 +36,22 @@ export function initContainer({
 }: InitContainerParams) {
   const builtinComponents = getBuiltins({ createElement });
   const stateUpdates = new Map<string, string[]>();
+
+  const callbacks: { [key: string]: Function } = {};
   const requests: { [key: string]: CallbackRequest } = {};
+
+  const { deserializeProps, serializeArgs, serializeNode, serializeProps } =
+    composeSerializationMethods({
+      buildRequest,
+      builtinComponents,
+      callbacks,
+      decodeJsonString,
+      parentContainerId,
+      postCallbackInvocationMessage,
+      preactRootComponentName,
+      postMessage,
+      requests,
+    });
 
   const renderComponent = ({ stateUpdate }: { stateUpdate?: string } = {}) =>
     renderContainerComponent({
@@ -85,10 +96,8 @@ export function initContainer({
 
   const processEvent = buildEventHandler({
     buildRequest,
-    builtinComponents,
     callbacks,
     componentId,
-    decodeJsonString,
     deserializeProps,
     invokeCallback,
     invokeComponentCallback,
@@ -96,31 +105,22 @@ export function initContainer({
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     postMessage,
-    preactRootComponentName,
     renderComponent,
     renderDom: (node: Node) =>
       preactify({ node, builtinPlaceholders, createElement }),
     requests,
     serializeArgs,
     serializeNode,
-    serializeProps,
     setProps,
   });
 
   const props = buildSafeProxy({
     componentId,
     props: deserializeProps({
-      buildRequest,
-      callbacks,
       componentId,
-      parentContainerId,
-      postCallbackInvocationMessage,
-      postMessage,
       props: JSON.parse(
         `${componentPropsJson.replace(/'/g, "\\'").replace(/\\"/g, '\\\\"')}`
       ),
-      requests,
-      serializeArgs,
     }),
   });
 

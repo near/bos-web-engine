@@ -7,16 +7,13 @@ import type {
 /**
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
  * @param buildRequest Function to build an inter-Component asynchronous callback request
- * @param builtinComponents The set of Builtin Components provided by BOS Web Engine
  * @param callbacks The set of callbacks defined on the target Component
- * @param decodeJsonString Function for decoding encoded JSON strings
  * @param deserializeProps Function to deserialize props passed on the event
  * @param invokeCallback Function to execute the specified function in the current context
  * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
  * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
- * @param preactRootComponentName Name of the Preact Fragment Component function (i.e. the root Component's name)
  * @param renderDom Callback for rendering DOM within the component
  * @param renderComponent Callback for rendering the Component
  * @param requests The set of inter-Component callback requests being tracked by the Component
@@ -27,10 +24,8 @@ import type {
  */
 export function buildEventHandler({
   buildRequest,
-  builtinComponents,
   callbacks,
   componentId,
-  decodeJsonString,
   deserializeProps,
   invokeCallback,
   invokeComponentCallback,
@@ -38,13 +33,11 @@ export function buildEventHandler({
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   postMessage,
-  preactRootComponentName,
   renderDom,
   renderComponent,
   requests,
   serializeArgs,
   serializeNode,
-  serializeProps,
   setProps,
 }: ProcessEventParams): Function {
   return function processEvent(event: PostMessageEvent) {
@@ -122,14 +115,9 @@ export function buildEventHandler({
 
         result = applyRecursivelyToComponents(result, (n: any) =>
           serializeNode({
-            builtinComponents,
             node: n,
-            callbacks,
             parentId: method,
             childComponents: [],
-            preactRootComponentName,
-            decodeJsonString,
-            serializeProps,
           })
         );
 
@@ -211,15 +199,8 @@ export function buildEventHandler({
       case 'component.update': {
         shouldRender = setProps(
           deserializeProps({
-            buildRequest,
-            callbacks,
             componentId,
-            parentContainerId,
-            postCallbackInvocationMessage,
-            postMessage,
             props: event.data.props,
-            requests,
-            serializeArgs,
           })
         );
         break;

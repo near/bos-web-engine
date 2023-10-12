@@ -2,6 +2,7 @@ export { initNear, initSocial } from './api';
 export { getBuiltins } from './builtins';
 export { invokeCallback, invokeComponentCallback } from './callbacks';
 export { initContainer } from './container';
+export { decodeJsonString, encodeJsonString } from './encode';
 export { buildEventHandler } from './events';
 export { buildUseComponentCallback } from './hooks';
 export {
@@ -18,12 +19,5 @@ export {
   preactify,
   renderContainerComponent,
 } from './render';
-export {
-  decodeJsonString,
-  deserializeProps,
-  encodeJsonString,
-  serializeArgs,
-  serializeNode,
-  serializeProps,
-} from './serialize';
+export { composeSerializationMethods } from './serialize';
 export * from './types';

@@ -1,7 +1,7 @@
 import {
   BuildSafeProxyCallback,
   ComponentProps,
-  DispatchRenderEventParams,
+  DispatchRenderEventCallback,
   NodeProps,
   RenderContainerComponentCallback,
   PreactifyCallback,
@@ -122,29 +122,19 @@ export const renderContainerComponent: RenderContainerComponentCallback = ({
   }
 };
 
-export function dispatchRenderEvent({
-  builtinComponents,
-  callbacks,
+export const dispatchRenderEvent: DispatchRenderEventCallback = ({
   componentId,
-  decodeJsonString,
   node,
   nodeRenders,
   postComponentRenderMessage,
   postMessage,
-  preactRootComponentName,
   serializeNode,
-  serializeProps,
   trust,
-}: DispatchRenderEventParams) {
+}) => {
   const serializedNode = serializeNode({
     node,
-    builtinComponents,
     childComponents: [],
-    callbacks,
     parentId: componentId,
-    preactRootComponentName,
-    decodeJsonString,
-    serializeProps,
   });
 
   if (!serializedNode?.type) {
@@ -202,4 +192,4 @@ export function dispatchRenderEvent({
       serializedNode,
     });
   }
-}
+};

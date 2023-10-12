@@ -11,10 +11,6 @@ import {
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   postComponentRenderMessage,
-  deserializeProps,
-  serializeArgs,
-  serializeNode,
-  serializeProps,
   decodeJsonString,
   encodeJsonString,
   getBuiltins,
@@ -24,6 +20,7 @@ import {
   preactify,
   renderContainerComponent,
   buildSafeProxy,
+  composeSerializationMethods,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -33,11 +30,9 @@ function buildSandboxedComponent({
   componentProps,
   parentContainerId,
 }: SandboxedIframeProps) {
-  const componentPath = id.split('::')[0];
-  let componentPropsJson = '{}';
-  if (componentProps) {
-    componentPropsJson = encodeJsonString(JSON.stringify(componentProps));
-  }
+  const componentPropsJson = componentProps
+    ? encodeJsonString(JSON.stringify(componentProps))
+    : '{}';
 
   return `
     <html>
@@ -59,9 +54,6 @@ function buildSandboxedComponent({
           import { useEffect, useState } from 'preact/hooks';
 
           const PREACT_ROOT_COMPONENT_NAME = __Fragment.name;
-
-          /* generated code for ${componentPath} */
-          const callbacks = {};
 
           const initContainer = ${initContainer.toString()};
           const isMatchingProps = ${isMatchingProps.toString()};
@@ -90,13 +82,14 @@ function buildSandboxedComponent({
           let props;
 
           const {
+            /* VM shims */
             asyncFetch,
             fadeIn,
             minWidth,
             React,
             slideIn,
             styled,
-    
+            /* core dependencies */
             context,
             diffComponent,
             processEvent,
@@ -107,8 +100,8 @@ function buildSandboxedComponent({
               buildEventHandler: ${buildEventHandler.toString()},
               buildRequest: ${buildRequest.toString()},
               buildSafeProxy: ${buildSafeProxy.toString()},
+              composeSerializationMethods: ${composeSerializationMethods.toString()},
               decodeJsonString: ${decodeJsonString.toString()},
-              deserializeProps: ${deserializeProps.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
               getBuiltins: ${getBuiltins.toString()},
               invokeCallback: ${invokeCallback.toString()},
@@ -118,14 +111,10 @@ function buildSandboxedComponent({
               postComponentRenderMessage: ${postComponentRenderMessage.toString()},
               postMessage: ${postMessage.toString()},
               preactify: ${preactify.toString()},
-              serializeArgs: ${serializeArgs.toString()},
-              serializeNode: ${serializeNode.toString()},
-              serializeProps: ${serializeProps.toString()},
             },
             context: {
               builtinPlaceholders,
               BWEComponent,
-              callbacks,
               componentId: '${id}',
               componentPropsJson: '${componentPropsJson}',
               createElement,
