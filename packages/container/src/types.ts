@@ -17,15 +17,17 @@ export interface CallbackRequest {
 
 export type CallbackMap = { [key: string]: Function };
 
-export type DeserializePropsCallback = (props: DeserializePropsParams) => any;
+export type DeserializePropsCallback = (params: DeserializePropsParams) => any;
 export interface DeserializePropsParams {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   componentId: string;
   parentContainerId: string | null;
-  props: SerializedProps;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
+  postMessage: PostMessageCallback;
+  props: SerializedProps;
   requests: { [key: string]: CallbackRequest };
+  serializeArgs: SerializeArgsCallback;
 }
 
 export type EventArgs = { event: any };
@@ -204,6 +206,7 @@ export interface InitContainerParams {
   containerMethods: {
     buildEventHandler: (params: ProcessEventParams) => Function;
     buildRequest: BuildRequestCallback;
+    buildSafeProxy: BuildSafeProxyCallback;
     decodeJsonString: (value: string) => string;
     deserializeProps: DeserializePropsCallback;
     dispatchRenderEvent: (params: DispatchRenderEventParams) => void;
@@ -228,13 +231,13 @@ export interface InitContainerParams {
     callbacks: CallbackMap;
     componentId: string;
     createElement: PreactCreateElement;
+    componentPropsJson: string;
     parentContainerId: string | null;
     preactHooksDiffed: (node: VNode) => void;
     preactRootComponentName: string;
     props: any;
     render: PreactRender;
     renderContainerComponent: RenderContainerComponentCallback;
-    requests: { [key: string]: CallbackRequest };
     setProps: (props: object) => boolean;
     trust: string;
   };
@@ -449,3 +452,10 @@ export interface DispatchRenderEventParams {
   serializeProps: SerializePropsCallback;
   trust: string;
 }
+
+interface BuildSafeProxyParams {
+  props: Props;
+  componentId: string;
+}
+
+export type BuildSafeProxyCallback = (params: BuildSafeProxyParams) => object;

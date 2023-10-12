@@ -12,6 +12,7 @@ export {
   postComponentRenderMessage,
 } from './messaging';
 export {
+  buildSafeProxy,
   dispatchRenderEvent,
   isMatchingProps,
   preactify,

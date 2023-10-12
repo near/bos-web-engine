@@ -1,11 +1,12 @@
 import type { VNode } from 'preact';
 
-import { InitContainerParams, Node } from './types';
+import { CallbackRequest, InitContainerParams, Node } from './types';
 
 export function initContainer({
   containerMethods: {
     buildEventHandler,
     buildRequest,
+    buildSafeProxy,
     decodeJsonString,
     deserializeProps,
     dispatchRenderEvent,
@@ -27,18 +28,19 @@ export function initContainer({
     callbacks,
     componentId,
     createElement,
+    componentPropsJson,
     parentContainerId,
     preactHooksDiffed,
     preactRootComponentName,
     render,
     renderContainerComponent,
-    requests,
     setProps,
     trust,
   },
 }: InitContainerParams) {
   const builtinComponents = getBuiltins({ createElement });
   const stateUpdates = new Map<string, string[]>();
+  const requests: { [key: string]: CallbackRequest } = {};
 
   const renderComponent = ({ stateUpdate }: { stateUpdate?: string } = {}) =>
     renderContainerComponent({
@@ -61,6 +63,7 @@ export function initContainer({
     const isRootComponent =
       typeof vnode.type === 'function' &&
       vnode.type?.name === preactRootComponentName;
+
     if (containerComponent && isRootComponent) {
       dispatchRenderEvent({
         builtinComponents,
@@ -104,9 +107,68 @@ export function initContainer({
     setProps,
   });
 
+  const props = buildSafeProxy({
+    componentId,
+    props: deserializeProps({
+      buildRequest,
+      callbacks,
+      componentId,
+      parentContainerId,
+      postCallbackInvocationMessage,
+      postMessage,
+      props: JSON.parse(
+        `${componentPropsJson.replace(/'/g, "\\'").replace(/\\"/g, '\\\\"')}`
+      ),
+      requests,
+      serializeArgs,
+    }),
+  });
+
+  // TODO remove debug value
+  const context = buildSafeProxy({
+    componentId,
+    props: {
+      // @ts-expect-error FIXME
+      accountId: props.accountId || 'andyh.near',
+    },
+  });
+
+  function asyncFetch(url: string, options: RequestInit) {
+    return fetch(url, options).catch(console.error);
+  }
+
+  const React = {
+    Fragment: 'div',
+  };
+  function fadeIn() {}
+  function slideIn() {}
+  let minWidth;
+
+  const styled = new Proxy(
+    {},
+    {
+      get(_, property: string) {
+        return (/*css: string*/) => {
+          return property;
+        };
+      },
+    }
+  );
+
   return {
+    /* VM compatibility TODO determine what to keep */
+    asyncFetch,
+    fadeIn,
+    minWidth,
+    React,
+    slideIn,
+    styled,
+
+    /* Web Engine core */
+    context,
     diffComponent,
     processEvent,
+    props,
     renderComponent,
   };
 }

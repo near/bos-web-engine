@@ -23,6 +23,7 @@ import {
   isMatchingProps,
   preactify,
   renderContainerComponent,
+  buildSafeProxy,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -33,9 +34,9 @@ function buildSandboxedComponent({
   parentContainerId,
 }: SandboxedIframeProps) {
   const componentPath = id.split('::')[0];
-  let jsonComponentProps = '{}';
+  let componentPropsJson = '{}';
   if (componentProps) {
-    jsonComponentProps = encodeJsonString(JSON.stringify(componentProps));
+    componentPropsJson = encodeJsonString(JSON.stringify(componentProps));
   }
 
   return `
@@ -61,16 +62,11 @@ function buildSandboxedComponent({
 
           /* generated code for ${componentPath} */
           const callbacks = {};
-          const requests = {};
 
           const initContainer = ${initContainer.toString()};
           const isMatchingProps = ${isMatchingProps.toString()};
-          const renderContainerComponent = ${renderContainerComponent.toString()};
-
-          const buildRequest = ${buildRequest.toString()};
+          const buildSafeProxy = ${buildSafeProxy.toString()};
           const encodeJsonString = ${encodeJsonString.toString()};
-          const deserializeProps = ${deserializeProps.toString()};
-          const postCallbackInvocationMessage = ${postCallbackInvocationMessage.toString()};
 
           // builtin components must have references defined in order for the Component to render
           // builtin components are resolved during serialization 
@@ -91,14 +87,26 @@ function buildSandboxedComponent({
 
           const builtinPlaceholders = { Widget };
 
+          let props;
+
           const {
+            asyncFetch,
+            fadeIn,
+            minWidth,
+            React,
+            slideIn,
+            styled,
+    
+            context,
             diffComponent,
             processEvent,
+            props: containerProps,
             renderComponent,
           } = initContainer({
             containerMethods: {
               buildEventHandler: ${buildEventHandler.toString()},
               buildRequest: ${buildRequest.toString()},
+              buildSafeProxy: ${buildSafeProxy.toString()},
               decodeJsonString: ${decodeJsonString.toString()},
               deserializeProps: ${deserializeProps.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
@@ -119,54 +127,26 @@ function buildSandboxedComponent({
               BWEComponent,
               callbacks,
               componentId: '${id}',
+              componentPropsJson: '${componentPropsJson}',
               createElement,
               parentContainerId: '${parentContainerId}',
               preactHooksDiffed: options.diffed,
               preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
               render,
-              renderContainerComponent,
-              requests,
+              renderContainerComponent: ${renderContainerComponent.toString()},
               setProps: (newProps) => {
                 if (isMatchingProps({ ...props }, newProps)) {
                   return false;
                 }
   
-                props = buildSafeProxy({ ...props, ...newProps });
+                props = buildSafeProxy({ componentId: '${id}', props: { ...props, ...newProps } });
                 return true;
               },
               trust: '${JSON.stringify(trust)}',
             },
           });
-      
-          /* NS shims */
-          function buildSafeProxy(p) {
-            return new Proxy({ ...p, __bweMeta: { componentId: '${id}', isProxy: true } }, {
-              get(target, key) {
-                try {
-                  return target[key];
-                } catch {
-                  return undefined;
-                }
-              }
-            });
-          }
 
-          let props = buildSafeProxy(deserializeProps({
-            buildRequest,
-            callbacks,
-            componentId: '${id}',
-            parentContainerId: '${parentContainerId}',
-            postCallbackInvocationMessage,
-            props: JSON.parse('${jsonComponentProps
-              .replace(/'/g, "\\'")
-              .replace(/\\"/g, '\\\\"')}'),
-            requests,
-          }));
-
-          function asyncFetch(url, options) {
-            return fetch(url, options)
-              .catch(console.error);
-          }
+          props = containerProps;
 
           const Near = (${initNear.toString()})({
             renderComponent,
@@ -180,26 +160,8 @@ function buildSandboxedComponent({
             componentId: '${id}',
           });
 
-          const React = {
-            Fragment: 'div',
-          };
-          function fadeIn() {}
-          function slideIn() {}
-          let minWidth;
-
-          const styled = new Proxy({}, {
-            get(target, property, receiver) {
-              return (css) => {
-                return property;
-              };
-            }
-          });
-
           const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
           const useComponentCallback = buildUseComponentCallback(renderComponent);
-
-          // TODO remove debug value
-          const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
           
           const ComponentState = new Map();
 

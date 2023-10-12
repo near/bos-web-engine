@@ -1,5 +1,5 @@
 import type {
-  DeserializePropsParams,
+  DeserializePropsCallback,
   Props,
   SerializeArgsParams,
   SerializeNodeParams,
@@ -152,15 +152,17 @@ export function serializeArgs({
   });
 }
 
-export function deserializeProps({
+export const deserializeProps: DeserializePropsCallback = ({
   buildRequest,
   callbacks,
   componentId,
   parentContainerId,
   postCallbackInvocationMessage,
+  postMessage,
   props,
   requests,
-}: DeserializePropsParams): object {
+  serializeArgs,
+}) => {
   const { __componentcallbacks } = props;
   const componentProps = { ...props };
   delete componentProps.__componentcallbacks;
@@ -205,7 +207,7 @@ export function deserializeProps({
       {} as { [key: string]: any }
     ),
   };
-}
+};
 
 interface BuildComponentIdParams {
   instanceId: string | undefined;

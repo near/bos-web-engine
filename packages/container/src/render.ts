@@ -1,10 +1,29 @@
 import {
+  BuildSafeProxyCallback,
   ComponentProps,
   DispatchRenderEventParams,
   NodeProps,
   RenderContainerComponentCallback,
   PreactifyCallback,
 } from './types';
+
+export const buildSafeProxy: BuildSafeProxyCallback = ({
+  props,
+  componentId,
+}) => {
+  return new Proxy(
+    { ...props, __bweMeta: { componentId, isProxy: true } },
+    {
+      get(target, key) {
+        try {
+          return (target as any)[key];
+        } catch {
+          return undefined;
+        }
+      },
+    }
+  );
+};
 
 export const preactify: PreactifyCallback = ({
   node,

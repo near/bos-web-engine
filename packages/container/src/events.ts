@@ -37,6 +37,7 @@ export function buildEventHandler({
   parentContainerId,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
+  postMessage,
   preactRootComponentName,
   renderDom,
   renderComponent,
@@ -215,8 +216,10 @@ export function buildEventHandler({
             componentId,
             parentContainerId,
             postCallbackInvocationMessage,
+            postMessage,
             props: event.data.props,
             requests,
+            serializeArgs,
           })
         );
         break;
