@@ -9,6 +9,7 @@ export function initContainer({
     decodeJsonString,
     deserializeProps,
     dispatchRenderEvent,
+    getBuiltins,
     invokeCallback,
     invokeComponentCallback,
     postCallbackInvocationMessage,
@@ -21,7 +22,6 @@ export function initContainer({
     serializeProps,
   },
   context: {
-    builtinComponents,
     builtinPlaceholders,
     BWEComponent,
     callbacks,
@@ -37,6 +37,7 @@ export function initContainer({
     trust,
   },
 }: InitContainerParams) {
+  const builtinComponents = getBuiltins({ createElement });
   const stateUpdates = new Map<string, string[]>();
 
   const renderComponent = ({ stateUpdate }: { stateUpdate?: string } = {}) =>

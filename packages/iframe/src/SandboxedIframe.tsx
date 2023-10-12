@@ -72,8 +72,6 @@ function buildSandboxedComponent({
           const deserializeProps = ${deserializeProps.toString()};
           const postCallbackInvocationMessage = ${postCallbackInvocationMessage.toString()};
 
-          const builtinComponents = ${getBuiltins.toString()}({ createElement });
-
           // builtin components must have references defined in order for the Component to render
           // builtin components are resolved during serialization 
           function Checkbox() {}
@@ -104,6 +102,7 @@ function buildSandboxedComponent({
               decodeJsonString: ${decodeJsonString.toString()},
               deserializeProps: ${deserializeProps.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
+              getBuiltins: ${getBuiltins.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
               postCallbackInvocationMessage: ${postCallbackInvocationMessage.toString()},
@@ -116,7 +115,6 @@ function buildSandboxedComponent({
               serializeProps: ${serializeProps.toString()},
             },
             context: {
-              builtinComponents,
               builtinPlaceholders,
               BWEComponent,
               callbacks,

@@ -208,7 +208,7 @@ export interface InitContainerParams {
     deserializeProps: DeserializePropsCallback;
     dispatchRenderEvent: (params: DispatchRenderEventParams) => void;
     // encodeJsonString,
-    // getBuiltins,
+    getBuiltins: GetBuiltinsCallback;
     // initNear,
     // initSocial,
     invokeCallback: (args: InvokeCallbackParams) => any;
@@ -223,7 +223,6 @@ export interface InitContainerParams {
     serializeProps: SerializePropsCallback;
   };
   context: {
-    builtinComponents: BuiltinComponents;
     builtinPlaceholders: BuiltinComponentPlaceholders;
     BWEComponent: Function;
     callbacks: CallbackMap;
@@ -279,6 +278,10 @@ export type PreactRender = (component: Function, target: HTMLElement) => void;
 export interface GetBuiltinsParams {
   createElement: PreactCreateElement;
 }
+
+export type GetBuiltinsCallback = (
+  params: GetBuiltinsParams
+) => BuiltinComponents;
 
 export interface BuiltinComponents {
   Checkbox: CreateSerializedBuiltin;
