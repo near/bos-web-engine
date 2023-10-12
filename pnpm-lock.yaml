@@ -143,6 +143,7 @@ importers:
       '@types/node': ^17.0.12
       eslint: ^7.32.0
       eslint-config-custom: workspace:*
+      preact: ^10.18.1
       tsconfig: workspace:*
       typescript: ^4.5.2
     devDependencies:
@@ -150,6 +151,7 @@ importers:
       '@types/node': 17.0.45
       eslint: 7.32.0
       eslint-config-custom: link:../eslint-config-custom
+      preact: 10.18.1
       tsconfig: link:../tsconfig
       typescript: 4.9.5
 
@@ -3800,6 +3802,10 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
     dev: false
+
+  /preact/10.18.1:
+    resolution: {integrity: sha512-mKUD7RRkQQM6s7Rkmi7IFkoEHjuFqRQUaXamO61E6Nn7vqF/bo7EZCmSyrUnp2UWHw0O7XjZ2eeXis+m7tf4lg==}
+    dev: true
 
   /prelude-ls/1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}

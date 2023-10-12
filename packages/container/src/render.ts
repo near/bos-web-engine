@@ -1,26 +1,10 @@
 import {
-  BuiltinComponents,
-  CallbackMap,
   ComponentProps,
-  Node,
+  DispatchRenderEventParams,
   NodeProps,
   RenderContainerComponentCallback,
-  SerializeNodeParams,
-  SerializedNode,
   PreactifyCallback,
 } from './types';
-
-interface DispatchRenderEventParams {
-  builtinComponents: BuiltinComponents;
-  callbacks: CallbackMap;
-  componentId: string;
-  node: Node;
-  nodeRenders: Map<string, string>;
-  postComponentRenderMessage: (p: any) => void;
-  preactRootComponentName: string;
-  serializeNode: (p: SerializeNodeParams) => SerializedNode;
-  trust: string;
-}
 
 export const preactify: PreactifyCallback = ({
   node,

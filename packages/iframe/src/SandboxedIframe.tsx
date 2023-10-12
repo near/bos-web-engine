@@ -121,6 +121,7 @@ function buildSandboxedComponent({
           const builtinPlaceholders = { Widget };
 
           const {
+            diffComponent,
             processEvent,
             renderComponent,
           } = initContainer({
@@ -128,10 +129,12 @@ function buildSandboxedComponent({
               buildEventHandler,
               buildRequest,
               deserializeProps,
+              dispatchRenderEvent,
               invokeCallback,
               invokeComponentCallback,
               postCallbackInvocationMessage,
               postCallbackResponseMessage,
+              postComponentRenderMessage,
               preactify,
               serializeArgs,
               serializeNode,
@@ -144,6 +147,7 @@ function buildSandboxedComponent({
               componentId: '${id}',
               createElement,
               parentContainerId: '${parentContainerId}',
+              preactHooksDiffed: options.diffed,
               preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
               render,
               renderContainerComponent,
@@ -156,6 +160,7 @@ function buildSandboxedComponent({
                 props = buildSafeProxy({ ...props, ...newProps });
                 return true;
               },
+              trust: '${JSON.stringify(trust)}',
             },
           });
       
@@ -228,31 +233,8 @@ function buildSandboxedComponent({
           ${scriptSrc}
           /* END EXTERNAL SOURCE */
 
-          // cache previous renders
-          const nodeRenders = new Map();
-          
           // register handler executed upon vnode render
-          const hooksDiffed = options.diffed;
-          options.diffed = (vnode) => {
-            // TODO this handler will fire for every descendant node rendered,
-            //  could be a good way to optimize renders within a container without
-            //  re-rendering the entire thing
-            const [containerComponent] = vnode.props?.children || [];
-            if (containerComponent && vnode.type?.name === PREACT_ROOT_COMPONENT_NAME) {
-              dispatchRenderEvent({
-                builtinComponents,
-                callbacks,
-                componentId: '${id}',
-                node: containerComponent(),
-                nodeRenders,
-                postComponentRenderMessage,
-                preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-                serializeNode,
-                trust: '${JSON.stringify(trust)}',
-              });
-            }
-            hooksDiffed?.(vnode);
-          };
+          options.diffed = diffComponent;
 
           window.addEventListener('message', processEvent);
 

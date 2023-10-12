@@ -1,4 +1,5 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
+import { VNode } from 'preact';
 
 export interface WebEngineMeta {
   componentId?: string;
@@ -194,10 +195,12 @@ export interface InitContainerParams {
     buildEventHandler: (params: ProcessEventParams) => Function;
     buildRequest: BuildRequestCallback;
     deserializeProps: DeserializePropsCallback;
+    dispatchRenderEvent: (params: DispatchRenderEventParams) => void;
     invokeCallback: (args: InvokeCallbackParams) => any;
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
+    postComponentRenderMessage: (p: any) => void;
     preactify: PreactifyCallback;
     serializeArgs: SerializeArgsCallback;
     serializeNode: SerializeNodeCallback;
@@ -210,12 +213,14 @@ export interface InitContainerParams {
     componentId: string;
     createElement: PreactCreateElement;
     parentContainerId: string | null;
+    preactHooksDiffed: (node: VNode) => void;
     preactRootComponentName: string;
     props: any;
     render: PreactRender;
     renderContainerComponent: RenderContainerComponentCallback;
     requests: { [key: string]: CallbackRequest };
     setProps: (props: object) => boolean;
+    trust: string;
   };
 }
 
@@ -404,3 +409,15 @@ interface RenderComponentParams {
 export type RenderContainerComponentCallback = (
   params: RenderComponentParams
 ) => PreactElement | undefined;
+
+export interface DispatchRenderEventParams {
+  builtinComponents: BuiltinComponents;
+  callbacks: CallbackMap;
+  componentId: string;
+  node: Node;
+  nodeRenders: Map<string, string>;
+  postComponentRenderMessage: (p: any) => void;
+  preactRootComponentName: string;
+  serializeNode: (p: SerializeNodeParams) => SerializedNode;
+  trust: string;
+}
