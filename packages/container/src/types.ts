@@ -102,6 +102,10 @@ export interface PostMessageParams {
   type: EventType;
 }
 
+export type PostMessageCallback = <T extends PostMessageParams>(
+  message: T
+) => void;
+
 export type PostMessageComponentInvocationCallback = (
   message: PostMessageComponentCallbackInvocationParams
 ) => void;
@@ -118,6 +122,7 @@ export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
   callbacks: CallbackMap;
   method: string;
+  postMessage: PostMessageCallback;
   requestId: string;
   serializeArgs: SerializeArgsCallback;
   targetId: string;
@@ -137,6 +142,7 @@ export interface ComponentCallbackResponse extends PostMessageParams {
 export interface PostMessageComponentCallbackResponseParams {
   componentId: string;
   error: Error | null;
+  postMessage: PostMessageCallback;
   requestId: string;
   result: any;
   targetId: string;
@@ -144,16 +150,17 @@ export interface PostMessageComponentCallbackResponseParams {
 
 export interface ComponentRender extends PostMessageParams {
   childComponents: ComponentChildMetadata[];
+  componentId: string;
   node: SerializedNode;
   trust: ComponentTrust;
   type: ComponentRenderType;
-  componentId: string;
 }
 export interface PostMessageComponentRenderParams {
   childComponents: ComponentChildMetadata[];
-  node: SerializedNode;
-  trust: ComponentTrust;
   componentId: string;
+  node: SerializedNode;
+  postMessage: PostMessageCallback;
+  trust: ComponentTrust;
 }
 
 export interface ComponentUpdate extends PostMessageParams {
@@ -175,18 +182,21 @@ export interface ProcessEventParams {
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   componentId: string;
+  decodeJsonString: (value: string) => string;
   deserializeProps: DeserializePropsCallback;
   invokeCallback: (args: InvokeCallbackParams) => any;
   invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
+  postMessage: PostMessageCallback;
   preactRootComponentName: string;
   renderDom: (node: any) => object;
   renderComponent: () => void;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
+  serializeProps: SerializePropsCallback;
   setProps: (props: object) => boolean;
 }
 
@@ -194,16 +204,23 @@ export interface InitContainerParams {
   containerMethods: {
     buildEventHandler: (params: ProcessEventParams) => Function;
     buildRequest: BuildRequestCallback;
+    decodeJsonString: (value: string) => string;
     deserializeProps: DeserializePropsCallback;
     dispatchRenderEvent: (params: DispatchRenderEventParams) => void;
+    // encodeJsonString,
+    // getBuiltins,
+    // initNear,
+    // initSocial,
     invokeCallback: (args: InvokeCallbackParams) => any;
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
     postComponentRenderMessage: (p: any) => void;
+    postMessage: PostMessageCallback;
     preactify: PreactifyCallback;
     serializeArgs: SerializeArgsCallback;
     serializeNode: SerializeNodeCallback;
+    serializeProps: SerializePropsCallback;
   };
   context: {
     builtinComponents: BuiltinComponents;
@@ -297,8 +314,10 @@ export interface SerializeNodeParams {
   node: Node;
   childComponents: ComponentChildMetadata[];
   callbacks: CallbackMap;
+  decodeJsonString: (value: string) => string;
   parentId: string;
   preactRootComponentName: string;
+  serializeProps: SerializePropsCallback;
 }
 export type SerializeNodeCallback = (
   args: SerializeNodeParams
@@ -320,11 +339,14 @@ export interface SerializedProps extends KeyValuePair {
 export interface SerializePropsParams {
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
+  componentId?: string;
+  decodeJsonString: (value: string) => string;
   parentId: string;
   preactRootComponentName: string;
   props: any;
-  componentId?: string;
 }
+
+export type SerializePropsCallback = (params: SerializePropsParams) => Props;
 
 export interface SerializedComponentCallback {
   __componentMethod: string;
@@ -414,10 +436,13 @@ export interface DispatchRenderEventParams {
   builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   componentId: string;
+  decodeJsonString: (value: string) => string;
   node: Node;
   nodeRenders: Map<string, string>;
   postComponentRenderMessage: (p: any) => void;
+  postMessage: PostMessageCallback;
   preactRootComponentName: string;
   serializeNode: (p: SerializeNodeParams) => SerializedNode;
+  serializeProps: SerializePropsCallback;
   trust: string;
 }

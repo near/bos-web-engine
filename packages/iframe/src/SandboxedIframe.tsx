@@ -18,7 +18,6 @@ import {
   decodeJsonString,
   encodeJsonString,
   getBuiltins,
-  inlineGlobalDefinition,
   dispatchRenderEvent,
   initContainer,
   isMatchingProps,
@@ -64,40 +63,14 @@ function buildSandboxedComponent({
           const callbacks = {};
           const requests = {};
 
-          ${inlineGlobalDefinition('dispatchRenderEvent', dispatchRenderEvent)}
-          ${inlineGlobalDefinition('buildRequest', buildRequest)}
-          ${inlineGlobalDefinition('postMessage', postMessage)}
-          ${inlineGlobalDefinition(
-            'postComponentRenderMessage',
-            postComponentRenderMessage
-          )}
-          ${inlineGlobalDefinition(
-            'postCallbackInvocationMessage',
-            postCallbackInvocationMessage
-          )}
-          ${inlineGlobalDefinition(
-            'postCallbackResponseMessage',
-            postCallbackResponseMessage
-          )}
+          const initContainer = ${initContainer.toString()};
+          const isMatchingProps = ${isMatchingProps.toString()};
+          const renderContainerComponent = ${renderContainerComponent.toString()};
 
-          ${inlineGlobalDefinition('decodeJsonString', decodeJsonString)}
-          ${inlineGlobalDefinition('deserializeProps', deserializeProps)}
-          ${inlineGlobalDefinition('encodeJsonString', encodeJsonString)}
-          ${inlineGlobalDefinition('serializeArgs', serializeArgs)}
-          ${inlineGlobalDefinition('serializeNode', serializeNode)}
-          ${inlineGlobalDefinition('serializeProps', serializeProps)}
-
-          ${inlineGlobalDefinition('invokeCallback', invokeCallback)}
-          ${inlineGlobalDefinition(
-            'invokeComponentCallback',
-            invokeComponentCallback
-          )}
-
-          ${inlineGlobalDefinition('buildEventHandler', buildEventHandler)}
-          ${inlineGlobalDefinition('initContainer', initContainer)}
-          ${inlineGlobalDefinition('isMatchingProps', isMatchingProps)}
-          const preactify = ${preactify.toString()}
-          const renderContainerComponent = ${renderContainerComponent.toString()}
+          const buildRequest = ${buildRequest.toString()};
+          const encodeJsonString = ${encodeJsonString.toString()};
+          const deserializeProps = ${deserializeProps.toString()};
+          const postCallbackInvocationMessage = ${postCallbackInvocationMessage.toString()};
 
           const builtinComponents = ${getBuiltins.toString()}({ createElement });
 
@@ -126,18 +99,21 @@ function buildSandboxedComponent({
             renderComponent,
           } = initContainer({
             containerMethods: {
-              buildEventHandler,
-              buildRequest,
-              deserializeProps,
-              dispatchRenderEvent,
-              invokeCallback,
-              invokeComponentCallback,
-              postCallbackInvocationMessage,
-              postCallbackResponseMessage,
-              postComponentRenderMessage,
-              preactify,
-              serializeArgs,
-              serializeNode,
+              buildEventHandler: ${buildEventHandler.toString()},
+              buildRequest: ${buildRequest.toString()},
+              decodeJsonString: ${decodeJsonString.toString()},
+              deserializeProps: ${deserializeProps.toString()},
+              dispatchRenderEvent: ${dispatchRenderEvent.toString()},
+              invokeCallback: ${invokeCallback.toString()},
+              invokeComponentCallback: ${invokeComponentCallback.toString()},
+              postCallbackInvocationMessage: ${postCallbackInvocationMessage.toString()},
+              postCallbackResponseMessage: ${postCallbackResponseMessage.toString()},
+              postComponentRenderMessage: ${postComponentRenderMessage.toString()},
+              postMessage: ${postMessage.toString()},
+              preactify: ${preactify.toString()},
+              serializeArgs: ${serializeArgs.toString()},
+              serializeNode: ${serializeNode.toString()},
+              serializeProps: ${serializeProps.toString()},
             },
             context: {
               builtinComponents,

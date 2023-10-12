@@ -9,6 +9,7 @@ import type {
  * @param buildRequest Function to build an inter-Component asynchronous callback request
  * @param builtinComponents The set of Builtin Components provided by BOS Web Engine
  * @param callbacks The set of callbacks defined on the target Component
+ * @param decodeJsonString Function for decoding encoded JSON strings
  * @param deserializeProps Function to deserialize props passed on the event
  * @param invokeCallback Function to execute the specified function in the current context
  * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
@@ -29,6 +30,7 @@ export function buildEventHandler({
   builtinComponents,
   callbacks,
   componentId,
+  decodeJsonString,
   deserializeProps,
   invokeCallback,
   invokeComponentCallback,
@@ -41,6 +43,7 @@ export function buildEventHandler({
   requests,
   serializeArgs,
   serializeNode,
+  serializeProps,
   setProps,
 }: ProcessEventParams): Function {
   return function processEvent(event: PostMessageEvent) {
@@ -124,6 +127,8 @@ export function buildEventHandler({
             parentId: method,
             childComponents: [],
             preactRootComponentName,
+            decodeJsonString,
+            serializeProps,
           })
         );
 
@@ -132,6 +137,7 @@ export function buildEventHandler({
             postCallbackResponseMessage({
               error,
               componentId,
+              postMessage,
               requestId,
               result: value,
               targetId: originator,

@@ -31,11 +31,12 @@ export function postMessage<T extends PostMessageParams>(message: T) {
 export function postCallbackInvocationMessage({
   args,
   callbacks,
+  componentId,
   method,
+  postMessage,
   requestId,
   serializeArgs,
   targetId,
-  componentId,
 }: PostMessageComponentCallbackInvocationParams): void {
   postMessage<ComponentCallbackInvocation>({
     args: serializeArgs({ args, callbacks, componentId }),
@@ -50,6 +51,7 @@ export function postCallbackInvocationMessage({
 export function postCallbackResponseMessage({
   error,
   componentId,
+  postMessage,
   requestId,
   result,
   targetId,
@@ -71,15 +73,16 @@ export function postCallbackResponseMessage({
 
 export function postComponentRenderMessage({
   childComponents,
-  trust,
-  node,
   componentId,
+  node,
+  postMessage,
+  trust,
 }: PostMessageComponentRenderParams): void {
   postMessage<ComponentRender>({
     childComponents,
-    trust,
-    node,
-    type: 'component.render',
     componentId,
+    node,
+    trust,
+    type: 'component.render',
   });
 }

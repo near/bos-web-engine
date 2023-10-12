@@ -6,6 +6,7 @@ export function initContainer({
   containerMethods: {
     buildEventHandler,
     buildRequest,
+    decodeJsonString,
     deserializeProps,
     dispatchRenderEvent,
     invokeCallback,
@@ -13,9 +14,11 @@ export function initContainer({
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     postComponentRenderMessage,
+    postMessage,
     preactify,
     serializeArgs,
     serializeNode,
+    serializeProps,
   },
   context: {
     builtinComponents,
@@ -62,11 +65,14 @@ export function initContainer({
         builtinComponents,
         callbacks,
         componentId: componentId,
+        decodeJsonString,
         node: containerComponent(),
         nodeRenders,
         postComponentRenderMessage,
+        postMessage,
         preactRootComponentName,
         serializeNode,
+        serializeProps,
         trust,
       });
     }
@@ -78,12 +84,14 @@ export function initContainer({
     builtinComponents,
     callbacks,
     componentId,
+    decodeJsonString,
     deserializeProps,
     invokeCallback,
     invokeComponentCallback,
     parentContainerId,
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
+    postMessage,
     preactRootComponentName,
     renderComponent,
     renderDom: (node: Node) =>
@@ -91,6 +99,7 @@ export function initContainer({
     requests,
     serializeArgs,
     serializeNode,
+    serializeProps,
     setProps,
   });
 

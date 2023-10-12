@@ -3,7 +3,7 @@ import type {
   Props,
   SerializeArgsParams,
   SerializeNodeParams,
-  SerializePropsParams,
+  SerializePropsCallback,
   SerializedArgs,
   SerializedNode,
 } from './types';
@@ -31,19 +31,21 @@ export function decodeJsonString(value: string) {
  * Component.
  * @param builtinComponents Set of builtin BOS Web Engine Components
  * @param callbacks Component container's callbacks
+ * @param componentId The target Component ID
+ * @param decodeJsonString Method for decoding encoded JSON strings
  * @param parentId Component's parent container
  * @param preactRootComponentName The name of the root/Fragment Preact function
  * @param props The props for this container's Component
- * @param componentId The target Component ID
  */
-export function serializeProps({
+export const serializeProps: SerializePropsCallback = ({
   builtinComponents,
   callbacks,
+  componentId,
+  decodeJsonString,
   parentId,
   preactRootComponentName,
   props,
-  componentId,
-}: SerializePropsParams): Props {
+}) => {
   return Object.entries(props).reduce(
     (newProps, [key, value]: [string, any]) => {
       // TODO better preact component check
@@ -62,9 +64,11 @@ export function serializeProps({
             builtinComponents,
             callbacks,
             childComponents: [],
+            decodeJsonString,
             node: value,
             parentId,
             preactRootComponentName,
+            serializeProps,
           });
         } else if (typeof value === 'string') {
           serializedValue = decodeJsonString(serializedValue);
@@ -108,7 +112,7 @@ export function serializeProps({
     },
     {} as Props
   );
-}
+};
 
 export function serializeArgs({
   args,
@@ -185,11 +189,12 @@ export function deserializeProps({
           postCallbackInvocationMessage({
             args,
             callbacks,
+            componentId,
             method: __componentMethod, // the key on the props object passed to this Component
+            postMessage,
             requestId,
             serializeArgs,
             targetId: parentContainerId,
-            componentId,
           });
 
           return requests[requestId].promise;
@@ -213,6 +218,7 @@ interface BuildComponentIdParams {
  * @param builtinComponents Set of builtin BOS Web Engine Components
  * @param callbacks Component container's callbacks
  * @param childComponents Set of descendant Components accumulated across recursive invocations
+ * @param decodeJsonString Method for decoding encoded JSON strings
  * @param node The Preact Component to serialize
  * @param parentId Component's parent container
  * @param preactRootComponentName The name of the root/Fragment Preact function
@@ -222,8 +228,10 @@ export function serializeNode({
   node,
   childComponents,
   callbacks,
+  decodeJsonString,
   parentId,
   preactRootComponentName,
+  serializeProps,
 }: SerializeNodeParams): SerializedNode {
   function buildComponentId({
     instanceId,
@@ -295,6 +303,7 @@ export function serializeNode({
                 parentId,
                 componentId,
                 preactRootComponentName,
+                decodeJsonString,
               })
             : {},
           source: src,
@@ -339,7 +348,9 @@ export function serializeNode({
         parentId: componentId,
         callbacks,
         childComponents,
+        decodeJsonString,
         preactRootComponentName,
+        serializeProps,
       });
     }
   }
@@ -351,6 +362,7 @@ export function serializeNode({
         props,
         builtinComponents,
         callbacks,
+        decodeJsonString,
         parentId,
         preactRootComponentName,
       }),
@@ -361,8 +373,10 @@ export function serializeNode({
               builtinComponents,
               childComponents,
               callbacks,
+              decodeJsonString,
               parentId,
               preactRootComponentName,
+              serializeProps,
             })
           : c
       ),

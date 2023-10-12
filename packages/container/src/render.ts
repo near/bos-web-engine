@@ -107,11 +107,14 @@ export function dispatchRenderEvent({
   builtinComponents,
   callbacks,
   componentId,
+  decodeJsonString,
   node,
   nodeRenders,
   postComponentRenderMessage,
+  postMessage,
   preactRootComponentName,
   serializeNode,
+  serializeProps,
   trust,
 }: DispatchRenderEventParams) {
   const serializedNode = serializeNode({
@@ -121,6 +124,8 @@ export function dispatchRenderEvent({
     callbacks,
     parentId: componentId,
     preactRootComponentName,
+    decodeJsonString,
+    serializeProps,
   });
 
   if (!serializedNode?.type) {
@@ -167,9 +172,10 @@ export function dispatchRenderEvent({
   try {
     postComponentRenderMessage({
       childComponents,
-      trust,
-      node: serializedNode,
       componentId: componentId,
+      node: serializedNode,
+      postMessage,
+      trust,
     });
   } catch (error) {
     console.warn('failed to dispatch render for ${id}', {

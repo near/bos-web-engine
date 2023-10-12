@@ -4,7 +4,6 @@ export { invokeCallback, invokeComponentCallback } from './callbacks';
 export { initContainer } from './container';
 export { buildEventHandler } from './events';
 export { buildUseComponentCallback } from './hooks';
-export { inlineGlobalDefinition } from './injection';
 export {
   buildRequest,
   postMessage,

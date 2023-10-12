@@ -72,12 +72,13 @@ export function invokeComponentCallback({
         postCallbackInvocationMessage({
           args: childArgs,
           callbacks,
-          method: componentMethod,
-          requestId,
-          serializeArgs,
-          // TODO must specify a real value here
-          targetId: componentMethod.split('::').slice(1).join('::'),
           componentId,
+          method: componentMethod,
+          postMessage,
+          requestId,
+          // TODO must specify a real value here
+          serializeArgs,
+          targetId: componentMethod.split('::').slice(1).join('::'),
         });
       };
     });
