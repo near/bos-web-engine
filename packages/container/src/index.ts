@@ -12,7 +12,12 @@ export {
   postCallbackResponseMessage,
   postComponentRenderMessage,
 } from './messaging';
-export { dispatchRenderEvent, isMatchingProps, preactify } from './render';
+export {
+  dispatchRenderEvent,
+  isMatchingProps,
+  preactify,
+  renderContainerComponent,
+} from './render';
 export {
   decodeJsonString,
   deserializeProps,

@@ -205,14 +205,15 @@ export interface InitContainerParams {
   context: {
     builtinComponents: BuiltinComponents;
     builtinPlaceholders: BuiltinComponentPlaceholders;
+    BWEComponent: Function;
     callbacks: CallbackMap;
     componentId: string;
     createElement: PreactCreateElement;
     parentContainerId: string | null;
     preactRootComponentName: string;
     props: any;
-    renderDom: (node: any) => object;
-    renderComponent: () => void;
+    render: PreactRender;
+    renderContainerComponent: RenderContainerComponentCallback;
     requests: { [key: string]: CallbackRequest };
     setProps: (props: object) => boolean;
   };
@@ -236,7 +237,7 @@ export interface SerializeArgsParams {
   componentId: string;
 }
 
-interface PreactElement {
+export interface PreactElement {
   type: string;
   props: any;
 }
@@ -250,6 +251,8 @@ type CreateSerializedBuiltin = ({
   props,
   children,
 }: BuiltinProps<any>) => PreactElement;
+
+export type PreactRender = (component: Function, target: HTMLElement) => void;
 
 export interface GetBuiltinsParams {
   createElement: PreactCreateElement;
@@ -388,3 +391,16 @@ export interface BuiltinProps<T extends BuiltinPropsTypes> {
 export interface BuiltinComponentPlaceholders {
   Widget: Function;
 }
+
+interface RenderComponentParams {
+  stateUpdate?: string;
+  BWEComponent: Function;
+  stateUpdates: Map<string, any[]>;
+  createElement: PreactCreateElement;
+  render: Function;
+  componentId: string;
+}
+
+export type RenderContainerComponentCallback = (
+  params: RenderComponentParams
+) => PreactElement | undefined;

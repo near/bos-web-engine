@@ -23,6 +23,7 @@ import {
   initContainer,
   isMatchingProps,
   preactify,
+  renderContainerComponent,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -91,9 +92,12 @@ function buildSandboxedComponent({
             'invokeComponentCallback',
             invokeComponentCallback
           )}
-          
-          const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
-          const useComponentCallback = buildUseComponentCallback(renderComponent);
+
+          ${inlineGlobalDefinition('buildEventHandler', buildEventHandler)}
+          ${inlineGlobalDefinition('initContainer', initContainer)}
+          ${inlineGlobalDefinition('isMatchingProps', isMatchingProps)}
+          const preactify = ${preactify.toString()}
+          const renderContainerComponent = ${renderContainerComponent.toString()}
 
           const builtinComponents = ${getBuiltins.toString()}({ createElement });
 
@@ -116,38 +120,51 @@ function buildSandboxedComponent({
 
           const builtinPlaceholders = { Widget };
 
-          // cache previous renders
-          const nodeRenders = new Map();
-          
-          // register handler executed upon vnode render
-          const hooksDiffed = options.diffed;
-          options.diffed = (vnode) => {
-            // TODO this handler will fire for every descendant node rendered,
-            //  could be a good way to optimize renders within a container without
-            //  re-rendering the entire thing
-            const [containerComponent] = vnode.props?.children || [];
-            if (containerComponent && vnode.type?.name === PREACT_ROOT_COMPONENT_NAME) {
-              dispatchRenderEvent({
-                builtinComponents,
-                callbacks,
-                componentId: '${id}',
-                node: containerComponent(),
-                nodeRenders,
-                postComponentRenderMessage,
-                preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-                serializeNode,
-                trust: '${JSON.stringify(trust)}',
-              });
-            }
-            hooksDiffed?.(vnode);
-          };
-
+          const {
+            processEvent,
+            renderComponent,
+          } = initContainer({
+            containerMethods: {
+              buildEventHandler,
+              buildRequest,
+              deserializeProps,
+              invokeCallback,
+              invokeComponentCallback,
+              postCallbackInvocationMessage,
+              postCallbackResponseMessage,
+              preactify,
+              serializeArgs,
+              serializeNode,
+            },
+            context: {
+              builtinComponents,
+              builtinPlaceholders,
+              BWEComponent,
+              callbacks,
+              componentId: '${id}',
+              createElement,
+              parentContainerId: '${parentContainerId}',
+              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
+              render,
+              renderContainerComponent,
+              requests,
+              setProps: (newProps) => {
+                if (isMatchingProps({ ...props }, newProps)) {
+                  return false;
+                }
+  
+                props = buildSafeProxy({ ...props, ...newProps });
+                return true;
+              },
+            },
+          });
+      
           /* NS shims */
           function buildSafeProxy(p) {
             return new Proxy({ ...p, __bweMeta: { componentId: '${id}', isProxy: true } }, {
               get(target, key) {
                 try {
-                  return target[key];                
+                  return target[key];
                 } catch {
                   return undefined;
                 }
@@ -199,95 +216,49 @@ function buildSandboxedComponent({
             }
           });
 
+          const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
+          const useComponentCallback = buildUseComponentCallback(renderComponent);
+
           // TODO remove debug value
           const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
           
           const ComponentState = new Map();
 
-                /* BEGIN EXTERNAL SOURCE */
-                ${scriptSrc}
-                /* END EXTERNAL SOURCE */
-      
-          const stateUpdates = new Map();
+          /* BEGIN EXTERNAL SOURCE */
+          ${scriptSrc}
+          /* END EXTERNAL SOURCE */
 
-          function renderComponent({ stateUpdate } = {}) {
-            try {
-              // TODO remove this kludge-y stopgap preventing State.update() calls on render from triggering cascading renders.
-              //  This likely has unintended consequences for Components calling State.update() at render time, but that should
-              //  be considered an antipattern to be replaced by a [useEffect] implementation.
-              if (stateUpdate) {
-                if (!stateUpdates.has(stateUpdate)) {
-                  stateUpdates.set(stateUpdate, []);
-                }
-
-                const updates = stateUpdates.get(stateUpdate);
-                stateUpdates.set(stateUpdate, [...updates, (new Date()).valueOf()]);
-                if (updates.length > 5) {
-                  return;
-                }
-              }
-
-              try {
-                render(BWEComponent, document.getElementById('${id}'));
-              } catch (e) {
-                console.error(e, { componentId: '${id.split('##')[0]}' });
-                return createElement(
-                  'div',
-                  {},
-                  'failed to load ${
-                    componentPath.split('##')[0]
-                  }: ' + e.toString() + '\\n\\n' + e.stack
-                );
-              }
-            } catch (e) {
-              console.error(e, { componentId: '${id}' });
-            }
-          }
+          // cache previous renders
+          const nodeRenders = new Map();
           
-          renderComponent();
-
-          ${inlineGlobalDefinition('buildEventHandler', buildEventHandler)}
-          ${inlineGlobalDefinition('initContainer', initContainer)}
-          ${inlineGlobalDefinition('isMatchingProps', isMatchingProps)}
-          ${inlineGlobalDefinition('preactify', preactify)}
-
-          const {
-            processEvent,
-          } = initContainer({
-            containerMethods: {
-              buildEventHandler,
-              buildRequest,
-              deserializeProps,
-              invokeCallback,
-              invokeComponentCallback,
-              postCallbackInvocationMessage,
-              postCallbackResponseMessage,
-              serializeArgs,
-              serializeNode,
-            },
-            context: {
-              builtinComponents,
-              builtinPlaceholders,
-              callbacks,
-              componentId: '${id}',
-              createElement,
-              parentContainerId: '${parentContainerId}',
-              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-              renderComponent,
-              renderDom: (node) => preactify(node),
-              requests,
-              setProps: (newProps) => {
-                if (isMatchingProps({ ...props }, newProps)) {
-                  return false;
-                }
-  
-                props = buildSafeProxy({ ...props, ...newProps });
-                return true;
-              },
-            },
-          });
+          // register handler executed upon vnode render
+          const hooksDiffed = options.diffed;
+          options.diffed = (vnode) => {
+            // TODO this handler will fire for every descendant node rendered,
+            //  could be a good way to optimize renders within a container without
+            //  re-rendering the entire thing
+            const [containerComponent] = vnode.props?.children || [];
+            if (containerComponent && vnode.type?.name === PREACT_ROOT_COMPONENT_NAME) {
+              dispatchRenderEvent({
+                builtinComponents,
+                callbacks,
+                componentId: '${id}',
+                node: containerComponent(),
+                nodeRenders,
+                postComponentRenderMessage,
+                preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
+                serializeNode,
+                trust: '${JSON.stringify(trust)}',
+              });
+            }
+            hooksDiffed?.(vnode);
+          };
 
           window.addEventListener('message', processEvent);
+
+          // first render once container is initialized
+          // this should always happen last
+          renderComponent();
         </script>
       </body>
     </html>
