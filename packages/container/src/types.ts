@@ -92,8 +92,13 @@ export interface KeyValuePair {
   [key: string]: any;
 }
 
-export interface NodeProps extends Props {
-  children: any[];
+export interface Props extends KeyValuePair {
+  __bweMeta?: WebEngineMeta;
+  __domcallbacks?: { [key: string]: any };
+  __componentcallbacks?: { [key: string]: any };
+  children?: any[];
+  className?: string;
+  id?: string;
 }
 
 export interface DomCallback {
@@ -185,6 +190,8 @@ export interface ComponentUpdate extends PostMessageParams {
   componentId: string;
 }
 
+export type IsMatchingPropsCallback = (a: Props, b: Props) => boolean;
+
 interface PreactifyParams {
   node: Node;
   builtinPlaceholders: BuiltinComponentPlaceholders;
@@ -217,6 +224,8 @@ export type ComposeSerializationMethodsCallback = (
   serializeProps: SerializePropsCallback;
 };
 
+export type UpdateContainerPropsCallback = (props: Props) => void;
+
 export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
@@ -229,11 +238,10 @@ export interface ProcessEventParams {
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   postMessage: PostMessageCallback;
   renderDom: (node: any) => object;
-  renderComponent: RenderComponentCallback;
   requests: RequestMap;
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
-  setProps: (props: object) => boolean;
+  updateProps: (props: Props) => void;
 }
 
 export interface InitContainerParams {
@@ -250,6 +258,7 @@ export interface InitContainerParams {
     getBuiltins: GetBuiltinsCallback;
     invokeCallback: (args: InvokeCallbackParams) => any;
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
+    isMatchingProps: IsMatchingPropsCallback;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
     postComponentRenderMessage: (p: any) => void;
@@ -269,16 +278,10 @@ export interface InitContainerParams {
     props: any;
     render: PreactRender;
     rpcUrl: string;
-    setProps: (props: object) => boolean;
     socialApiUrl: string;
     trust: string;
+    updateContainerProps: UpdateContainerPropsCallback;
   };
-}
-
-export interface Props extends KeyValuePair {
-  __domcallbacks?: { [key: string]: any };
-  __componentcallbacks?: { [key: string]: any };
-  children?: any[];
 }
 
 export type SerializedArgs = Array<
@@ -336,7 +339,7 @@ export interface BuiltinComponents {
 
 export interface Node {
   type: string | Function;
-  props?: NodeProps;
+  props?: Props;
   key?: string;
 }
 
@@ -360,7 +363,7 @@ export interface SerializedNode {
   childComponents?: ComponentChildMetadata[];
   className?: string;
   type: string;
-  props: NodeProps | ComponentProps;
+  props: Props;
 }
 
 export interface SerializedProps extends KeyValuePair {
@@ -380,13 +383,6 @@ export type SerializePropsCallback = (params: SerializePropsParams) => Props;
 export interface SerializedComponentCallback {
   __componentMethod: string;
   parentId: string;
-}
-
-export interface ComponentProps {
-  __bweMeta?: WebEngineMeta;
-  children?: any[];
-  className?: string;
-  id: string;
 }
 
 // builtin component props
@@ -436,8 +432,7 @@ type BuiltinPropsTypes =
   | InfiniteScrollProps
   | MarkdownProps
   | OverlayTriggerProps
-  | TypeaheadProps
-  | ComponentProps;
+  | TypeaheadProps;
 
 export interface BuiltinProps<T extends BuiltinPropsTypes> {
   children: any[];

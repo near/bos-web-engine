@@ -1,10 +1,10 @@
 import {
   BuildSafeProxyCallback,
-  ComponentProps,
   DispatchRenderEventCallback,
-  NodeProps,
   RenderContainerComponentCallback,
   PreactifyCallback,
+  Props,
+  IsMatchingPropsCallback,
 } from './types';
 
 export const buildSafeProxy: BuildSafeProxyCallback = ({
@@ -43,7 +43,10 @@ export const preactify: PreactifyCallback = ({
   const isComponent = !!props!.src?.match(
     /[0-9a-z._-]{5,}\/widget\/[0-9a-z._-]+/gi
   );
-  const { children } = props!;
+  const { children } = props;
+  if (!children) {
+    return undefined;
+  }
 
   return createElement(
     isComponent ? builtinPlaceholders.Widget : type,
@@ -64,13 +67,11 @@ export const preactify: PreactifyCallback = ({
   );
 };
 
-type ComparableProps = NodeProps | ComponentProps;
-
-export function isMatchingProps(
-  props: ComparableProps,
-  compareProps: ComparableProps
-) {
-  const getComparable = (p: ComparableProps) =>
+export const isMatchingProps: IsMatchingPropsCallback = (
+  props,
+  compareProps
+) => {
+  const getComparable = (p: Props) =>
     Object.entries(p)
       .sort(([aKey], [bKey]) => (aKey === bKey ? 0 : aKey > bKey ? 1 : -1))
       .filter(([k]) => k !== '__bweMeta')
@@ -78,7 +79,7 @@ export function isMatchingProps(
       .join(',');
 
   return getComparable(props) === getComparable(compareProps);
-}
+};
 
 export const renderContainerComponent: RenderContainerComponentCallback = ({
   stateUpdate,

@@ -8,6 +8,7 @@ import type {
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
  * @param buildRequest Function to build an inter-Component asynchronous callback request
  * @param callbacks The set of callbacks defined on the target Component
+ * @param componentId ID of the target Component on which the
  * @param deserializeProps Function to deserialize props passed on the event
  * @param invokeCallback Function to execute the specified function in the current context
  * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
@@ -19,8 +20,7 @@ import type {
  * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  * @param serializeNode Function to serialize Preact DOM trees passed to window.postMessage
- * @param setProps Callback for setting the Component's props
- * @param componentId ID of the target Component on which the
+ * @param updateProps Callback for setting the Component's props
  */
 export function buildEventHandler({
   buildRequest,
@@ -34,16 +34,14 @@ export function buildEventHandler({
   postCallbackResponseMessage,
   postMessage,
   renderDom,
-  renderComponent,
   requests,
   serializeArgs,
   serializeNode,
-  setProps,
+  updateProps,
 }: ProcessEventParams): Function {
   return function processEvent(event: PostMessageEvent) {
     let error: any = null;
     let result: any;
-    let shouldRender = false;
 
     function invokeCallbackFromEvent({
       args,
@@ -189,15 +187,13 @@ export function buildEventHandler({
               console.error('DOM event handler async callback failed', e)
             );
           }
-
-          shouldRender = true; // TODO conditional re-render
         } catch (e: any) {
           error = e as Error;
         }
         break;
       }
       case 'component.update': {
-        shouldRender = setProps(
+        updateProps(
           deserializeProps({
             componentId,
             props: event.data.props,
@@ -212,10 +208,6 @@ export function buildEventHandler({
 
     if (error) {
       console.error(error);
-    }
-
-    if (shouldRender) {
-      renderComponent();
     }
   };
 }

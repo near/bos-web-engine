@@ -55,8 +55,6 @@ function buildSandboxedComponent({
           const PREACT_ROOT_COMPONENT_NAME = __Fragment.name;
 
           const initContainer = ${initContainer.toString()};
-          const isMatchingProps = ${isMatchingProps.toString()};
-          const buildSafeProxy = ${buildSafeProxy.toString()};
 
           // builtin components must have references defined in order for the Component to render
           // builtin components are resolved during serialization 
@@ -110,6 +108,7 @@ function buildSandboxedComponent({
               getBuiltins: ${getBuiltins.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
+              isMatchingProps: ${isMatchingProps.toString()},
               postCallbackInvocationMessage: ${postCallbackInvocationMessage.toString()},
               postCallbackResponseMessage: ${postCallbackResponseMessage.toString()},
               postComponentRenderMessage: ${postComponentRenderMessage.toString()},
@@ -128,16 +127,16 @@ function buildSandboxedComponent({
               preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
               render,
               rpcUrl: 'https://rpc.near.org',
-              setProps: (newProps) => {
-                if (isMatchingProps({ ...props }, newProps)) {
-                  return false;
-                }
-  
-                props = buildSafeProxy({ componentId: '${id}', props: { ...props, ...newProps } });
-                return true;
-              },
               socialApiUrl: 'https://api.near.social',
               trust: '${JSON.stringify(trust)}',
+              updateContainerProps: (updateProps) => {
+                const originalProps = props;
+                // if nothing has changed, the same [props] object will be returned
+                props = updateProps(props);
+                if (props !== originalProps) {
+                  renderComponent();
+                }
+              },
             },
           });
 

@@ -4,6 +4,7 @@ import {
   CallbackRequest,
   InitContainerParams,
   Node,
+  Props,
   RenderComponentCallback,
 } from './types';
 
@@ -21,6 +22,7 @@ export function initContainer({
     getBuiltins,
     invokeCallback,
     invokeComponentCallback,
+    isMatchingProps,
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     postComponentRenderMessage,
@@ -39,9 +41,9 @@ export function initContainer({
     preactRootComponentName,
     render,
     rpcUrl,
-    setProps,
     socialApiUrl,
     trust,
+    updateContainerProps,
   },
 }: InitContainerParams) {
   const builtinComponents = getBuiltins({ createElement });
@@ -115,13 +117,26 @@ export function initContainer({
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     postMessage,
-    renderComponent,
     renderDom: (node: Node) =>
       preactify({ node, builtinPlaceholders, createElement }),
     requests,
     serializeArgs,
     serializeNode,
-    setProps,
+    updateProps: (newProps) =>
+      updateContainerProps((props: Props) => {
+        /* `props` is actually a proxy */
+        if (isMatchingProps({ ...props }, newProps)) {
+          return props;
+        }
+
+        return buildSafeProxy({
+          componentId,
+          props: {
+            ...props,
+            ...newProps,
+          },
+        });
+      }),
   });
 
   const { Near, Social } = composeApiMethods({
