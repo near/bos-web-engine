@@ -1,9 +1,8 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
 import {
   buildUseComponentCallback,
-  initNear,
-  initSocial,
   buildEventHandler,
+  composeApiMethods,
   invokeCallback,
   invokeComponentCallback,
   buildRequest,
@@ -58,7 +57,6 @@ function buildSandboxedComponent({
           const initContainer = ${initContainer.toString()};
           const isMatchingProps = ${isMatchingProps.toString()};
           const buildSafeProxy = ${buildSafeProxy.toString()};
-          const encodeJsonString = ${encodeJsonString.toString()};
 
           // builtin components must have references defined in order for the Component to render
           // builtin components are resolved during serialization 
@@ -92,17 +90,21 @@ function buildSandboxedComponent({
             /* core dependencies */
             context,
             diffComponent,
+            Near,
             processEvent,
             props: containerProps,
             renderComponent,
+            Social,
           } = initContainer({
             containerMethods: {
               buildEventHandler: ${buildEventHandler.toString()},
               buildRequest: ${buildRequest.toString()},
               buildSafeProxy: ${buildSafeProxy.toString()},
+              composeApiMethods: ${composeApiMethods.toString()},
               composeSerializationMethods: ${composeSerializationMethods.toString()},
               decodeJsonString: ${decodeJsonString.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
+              encodeJsonString: ${encodeJsonString.toString()},
               getBuiltins: ${getBuiltins.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
@@ -123,6 +125,7 @@ function buildSandboxedComponent({
               preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
               render,
               renderContainerComponent: ${renderContainerComponent.toString()},
+              rpcUrl: 'https://rpc.near.org',
               setProps: (newProps) => {
                 if (isMatchingProps({ ...props }, newProps)) {
                   return false;
@@ -131,23 +134,12 @@ function buildSandboxedComponent({
                 props = buildSafeProxy({ componentId: '${id}', props: { ...props, ...newProps } });
                 return true;
               },
+              socialApiUrl: 'https://api.near.social',
               trust: '${JSON.stringify(trust)}',
             },
           });
 
           props = containerProps;
-
-          const Near = (${initNear.toString()})({
-            renderComponent,
-            rpcUrl: 'https://rpc.near.org',
-          });
-
-          const Social = (${initSocial.toString()})({
-            endpointBaseUrl: 'https://api.near.social',
-            renderComponent,
-            sanitizeString: encodeJsonString,
-            componentId: '${id}',
-          });
 
           const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
           const useComponentCallback = buildUseComponentCallback(renderComponent);

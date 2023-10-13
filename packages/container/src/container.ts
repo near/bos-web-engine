@@ -7,9 +7,11 @@ export function initContainer({
     buildEventHandler,
     buildRequest,
     buildSafeProxy,
+    composeApiMethods,
     composeSerializationMethods,
     decodeJsonString,
     dispatchRenderEvent,
+    encodeJsonString,
     getBuiltins,
     invokeCallback,
     invokeComponentCallback,
@@ -30,7 +32,9 @@ export function initContainer({
     preactRootComponentName,
     render,
     renderContainerComponent,
+    rpcUrl,
     setProps,
+    socialApiUrl,
     trust,
   },
 }: InitContainerParams) {
@@ -114,6 +118,14 @@ export function initContainer({
     setProps,
   });
 
+  const { Near, Social } = composeApiMethods({
+    componentId,
+    encodeJsonString,
+    renderComponent,
+    rpcUrl,
+    socialApiUrl,
+  });
+
   const props = buildSafeProxy({
     componentId,
     props: deserializeProps({
@@ -167,8 +179,10 @@ export function initContainer({
     /* Web Engine core */
     context,
     diffComponent,
+    Near,
     processEvent,
     props,
     renderComponent,
+    Social,
   };
 }

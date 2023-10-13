@@ -38,17 +38,37 @@ export type EventType =
   | ComponentRenderType
   | ComponentUpdateType;
 
-export interface InitNearParams {
-  renderComponent: () => void;
-  rpcUrl: string;
+export interface SocialQueryKey {
+  blockHeight?: number;
+  path?: string;
+  type?: string;
 }
 
-export interface InitSocialParams {
-  endpointBaseUrl: string;
-  renderComponent: Function;
-  sanitizeString: (s: string) => string;
-  componentId: string;
+export interface SocialQueryParams {
+  action?: string;
+  key?: SocialQueryKey | string;
+  options?: any;
+  keys?: string | string[];
 }
+
+export interface CachedQueryParams {
+  apiEndpoint: string;
+  body: SocialQueryParams;
+  cacheKey: string;
+}
+
+export interface ComposeApiMethodsParams {
+  componentId: string;
+  encodeJsonString: EncodeJsonStringCallback;
+  renderComponent: () => void;
+  rpcUrl: string;
+  socialApiUrl: string;
+}
+
+export type ComposeApiMethodsCallback = (params: ComposeApiMethodsParams) => {
+  Near: any;
+  Social: any;
+};
 
 export interface InvokeCallbackParams {
   args: SerializedArgs | EventArgs;
@@ -174,6 +194,7 @@ interface PreactifyParams {
 export type PreactifyCallback = (params: PreactifyParams) => any;
 
 export type DecodeJsonStringCallback = (value: string) => string;
+export type EncodeJsonStringCallback = (value: string) => string;
 
 export interface ComposeSerializationMethodsParams {
   buildRequest: BuildRequestCallback;
@@ -220,13 +241,12 @@ export interface InitContainerParams {
     buildEventHandler: (params: ProcessEventParams) => Function;
     buildRequest: BuildRequestCallback;
     buildSafeProxy: BuildSafeProxyCallback;
+    composeApiMethods: ComposeApiMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
     decodeJsonString: DecodeJsonStringCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
-    // encodeJsonString,
+    encodeJsonString: EncodeJsonStringCallback;
     getBuiltins: GetBuiltinsCallback;
-    // initNear,
-    // initSocial,
     invokeCallback: (args: InvokeCallbackParams) => any;
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
@@ -247,7 +267,9 @@ export interface InitContainerParams {
     props: any;
     render: PreactRender;
     renderContainerComponent: RenderContainerComponentCallback;
+    rpcUrl: string;
     setProps: (props: object) => boolean;
+    socialApiUrl: string;
     trust: string;
   };
 }

@@ -1,4 +1,4 @@
-export { initNear, initSocial } from './api';
+export { composeApiMethods } from './api';
 export { getBuiltins } from './builtins';
 export { invokeCallback, invokeComponentCallback } from './callbacks';
 export { initContainer } from './container';
