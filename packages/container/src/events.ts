@@ -7,26 +7,23 @@ import type {
 /**
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
  * @param buildRequest Function to build an inter-Component asynchronous callback request
- * @param builtinComponents The set of Builtin Components provided by BOS Web Engine
  * @param callbacks The set of callbacks defined on the target Component
+ * @param componentId ID of the target Component on which the
  * @param deserializeProps Function to deserialize props passed on the event
  * @param invokeCallback Function to execute the specified function in the current context
  * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
  * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
- * @param preactRootComponentName Name of the Preact Fragment Component function (i.e. the root Component's name)
  * @param renderDom Callback for rendering DOM within the component
  * @param renderComponent Callback for rendering the Component
  * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  * @param serializeNode Function to serialize Preact DOM trees passed to window.postMessage
- * @param setProps Callback for setting the Component's props
- * @param componentId ID of the target Component on which the
+ * @param updateProps Callback for setting the Component's props
  */
 export function buildEventHandler({
   buildRequest,
-  builtinComponents,
   callbacks,
   componentId,
   deserializeProps,
@@ -35,18 +32,16 @@ export function buildEventHandler({
   parentContainerId,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
-  preactRootComponentName,
+  postMessage,
   renderDom,
-  renderComponent,
   requests,
   serializeArgs,
   serializeNode,
-  setProps,
+  updateProps,
 }: ProcessEventParams): Function {
   return function processEvent(event: PostMessageEvent) {
     let error: any = null;
     let result: any;
-    let shouldRender = false;
 
     function invokeCallbackFromEvent({
       args,
@@ -118,12 +113,9 @@ export function buildEventHandler({
 
         result = applyRecursivelyToComponents(result, (n: any) =>
           serializeNode({
-            builtinComponents,
             node: n,
-            callbacks,
             parentId: method,
             childComponents: [],
-            preactRootComponentName,
           })
         );
 
@@ -132,6 +124,7 @@ export function buildEventHandler({
             postCallbackResponseMessage({
               error,
               componentId,
+              postMessage,
               requestId,
               result: value,
               targetId: originator,
@@ -194,23 +187,16 @@ export function buildEventHandler({
               console.error('DOM event handler async callback failed', e)
             );
           }
-
-          shouldRender = true; // TODO conditional re-render
         } catch (e: any) {
           error = e as Error;
         }
         break;
       }
       case 'component.update': {
-        shouldRender = setProps(
+        updateProps(
           deserializeProps({
-            buildRequest,
-            callbacks,
             componentId,
-            parentContainerId,
-            postCallbackInvocationMessage,
             props: event.data.props,
-            requests,
           })
         );
         break;
@@ -222,10 +208,6 @@ export function buildEventHandler({
 
     if (error) {
       console.error(error);
-    }
-
-    if (shouldRender) {
-      renderComponent();
     }
   };
 }

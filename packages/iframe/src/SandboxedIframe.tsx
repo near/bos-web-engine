@@ -1,9 +1,8 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
 import {
   buildUseComponentCallback,
-  initNear,
-  initSocial,
   buildEventHandler,
+  composeApiMethods,
   invokeCallback,
   invokeComponentCallback,
   buildRequest,
@@ -11,14 +10,16 @@ import {
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   postComponentRenderMessage,
-  deserializeProps,
-  serializeArgs,
-  serializeNode,
-  serializeProps,
   decodeJsonString,
   encodeJsonString,
   getBuiltins,
-  inlineGlobalDefinition,
+  dispatchRenderEvent,
+  initContainer,
+  isMatchingProps,
+  preactify,
+  renderContainerComponent,
+  buildSafeProxy,
+  composeSerializationMethods,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -28,11 +29,9 @@ function buildSandboxedComponent({
   componentProps,
   parentContainerId,
 }: SandboxedIframeProps) {
-  const componentPath = id.split('::')[0];
-  let jsonComponentProps = '{}';
-  if (componentProps) {
-    jsonComponentProps = encodeJsonString(JSON.stringify(componentProps));
-  }
+  const componentPropsJson = componentProps
+    ? encodeJsonString(JSON.stringify(componentProps))
+    : '{}';
 
   return `
     <html>
@@ -54,120 +53,8 @@ function buildSandboxedComponent({
           import { useEffect, useState } from 'preact/hooks';
 
           const PREACT_ROOT_COMPONENT_NAME = __Fragment.name;
-          
-          // register handler executed upon vnode render
-          const hooksDiffed = options.diffed;
-          options.diffed = (vnode) => {
-            // TODO this handler will fire for every descendant node rendered,
-            //  could be a good way to optimize renders within a container without
-            //  re-rendering the entire thing
-            const [containerComponent] = vnode.props?.children || [];
-            if (containerComponent && vnode.type?.name === PREACT_ROOT_COMPONENT_NAME) {
-              dispatchRenderEvent(containerComponent());
-            }
-            hooksDiffed?.(vnode);
-          };
 
-          /* generated code for ${componentPath} */
-          const callbacks = {};
-          const requests = {};
-
-          ${inlineGlobalDefinition('buildRequest', buildRequest)}
-          ${inlineGlobalDefinition('postMessage', postMessage)}
-          ${inlineGlobalDefinition(
-            'postComponentRenderMessage',
-            postComponentRenderMessage
-          )}
-          ${inlineGlobalDefinition(
-            'postCallbackInvocationMessage',
-            postCallbackInvocationMessage
-          )}
-          ${inlineGlobalDefinition(
-            'postCallbackResponseMessage',
-            postCallbackResponseMessage
-          )}
-
-          ${inlineGlobalDefinition('decodeJsonString', decodeJsonString)}
-          ${inlineGlobalDefinition('deserializeProps', deserializeProps)}
-          ${inlineGlobalDefinition('encodeJsonString', encodeJsonString)}
-          ${inlineGlobalDefinition('serializeArgs', serializeArgs)}
-          ${inlineGlobalDefinition('serializeNode', serializeNode)}
-          ${inlineGlobalDefinition('serializeProps', serializeProps)}
-
-          ${inlineGlobalDefinition('invokeCallback', invokeCallback)}
-          ${inlineGlobalDefinition(
-            'invokeComponentCallback',
-            invokeComponentCallback
-          )}
-          
-          const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
-          const useComponentCallback = buildUseComponentCallback(renderComponent);
-
-          const builtinComponents = ${getBuiltins.toString()}({ createElement });
-
-          const nodeRenders = {};
-          const dispatchRenderEvent = (node, componentId = '${id}') => {
-            const serializedNode = serializeNode({
-              node,
-              builtinComponents,
-              childComponents: [],
-              callbacks,
-              parentId: componentId,
-              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-            });
-
-            if (!serializedNode?.type) {
-              return;
-            }
-
-            function stringify(value) {
-              if (!value) {
-                return '';
-              }
-
-              if (Array.isArray(value)) {
-                return value.map(stringify).join(',');
-              }
-
-              if (typeof value === 'object') {
-                return stringifyObject(value);
-              }
-
-              return value.toString();
-            }
-
-            function stringifyObject(obj) {
-              if (Array.isArray(obj) || typeof obj !== 'object') {
-                return stringify(obj);
-              }
-
-              const sortedEntries = Object.entries(obj);
-              sortedEntries.sort();
-              return sortedEntries
-                .reduce(
-                  (acc, [key, value]) => [acc, key, stringify(value)].join(':'),
-                  ''
-                );
-            }
-            const stringifiedNode = stringifyObject(serializedNode);
-            if (nodeRenders[componentId] === stringifiedNode) {
-              return;
-            }
-
-            nodeRenders[componentId] = stringifiedNode;
-            const { childComponents, ...serialized } = serializedNode;
-
-            try {
-              postComponentRenderMessage({
-                childComponents,
-                trust: ${JSON.stringify(trust)},
-                node: serialized,
-                componentId: componentId,
-              });
-            } catch (error) {
-              console.warn('failed to dispatch render for ${id}', { error, serialized });
-            }
-          }
+          const initContainer = ${initContainer.toString()};
 
           // builtin components must have references defined in order for the Component to render
           // builtin components are resolved during serialization 
@@ -186,167 +73,91 @@ function buildSandboxedComponent({
           function Typeahead() {}
           function Widget() {}
 
-          let isStateInitialized = false;
+          const builtinPlaceholders = { Widget };
 
-          /* NS shims */
-          function buildSafeProxy(p) {
-            return new Proxy({ ...p, __bweMeta: { componentId: '${id}', isProxy: true } }, {
-              get(target, key) {
-                try {
-                  return target[key];                
-                } catch {
-                  return undefined;
+          let props;
+
+          const {
+            /* VM shims */
+            asyncFetch,
+            fadeIn,
+            minWidth,
+            React,
+            slideIn,
+            styled,
+            /* core dependencies */
+            context,
+            diffComponent,
+            Near,
+            processEvent,
+            props: containerProps,
+            renderComponent,
+            Social,
+            useComponentCallback,
+          } = initContainer({
+            containerMethods: {
+              buildEventHandler: ${buildEventHandler.toString()},
+              buildRequest: ${buildRequest.toString()},
+              buildSafeProxy: ${buildSafeProxy.toString()},
+              buildUseComponentCallback: ${buildUseComponentCallback.toString()},
+              composeApiMethods: ${composeApiMethods.toString()},
+              composeSerializationMethods: ${composeSerializationMethods.toString()},
+              decodeJsonString: ${decodeJsonString.toString()},
+              dispatchRenderEvent: ${dispatchRenderEvent.toString()},
+              encodeJsonString: ${encodeJsonString.toString()},
+              getBuiltins: ${getBuiltins.toString()},
+              invokeCallback: ${invokeCallback.toString()},
+              invokeComponentCallback: ${invokeComponentCallback.toString()},
+              isMatchingProps: ${isMatchingProps.toString()},
+              postCallbackInvocationMessage: ${postCallbackInvocationMessage.toString()},
+              postCallbackResponseMessage: ${postCallbackResponseMessage.toString()},
+              postComponentRenderMessage: ${postComponentRenderMessage.toString()},
+              postMessage: ${postMessage.toString()},
+              preactify: ${preactify.toString()},
+              renderContainerComponent: ${renderContainerComponent.toString()},
+            },
+            context: {
+              builtinPlaceholders,
+              BWEComponent,
+              componentId: '${id}',
+              componentPropsJson: '${componentPropsJson}',
+              createElement,
+              parentContainerId: '${parentContainerId}',
+              preactHooksDiffed: options.diffed,
+              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
+              render,
+              rpcUrl: 'https://rpc.near.org',
+              socialApiUrl: 'https://api.near.social',
+              trust: '${JSON.stringify(trust)}',
+              updateContainerProps: (updateProps) => {
+                const originalProps = props;
+                // if nothing has changed, the same [props] object will be returned
+                props = updateProps(props);
+                if (props !== originalProps) {
+                  renderComponent();
                 }
-              }
-            });
-          }
-
-          let props = buildSafeProxy(deserializeProps({
-            buildRequest,
-            callbacks,
-            componentId: '${id}',
-            parentContainerId: '${parentContainerId}',
-            postCallbackInvocationMessage,
-            props: JSON.parse('${jsonComponentProps
-              .replace(/'/g, "\\'")
-              .replace(/\\"/g, '\\\\"')}'),
-            requests,
-          }));
-
-          function asyncFetch(url, options) {
-            return fetch(url, options)
-              .catch(console.error);
-          }
-
-          const Near = (${initNear.toString()})({
-            renderComponent,
-            rpcUrl: 'https://rpc.near.org',
+              },
+            },
           });
 
-          const Social = (${initSocial.toString()})({
-            endpointBaseUrl: 'https://api.near.social',
-            renderComponent,
-            sanitizeString: encodeJsonString,
-            componentId: '${id}',
-          });
-
-          const React = {
-            Fragment: 'div',
-          };
-          function fadeIn() {}
-          function slideIn() {}
-          let minWidth;
-
-          const styled = new Proxy({}, {
-            get(target, property, receiver) {
-              return (css) => {
-                return property;
-              };
-            }
-          });
-
-          // TODO remove debug value
-          const context = buildSafeProxy({ accountId: props.accountId || 'andyh.near' });
-          
+          // initialize container state
           const ComponentState = new Map();
 
-                /* BEGIN EXTERNAL SOURCE */
-                ${scriptSrc}
-                /* END EXTERNAL SOURCE */
-      
-          const stateUpdates = new Map();
+          // intialize props
+          props = containerProps;
 
-          function renderComponent({ stateUpdate } = {}) {
-            try {
-              // TODO remove this kludge-y stopgap preventing State.update() calls on render from triggering cascading renders.
-              //  This likely has unintended consequences for Components calling State.update() at render time, but that should
-              //  be considered an antipattern to be replaced by a [useEffect] implementation.
-              if (stateUpdate) {
-                if (!stateUpdates.has(stateUpdate)) {
-                  stateUpdates.set(stateUpdate, []);
-                }
+          /* BEGIN BOS SOURCE */
+          ${scriptSrc}
+          /* END BOS SOURCE */
 
-                const updates = stateUpdates.get(stateUpdate);
-                stateUpdates.set(stateUpdate, [...updates, (new Date()).valueOf()]);
-                if (updates.length > 5) {
-                  return;
-                }
-              }
-
-              try {
-                render(BWEComponent, document.getElementById('${id}'));
-              } catch (e) {
-                console.error(e, { componentId: '${id.split('##')[0]}' });
-                return createElement(
-                  'div',
-                  {},
-                  'failed to load ${
-                    componentPath.split('##')[0]
-                  }: ' + e.toString() + '\\n\\n' + e.stack
-                );
-              }
-            } catch (e) {
-              console.error(e, { componentId: '${id}' });
-            }
-          }
-          
-          renderComponent();
-
-          function preactify(node) {
-            if (!node || typeof node !== 'object') {
-              return node;
-            }
-
-            const { props, type } = node;
-            // TODO handle other builtins
-            const isComponent = !!props.src?.match(/[0-9a-z._-]{5,}\\/widget\\/[0-9a-z._-]+/ig);
-            const { children } = props;
-
-            return createElement(
-              isComponent ? Widget : type,
-              { ...props, key: node.key || props.key },
-              Array.isArray(children) ? children.map(preactify) : preactify(children)
-            );
-          }
-
-          function isMatchingProps(props, compareProps) {
-            const getComparable = (p) => Object.keys(p)
-              .sort()
-              .filter((k) => k !== '__bweMeta')
-              .map((propKey) => propKey + '::' + p[propKey])
-              .join(',');
-
-            return getComparable(props) === getComparable(compareProps);
-          }
-
-          const processEvent = (${buildEventHandler.toString()})({
-            buildRequest,
-            builtinComponents,
-            callbacks,
-            deserializeProps,
-            invokeCallback,
-            invokeComponentCallback,
-            parentContainerId: '${parentContainerId}',
-            postCallbackInvocationMessage,
-            postCallbackResponseMessage,
-            preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-            renderDom: (node) => preactify(node),
-            renderComponent,
-            requests,
-            serializeArgs,
-            serializeNode,
-            setProps: (newProps) => {
-              if (isMatchingProps({ ...props }, newProps)) {
-                return false;
-              }
-
-              props = buildSafeProxy({ ...props, ...newProps });
-              return true;
-            },
-            componentId: '${id}'
-          });
+          // register handler executed upon vnode render
+          options.diffed = diffComponent;
 
           window.addEventListener('message', processEvent);
+
+          // first render once container is initialized
+          // this should always happen last
+          renderComponent();
         </script>
       </body>
     </html>

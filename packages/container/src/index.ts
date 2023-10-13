@@ -1,9 +1,10 @@
-export { initNear, initSocial } from './api';
+export { composeApiMethods } from './api';
 export { getBuiltins } from './builtins';
 export { invokeCallback, invokeComponentCallback } from './callbacks';
+export { initContainer } from './container';
+export { decodeJsonString, encodeJsonString } from './encode';
 export { buildEventHandler } from './events';
 export { buildUseComponentCallback } from './hooks';
-export { inlineGlobalDefinition } from './injection';
 export {
   buildRequest,
   postMessage,
@@ -12,11 +13,11 @@ export {
   postComponentRenderMessage,
 } from './messaging';
 export {
-  decodeJsonString,
-  deserializeProps,
-  encodeJsonString,
-  serializeArgs,
-  serializeNode,
-  serializeProps,
-} from './serialize';
+  buildSafeProxy,
+  dispatchRenderEvent,
+  isMatchingProps,
+  preactify,
+  renderContainerComponent,
+} from './render';
+export { composeSerializationMethods } from './serialize';
 export * from './types';
