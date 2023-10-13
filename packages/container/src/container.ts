@@ -26,6 +26,7 @@ export function initContainer({
     postComponentRenderMessage,
     postMessage,
     preactify,
+    renderContainerComponent,
   },
   context: {
     builtinPlaceholders,
@@ -37,7 +38,6 @@ export function initContainer({
     preactHooksDiffed,
     preactRootComponentName,
     render,
-    renderContainerComponent,
     rpcUrl,
     setProps,
     socialApiUrl,
@@ -63,7 +63,7 @@ export function initContainer({
       requests,
     });
 
-  const renderComponent = ({ stateUpdate }: { stateUpdate?: string } = {}) =>
+  const renderComponent: RenderComponentCallback = ({ stateUpdate } = {}) =>
     renderContainerComponent({
       BWEComponent,
       componentId,

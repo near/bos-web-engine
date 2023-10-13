@@ -115,6 +115,7 @@ function buildSandboxedComponent({
               postComponentRenderMessage: ${postComponentRenderMessage.toString()},
               postMessage: ${postMessage.toString()},
               preactify: ${preactify.toString()},
+              renderContainerComponent: ${renderContainerComponent.toString()},
             },
             context: {
               builtinPlaceholders,
@@ -126,7 +127,6 @@ function buildSandboxedComponent({
               preactHooksDiffed: options.diffed,
               preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
               render,
-              renderContainerComponent: ${renderContainerComponent.toString()},
               rpcUrl: 'https://rpc.near.org',
               setProps: (newProps) => {
                 if (isMatchingProps({ ...props }, newProps)) {
@@ -141,16 +141,15 @@ function buildSandboxedComponent({
             },
           });
 
-          props = containerProps;
-
-          const buildUseComponentCallback = ${buildUseComponentCallback.toString()};
-          const useComponentCallback = buildUseComponentCallback(renderComponent);
-          
+          // initialize container state
           const ComponentState = new Map();
 
-          /* BEGIN EXTERNAL SOURCE */
+          // intialize props
+          props = containerProps;
+
+          /* BEGIN BOS SOURCE */
           ${scriptSrc}
-          /* END EXTERNAL SOURCE */
+          /* END BOS SOURCE */
 
           // register handler executed upon vnode render
           options.diffed = diffComponent;

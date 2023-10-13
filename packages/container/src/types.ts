@@ -255,6 +255,7 @@ export interface InitContainerParams {
     postComponentRenderMessage: (p: any) => void;
     postMessage: PostMessageCallback;
     preactify: PreactifyCallback;
+    renderContainerComponent: RenderContainerComponentCallback;
   };
   context: {
     builtinPlaceholders: BuiltinComponentPlaceholders;
@@ -267,7 +268,6 @@ export interface InitContainerParams {
     preactRootComponentName: string;
     props: any;
     render: PreactRender;
-    renderContainerComponent: RenderContainerComponentCallback;
     rpcUrl: string;
     setProps: (props: object) => boolean;
     socialApiUrl: string;
@@ -457,7 +457,7 @@ interface RenderComponentParams {
   componentId: string;
 }
 
-export type RenderComponentCallback = (params: {
+export type RenderComponentCallback = (params?: {
   stateUpdate?: string;
 }) => void;
 
