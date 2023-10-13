@@ -1,12 +1,18 @@
 import type { VNode } from 'preact';
 
-import { CallbackRequest, InitContainerParams, Node } from './types';
+import {
+  CallbackRequest,
+  InitContainerParams,
+  Node,
+  RenderComponentCallback,
+} from './types';
 
 export function initContainer({
   containerMethods: {
     buildEventHandler,
     buildRequest,
     buildSafeProxy,
+    buildUseComponentCallback,
     composeApiMethods,
     composeSerializationMethods,
     decodeJsonString,
@@ -184,5 +190,6 @@ export function initContainer({
     props,
     renderComponent,
     Social,
+    useComponentCallback: buildUseComponentCallback(renderComponent),
   };
 }

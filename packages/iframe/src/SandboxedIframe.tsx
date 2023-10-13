@@ -95,11 +95,13 @@ function buildSandboxedComponent({
             props: containerProps,
             renderComponent,
             Social,
+            useComponentCallback,
           } = initContainer({
             containerMethods: {
               buildEventHandler: ${buildEventHandler.toString()},
               buildRequest: ${buildRequest.toString()},
               buildSafeProxy: ${buildSafeProxy.toString()},
+              buildUseComponentCallback: ${buildUseComponentCallback.toString()},
               composeApiMethods: ${composeApiMethods.toString()},
               composeSerializationMethods: ${composeSerializationMethods.toString()},
               decodeJsonString: ${decodeJsonString.toString()},

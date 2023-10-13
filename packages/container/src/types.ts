@@ -60,7 +60,7 @@ export interface CachedQueryParams {
 export interface ComposeApiMethodsParams {
   componentId: string;
   encodeJsonString: EncodeJsonStringCallback;
-  renderComponent: () => void;
+  renderComponent: RenderComponentCallback;
   rpcUrl: string;
   socialApiUrl: string;
 }
@@ -229,8 +229,8 @@ export interface ProcessEventParams {
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   postMessage: PostMessageCallback;
   renderDom: (node: any) => object;
-  renderComponent: () => void;
-  requests: { [key: string]: CallbackRequest };
+  renderComponent: RenderComponentCallback;
+  requests: RequestMap;
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
   setProps: (props: object) => boolean;
@@ -241,6 +241,7 @@ export interface InitContainerParams {
     buildEventHandler: (params: ProcessEventParams) => Function;
     buildRequest: BuildRequestCallback;
     buildSafeProxy: BuildSafeProxyCallback;
+    buildUseComponentCallback: BuildUseComponentCallback;
     composeApiMethods: ComposeApiMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
     decodeJsonString: DecodeJsonStringCallback;
@@ -456,6 +457,10 @@ interface RenderComponentParams {
   componentId: string;
 }
 
+export type RenderComponentCallback = (params: {
+  stateUpdate?: string;
+}) => void;
+
 export type RenderContainerComponentCallback = (
   params: RenderComponentParams
 ) => PreactElement | undefined;
@@ -484,3 +489,7 @@ interface BuildSafeProxyParams {
 }
 
 export type BuildSafeProxyCallback = (params: BuildSafeProxyParams) => object;
+
+export type BuildUseComponentCallback = (
+  renderComponent: RenderComponentCallback
+) => void;
