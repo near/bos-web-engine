@@ -4,6 +4,7 @@ import type {
   SerializePropsCallback,
   SerializeArgsCallback,
   SerializeNodeCallback,
+  BuiltinComponents,
 } from './types';
 import { ComposeSerializationMethodsCallback } from './types';
 
@@ -13,16 +14,22 @@ export interface BuildComponentIdParams {
   parentComponentId: string;
 }
 
+interface SerializeChildComponentParams {
+  parentId: string;
+  props: Props;
+}
+
 /**
- * Serialize props of a child Component to be rendered in the outer application
- * NB there is a circular dependency between this function and `serializeNode`
- * due to the fact that a rendered Component may be passed as props to a child
- * Component.
+ * Compose the set of serialization methods for the given container context
+ * @param buildRequest Method for building callback requests
  * @param builtinComponents Set of builtin BOS Web Engine Components
  * @param callbacks Component container's callbacks
- * @param componentId The target Component ID
  * @param decodeJsonString Method for decoding encoded JSON strings
+ * @param parentContainerId ID of the parent container
+ * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param preactRootComponentName The name of the root/Fragment Preact function
+ * @param postMessage Method for calling postMessage on the parent window
+ * @param requests Set of current callback requests
  */
 export const composeSerializationMethods: ComposeSerializationMethodsCallback =
   ({
@@ -38,9 +45,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
   }) => {
     /**
      * Serialize props of a child Component to be rendered in the outer application
-     * NB there is a circular dependency between this function and `serializeNode`
-     * due to the fact that a rendered Component may be passed as props to a child
-     * Component.
      * @param componentId The target Component ID
      * @param parentId Component's parent container
      * @param props The props for this container's Component
@@ -203,6 +207,69 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       };
     };
 
+    function buildComponentId({
+      instanceId,
+      componentPath,
+      parentComponentId,
+    }: BuildComponentIdParams) {
+      // TODO warn on missing instanceId (<Widget>'s id prop) here?
+      return [componentPath, instanceId?.toString(), parentComponentId].join(
+        '##'
+      );
+    }
+
+    /**
+     * Serialize a sandboxed <Widget /> component
+     * @param parentId ID of the parent Component
+     * @param props Props passed to the <Widget /> component
+     */
+    const serializeChildComponent = ({
+      parentId,
+      props,
+    }: SerializeChildComponentParams) => {
+      const { id: instanceId, src, props: componentProps, trust } = props;
+      const componentId = buildComponentId({
+        instanceId,
+        componentPath: src,
+        parentComponentId: parentId,
+      });
+
+      let child;
+      try {
+        child = {
+          trust,
+          props: componentProps
+            ? serializeProps({
+                props: componentProps,
+                parentId,
+                componentId,
+              })
+            : {},
+          source: src,
+          componentId,
+        };
+      } catch (error) {
+        console.warn(`failed to dispatch component load for ${parentId}`, {
+          error,
+          componentProps,
+        });
+      }
+
+      return {
+        child,
+        placeholder: {
+          type: 'div',
+          props: {
+            id: 'dom-' + componentId,
+            __bweMeta: {
+              componentId: componentId,
+            },
+            className: 'container-child',
+          },
+        },
+      };
+    };
+
     /**
      * Given a Preact node, build its Component tree and serialize for transmission
      * @param childComponents Set of descendant Components accumulated across recursive invocations
@@ -214,17 +281,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       childComponents,
       parentId,
     }) => {
-      function buildComponentId({
-        instanceId,
-        componentPath,
-        parentComponentId,
-      }: BuildComponentIdParams) {
-        // TODO warn on missing instanceId (<Widget>'s id prop) here?
-        return [componentPath, instanceId?.toString(), parentComponentId].join(
-          '##'
-        );
-      }
-
       if (!node || typeof node !== 'object') {
         return node;
       }
@@ -254,55 +310,28 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
 
       if (typeof type === 'function') {
         const { name: component } = type;
+        const builtinName = component as keyof BuiltinComponents;
+
         if (component === preactRootComponentName) {
           serializedElementType = 'div';
-          // @ts-ignore-error
-        } else if (builtinComponents[component]) {
-          // @ts-ignore-error
-          const builtin = builtinComponents[component];
+        } else if (builtinComponents[builtinName]) {
+          const builtin = builtinComponents[builtinName];
           ({ props, type: serializedElementType } = builtin({
             children: unifiedChildren,
             props,
           }));
           unifiedChildren = props.children || [];
         } else if (component === 'Widget') {
-          const { id: instanceId, src, props: componentProps, trust } = props;
-          const componentId = buildComponentId({
-            instanceId,
-            componentPath: src,
-            parentComponentId: parentId,
+          const { child, placeholder } = serializeChildComponent({
+            parentId,
+            props,
           });
 
-          try {
-            childComponents.push({
-              trust,
-              props: componentProps
-                ? serializeProps({
-                    props: componentProps,
-                    parentId,
-                    componentId,
-                  })
-                : {},
-              source: src,
-              componentId,
-            });
-          } catch (error) {
-            console.warn(`failed to dispatch component load for ${parentId}`, {
-              error,
-              componentProps,
-            });
+          if (child) {
+            childComponents.push(child);
           }
 
-          return {
-            type: 'div',
-            props: {
-              id: 'dom-' + componentId,
-              __bweMeta: {
-                componentId: componentId,
-              },
-              className: 'container-child',
-            },
-          };
+          return placeholder;
         } else {
           const componentId = buildComponentId({
             instanceId: props?.id,
