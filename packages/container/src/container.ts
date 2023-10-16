@@ -19,7 +19,6 @@ export function initContainer({
     decodeJsonString,
     dispatchRenderEvent,
     encodeJsonString,
-    getBuiltins,
     invokeCallback,
     invokeComponentCallback,
     isMatchingProps,
@@ -31,8 +30,8 @@ export function initContainer({
     renderContainerComponent,
   },
   context: {
-    builtinPlaceholders,
     BWEComponent,
+    Component,
     componentId,
     createElement,
     componentPropsJson,
@@ -46,7 +45,6 @@ export function initContainer({
     updateContainerProps,
   },
 }: InitContainerParams) {
-  const builtinComponents = getBuiltins({ createElement });
   const stateUpdates = new Map<string, string[]>();
 
   const callbacks: { [key: string]: Function } = {};
@@ -55,7 +53,6 @@ export function initContainer({
   const { deserializeProps, serializeArgs, serializeNode, serializeProps } =
     composeSerializationMethods({
       buildRequest,
-      builtinComponents,
       callbacks,
       decodeJsonString,
       parentContainerId,
@@ -89,7 +86,6 @@ export function initContainer({
 
     if (containerComponent && isRootComponent) {
       dispatchRenderEvent({
-        builtinComponents,
         callbacks,
         componentId: componentId,
         decodeJsonString,
@@ -117,8 +113,7 @@ export function initContainer({
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     postMessage,
-    renderDom: (node: Node) =>
-      preactify({ node, builtinPlaceholders, createElement }),
+    renderDom: (node: Node) => preactify({ node, createElement, Component }),
     requests,
     serializeArgs,
     serializeNode,

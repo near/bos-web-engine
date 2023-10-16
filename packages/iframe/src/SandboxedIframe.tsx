@@ -12,7 +12,6 @@ import {
   postComponentRenderMessage,
   decodeJsonString,
   encodeJsonString,
-  getBuiltins,
   dispatchRenderEvent,
   initContainer,
   isMatchingProps,
@@ -56,24 +55,8 @@ function buildSandboxedComponent({
 
           const initContainer = ${initContainer.toString()};
 
-          // builtin components must have references defined in order for the Component to render
-          // builtin components are resolved during serialization 
-          function Checkbox() {}
-          function CommitButton() {}
-          function Dialog() {}
-          function DropdownMenu() {}
-          function Files() {}
-          function Fragment() {}
-          function InfiniteScroll() {}
-          function IpfsImageUpload() {}
-          function Link() {}
-          function Markdown() {}
-          function OverlayTrigger() {}
-          function Tooltip() {}
-          function Typeahead() {}
+          // placeholder to prevent <Widget /> references from breaking 
           function Widget() {}
-
-          const builtinPlaceholders = { Widget };
 
           let props;
 
@@ -105,7 +88,6 @@ function buildSandboxedComponent({
               decodeJsonString: ${decodeJsonString.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
               encodeJsonString: ${encodeJsonString.toString()},
-              getBuiltins: ${getBuiltins.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
               isMatchingProps: ${isMatchingProps.toString()},
@@ -117,8 +99,8 @@ function buildSandboxedComponent({
               renderContainerComponent: ${renderContainerComponent.toString()},
             },
             context: {
-              builtinPlaceholders,
               BWEComponent,
+              Component: Widget,
               componentId: '${id}',
               componentPropsJson: '${componentPropsJson}',
               createElement,

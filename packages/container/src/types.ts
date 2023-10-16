@@ -194,7 +194,7 @@ export type IsMatchingPropsCallback = (a: Props, b: Props) => boolean;
 
 interface PreactifyParams {
   node: Node;
-  builtinPlaceholders: BuiltinComponentPlaceholders;
+  Component: Function;
   createElement: PreactCreateElement;
 }
 
@@ -205,7 +205,6 @@ export type EncodeJsonStringCallback = (value: string) => string;
 
 export interface ComposeSerializationMethodsParams {
   buildRequest: BuildRequestCallback;
-  builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   decodeJsonString: DecodeJsonStringCallback;
   parentContainerId: string | null;
@@ -255,7 +254,6 @@ export interface InitContainerParams {
     decodeJsonString: DecodeJsonStringCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
     encodeJsonString: EncodeJsonStringCallback;
-    getBuiltins: GetBuiltinsCallback;
     invokeCallback: (args: InvokeCallbackParams) => any;
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
     isMatchingProps: IsMatchingPropsCallback;
@@ -267,8 +265,8 @@ export interface InitContainerParams {
     renderContainerComponent: RenderContainerComponentCallback;
   };
   context: {
-    builtinPlaceholders: BuiltinComponentPlaceholders;
     BWEComponent: Function;
+    Component: Function;
     componentId: string;
     createElement: PreactCreateElement;
     componentPropsJson: string;
@@ -306,36 +304,8 @@ export type PreactCreateElement = (
   props: any,
   children: any
 ) => PreactElement;
-type CreateSerializedBuiltin = ({
-  props,
-  children,
-}: BuiltinProps<any>) => PreactElement;
 
 export type PreactRender = (component: Function, target: HTMLElement) => void;
-
-export interface GetBuiltinsParams {
-  createElement: PreactCreateElement;
-}
-
-export type GetBuiltinsCallback = (
-  params: GetBuiltinsParams
-) => BuiltinComponents;
-
-export interface BuiltinComponents {
-  Checkbox: CreateSerializedBuiltin;
-  CommitButton: CreateSerializedBuiltin;
-  Dialog: CreateSerializedBuiltin;
-  DropdownMenu: CreateSerializedBuiltin;
-  Files: CreateSerializedBuiltin;
-  Fragment: CreateSerializedBuiltin;
-  InfiniteScroll: CreateSerializedBuiltin;
-  IpfsImageUpload: CreateSerializedBuiltin;
-  Link: CreateSerializedBuiltin;
-  Markdown: CreateSerializedBuiltin;
-  OverlayTrigger: CreateSerializedBuiltin;
-  Tooltip: CreateSerializedBuiltin;
-  Typeahead: CreateSerializedBuiltin;
-}
 
 export interface Node {
   type: string | Function;
@@ -385,64 +355,6 @@ export interface SerializedComponentCallback {
   parentId: string;
 }
 
-// builtin component props
-export interface FilesProps {
-  accepts: string[];
-  className: string;
-  clickable: boolean;
-  minFileSize: number;
-  multiple: boolean;
-  onChange: (files: any[]) => {};
-}
-
-export interface IpfsImageUploadProps {
-  img: string;
-}
-
-export interface InfiniteScrollProps {
-  pageStart: number;
-  loadMore: () => {};
-  hasMore: boolean;
-  loader: any; // Component
-}
-
-export interface MarkdownProps {
-  text: string;
-}
-
-export interface OverlayTriggerProps {
-  delay: { hide: number; show: number };
-  overlay: any;
-  placement: string;
-  show: boolean;
-  trigger: string[];
-}
-
-export interface TypeaheadProps {
-  multiple: boolean;
-  onChange: (value: any) => {};
-  options: string[];
-  placeholder: string;
-}
-
-type BuiltinPropsTypes =
-  | object // TODO props for remaining builtins
-  | FilesProps
-  | IpfsImageUploadProps
-  | InfiniteScrollProps
-  | MarkdownProps
-  | OverlayTriggerProps
-  | TypeaheadProps;
-
-export interface BuiltinProps<T extends BuiltinPropsTypes> {
-  children: any[];
-  props: T;
-}
-
-export interface BuiltinComponentPlaceholders {
-  Widget: Function;
-}
-
 interface RenderComponentParams {
   stateUpdate?: string;
   BWEComponent: Function;
@@ -461,7 +373,6 @@ export type RenderContainerComponentCallback = (
 ) => PreactElement | undefined;
 
 export interface DispatchRenderEventParams {
-  builtinComponents: BuiltinComponents;
   callbacks: CallbackMap;
   componentId: string;
   decodeJsonString: DecodeJsonStringCallback;
