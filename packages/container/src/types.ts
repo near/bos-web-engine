@@ -265,11 +265,11 @@ export interface InitContainerParams {
     renderContainerComponent: RenderContainerComponentCallback;
   };
   context: {
-    BWEComponent: Function;
     Component: Function;
     componentId: string;
-    createElement: PreactCreateElement;
     componentPropsJson: string;
+    ContainerComponent: Function;
+    createElement: PreactCreateElement;
     parentContainerId: string | null;
     preactHooksDiffed: (node: VNode) => void;
     preactRootComponentName: string;
@@ -357,7 +357,7 @@ export interface SerializedComponentCallback {
 
 interface RenderComponentParams {
   stateUpdate?: string;
-  BWEComponent: Function;
+  ContainerComponent: Function;
   stateUpdates: Map<string, any[]>;
   createElement: PreactCreateElement;
   render: Function;

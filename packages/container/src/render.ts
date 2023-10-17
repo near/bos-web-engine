@@ -83,7 +83,7 @@ export const isMatchingProps: IsMatchingPropsCallback = (
 
 export const renderContainerComponent: RenderContainerComponentCallback = ({
   stateUpdate,
-  BWEComponent,
+  ContainerComponent,
   stateUpdates,
   createElement,
   render,
@@ -106,7 +106,7 @@ export const renderContainerComponent: RenderContainerComponentCallback = ({
     }
 
     try {
-      render(BWEComponent, document.getElementById(componentId));
+      render(ContainerComponent, document.getElementById(componentId));
     } catch (e: unknown) {
       const error = e as Error;
       console.error(e, { componentId: `${componentId.split('##')[0]}` });

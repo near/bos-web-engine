@@ -48,10 +48,10 @@ function buildSandboxedComponent({
           }
           </script>
         <script type="module">
-          import { createElement, render, options, Fragment as __Fragment } from 'preact';
+          import * as Preact from 'preact';
           import { useEffect, useState } from 'preact/hooks';
 
-          const PREACT_ROOT_COMPONENT_NAME = __Fragment.name;
+          const { createElement } = Preact;
 
           const initContainer = ${initContainer.toString()};
 
@@ -99,15 +99,16 @@ function buildSandboxedComponent({
               renderContainerComponent: ${renderContainerComponent.toString()},
             },
             context: {
-              BWEComponent,
               Component: Widget,
               componentId: '${id}',
               componentPropsJson: '${componentPropsJson}',
+              /* "function BWEComponent() {...}" is added to module scope when [scriptSrc] is interpolated */
+              ContainerComponent: BWEComponent,
               createElement,
               parentContainerId: '${parentContainerId}',
-              preactHooksDiffed: options.diffed,
-              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-              render,
+              preactHooksDiffed: Preact.options.diffed,
+              preactRootComponentName: Preact.Fragment.name,
+              render: Preact.render,
               rpcUrl: 'https://rpc.near.org',
               socialApiUrl: 'https://api.near.social',
               trust: '${JSON.stringify(trust)}',
@@ -133,7 +134,7 @@ function buildSandboxedComponent({
           /* END BOS SOURCE */
 
           // register handler executed upon vnode render
-          options.diffed = diffComponent;
+          Preact.options.diffed = diffComponent;
 
           window.addEventListener('message', processEvent);
 

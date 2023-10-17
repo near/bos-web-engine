@@ -30,11 +30,11 @@ export function initContainer({
     renderContainerComponent,
   },
   context: {
-    BWEComponent,
     Component,
     componentId,
-    createElement,
     componentPropsJson,
+    ContainerComponent,
+    createElement,
     parentContainerId,
     preactHooksDiffed,
     preactRootComponentName,
@@ -64,7 +64,7 @@ export function initContainer({
 
   const renderComponent: RenderComponentCallback = ({ stateUpdate } = {}) =>
     renderContainerComponent({
-      BWEComponent,
+      ContainerComponent,
       componentId,
       render,
       createElement,
