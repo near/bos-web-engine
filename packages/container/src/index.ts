@@ -1,5 +1,4 @@
 export { composeApiMethods } from './api';
-export { getBuiltins } from './builtins';
 export { invokeCallback, invokeComponentCallback } from './callbacks';
 export { initContainer } from './container';
 export { decodeJsonString, encodeJsonString } from './encode';

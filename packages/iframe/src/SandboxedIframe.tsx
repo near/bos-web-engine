@@ -12,7 +12,6 @@ import {
   postComponentRenderMessage,
   decodeJsonString,
   encodeJsonString,
-  getBuiltins,
   dispatchRenderEvent,
   initContainer,
   isMatchingProps,
@@ -49,31 +48,15 @@ function buildSandboxedComponent({
           }
           </script>
         <script type="module">
-          import { createElement, render, options, Fragment as __Fragment } from 'preact';
+          import * as Preact from 'preact';
           import { useEffect, useState } from 'preact/hooks';
 
-          const PREACT_ROOT_COMPONENT_NAME = __Fragment.name;
+          const { createElement } = Preact;
 
           const initContainer = ${initContainer.toString()};
 
-          // builtin components must have references defined in order for the Component to render
-          // builtin components are resolved during serialization 
-          function Checkbox() {}
-          function CommitButton() {}
-          function Dialog() {}
-          function DropdownMenu() {}
-          function Files() {}
-          function Fragment() {}
-          function InfiniteScroll() {}
-          function IpfsImageUpload() {}
-          function Link() {}
-          function Markdown() {}
-          function OverlayTrigger() {}
-          function Tooltip() {}
-          function Typeahead() {}
+          // placeholder to prevent <Widget /> references from breaking 
           function Widget() {}
-
-          const builtinPlaceholders = { Widget };
 
           let props;
 
@@ -105,7 +88,6 @@ function buildSandboxedComponent({
               decodeJsonString: ${decodeJsonString.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
               encodeJsonString: ${encodeJsonString.toString()},
-              getBuiltins: ${getBuiltins.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
               isMatchingProps: ${isMatchingProps.toString()},
@@ -117,15 +99,16 @@ function buildSandboxedComponent({
               renderContainerComponent: ${renderContainerComponent.toString()},
             },
             context: {
-              builtinPlaceholders,
-              BWEComponent,
+              Component: Widget,
               componentId: '${id}',
               componentPropsJson: '${componentPropsJson}',
+              /* "function BWEComponent() {...}" is added to module scope when [scriptSrc] is interpolated */
+              ContainerComponent: BWEComponent,
               createElement,
               parentContainerId: '${parentContainerId}',
-              preactHooksDiffed: options.diffed,
-              preactRootComponentName: PREACT_ROOT_COMPONENT_NAME,
-              render,
+              preactHooksDiffed: Preact.options.diffed,
+              preactRootComponentName: Preact.Fragment.name,
+              render: Preact.render,
               rpcUrl: 'https://rpc.near.org',
               socialApiUrl: 'https://api.near.social',
               trust: '${JSON.stringify(trust)}',
@@ -151,7 +134,7 @@ function buildSandboxedComponent({
           /* END BOS SOURCE */
 
           // register handler executed upon vnode render
-          options.diffed = diffComponent;
+          Preact.options.diffed = diffComponent;
 
           window.addEventListener('message', processEvent);
 

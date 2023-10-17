@@ -4,7 +4,6 @@ import type {
   SerializePropsCallback,
   SerializeArgsCallback,
   SerializeNodeCallback,
-  BuiltinComponents,
 } from './types';
 import { ComposeSerializationMethodsCallback } from './types';
 
@@ -34,7 +33,6 @@ interface SerializeChildComponentParams {
 export const composeSerializationMethods: ComposeSerializationMethodsCallback =
   ({
     buildRequest,
-    builtinComponents,
     callbacks,
     decodeJsonString,
     parentContainerId,
@@ -310,17 +308,9 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
 
       if (typeof type === 'function') {
         const { name: component } = type;
-        const builtinName = component as keyof BuiltinComponents;
 
         if (component === preactRootComponentName) {
           serializedElementType = 'div';
-        } else if (builtinComponents[builtinName]) {
-          const builtin = builtinComponents[builtinName];
-          ({ props, type: serializedElementType } = builtin({
-            children: unifiedChildren,
-            props,
-          }));
-          unifiedChildren = props.children || [];
         } else if (component === 'Widget') {
           const { child, placeholder } = serializeChildComponent({
             parentId,
