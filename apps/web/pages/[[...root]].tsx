@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { ComponentTree } from '../components';
+import { Inspector } from '../components/Inspector';
 import { useWebEngine } from '../hooks';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;
@@ -43,6 +44,7 @@ export default function Root() {
           showMonitor={showMonitor}
         />
       )}
+      <Inspector />
     </div>
   );
 }
