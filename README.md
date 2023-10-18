@@ -13,7 +13,7 @@ Further goals:
 - [ ] Full web API support (canvas, etc)
 - [ ] Cross-component global state management
 
-For a more detailed breakdown of the work, see the issues section.
+For a more detailed breakdown of the work, see [issues labeled with `Epic`](https://github.com/near/bos-web-engine/issues?q=is:open+is:issue+label:Epic)
 
 ## Proposed Solution
 
