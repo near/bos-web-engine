@@ -100,7 +100,6 @@ export function Inspector() {
         {Object.keys(componentSources)
           .sort()
           .map((path) => {
-            console.log('path', path);
             return (
               <SidebarButton
                 key={path}
