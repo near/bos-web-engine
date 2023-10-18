@@ -25,6 +25,8 @@ interface CompilerInitAction {
 export interface ComponentCompilerResponse {
   componentId: string;
   componentSource: string;
+  rawSource: string;
+  componentPath: string;
   error?: Error;
 }
 
@@ -285,6 +287,8 @@ export class ComponentCompiler {
     this.sendWorkerMessage({
       componentId,
       componentSource,
+      rawSource: source,
+      componentPath,
     });
   }
 

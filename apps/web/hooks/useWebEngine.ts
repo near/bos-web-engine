@@ -23,6 +23,7 @@ import ReactDOM from 'react-dom/client';
 
 import { useComponentMetrics } from './useComponentMetrics';
 import { useFlags } from './useFlags';
+import { useComponentSourcesStore } from '../stores/component-sources';
 
 interface UseWebEngineParams {
   rootComponentPath?: string;
@@ -199,6 +200,8 @@ export function useWebEngine({
     );
   }, [rootComponentPath]);
 
+  const addSource = useComponentSourcesStore((store) => store.addSource);
+
   useEffect(() => {
     if (!rootComponentPath || !isValidRootComponentPath) {
       return;
@@ -220,11 +223,20 @@ export function useWebEngine({
       compiler.onmessage = ({
         data,
       }: MessageEvent<ComponentCompilerResponse>) => {
-        const { componentId, componentSource, error: loadError } = data;
+        const {
+          componentId,
+          componentSource,
+          rawSource,
+          componentPath,
+          error: loadError,
+        } = data;
+
         if (loadError) {
           setError(loadError.message);
           return;
         }
+
+        addSource(componentPath, rawSource);
 
         const component = {
           ...components[componentId],
@@ -253,6 +265,7 @@ export function useWebEngine({
     error,
     isValidRootComponentPath,
     flags?.bosLoaderUrl,
+    addSource,
   ]);
 
   return {
