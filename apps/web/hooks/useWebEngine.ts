@@ -194,7 +194,7 @@ export function useWebEngine({
   useEffect(() => {
     setIsValidRootComponentPath(
       !!rootComponentPath &&
-        /^((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.]+$/gi.test(
+        /^((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.-]+$/gi.test(
           rootComponentPath
         )
     );
