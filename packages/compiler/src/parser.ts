@@ -1,7 +1,7 @@
 function parseWidgetRenders(transpiledComponent: string) {
   const functionOffset = 'createElement'.length;
   const componentRegex =
-    /createElement\(Widget,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.]+))["|']/gi;
+    /createElement\(Widget,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/widget\/[\w.-]+))["|']/gi;
   return [...transpiledComponent.matchAll(componentRegex)].map((match) => {
     const openParenIndex = match.index! + functionOffset;
     let parenCount = 1;
