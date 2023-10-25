@@ -10,7 +10,7 @@ export function buildComponentFunctionName(componentPath?: string) {
     return name;
   }
 
-  return name + '_' + componentPath.replace(/[.\/]/g, '');
+  return name + '_' + componentPath.replace(/[.\/-]/g, '');
 }
 
 interface BuildComponentFunctionParams {
