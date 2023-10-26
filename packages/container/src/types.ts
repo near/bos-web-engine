@@ -267,7 +267,7 @@ export interface InitContainerParams {
   context: {
     Component: Function;
     componentId: string;
-    componentPropsJson: string;
+    componentPropsJson: object;
     ContainerComponent: Function;
     createElement: PreactCreateElement;
     parentContainerId: string | null;

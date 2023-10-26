@@ -29,7 +29,7 @@ function buildSandboxedComponent({
   parentContainerId,
 }: SandboxedIframeProps) {
   const componentPropsJson = componentProps
-    ? encodeJsonString(JSON.stringify(componentProps))
+    ? JSON.stringify(componentProps)
     : '{}';
 
   return `
@@ -101,7 +101,7 @@ function buildSandboxedComponent({
             context: {
               Component: Widget,
               componentId: '${id}',
-              componentPropsJson: '${componentPropsJson}',
+              componentPropsJson: ${componentPropsJson},
               /* "function BWEComponent() {...}" is added to module scope when [scriptSrc] is interpolated */
               ContainerComponent: BWEComponent,
               createElement,

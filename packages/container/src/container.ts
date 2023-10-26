@@ -146,9 +146,7 @@ export function initContainer({
     componentId,
     props: deserializeProps({
       componentId,
-      props: JSON.parse(
-        `${componentPropsJson.replace(/'/g, "\\'").replace(/\\"/g, '\\\\"')}`
-      ),
+      props: componentPropsJson,
     }),
   });
 
