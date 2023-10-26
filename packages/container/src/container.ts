@@ -45,8 +45,6 @@ export function initContainer({
     updateContainerProps,
   },
 }: InitContainerParams) {
-  const stateUpdates = new Map<string, string[]>();
-
   const callbacks: { [key: string]: Function } = {};
   const requests: { [key: string]: CallbackRequest } = {};
 
@@ -62,14 +60,12 @@ export function initContainer({
       requests,
     });
 
-  const renderComponent: RenderComponentCallback = ({ stateUpdate } = {}) =>
+  const renderComponent: RenderComponentCallback = () =>
     renderContainerComponent({
       ContainerComponent,
       componentId,
       render,
       createElement,
-      stateUpdate,
-      stateUpdates,
     });
 
   // cache previous renders

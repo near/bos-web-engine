@@ -356,9 +356,7 @@ export interface SerializedComponentCallback {
 }
 
 interface RenderComponentParams {
-  stateUpdate?: string;
   ContainerComponent: Function;
-  stateUpdates: Map<string, any[]>;
   createElement: PreactCreateElement;
   render: Function;
   componentId: string;

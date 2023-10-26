@@ -82,44 +82,23 @@ export const isMatchingProps: IsMatchingPropsCallback = (
 };
 
 export const renderContainerComponent: RenderContainerComponentCallback = ({
-  stateUpdate,
   ContainerComponent,
-  stateUpdates,
   createElement,
   render,
   componentId,
 }) => {
   try {
-    // TODO remove this kludge-y stopgap preventing State.update() calls on render from triggering cascading renders.
-    //  This likely has unintended consequences for Components calling State.update() at render time, but that should
-    //  be considered an antipattern to be replaced by a [useEffect] implementation.
-    if (stateUpdate) {
-      if (!stateUpdates.has(stateUpdate)) {
-        stateUpdates.set(stateUpdate, []);
-      }
-
-      const updates = stateUpdates.get(stateUpdate) || [];
-      stateUpdates.set(stateUpdate, [...updates, new Date().valueOf()]);
-      if (updates.length > 5) {
-        return;
-      }
-    }
-
-    try {
-      render(ContainerComponent, document.getElementById(componentId));
-    } catch (e: unknown) {
-      const error = e as Error;
-      console.error(e, { componentId: `${componentId.split('##')[0]}` });
-      return createElement(
-        'div',
-        {},
-        `failed to load ${
-          componentId.split('##')[0]
-        }: ${error.toString()}\n\n ${error.stack}`
-      );
-    }
-  } catch (e) {
+    render(ContainerComponent, document.getElementById(componentId));
+  } catch (e: unknown) {
+    const error = e as Error;
     console.error(e, { componentId });
+    return createElement(
+      'div',
+      {},
+      `failed to load ${componentId.split('##')[0]}: ${error.toString()}\n\n ${
+        error.stack
+      }`
+    );
   }
 };
 
