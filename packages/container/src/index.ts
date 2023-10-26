@@ -1,4 +1,3 @@
-export { composeApiMethods } from './api';
 export { invokeCallback, invokeComponentCallback } from './callbacks';
 export { initContainer } from './container';
 export { decodeJsonString, encodeJsonString } from './encode';

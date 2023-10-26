@@ -2,7 +2,6 @@ import type { ComponentTrust } from '@bos-web-engine/common';
 import {
   buildUseComponentCallback,
   buildEventHandler,
-  composeApiMethods,
   invokeCallback,
   invokeComponentCallback,
   buildRequest,
@@ -71,11 +70,9 @@ function buildSandboxedComponent({
             /* core dependencies */
             context,
             diffComponent,
-            Near,
             processEvent,
             props: containerProps,
             renderComponent,
-            Social,
             useComponentCallback,
           } = initContainer({
             containerMethods: {
@@ -83,11 +80,9 @@ function buildSandboxedComponent({
               buildRequest: ${buildRequest.toString()},
               buildSafeProxy: ${buildSafeProxy.toString()},
               buildUseComponentCallback: ${buildUseComponentCallback.toString()},
-              composeApiMethods: ${composeApiMethods.toString()},
               composeSerializationMethods: ${composeSerializationMethods.toString()},
               decodeJsonString: ${decodeJsonString.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
-              encodeJsonString: ${encodeJsonString.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
               isMatchingProps: ${isMatchingProps.toString()},
@@ -109,8 +104,6 @@ function buildSandboxedComponent({
               preactHooksDiffed: Preact.options.diffed,
               preactRootComponentName: Preact.Fragment.name,
               render: Preact.render,
-              rpcUrl: 'https://rpc.near.org',
-              socialApiUrl: 'https://api.near.social',
               trust: '${JSON.stringify(trust)}',
               updateContainerProps: (updateProps) => {
                 const originalProps = props;

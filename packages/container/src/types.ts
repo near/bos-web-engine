@@ -38,38 +38,6 @@ export type EventType =
   | ComponentRenderType
   | ComponentUpdateType;
 
-export interface SocialQueryKey {
-  blockHeight?: number;
-  path?: string;
-  type?: string;
-}
-
-export interface SocialQueryParams {
-  action?: string;
-  key?: SocialQueryKey | string;
-  options?: any;
-  keys?: string | string[];
-}
-
-export interface CachedQueryParams {
-  apiEndpoint: string;
-  body: SocialQueryParams;
-  cacheKey: string;
-}
-
-export interface ComposeApiMethodsParams {
-  componentId: string;
-  encodeJsonString: EncodeJsonStringCallback;
-  renderComponent: RenderComponentCallback;
-  rpcUrl: string;
-  socialApiUrl: string;
-}
-
-export type ComposeApiMethodsCallback = (params: ComposeApiMethodsParams) => {
-  Near: any;
-  Social: any;
-};
-
 export interface InvokeCallbackParams {
   args: SerializedArgs | EventArgs;
   callback: Function;
@@ -249,11 +217,9 @@ export interface InitContainerParams {
     buildRequest: BuildRequestCallback;
     buildSafeProxy: BuildSafeProxyCallback;
     buildUseComponentCallback: BuildUseComponentCallback;
-    composeApiMethods: ComposeApiMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
     decodeJsonString: DecodeJsonStringCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
-    encodeJsonString: EncodeJsonStringCallback;
     invokeCallback: (args: InvokeCallbackParams) => any;
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
     isMatchingProps: IsMatchingPropsCallback;
@@ -275,8 +241,6 @@ export interface InitContainerParams {
     preactRootComponentName: string;
     props: any;
     render: PreactRender;
-    rpcUrl: string;
-    socialApiUrl: string;
     trust: string;
     updateContainerProps: UpdateContainerPropsCallback;
   };
@@ -362,9 +326,7 @@ interface RenderComponentParams {
   componentId: string;
 }
 
-export type RenderComponentCallback = (params?: {
-  stateUpdate?: string;
-}) => void;
+export type RenderComponentCallback = () => void;
 
 export type RenderContainerComponentCallback = (
   params: RenderComponentParams
