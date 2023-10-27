@@ -189,14 +189,13 @@ export function ComponentMonitor({
         };
       }
       case 'component.update': {
-        const { __componentcallbacks, ...simpleProps } = message.props || {};
         return {
           message,
           isFromComponent,
           badgeClass: 'bg-warning',
           name: 'update',
           componentId: parseComponentId(toComponent!)!,
-          summary: `updated props ${JSON.stringify(simpleProps)} on`,
+          summary: `updated props ${JSON.stringify(message.props || {})} on`,
         };
       }
       case 'component.domCallback': {

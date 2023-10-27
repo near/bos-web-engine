@@ -22,7 +22,7 @@ export type CallbackMap = { [key: string]: Function };
 export type DeserializePropsCallback = (params: DeserializePropsParams) => any;
 export interface DeserializePropsParams {
   componentId: string;
-  props: SerializedProps;
+  props: Props;
 }
 
 export type EventArgs = { event: any };

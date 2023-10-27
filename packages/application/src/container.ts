@@ -82,7 +82,7 @@ export function deserializeProps({
           componentId: id,
           message: {
             args: serializedArgs,
-            method: callback.__componentMethod,
+            method: callback.callbackIdentifier,
             type: 'component.domCallback',
           },
           onMessageSent,
@@ -92,7 +92,6 @@ export function deserializeProps({
   );
 
   delete props.__domcallbacks;
-  delete props.__componentcallbacks;
 
   return props;
 }
