@@ -19,6 +19,12 @@ interface SerializeChildComponentParams {
   props: Props;
 }
 
+interface DeepTransformParams {
+  value: any;
+  onString?: (s: string) => string;
+  onFunction?: (f: Function, path: string) => any;
+}
+
 /**
  * Compose the set of serialization methods for the given container context
  * @param buildRequest Method for building callback requests
@@ -37,6 +43,44 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     postCallbackInvocationMessage,
     requests,
   }) => {
+    const deepTransform = ({
+      value,
+      onString,
+      onFunction,
+    }: DeepTransformParams) => {
+      const transform = (v: any, path: string): any => {
+        if (!v) {
+          return v;
+        }
+
+        const isCollection = Array.isArray(v); // TODO handle other collections
+        if (isCollection) {
+          return v.map((i: any) => transform(i, `(${path})(${i})`));
+        }
+
+        if (typeof v === 'object') {
+          return Object.fromEntries(
+            Object.entries(v).map(([k, w]) => [
+              k,
+              transform(w, `(${path})(${k})`),
+            ])
+          );
+        }
+
+        if (typeof v === 'string' && typeof onString === 'function') {
+          return onString(v);
+        }
+
+        if (typeof v === 'function' && typeof onFunction === 'function') {
+          return onFunction(v, path);
+        }
+
+        return v;
+      };
+
+      return transform(value, '');
+    };
+
     /**
      * Serialize props of a child Component to be rendered in the outer application
      * @param componentId The target Component ID
