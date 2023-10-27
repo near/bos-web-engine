@@ -103,50 +103,59 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           const isFunction = typeof value === 'function';
           const isProxy = value?.__bweMeta?.isProxy || false;
 
+          const serializeCallback = (functionName: string, fn: Function) => {
+            // [componentId] only applies to props on components, use method
+            // body to distinguish between non-component callbacks
+            const fnKey = [
+              functionName,
+              componentId || fn.toString().replace(/\\n/g, ''),
+              parentId,
+            ].join('::');
+
+            // @ts-ignore-error
+            callbacks[fnKey] = fn;
+
+            if (componentId) {
+              if (!newProps.__componentcallbacks) {
+                newProps.__componentcallbacks = {};
+              }
+
+              newProps.__componentcallbacks[functionName] = {
+                __componentMethod: fnKey,
+                parentId,
+              };
+            } else {
+              if (!newProps.__domcallbacks) {
+                newProps.__domcallbacks = {};
+              }
+
+              newProps.__domcallbacks[functionName] = {
+                __componentMethod: fnKey,
+              };
+            }
+          };
+
           if (!isFunction) {
             let serializedValue = value;
             if (isComponent) {
-              serializedValue = serializeNode({
+              newProps[key] = serializeNode({
                 childComponents: [],
                 node: value,
                 parentId,
               });
             } else if (isProxy) {
-              serializedValue = { ...serializedValue };
+              newProps[key] = { ...serializedValue };
+            } else {
+              newProps[key] = deepTransform({
+                value: serializedValue,
+                onFunction: (fn: Function, path: string) =>
+                  serializeCallback(`(${key})(${path})`, fn),
+              });
             }
 
-            newProps[key] = serializedValue;
             return newProps;
-          }
-
-          // [componentId] only applies to props on components, use method
-          // body to distinguish between non-component callbacks
-          const fnKey = [
-            key,
-            componentId || value.toString().replace(/\\n/g, ''),
-            parentId,
-          ].join('::');
-
-          // @ts-ignore-error
-          callbacks[fnKey] = value;
-
-          if (componentId) {
-            if (!newProps.__componentcallbacks) {
-              newProps.__componentcallbacks = {};
-            }
-
-            newProps.__componentcallbacks[key] = {
-              __componentMethod: fnKey,
-              parentId,
-            };
           } else {
-            if (!newProps.__domcallbacks) {
-              newProps.__domcallbacks = {};
-            }
-
-            newProps.__domcallbacks[key] = {
-              __componentMethod: fnKey,
-            };
+            serializeCallback(key, value);
           }
 
           return newProps;
