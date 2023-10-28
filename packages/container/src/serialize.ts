@@ -140,15 +140,10 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
               };
             }
 
-            if (!newProps.__domcallbacks) {
-              newProps.__domcallbacks = {};
-            }
-
-            newProps.__domcallbacks[functionName] = {
+            return {
               callbackIdentifier: fnKey,
+              callbackName: functionName,
             };
-
-            return newProps.__domcallbacks[functionName];
           };
 
           if (typeof value === 'function') {
