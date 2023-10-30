@@ -16,7 +16,7 @@
     "@bos-web-engine/compiler": "workspace:*",
     "@bos-web-engine/container": "workspace:*",
     "@bos-web-engine/iframe": "workspace:*",
-    "next": "^13.1.1",
+    "next": "^13.5.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.46.2",

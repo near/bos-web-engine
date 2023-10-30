@@ -112,7 +112,7 @@ export class ComponentCompiler {
     if (!this.compiledSourceCache.has(cacheKey)) {
       try {
         const { code } = transpileSource(componentSource);
-        this.compiledSourceCache.set(cacheKey, code);
+        this.compiledSourceCache.set(cacheKey, code || null);
       } catch (e) {
         console.error(`Failed to transpile ${componentPath}`, e);
         this.compiledSourceCache.set(cacheKey, null);
