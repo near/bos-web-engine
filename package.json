@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
-    "next": "^13.1.1",
+    "next": "^13.5.6",
     "prettier": "latest",
     "rimraf": "^5.0.1",
     "turbo": "^1.10.15",
