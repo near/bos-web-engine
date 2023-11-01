@@ -34,17 +34,19 @@ export default function Root() {
 
   return (
     <div className="App">
-      {error && <div className="error">{error}</div>}
       {rootComponentPath && (
-        <ComponentTree
-          components={components}
-          isDebug={isDebug}
-          metrics={metrics}
-          rootComponentPath={rootComponentPath}
-          showMonitor={showMonitor}
-        />
+        <>
+          {error && <div className="error">{error}</div>}
+          <ComponentTree
+            components={components}
+            isDebug={isDebug}
+            metrics={metrics}
+            rootComponentPath={rootComponentPath}
+            showMonitor={showMonitor}
+          />
+          <Inspector />
+        </>
       )}
-      <Inspector />
     </div>
   );
 }
