@@ -26,7 +26,9 @@ export function fetchComponentSources(
   return provider
     .query<CodeResult>({
       account_id: 'social.near',
-      args_base64: encodeComponentKeyArgs(componentPaths),
+      args_base64: encodeComponentKeyArgs(
+        componentPaths.map((p) => p.split('/').join('/widget/'))
+      ),
       finality: 'optimistic',
       method_name: 'get',
       request_type: 'call_function',
@@ -36,7 +38,7 @@ export function fetchComponentSources(
         (sources, [author, { widget: component }]) => {
           Object.entries(component).forEach(
             ([componentKey, componentSource]) => {
-              sources[`${author}/widget/${componentKey}`] = componentSource;
+              sources[`${author}/${componentKey}`] = componentSource;
             }
           );
           return sources;
