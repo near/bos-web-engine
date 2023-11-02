@@ -54,7 +54,8 @@ const ComponentList = styled.div`
   display: flex;
   flex: none;
   flex-direction: column;
-  width: 20rem;
+  min-width: 20rem;
+  max-width: 30rem;
   background-color: #343028;
   overflow-y: auto;
 `;
