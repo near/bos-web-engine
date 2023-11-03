@@ -59,16 +59,10 @@ function buildSandboxedComponent({
 
           let props;
 
+          // TODO fixed with preact/compat?
+          const React = Preact;
+
           const {
-            /* VM shims */
-            asyncFetch,
-            fadeIn,
-            minWidth,
-            React,
-            slideIn,
-            styled,
-            /* core dependencies */
-            context,
             diffComponent,
             processEvent,
             props: containerProps,

@@ -134,48 +134,7 @@ export function initContainer({
     }),
   });
 
-  // TODO remove debug value
-  const context = buildSafeProxy({
-    componentId,
-    props: {
-      // @ts-expect-error FIXME
-      accountId: props.accountId || 'andyh.near',
-    },
-  });
-
-  function asyncFetch(url: string, options: RequestInit) {
-    return fetch(url, options).catch(console.error);
-  }
-
-  const React = {
-    Fragment: 'div',
-  };
-  function fadeIn() {}
-  function slideIn() {}
-  let minWidth;
-
-  const styled = new Proxy(
-    {},
-    {
-      get(_, property: string) {
-        return (/*css: string*/) => {
-          return property;
-        };
-      },
-    }
-  );
-
   return {
-    /* VM compatibility TODO determine what to keep */
-    asyncFetch,
-    fadeIn,
-    minWidth,
-    React,
-    slideIn,
-    styled,
-
-    /* Web Engine core */
-    context,
     diffComponent,
     processEvent,
     props,
