@@ -32,7 +32,6 @@ export function buildEventHandler({
   parentContainerId,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
-  postMessage,
   renderDom,
   requests,
   serializeArgs,
@@ -124,7 +123,6 @@ export function buildEventHandler({
             postCallbackResponseMessage({
               error,
               componentId,
-              postMessage,
               requestId,
               result: value,
               targetId: originator,

@@ -40,9 +40,7 @@ export const preactify: PreactifyCallback = ({
   }
 
   // TODO handle other builtins
-  const isComponent = !!props!.src?.match(
-    /[0-9a-z._-]{5,}\/[0-9a-z._-]+/gi
-  );
+  const isComponent = !!props!.src?.match(/[0-9a-z._-]{5,}\/[0-9a-z._-]+/gi);
   const { children } = props;
   if (!children) {
     return undefined;
@@ -107,7 +105,6 @@ export const dispatchRenderEvent: DispatchRenderEventCallback = ({
   node,
   nodeRenders,
   postComponentRenderMessage,
-  postMessage,
   serializeNode,
   trust,
 }) => {
@@ -163,7 +160,6 @@ export const dispatchRenderEvent: DispatchRenderEventCallback = ({
       childComponents,
       componentId: componentId,
       node: serializedNode,
-      postMessage,
       trust,
     });
   } catch (error) {

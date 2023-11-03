@@ -91,10 +91,6 @@ export interface PostMessageParams {
   type: EventType;
 }
 
-export type PostMessageCallback = <T extends PostMessageParams>(
-  message: T
-) => void;
-
 export type PostMessageComponentInvocationCallback = (
   message: PostMessageComponentCallbackInvocationParams
 ) => void;
@@ -111,7 +107,6 @@ export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
   callbacks: CallbackMap;
   method: string;
-  postMessage: PostMessageCallback;
   requestId: string;
   serializeArgs: SerializeArgsCallback;
   targetId: string;
@@ -131,12 +126,14 @@ export interface ComponentCallbackResponse extends PostMessageParams {
 export interface PostMessageComponentCallbackResponseParams {
   componentId: string;
   error: Error | null;
-  postMessage: PostMessageCallback;
   requestId: string;
   result: any;
   targetId: string;
 }
 
+export type PostMessageComponentRenderCallback = (
+  message: PostMessageComponentRenderParams
+) => void;
 export interface ComponentRender extends PostMessageParams {
   childComponents: ComponentChildMetadata[];
   componentId: string;
@@ -148,7 +145,6 @@ export interface PostMessageComponentRenderParams {
   childComponents: ComponentChildMetadata[];
   componentId: string;
   node: SerializedNode;
-  postMessage: PostMessageCallback;
   trust: ComponentTrust;
 }
 
@@ -174,7 +170,6 @@ export interface ComposeSerializationMethodsParams {
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   preactRootComponentName: string;
-  postMessage: PostMessageCallback;
   requests: RequestMap;
 }
 
@@ -185,6 +180,12 @@ export type ComposeSerializationMethodsCallback = (
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
   serializeProps: SerializePropsCallback;
+};
+
+export type ComposeMessagingMethodsCallback = () => {
+  postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
+  postCallbackResponseMessage: PostMessageComponentResponseCallback;
+  postComponentRenderMessage: PostMessageComponentRenderCallback;
 };
 
 export type UpdateContainerPropsCallback = (props: Props) => void;
@@ -199,7 +200,6 @@ export interface ProcessEventParams {
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
-  postMessage: PostMessageCallback;
   renderDom: (node: any) => object;
   requests: RequestMap;
   serializeArgs: SerializeArgsCallback;
@@ -213,6 +213,7 @@ export interface InitContainerParams {
     buildRequest: BuildRequestCallback;
     buildSafeProxy: BuildSafeProxyCallback;
     buildUseComponentCallback: BuildUseComponentCallback;
+    composeMessagingMethods: ComposeMessagingMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
     invokeCallback: (args: InvokeCallbackParams) => any;
@@ -221,7 +222,6 @@ export interface InitContainerParams {
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
     postComponentRenderMessage: (p: any) => void;
-    postMessage: PostMessageCallback;
     preactify: PreactifyCallback;
     renderContainerComponent: RenderContainerComponentCallback;
   };
@@ -333,7 +333,6 @@ export interface DispatchRenderEventParams {
   node: Node;
   nodeRenders: Map<string, string>;
   postComponentRenderMessage: (p: any) => void;
-  postMessage: PostMessageCallback;
   preactRootComponentName: string;
   serializeNode: (p: SerializeNodeParams) => SerializedNode;
   serializeProps: SerializePropsCallback;

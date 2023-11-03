@@ -26,7 +26,6 @@ interface SerializeChildComponentParams {
  * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param preactRootComponentName The name of the root/Fragment Preact function
- * @param postMessage Method for calling postMessage on the parent window
  * @param requests Set of current callback requests
  */
 export const composeSerializationMethods: ComposeSerializationMethodsCallback =
@@ -36,7 +35,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     parentContainerId,
     postCallbackInvocationMessage,
     preactRootComponentName,
-    postMessage,
     requests,
   }) => {
     /**
@@ -185,7 +183,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
                 callbacks,
                 componentId,
                 method: __componentMethod, // the key on the props object passed to this Component
-                postMessage,
                 requestId,
                 serializeArgs,
                 targetId: parentContainerId,
