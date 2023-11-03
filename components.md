@@ -41,32 +41,32 @@ the loading policy via the `mode` property. The following modes are supported:
 ##### Sandboxed
 ```jsx
 {/* omitting the `trust` prop would have the same behavior */}
-<Widget trust={{ mode: "sandboxed" }} src="ex.near/widget/Parent" />
+<Widget trust={{ mode: "sandboxed" }} src="ex.near/Parent" />
 ```
 
 ##### Trusted
 ```jsx
-<Widget trust={{ mode: "trusted" }} src="ex.near/widget/Parent" />
+<Widget trust={{ mode: "trusted" }} src="ex.near/Parent" />
 ```
 
 ##### Trusted Author
 ```jsx
 {/* Root Component  */}
-<Widget trust={{ mode: "trusted-author" }} src="ex.near/widget/Parent" />
+<Widget trust={{ mode: "trusted-author" }} src="ex.near/Parent" />
 
 {/* Parent Component  */}
 <>
   {/* trusted: same author  */}
-  <Widget src="ex.near/widget/X" id="x-implicit" />
+  <Widget src="ex.near/X" id="x-implicit" />
 
   {/* trusted: same author, explicitly trusted; note that descendants of Y authored by ex.near will still be trusted */}
-  <Widget src="ex.near/widget/Y" trust={{ mode: "trusted" }} id="y" />
+  <Widget src="ex.near/Y" trust={{ mode: "trusted" }} id="y" />
 
   {/* sandboxed: explicitly sandboxed, same author behavior is overridden */}
-  <Widget src="ex.near/widget/X" trust={{ mode: "sandboxed" }} id="x-sandboxed" />
+  <Widget src="ex.near/X" trust={{ mode: "sandboxed" }} id="x-sandboxed" />
 
   {/* sandboxed: different author, no trust specified */}
-  <Widget src="mal.near/widget/X" id="x-mal" />
+  <Widget src="mal.near/X" id="x-mal" />
 </>
 ```
 
@@ -92,25 +92,25 @@ future.
 
 #### Examples
 
-Assume all code examples are from `ex.near/widget/Parent`:
+Assume all code examples are from `ex.near/Parent`:
 
 ```jsx
-<Widget src="ex.near/widget/Child" />
+<Widget src="ex.near/Child" />
 ```
 ✅
 The base ID is sufficient to identify a single child Component.
 
 ```jsx
-<Widget src="ex.near/widget/Child" />
-<Widget id="2nd" src="ex.near/widget/Child" />
+<Widget src="ex.near/Child" />
+<Widget id="2nd" src="ex.near/Child" />
 ```
 ✅
 The second Component has an explicit `id` value, preventing any collisions. While this does work, it would be much less brittle
 if both child Components had unique `id` values.
 
 ```jsx
-<Widget src="ex.near/widget/Child" />
-<Widget src="ex.near/widget/Child" />
+<Widget src="ex.near/Child" />
+<Widget src="ex.near/Child" />
 ```
 ❌ 
 Without unique `id` values, child Components cannot be differentiated by the outer application.

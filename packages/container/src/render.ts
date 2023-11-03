@@ -41,7 +41,7 @@ export const preactify: PreactifyCallback = ({
 
   // TODO handle other builtins
   const isComponent = !!props!.src?.match(
-    /[0-9a-z._-]{5,}\/widget\/[0-9a-z._-]+/gi
+    /[0-9a-z._-]{5,}\/[0-9a-z._-]+/gi
   );
   const { children } = props;
   if (!children) {
