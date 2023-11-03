@@ -157,7 +157,7 @@ export const dispatchRenderEvent: DispatchRenderEventCallback = ({
 
   try {
     postComponentRenderMessage({
-      childComponents,
+      childComponents: childComponents || [],
       componentId: componentId,
       node: serializedNode,
       trust,

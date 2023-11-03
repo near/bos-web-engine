@@ -89,7 +89,7 @@ function buildSandboxedComponent({
               preactHooksDiffed: Preact.options.diffed,
               preactRootComponentName: Preact.Fragment.name,
               render: Preact.render,
-              trust: '${JSON.stringify(trust)}',
+              trust: ${JSON.stringify(trust)},
               updateContainerProps: (updateProps) => {
                 const originalProps = props;
                 // if nothing has changed, the same [props] object will be returned

@@ -236,7 +236,7 @@ export interface InitContainerParams {
     preactRootComponentName: string;
     props: any;
     render: PreactRender;
-    trust: string;
+    trust: ComponentTrust;
     updateContainerProps: UpdateContainerPropsCallback;
   };
 }
@@ -332,11 +332,11 @@ export interface DispatchRenderEventParams {
   componentId: string;
   node: Node;
   nodeRenders: Map<string, string>;
-  postComponentRenderMessage: (p: any) => void;
+  postComponentRenderMessage: PostMessageComponentRenderCallback;
   preactRootComponentName: string;
   serializeNode: (p: SerializeNodeParams) => SerializedNode;
   serializeProps: SerializePropsCallback;
-  trust: string;
+  trust: ComponentTrust;
 }
 export type DispatchRenderEventCallback = (
   params: DispatchRenderEventParams
