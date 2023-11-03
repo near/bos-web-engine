@@ -6,7 +6,7 @@ import {
 } from './component';
 import { parseChildComponents, ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
-import { transpileSource } from './transpile';
+import { initPromise, transpileSource } from './transpile';
 
 export type ComponentCompilerRequest =
   | CompilerExecuteAction
@@ -111,7 +111,9 @@ export class ComponentCompiler {
     const cacheKey = JSON.stringify({ componentPath, isRoot });
     if (!this.compiledSourceCache.has(cacheKey)) {
       try {
+        console.time(`transpile:${componentPath}`);
         const { code } = transpileSource(componentSource);
+        console.timeEnd(`transpile:${componentPath}`);
         this.compiledSourceCache.set(cacheKey, code || null);
       } catch (e) {
         console.error(`Failed to transpile ${componentPath}`, e);
@@ -241,6 +243,16 @@ export class ComponentCompiler {
   }
 
   async compileComponent({ componentId }: CompilerExecuteAction) {
+    // ! UNCOMMENT THIS BLOCK TO USE SWC
+    // initialize transpiler
+    try {
+      console.time('initTranspiler');
+      await initPromise;
+      console.timeEnd('initTranspiler');
+    } catch (e) {
+      console.error('Failed to initialize transpiler', e);
+    }
+
     if (this.localFetchUrl && !this.hasFetchedLocal) {
       try {
         await this.fetchLocalComponents();

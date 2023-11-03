@@ -13,7 +13,8 @@
     "@babel/standalone": "^7.22.14",
     "@bos-web-engine/common": "workspace:*",
     "@bos-web-engine/container": "workspace:*",
-    "@near-js/providers": "^0.0.7"
+    "@near-js/providers": "^0.0.7",
+    "@swc/wasm-web": "1.3.96-nightly-20231031.1"
   },
   "devDependencies": {
     "@near-js/types": "^0.0.4",
