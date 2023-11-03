@@ -24,65 +24,70 @@ export function buildRequest(): CallbackRequest {
   };
 }
 
-export function postMessage<T extends PostMessageParams>(message: T) {
-  window.parent.postMessage(message, '*');
-}
+export function composeMessagingMethods() {
+  function postMessage<T extends PostMessageParams>(message: T) {
+    window.parent.postMessage(message, '*');
+  }
 
-export function postCallbackInvocationMessage({
-  args,
-  callbacks,
-  componentId,
-  method,
-  postMessage,
-  requestId,
-  serializeArgs,
-  targetId,
-}: PostMessageComponentCallbackInvocationParams): void {
-  postMessage<ComponentCallbackInvocation>({
-    args: serializeArgs({ args, callbacks, componentId }),
-    method,
-    originator: componentId,
-    requestId,
-    targetId,
-    type: 'component.callbackInvocation',
-  });
-}
-
-export function postCallbackResponseMessage({
-  error,
-  componentId,
-  postMessage,
-  requestId,
-  result,
-  targetId,
-}: PostMessageComponentCallbackResponseParams): void {
-  const serializedError =
-    error && JSON.stringify(error, Object.getOwnPropertyNames(error));
-
-  postMessage<ComponentCallbackResponse>({
-    requestId,
+  function postCallbackInvocationMessage({
+    args,
+    callbacks,
     componentId,
-    result: JSON.stringify({
-      value: result,
-      error: serializedError,
-    }),
+    method,
+    requestId,
+    serializeArgs,
     targetId,
-    type: 'component.callbackResponse',
-  });
-}
+  }: PostMessageComponentCallbackInvocationParams): void {
+    postMessage<ComponentCallbackInvocation>({
+      args: serializeArgs({ args, callbacks, componentId }),
+      method,
+      originator: componentId,
+      requestId,
+      targetId,
+      type: 'component.callbackInvocation',
+    });
+  }
 
-export function postComponentRenderMessage({
-  childComponents,
-  componentId,
-  node,
-  postMessage,
-  trust,
-}: PostMessageComponentRenderParams): void {
-  postMessage<ComponentRender>({
+  function postCallbackResponseMessage({
+    error,
+    componentId,
+    requestId,
+    result,
+    targetId,
+  }: PostMessageComponentCallbackResponseParams): void {
+    const serializedError =
+      error && JSON.stringify(error, Object.getOwnPropertyNames(error));
+
+    postMessage<ComponentCallbackResponse>({
+      requestId,
+      componentId,
+      result: JSON.stringify({
+        value: result,
+        error: serializedError,
+      }),
+      targetId,
+      type: 'component.callbackResponse',
+    });
+  }
+
+  function postComponentRenderMessage({
     childComponents,
     componentId,
     node,
     trust,
-    type: 'component.render',
-  });
+  }: PostMessageComponentRenderParams): void {
+    postMessage<ComponentRender>({
+      childComponents,
+      componentId,
+      node,
+      trust,
+      type: 'component.render',
+    });
+  }
+
+  return {
+    postCallbackInvocationMessage,
+    postCallbackResponseMessage,
+    postComponentRenderMessage,
+  };
 }

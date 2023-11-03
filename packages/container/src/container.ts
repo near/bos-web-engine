@@ -14,15 +14,12 @@ export function initContainer({
     buildRequest,
     buildSafeProxy,
     buildUseComponentCallback,
+    composeMessagingMethods,
     composeSerializationMethods,
     dispatchRenderEvent,
     invokeCallback,
     invokeComponentCallback,
     isMatchingProps,
-    postCallbackInvocationMessage,
-    postCallbackResponseMessage,
-    postComponentRenderMessage,
-    postMessage,
     preactify,
     renderContainerComponent,
   },
@@ -43,6 +40,12 @@ export function initContainer({
   const callbacks: { [key: string]: Function } = {};
   const requests: { [key: string]: CallbackRequest } = {};
 
+  const {
+    postCallbackInvocationMessage,
+    postCallbackResponseMessage,
+    postComponentRenderMessage,
+  } = composeMessagingMethods();
+
   const { deserializeProps, serializeArgs, serializeNode, serializeProps } =
     composeSerializationMethods({
       buildRequest,
@@ -50,7 +53,6 @@ export function initContainer({
       parentContainerId,
       postCallbackInvocationMessage,
       preactRootComponentName,
-      postMessage,
       requests,
     });
 
@@ -77,11 +79,10 @@ export function initContainer({
     if (containerComponent && isRootComponent) {
       dispatchRenderEvent({
         callbacks,
-        componentId: componentId,
+        componentId,
         node: containerComponent(),
         nodeRenders,
         postComponentRenderMessage,
-        postMessage,
         preactRootComponentName,
         serializeNode,
         serializeProps,
@@ -101,7 +102,6 @@ export function initContainer({
     parentContainerId,
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
-    postMessage,
     renderDom: (node: Node) => preactify({ node, createElement, Component }),
     requests,
     serializeArgs,

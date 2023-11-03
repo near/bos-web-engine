@@ -74,7 +74,6 @@ export function invokeComponentCallback({
           callbacks,
           componentId,
           method: componentMethod,
-          postMessage,
           requestId,
           // TODO must specify a real value here
           serializeArgs,
