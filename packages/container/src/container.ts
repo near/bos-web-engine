@@ -33,7 +33,7 @@ export function initContainer({
     postComponentRenderMessage,
   } = composeMessagingMethods();
 
-  const { deserializeProps, serializeArgs, serializeNode } =
+  const { deserializeArgs, deserializeProps, serializeArgs, serializeNode } =
     composeSerializationMethods({
       buildRequest,
       callbacks,
@@ -68,10 +68,10 @@ export function initContainer({
     buildRequest,
     callbacks,
     componentId,
+    deserializeArgs,
     deserializeProps,
     invokeCallback,
     invokeComponentCallback,
-    parentContainerId,
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     requests,

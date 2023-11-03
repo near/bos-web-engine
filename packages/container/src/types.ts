@@ -19,6 +19,12 @@ export interface CallbackRequest {
 export type RequestMap = { [key: string]: CallbackRequest };
 export type CallbackMap = { [key: string]: Function };
 
+export type DeserializeArgsCallback = (params: DeserializeArgsParams) => any;
+export interface DeserializeArgsParams {
+  args: any;
+  componentId: string;
+}
+
 export type DeserializePropsCallback = (params: DeserializePropsParams) => any;
 export interface DeserializePropsParams {
   componentId: string;
@@ -42,7 +48,6 @@ export interface InvokeComponentCallbackParams {
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
-  targetId: string;
 }
 
 export type PostMessageComponentInvocationCallback = (
@@ -108,6 +113,7 @@ export interface ComposeSerializationMethodsParams {
 export type ComposeSerializationMethodsCallback = (
   params: ComposeSerializationMethodsParams
 ) => {
+  deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
@@ -125,10 +131,10 @@ export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   componentId: string;
+  deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
   invokeCallback: (args: InvokeCallbackParams) => any;
   invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
-  parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   requests: RequestMap;

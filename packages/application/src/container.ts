@@ -52,24 +52,14 @@ export function deserializeProps({
 
   return Object.fromEntries(
     Object.entries(props).map(([k, v]) => {
-      const isSerializedCallback =
-        !!v &&
-        typeof v === 'object' &&
-        Object.keys(v).length === 2 &&
-        'callbackIdentifier' in v &&
-        'callbackName' in v;
-
-      if (!isSerializedCallback) {
+      const callbackMeta = v as { callbackIdentifier: string } | any;
+      if (!callbackMeta?.callbackIdentifier) {
         return [k, v];
       }
 
-      const { callbackIdentifier, callbackName } = v as {
-        callbackIdentifier: string;
-        callbackName: string;
-      };
-
+      const { callbackIdentifier } = callbackMeta;
       return [
-        callbackName.split('::')[0],
+        k,
         (...args: any[]) => {
           let serializedArgs: any = args;
           const event = args[0] || {};

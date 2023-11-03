@@ -10,7 +10,6 @@ import type { ProcessEventParams } from './types';
  * @param deserializeProps Function to deserialize props passed on the event
  * @param invokeCallback Function to execute the specified function in the current context
  * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
- * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
  * @param requests The set of inter-Component callback requests being tracked by the Component
@@ -22,10 +21,10 @@ export function buildEventHandler({
   buildRequest,
   callbacks,
   componentId,
+  deserializeArgs,
   deserializeProps,
   invokeCallback,
   invokeComponentCallback,
-  parentContainerId,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   requests,
@@ -44,13 +43,9 @@ export function buildEventHandler({
       args: SerializedArgs;
       method: string;
     }) {
-      if (!parentContainerId) {
-        console.error(`no parent container for ${componentId}`);
-        return;
-      }
-
+      const deserializedArgs = deserializeArgs({ args, componentId });
       return invokeComponentCallback({
-        args,
+        args: deserializedArgs,
         buildRequest,
         callbacks,
         componentId,
@@ -59,7 +54,6 @@ export function buildEventHandler({
         postCallbackInvocationMessage,
         requests,
         serializeArgs,
-        targetId: parentContainerId,
       });
     }
 
