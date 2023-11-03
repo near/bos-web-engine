@@ -23,7 +23,6 @@ interface SerializeChildComponentParams {
  * @param buildRequest Method for building callback requests
  * @param builtinComponents Set of builtin BOS Web Engine Components
  * @param callbacks Component container's callbacks
- * @param decodeJsonString Method for decoding encoded JSON strings
  * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param preactRootComponentName The name of the root/Fragment Preact function
@@ -34,7 +33,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
   ({
     buildRequest,
     callbacks,
-    decodeJsonString,
     parentContainerId,
     postCallbackInvocationMessage,
     preactRootComponentName,
@@ -71,8 +69,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
                 node: value,
                 parentId,
               });
-            } else if (typeof value === 'string') {
-              serializedValue = decodeJsonString(serializedValue);
             } else if (isProxy) {
               serializedValue = { ...serializedValue };
             }

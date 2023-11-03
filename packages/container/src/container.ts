@@ -14,11 +14,8 @@ export function initContainer({
     buildRequest,
     buildSafeProxy,
     buildUseComponentCallback,
-    composeApiMethods,
     composeSerializationMethods,
-    decodeJsonString,
     dispatchRenderEvent,
-    encodeJsonString,
     invokeCallback,
     invokeComponentCallback,
     isMatchingProps,
@@ -39,14 +36,10 @@ export function initContainer({
     preactHooksDiffed,
     preactRootComponentName,
     render,
-    rpcUrl,
-    socialApiUrl,
     trust,
     updateContainerProps,
   },
 }: InitContainerParams) {
-  const stateUpdates = new Map<string, string[]>();
-
   const callbacks: { [key: string]: Function } = {};
   const requests: { [key: string]: CallbackRequest } = {};
 
@@ -54,7 +47,6 @@ export function initContainer({
     composeSerializationMethods({
       buildRequest,
       callbacks,
-      decodeJsonString,
       parentContainerId,
       postCallbackInvocationMessage,
       preactRootComponentName,
@@ -62,14 +54,12 @@ export function initContainer({
       requests,
     });
 
-  const renderComponent: RenderComponentCallback = ({ stateUpdate } = {}) =>
+  const renderComponent: RenderComponentCallback = () =>
     renderContainerComponent({
       ContainerComponent,
       componentId,
       render,
       createElement,
-      stateUpdate,
-      stateUpdates,
     });
 
   // cache previous renders
@@ -88,7 +78,6 @@ export function initContainer({
       dispatchRenderEvent({
         callbacks,
         componentId: componentId,
-        decodeJsonString,
         node: containerComponent(),
         nodeRenders,
         postComponentRenderMessage,
@@ -134,14 +123,6 @@ export function initContainer({
       }),
   });
 
-  const { Near, Social } = composeApiMethods({
-    componentId,
-    encodeJsonString,
-    renderComponent,
-    rpcUrl,
-    socialApiUrl,
-  });
-
   const props = buildSafeProxy({
     componentId,
     props: deserializeProps({
@@ -150,54 +131,11 @@ export function initContainer({
     }),
   });
 
-  // TODO remove debug value
-  const context = buildSafeProxy({
-    componentId,
-    props: {
-      // @ts-expect-error FIXME
-      accountId: props.accountId || 'andyh.near',
-    },
-  });
-
-  function asyncFetch(url: string, options: RequestInit) {
-    return fetch(url, options).catch(console.error);
-  }
-
-  const React = {
-    Fragment: 'div',
-  };
-  function fadeIn() {}
-  function slideIn() {}
-  let minWidth;
-
-  const styled = new Proxy(
-    {},
-    {
-      get(_, property: string) {
-        return (/*css: string*/) => {
-          return property;
-        };
-      },
-    }
-  );
-
   return {
-    /* VM compatibility TODO determine what to keep */
-    asyncFetch,
-    fadeIn,
-    minWidth,
-    React,
-    slideIn,
-    styled,
-
-    /* Web Engine core */
-    context,
     diffComponent,
-    Near,
     processEvent,
     props,
     renderComponent,
-    Social,
     useComponentCallback: buildUseComponentCallback(renderComponent),
   };
 }

@@ -1,5 +1,3 @@
-type ComponentStateMap = Map<string, { [key: string | symbol]: any }>;
-
 /**
  * Returns the name to be used for the Component function
  * @param componentPath
@@ -29,13 +27,6 @@ export function buildComponentFunction({
   if (isRoot) {
     return `
       function ${functionName}() {
-        const { state, State } = (
-          ${initializeComponentState.toString()}
-        )({
-          ComponentState,
-          componentInstanceId: props?.__bweMeta?.componentId,
-          renderComponent,
-        });
         ${componentSource}
       }
     `;
@@ -46,66 +37,7 @@ export function buildComponentFunction({
     function ${functionName}(__bweInlineComponentProps) {
       const { __bweMeta, props: __componentProps } = __bweInlineComponentProps;
       const props = Object.assign({ __bweMeta }, __componentProps); 
-      const { state, State } = (
-        ${initializeComponentState.toString()}
-      )({
-        ComponentState,
-        componentInstanceId: [
-          '${componentPath}',
-          __bweInlineComponentProps.id,
-          __bweMeta?.parentMeta?.componentId,
-        ].filter((c) => c !== undefined).join('##'),
-        renderComponent,
-      });
       ${componentSource}
     }
   `;
-}
-
-interface InitializeComponentStateParams {
-  ComponentState: ComponentStateMap;
-  componentInstanceId: string;
-  renderComponent?: ({ stateUpdate }: { stateUpdate: string }) => void;
-}
-
-function initializeComponentState({
-  ComponentState,
-  componentInstanceId,
-  renderComponent,
-}: InitializeComponentStateParams) {
-  const state = new Proxy(
-    {},
-    {
-      get(_, key) {
-        try {
-          return ComponentState.get(componentInstanceId)?.[key];
-        } catch {
-          return undefined;
-        }
-      },
-    }
-  );
-  const State = {
-    init(obj: any) {
-      if (!ComponentState.has(componentInstanceId)) {
-        ComponentState.set(componentInstanceId, obj);
-      }
-    },
-    update(newState: any, initialState = {}) {
-      ComponentState.set(
-        componentInstanceId,
-        Object.assign(
-          initialState,
-          ComponentState.get(componentInstanceId),
-          newState
-        )
-      );
-      renderComponent?.({ stateUpdate: JSON.stringify(newState) });
-    },
-  };
-
-  return {
-    state,
-    State,
-  };
 }
