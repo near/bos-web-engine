@@ -168,13 +168,9 @@ interface PreactifyParams {
 
 export type PreactifyCallback = (params: PreactifyParams) => any;
 
-export type DecodeJsonStringCallback = (value: string) => string;
-export type EncodeJsonStringCallback = (value: string) => string;
-
 export interface ComposeSerializationMethodsParams {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
-  decodeJsonString: DecodeJsonStringCallback;
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   preactRootComponentName: string;
@@ -218,7 +214,6 @@ export interface InitContainerParams {
     buildSafeProxy: BuildSafeProxyCallback;
     buildUseComponentCallback: BuildUseComponentCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
-    decodeJsonString: DecodeJsonStringCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
     invokeCallback: (args: InvokeCallbackParams) => any;
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
@@ -335,7 +330,6 @@ export type RenderContainerComponentCallback = (
 export interface DispatchRenderEventParams {
   callbacks: CallbackMap;
   componentId: string;
-  decodeJsonString: DecodeJsonStringCallback;
   node: Node;
   nodeRenders: Map<string, string>;
   postComponentRenderMessage: (p: any) => void;

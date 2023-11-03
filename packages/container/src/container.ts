@@ -15,7 +15,6 @@ export function initContainer({
     buildSafeProxy,
     buildUseComponentCallback,
     composeSerializationMethods,
-    decodeJsonString,
     dispatchRenderEvent,
     invokeCallback,
     invokeComponentCallback,
@@ -48,7 +47,6 @@ export function initContainer({
     composeSerializationMethods({
       buildRequest,
       callbacks,
-      decodeJsonString,
       parentContainerId,
       postCallbackInvocationMessage,
       preactRootComponentName,
@@ -80,7 +78,6 @@ export function initContainer({
       dispatchRenderEvent({
         callbacks,
         componentId: componentId,
-        decodeJsonString,
         node: containerComponent(),
         nodeRenders,
         postComponentRenderMessage,
