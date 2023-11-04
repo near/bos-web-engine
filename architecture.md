@@ -17,17 +17,11 @@ _High-level overview of the flow from BOS Component source to Component containe
 ### Component Containers
 Containers are abstractions around sandboxed iframes, responsible for managing the lifecycle of a single root Component.
 The outer application renders a container for each root Component, rendering the container's hidden iframe and executing
-the container code in the iframe's `srcDoc` field. Once initialized, the container will make a render request to the outer
-application with a message that includes the serialized Component DOM. 
+the container code in the iframe's `srcDoc` field.
 
-A root Component is only re-rendered in the outer application when the container requests it explicitly. Render requests
-are made when:
-- the container has finished initializing
-- state has changed within the Component (e.g. from a `useState` setter)
-- the root Component's `props` have changed, i.e. its parent Component re-rendered
-
-Note that a container will not request a render if it determines there have been no changes, e.g. the `props` values have
-not changed or the serialized output matches the last render.
+Containers rely on Preact for Component lifecycle management. When a Component has updated, options hooks set in Preact
+serialize the rendered node and send it to the outer application. The initial render request is explicitly triggered upon
+container initialization. This Preact integration enables the use of React hooks within BOS Components.
 
 Interactions between containers are facilitated by the iframe parent's _window_ object, e.g. `window.parent.postMessage()`. 
 The outer application and individual containers register event handlers on this _window_ object to facilitate bidirectional
