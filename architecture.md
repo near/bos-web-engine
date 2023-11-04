@@ -32,5 +32,27 @@ communication is inherently asynchronous.
 
 _Component containers manage root Components, which may be under another Component in the DOM tree despite being sandboxed._
 
+### Trust
+Component Trust ensures that BOS Components retain control over composability with other Components. When rendering a BOS
+Component in Web Engine, the **trust mode** determines how to load the Component:
+- **trusted** loads the Component inside the same container
+- **sandboxed** loads the Component as a root Component in a new container
+
+Trust mode does not impact the rendered output in the outer application, but has implications for performance and security.
+In particular:
+- Trusted Components invoke methods directly within the same context. Sandboxed Components are subject to performance overhead
+inherent in proxying callbacks through the outer application.
+- Sandboxed Components are loaded dynamically, and their paths do not need to be known at build time. Trusted Components
+incur a loading penalty upfront when fetching and parsing source for multiple Components, and must use statically-analyzable
+paths to guarantee all Components are known at build time.
+- Sandboxed Components run in their own sandboxed iframe container and may only communicate with other containers using a
+well-defined message passing interface. Trusted Component trees run in the same context, with access to the same references.
+
+Component Trust is best employed to create logical trust boundaries in a BOS application, for instance between Components
+from different accounts. By default, BOS Components are loaded as **sandboxed**; loading a Component as **trusted** requires
+explicit configuration.
+
+![trusted-source-compile-container](./assets/source-container-trusted.png)
+_Trusted Components are included in the same container context as their parent Component._
+
 ### Component Callbacks (WIP)
-### Trust (WIP)
