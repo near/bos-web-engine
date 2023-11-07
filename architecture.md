@@ -59,7 +59,7 @@ _Trusted Components are included in the same container context as their parent C
 Callbacks between Components (e.g. functions passed via `props`) are supported in BOS Web Engine, though the exact behavior is
 dependent on whether the Components are within the same container. Callbacks between two Components _in the same container_
 work without constraints, but there are caveats for callbacks _between containers_ as the caller and callee exist in completely
-independent contexts. These inter-container callbacks must be invoked (and return data) using the message passing interface
+independent contexts. Under the hood, these inter-container callbacks must be invoked (and return data) using the message passing interface
 provided by `window.postMessage`, and are subject to some constraints accordingly:
 - Arguments may only use types compatible with the [structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm).
 While functions cannot be provided as arguments directly, references to callbacks in other containers may be passed, allowing
