@@ -55,4 +55,19 @@ explicit configuration.
 ![trusted-source-compile-container](./assets/source-container-trusted.png)
 _Trusted Components are included in the same container context as their parent Component._
 
-### Component Callbacks (WIP)
+### Component Callbacks
+Callbacks between Components (e.g. functions passed via `props`) are supported in BOS Web Engine, though the exact behavior is
+dependent on whether the Components are within the same container. Callbacks between two Components _in the same container_
+work without constraints, but there are caveats for callbacks _between containers_ as the caller and callee exist in completely
+independent contexts. Under the hood, these inter-container callbacks must be invoked (and return data) using the message passing interface
+provided by `window.postMessage`, and are subject to some constraints accordingly:
+- Arguments may only use types compatible with the [structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm).
+While functions cannot be provided as arguments directly, references to callbacks in other containers may be passed, allowing
+BOS Components to invoke functions on `props` with function arguments.
+- Inter-container callbacks are inherently asynchronous, for which a Promise-based interface is provided to abstract away
+the underlying event-based communication.
+
+This inherent asymmetry presents a challenge to BOS Component developers, who must now contend with two different return
+types entirely contingent on how their Component is consumed. To unify this interface, the current implementation provides
+an optional `useComponentCallback` hook returning a higher-order function to be invoked instead of invoking the callback
+directly.
