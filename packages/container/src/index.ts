@@ -1,7 +1,6 @@
 export { invokeCallback, invokeComponentCallback } from './callbacks';
 export { initContainer } from './container';
 export { buildEventHandler } from './events';
-export { buildUseComponentCallback } from './hooks';
 export { buildRequest, composeMessagingMethods } from './messaging';
 export {
   buildSafeProxy,

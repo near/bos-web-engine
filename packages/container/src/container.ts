@@ -10,7 +10,6 @@ export function initContainer({
     buildEventHandler,
     buildRequest,
     buildSafeProxy,
-    buildUseComponentCallback,
     composeMessagingMethods,
     composeSerializationMethods,
     dispatchRenderEvent,
@@ -106,6 +105,5 @@ export function initContainer({
     dispatchRender,
     processEvent,
     props,
-    useComponentCallback: buildUseComponentCallback(renderComponent),
   };
 }
