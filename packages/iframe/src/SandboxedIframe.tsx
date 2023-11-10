@@ -28,24 +28,24 @@ function buildSandboxedComponent({
 
   return `
     <html>
-      <head>
-        <script src="https://cdn.jsdelivr.net/npm/near-api-js@2.1.3/dist/near-api-js.min.js"></script>
-      </head>
       <body>
-        <div id="${id}"></div>
-          <script type="importmap">
-          {
-            "imports": {
-              "preact": "https://esm.sh/preact@10.17.1",
-              "preact/": "https://esm.sh/preact@10.17.1/"
-            }
+        <script type="importmap">
+        {
+          "imports": {
+            "preact": "https://esm.sh/preact@10.17.1",
+            "preact/": "https://esm.sh/preact@10.17.1/",
+            "htm": "https://esm.sh/htm"
           }
-          </script>
+        }
+        </script>
         <script type="module">
           import * as Preact from 'preact';
           import { useEffect, useState } from 'preact/hooks';
+          import htm from 'htm';
 
           const { createElement } = Preact;
+
+          const html = htm.bind(createElement);
 
           const initContainer = ${initContainer.toString()};
 
@@ -59,6 +59,7 @@ function buildSandboxedComponent({
 
           const {
             diffComponent,
+            dispatchRender,
             processEvent,
             props: containerProps,
             renderComponent,
@@ -95,14 +96,11 @@ function buildSandboxedComponent({
                 // if nothing has changed, the same [props] object will be returned
                 props = updateProps(props);
                 if (props !== originalProps) {
-                  renderComponent();
+                  Preact.render(html\`\<\${BWEComponent} />\`, document.body);
                 }
               },
             },
           });
-
-          // initialize container state
-          const ComponentState = new Map();
 
           // intialize props
           props = containerProps;
@@ -111,14 +109,74 @@ function buildSandboxedComponent({
           ${scriptSrc}
           /* END BOS SOURCE */
 
+          const componentTree = new Map();
+
+          function buildComponentTree(rootComponent, componentTree) {
+            if (!rootComponent || typeof rootComponent !== 'object') {
+              return rootComponent;
+            }
+
+            const children = rootComponent.props?.children || [];
+
+            return {
+              ...rootComponent,
+              props: {
+                ...rootComponent.props,
+                children: (Array.isArray(children) ? children : [children]).map((child) => {
+                  // ignore the emitted vnode for inlined <BWEComponent_* /> components
+                  // use its child instead, which is the root for the trusted Component's DOM
+                  return child.type?.name?.startsWith('BWEComponent')
+                    ? buildComponentTree(componentTree.get(child)[0], componentTree)
+                    : buildComponentTree(child, componentTree);
+                }),
+              }
+            }
+          }
           // register handler executed upon vnode render
-          Preact.options.diffed = diffComponent;
+          const oldDiffed = Preact.options._diff;
+          Preact.options.diffed = (vnode) => {
+            const isBWEComponent = vnode.type?.name === 'BWEComponent';
+
+            if (isBWEComponent) {
+              // store the top-level children and remove the entry mapping them to <BWEComponent />
+              const componentChildren = componentTree.get(vnode);
+              componentTree.delete(vnode);
+
+              // create artificial root node
+              // TODO look into sending array of top-level children instead
+              const componentRoot = {
+                type: 'div',
+                props: {
+                  id: '${id}',
+                  children: componentChildren,
+                  className: 'component-container',
+                  "data-component-src": '${id}'.split('##')[0],                
+                },
+              };
+
+              // map artificial component root node to top-level children
+              componentTree.set(componentRoot, componentChildren);
+
+              // request render
+              dispatchRender(buildComponentTree(componentRoot, componentTree));
+
+              // clear component tree for next render
+              componentTree.clear();
+            } else {
+              const parent = vnode.__;
+              if (!componentTree.has(parent)) {
+                componentTree.set(parent, []);
+              }
+
+              componentTree.get(parent).push(vnode);
+            }
+
+            oldDiffed?.(vnode);
+          };
 
           window.addEventListener('message', processEvent);
 
-          // first render once container is initialized
-          // this should always happen last
-          renderComponent();
+          Preact.render(html\`\<\${BWEComponent} />\`, document.body);
         </script>
       </body>
     </html>

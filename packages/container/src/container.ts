@@ -92,6 +92,20 @@ export function initContainer({
     preactHooksDiffed?.(vnode);
   };
 
+  const dispatchRender = (vnode: Node) => {
+    dispatchRenderEvent({
+      callbacks,
+      componentId,
+      node: vnode,
+      nodeRenders,
+      postComponentRenderMessage,
+      preactRootComponentName,
+      serializeNode,
+      serializeProps,
+      trust,
+    });
+  };
+
   const processEvent = buildEventHandler({
     buildRequest,
     callbacks,
@@ -133,6 +147,7 @@ export function initContainer({
 
   return {
     diffComponent,
+    dispatchRender,
     processEvent,
     props,
     renderComponent,
