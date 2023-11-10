@@ -8,7 +8,6 @@ export {
   dispatchRenderEvent,
   isMatchingProps,
   preactify,
-  renderContainerComponent,
 } from './render';
 export { composeSerializationMethods } from './serialize';
 export * from './types';

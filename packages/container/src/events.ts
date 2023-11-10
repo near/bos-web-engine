@@ -16,7 +16,6 @@ import type {
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
  * @param renderDom Callback for rendering DOM within the component
- * @param renderComponent Callback for rendering the Component
  * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  * @param serializeNode Function to serialize Preact DOM trees passed to window.postMessage

@@ -10,7 +10,6 @@ import {
   initContainer,
   isMatchingProps,
   preactify,
-  renderContainerComponent,
   buildSafeProxy,
   composeSerializationMethods,
 } from '@bos-web-engine/container';
@@ -58,18 +57,14 @@ function buildSandboxedComponent({
           const React = Preact;
 
           const {
-            diffComponent,
             dispatchRender,
             processEvent,
             props: containerProps,
-            renderComponent,
-            useComponentCallback,
           } = initContainer({
             containerMethods: {
               buildEventHandler: ${buildEventHandler.toString()},
               buildRequest: ${buildRequest.toString()},
               buildSafeProxy: ${buildSafeProxy.toString()},
-              buildUseComponentCallback: ${buildUseComponentCallback.toString()},
               composeMessagingMethods: ${composeMessagingMethods.toString()},
               composeSerializationMethods: ${composeSerializationMethods.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
@@ -77,19 +72,13 @@ function buildSandboxedComponent({
               invokeComponentCallback: ${invokeComponentCallback.toString()},
               isMatchingProps: ${isMatchingProps.toString()},
               preactify: ${preactify.toString()},
-              renderContainerComponent: ${renderContainerComponent.toString()},
             },
             context: {
               Component: Widget,
               componentId: '${id}',
               componentPropsJson: ${componentPropsJson},
-              /* "function BWEComponent() {...}" is added to module scope when [scriptSrc] is interpolated */
-              ContainerComponent: BWEComponent,
               createElement,
               parentContainerId: '${parentContainerId}',
-              preactHooksDiffed: Preact.options.diffed,
-              preactRootComponentName: Preact.Fragment.name,
-              render: Preact.render,
               trust: ${JSON.stringify(trust)},
               updateContainerProps: (updateProps) => {
                 const originalProps = props;

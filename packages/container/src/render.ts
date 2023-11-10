@@ -1,7 +1,6 @@
 import {
   BuildSafeProxyCallback,
   DispatchRenderEventCallback,
-  RenderContainerComponentCallback,
   PreactifyCallback,
   Props,
   IsMatchingPropsCallback,
@@ -77,27 +76,6 @@ export const isMatchingProps: IsMatchingPropsCallback = (
       .join(',');
 
   return getComparable(props) === getComparable(compareProps);
-};
-
-export const renderContainerComponent: RenderContainerComponentCallback = ({
-  ContainerComponent,
-  createElement,
-  render,
-  componentId,
-}) => {
-  try {
-    render(ContainerComponent, document.getElementById(componentId));
-  } catch (e: unknown) {
-    const error = e as Error;
-    console.error(e, { componentId });
-    return createElement(
-      'div',
-      {},
-      `failed to load ${componentId.split('##')[0]}: ${error.toString()}\n\n ${
-        error.stack
-      }`
-    );
-  }
 };
 
 export const dispatchRenderEvent: DispatchRenderEventCallback = ({

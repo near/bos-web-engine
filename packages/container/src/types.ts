@@ -1,5 +1,4 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
-import { VNode } from 'preact';
 
 export interface WebEngineMeta {
   componentId?: string;
@@ -169,7 +168,6 @@ export interface ComposeSerializationMethodsParams {
   callbacks: CallbackMap;
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
-  preactRootComponentName: string;
   requests: RequestMap;
 }
 
@@ -223,19 +221,14 @@ export interface InitContainerParams {
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
     postComponentRenderMessage: (p: any) => void;
     preactify: PreactifyCallback;
-    renderContainerComponent: RenderContainerComponentCallback;
   };
   context: {
     Component: Function;
     componentId: string;
     componentPropsJson: object;
-    ContainerComponent: Function;
     createElement: PreactCreateElement;
     parentContainerId: string | null;
-    preactHooksDiffed: (node: VNode) => void;
-    preactRootComponentName: string;
     props: any;
-    render: PreactRender;
     trust: ComponentTrust;
     updateContainerProps: UpdateContainerPropsCallback;
   };
@@ -264,8 +257,6 @@ export type PreactCreateElement = (
   children: any
 ) => PreactElement;
 
-export type PreactRender = (component: Function, target: HTMLElement) => void;
-
 export interface Node {
   type: string | Function;
   props?: Props;
@@ -290,7 +281,6 @@ export type SerializeNodeCallback = (
 
 export interface SerializedNode {
   childComponents?: ComponentChildMetadata[];
-  className?: string;
   type: string;
   props: Props;
 }
@@ -314,18 +304,7 @@ export interface SerializedComponentCallback {
   parentId: string;
 }
 
-interface RenderComponentParams {
-  ContainerComponent: Function;
-  createElement: PreactCreateElement;
-  render: Function;
-  componentId: string;
-}
-
 export type RenderComponentCallback = () => void;
-
-export type RenderContainerComponentCallback = (
-  params: RenderComponentParams
-) => PreactElement | undefined;
 
 export interface DispatchRenderEventParams {
   callbacks: CallbackMap;
@@ -333,7 +312,6 @@ export interface DispatchRenderEventParams {
   node: Node;
   nodeRenders: Map<string, string>;
   postComponentRenderMessage: PostMessageComponentRenderCallback;
-  preactRootComponentName: string;
   serializeNode: (p: SerializeNodeParams) => SerializedNode;
   serializeProps: SerializePropsCallback;
   trust: ComponentTrust;
