@@ -1,22 +1,19 @@
 # Vision PR/FAQ
 
-> ⚠️ This is a mock press release / FAQ for the eventual launch of BWE, it does not necessarily represent
-the current state of the project and the contents here may change during the course of implementation.
-It is used for communicating the vision of the project and maintaining alignment on the criteria for success.
+> ⚠️ This is a WIP press release / FAQ for the eventual launch of BOS Web Engine. Its primary purpose is to communicate the project's vision and maintain alignment on the criteria for success. It does not necessarily represent the project's current state, as the contents here may change during implementation.
+
 
 ## Press Release
 
-Pagoda is proud to announce the production release of the BOS Web Engine (BWE).
+Pagoda makes major enhancements to BOS decentralized front-end development with the release of BOS Web Engine (BWE).
 
-BWE is the new execution environment for BOS components which offers a more reliable security guarantee and
-enables modern web development features which have previously been missing like npm dependencies, TypeScript,
-and hooks— along with advanced features for performance optimizations.
+BWE is a new execution environment for BOS components featuring:
 
-Until now, BOS components have been written to be compatible with the "VM". This VM processes components line
-by line and executes statements only if it has been built to understand them and knows them to be safe. It
-relies on this restrictive processing for security. This model creates a constant tug of war between expanding the
-capability of BOS components and maintaining security. Importing code which expects to execute in a typical
-browser environment is not possible.
+- Increased reliable security guarantees
+- Modern web development features such as `npm` dependencies, TypeScript, and hooks
+- Advanced features for performance optimizations
+
+Until now, BOS components required compatibility with [near-social's VM](https://github.com/nearsocial/vm). This VM operates on a stringent security protocol that meticulously scrutinizes components line-by-line, and only executes statements when they are recognized, understood, and confirmed to be secure. Unfortunately, this model leads to a persistent balancing act between enhancing the functionality of BOS components and ensuring their security. As a result, importing code that expects to execute in a typical browser environment is impossible.
 
 In contrast, BWE leverages the sandboxing configuration of iframes built into browsers to isolate the execution
 of each component. Each component's code is passed to an invisible iframe along with an instance of Preact. Preact
