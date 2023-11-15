@@ -15,14 +15,15 @@ BWE is a new execution environment for BOS components featuring:
 
 Until now, BOS components required compatibility with [near-social's VM](https://github.com/nearsocial/vm). This VM operates on a stringent security protocol that meticulously scrutinizes components line-by-line, and only executes statements when they are recognized, understood, and confirmed to be secure. Unfortunately, this model leads to a persistent balancing act between enhancing the functionality of BOS components and ensuring their security. As a result, importing code that expects to execute in a typical browser environment is impossible.
 
-In contrast, BWE leverages the sandboxing configuration of iframes built into browsers to isolate the execution
-of each component. Each component's code is passed to an invisible iframe along with an instance of Preact. Preact
-executes the components and the rendered output is serialized and passed out of the iframe. Then, the output of all
-the iframes is composed together into a single tree for render on the page. One way to think of this is that each
-component is run as its own isolated applet and given a messaging system to integrate with other components. This
-allows being significantly less restrictive with the code a component can run, since the only surface of exposure
-to the OWA is DOM nodes. It also means code written for a standard browser or Preact environment can be imported
-and run by components.
+BWE takes an alternative approach by leveraging the sandboxing feature of iframes in web browsers to isolate the execution of each component.
+	
+	Here's how it works:
+	
+	- Code for each component is sent to a hidden iframe, accompanied by an instance of [Preact](https://preactjs.com/), a "fast 3kB alternative to React with the same modern API"
+	- Within this iframe, Preact executes the component's code. Once rendered, the resulting UI is transferred out of the iframe.
+	- The outputs from all iframes are then assembled onto the page.
+	
+	Imagine each component operating as a self-contained mini-application with access to a communication system to synchronize with other components. This architecture allows for significantly fewer restrictions on the code that components can execute since the execution takes place in an isolated sandbox and cannot reach the main web application. Additionally, a wide set of javascript libraries and third party React components can be imported and used seamlessly in BWE components.
 
 ## F.A.Q
 
