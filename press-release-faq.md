@@ -9,7 +9,7 @@ Pagoda makes major enhancements to BOS decentralized front-end development with 
 
 BWE is a new execution environment for BOS components featuring:
 
-- Increased reliable security guarantees
+- Increased security guarantees
 - Modern web development features such as `npm` dependencies, TypeScript, and hooks
 - Advanced features for performance optimizations
 
