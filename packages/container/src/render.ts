@@ -212,6 +212,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
 
     return [children]
       .flat()
+      .filter((child) => child && (child as VNode).type !== Component)
       .reduce(
         (descendants: ComponentChild[], child) =>
           typeof (child as VNode).type === 'function'
