@@ -11,6 +11,7 @@ export function initContainer({
     buildRequest,
     buildSafeProxy,
     composeMessagingMethods,
+    composeRenderMethods,
     composeSerializationMethods,
     dispatchRenderEvent,
     invokeCallback,
@@ -19,10 +20,12 @@ export function initContainer({
     preactify,
   },
   context: {
+    BWEComponent,
     Component,
     componentId,
     componentPropsJson,
     createElement,
+    Fragment,
     parentContainerId,
     trust,
     updateContainerProps,
@@ -61,6 +64,14 @@ export function initContainer({
       trust,
     });
   };
+
+  const { diffed } = composeRenderMethods({
+    BWEComponent,
+    Component,
+    // @ts-expect-error FIXME signature types
+    dispatchRender,
+    Fragment,
+  });
 
   const processEvent = buildEventHandler({
     buildRequest,
@@ -102,6 +113,7 @@ export function initContainer({
   });
 
   return {
+    diffed,
     dispatchRender,
     processEvent,
     props,

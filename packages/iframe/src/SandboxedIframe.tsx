@@ -11,6 +11,7 @@ import {
   preactify,
   buildSafeProxy,
   composeSerializationMethods,
+  composeRenderMethods,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -67,6 +68,7 @@ function buildSandboxedComponent({
           const React = Preact;
 
           const {
+            diffed,
             dispatchRender,
             processEvent,
             props: containerProps,
@@ -76,6 +78,7 @@ function buildSandboxedComponent({
               buildRequest: ${buildRequest.toString()},
               buildSafeProxy: ${buildSafeProxy.toString()},
               composeMessagingMethods: ${composeMessagingMethods.toString()},
+              composeRenderMethods: ${composeRenderMethods.toString()},
               composeSerializationMethods: ${composeSerializationMethods.toString()},
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
               invokeCallback: ${invokeCallback.toString()},
@@ -84,10 +87,12 @@ function buildSandboxedComponent({
               preactify: ${preactify.toString()},
             },
             context: {
+              BWEComponent,
               Component: Widget,
               componentId: '${id}',
               componentPropsJson: ${componentPropsJson},
               createElement,
+              Fragment: Preact.Fragment,
               parentContainerId: '${parentContainerId}',
               trust: ${JSON.stringify(trust)},
               updateContainerProps: (updateProps) => {
@@ -108,141 +113,10 @@ function buildSandboxedComponent({
           /* The root Component definition is inlined here as [function BWEComponent() {...}] */
           ${scriptSrc}
           /* END BOS SOURCE */
-
-          function buildBWEComponentNode(node, children) {
-            const { id, src, __bweMeta } = node.props;
-            const componentId = [src, id, __bweMeta?.parentMeta?.componentId].join('##');
-
-            return {
-              type: 'div',
-              props: {
-                id: 'dom-' + componentId,
-                className: 'bwe-component-container',
-                children,
-                "data-component-src": src,
-              },
-            };
-          }
-
-          const isBWEComponent = (node) => node.type?.name?.startsWith?.('BWEComponent') || false;
-
-          function buildComponentTree(rootNode, componentTree) {
-            if (!rootNode || typeof rootNode !== 'object') {
-              return rootNode;
-            }
-            
-            const currentNode = isBWEComponent(rootNode)
-              ? buildBWEComponentNode(rootNode, componentTree.get(rootNode))
-              : rootNode;
-            
-             const children = [currentNode.props?.children || []]
-              .flat()
-              .map((child) => {
-                // ignore non-Component children and Widget references (<Widget /> is serialized later)
-                if (child.type === Widget || typeof child.type !== 'function') {
-                  return child; 
-                }
-
-                const componentChildren = componentTree.get(child);
-                if (isBWEComponent(child)) {
-                  return buildBWEComponentNode(child, componentChildren);
-                }
-
-                // external Preact Component
-                return {
-                  type: 'div',
-                  props: {
-                    // id: child.props.id,
-                    className: 'preact-component-container',
-                    children: componentChildren,
-                  },
-                };
-              });
-
-            return {
-              ...currentNode,
-              props: {
-                ...currentNode.props,
-                children: [children]
-                  .flat()
-                  .map((child) => buildComponentTree(child, componentTree)),
-              },
-            };
-          }
-
-          // find all Component leaf nodes in the given Preact node's Component tree
-          function getComponentLeafNodes(node) {
-            const { children } = node?.props || [];
-            if (typeof children !== 'object') {
-              return [];
-            }
-
-            return [children].flat().reduce(
-              (descendants, child) => typeof child.type === 'function'
-                ? [...descendants, child]
-                : [
-                    ...descendants,
-                    ...(!child?.props?.children ? [] : getComponentLeafNodes(child))
-                  ]
-            , []);
-          }
-
-          const componentRoots = new Map();
-          let remainingSubtrees = 0;
-          let currentRoot = null;
-
-          const RENDER_TIMEOUT_MS = 5;
-          let renderTimer = null;
               
           const oldDiff = Preact.options.__b;
           Preact.options.__b = (vnode) => {
-            const parent = vnode.__;
-
-            const isRootFragment = vnode.type === Preact.Fragment && vnode.props?.children?.[0]?.type === BWEComponent;
-            const isRootComponent = vnode.type === BWEComponent && parent.type === Preact.Fragment;
-          
-            // if the parent Component is a function, the current vnode is a DOM root for a Component tree
-            if (typeof parent?.type === 'function' && !isRootFragment && !isRootComponent) {
-              // a new Component DOM tree has been emitted, clear the timer
-              if (renderTimer) {
-                clearTimeout(renderTimer);
-                renderTimer = null;
-              }
-
-              // set the root Component to the current parent
-              if (!currentRoot) {
-                currentRoot = parent;
-              }
-
-              // initialize the list of children under the current parent Component's node and add the current node
-              if (!componentRoots.has(parent)) {
-                componentRoots.set(parent, []);
-              }
-              componentRoots.get(parent).push(vnode);
-
-              // add the number of Component leaf nodes in this node's tree
-              remainingSubtrees += getComponentLeafNodes(vnode).length;
-
-              const renderComponentSubtree = () => {
-                dispatchRender(buildComponentTree(currentRoot, componentRoots));
-                componentRoots.clear();
-                currentRoot = null;
-              };
-
-              const isRootChild = currentRoot === parent;
-              if (remainingSubtrees && !isRootChild) {
-                remainingSubtrees--;
-                if (remainingSubtrees === 0) {
-                  renderComponentSubtree();
-                }
-              } else if (isRootChild) {
-                // the number of root children is not known in advance, set a timeout
-                // to proceed with the render if the current node is a root child
-                // the timer will be cleared when the next node is emitted 
-                renderTimer = setTimeout(renderComponentSubtree, RENDER_TIMEOUT_MS);
-              }
-            }
-
+            diffed(vnode);
             oldDiff?.(vnode);
           };
 

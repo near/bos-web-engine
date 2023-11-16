@@ -4,6 +4,7 @@ export { buildEventHandler } from './events';
 export { buildRequest, composeMessagingMethods } from './messaging';
 export {
   buildSafeProxy,
+  composeRenderMethods,
   dispatchRenderEvent,
   isMatchingProps,
   preactify,

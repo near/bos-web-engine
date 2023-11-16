@@ -1,4 +1,5 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
+import { FunctionComponent, VNode } from 'preact';
 
 export interface WebEngineMeta {
   componentId?: string;
@@ -163,6 +164,19 @@ interface PreactifyParams {
 
 export type PreactifyCallback = (params: PreactifyParams) => any;
 
+interface ComposeRenderMethodsParams {
+  Fragment: FunctionComponent;
+  Component: Function;
+  BWEComponent: FunctionComponent;
+  dispatchRender: (vnode: VNode) => void;
+}
+
+export type ComposeRenderMethodsCallback = (
+  params: ComposeRenderMethodsParams
+) => {
+  diffed: (vnode: VNode) => void;
+};
+
 export interface ComposeSerializationMethodsParams {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
@@ -211,6 +225,7 @@ export interface InitContainerParams {
     buildRequest: BuildRequestCallback;
     buildSafeProxy: BuildSafeProxyCallback;
     composeMessagingMethods: ComposeMessagingMethodsCallback;
+    composeRenderMethods: ComposeRenderMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
     invokeCallback: (args: InvokeCallbackParams) => any;
@@ -222,10 +237,12 @@ export interface InitContainerParams {
     preactify: PreactifyCallback;
   };
   context: {
+    BWEComponent: FunctionComponent;
     Component: Function;
     componentId: string;
     componentPropsJson: object;
     createElement: PreactCreateElement;
+    Fragment: FunctionComponent;
     parentContainerId: string | null;
     props: any;
     trust: ComponentTrust;
