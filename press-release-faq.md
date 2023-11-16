@@ -43,7 +43,7 @@ After the grace period, the VM will be deprecated and removed from the BOS runti
 
 #### What language and framework are BOS components written in?
 
-BOS components are written in TypeScript or JavaScript and use Preact as the rendering engine with the React compatibility layer enabled. One of the main goals of BWE is to have syntax that is minimally different from vanilla (p)react, and only stray from it where necessary to accomodate the architecture of the engine and sandbox communication patterns.
+BOS components are written in TypeScript or JavaScript and use Preact as the rendering engine with the React compatibility layer enabled. One of the main goals of BWE is to have syntax that is minimally different from vanilla (p)react, and only stray from it where necessary to accommodate the architecture of the engine and sandbox communication patterns.
 
 See [components.md](components.md) for a detailed overview of the syntax required to build BOS components.
 
@@ -66,7 +66,7 @@ See [migrating.md](migrating.md) for guidance on migrating an existing (p)react 
 
 > TBD
 
-#### Are browser APIs like Canves supported?
+#### Are browser APIs like Canvas supported?
 
 Yes, but there may be some caveats since access to browser APIs must be proxied— with isolation in mind— from sandbox code to the outer window. See [components.md](components.md#browser-apis) for more details.
 
@@ -93,7 +93,7 @@ The default trust model of BOS is to encourage risk-free composability by sandbo
 - embedding components from other developers you trust
 - embedding components you have audited for malicious behavior and are locked to a specific version
 
-If a component does not need to be sandboxed, you can chaing the `trust` mode on the embed and the component will be directly executed in the same container instead of having a sandboxed iframe created for it. This can yield significant performance improvements for pages which render many components (e.g. social feeds).
+If a component does not need to be sandboxed, you can change the `trust` mode on the embed and the component will be directly executed in the same container instead of having a sandboxed iframe created for it. This can yield significant performance improvements for pages which render many components (e.g. social feeds).
 
 See [performance.md](performance.md#trust) for the syntax to change the trust mode of an embedded component
 
@@ -109,7 +109,7 @@ You can directly call out to external services with the browser-native [Fetch AP
 
 > TBD (we might provide a typescript definition package to help with this)
 
-#### What happens whgen I set an `onClick` function and it gets called?
+#### What happens when I set an `onClick` function and it gets called?
 
 ### Architecture
 
@@ -118,7 +118,7 @@ You can directly call out to external services with the browser-native [Fetch AP
 To achieve the high level of composability that is a central goal of BOS, developers must be able to embed components from other authors without the burden of personally auditing the code for malicious behavior. This is especially true if components are embedded dynamically and it is impossible for the dapp developer to know in advance which components will be loaded (e.g. a social post feed which can render components inline).
 
 **Example attack**
-Bob develops a defi dapp which has a button to initiate a transaction to transfer some value (e.g. fungible tokens). He then embeds a seemingly innocent BOS component from another author in his dapp— perhaps it is a UI component to render a nice accordion element. In that accordion element is code which directly modifies the DOM of the previously mentioned button, and causes it to present users with a transaction to transfer value to the malicious component author instead of wherever it was supposed to go. A user goes to Bob's defi dapp and clicks the transfer button, but doesnt realize the transaction they are confirming has been tampered with.
+Bob develops a defi dapp which has a button to initiate a transaction to transfer some value (e.g. fungible tokens). He then embeds a seemingly innocent BOS component from another author in his dapp— perhaps it is a UI component to render a nice accordion element. In that accordion element is code which directly modifies the DOM of the previously mentioned button, and causes it to present users with a transaction to transfer value to the malicious component author instead of wherever it was supposed to go. A user goes to Bob's defi dapp and clicks the transfer button, but doesn't realize the transaction they are confirming has been tampered with.
 
 #### How are off-chain dependencies decentralized?
 
