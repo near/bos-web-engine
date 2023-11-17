@@ -111,6 +111,10 @@ You can directly call out to external services with the browser-native [Fetch AP
 
 #### What happens when I set an `onClick` function and it gets called?
 
+When a DOM event handler (e.g. `onClick`, `onChange`) is fired, the outer application sends a message to the container to which the DOM element belongs. This is related to how container callbacks are invoked, but DOM callbacks are unique in that:
+- the invocation originates in the outer application rather than from another container
+- the callback is always invoked with the `event` object, for which only a subset of the fields are sent since `event` is not serializable
+
 ### Architecture
 
 #### Why is isolation important? What are the attack vectors?
@@ -134,7 +138,9 @@ In keeping with our goal to be minimally different from vanilla (p)react, we hav
 
 #### How do cross-components function calls work?
 
-> @andy (very high level summary then link to architecture doc)
+Containers maintain a set of callbacks, defined within the container, which are available to be "invoked" across container boundaries. This includes functions passed via `props` and function arguments passed to `props` functions. When an external container needs to invoke one of these callbacks, the external container requests the outer application to send a message to the target container identifying the method and arguments.
+
+See [architecture.md](architecture.md#component-callbacks) for more details.
 
 #### What are the downsides of using iframes?
 
