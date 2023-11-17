@@ -282,7 +282,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     };
   };
 
-  const componentRoots = new Map();
+  const componentRoots = new Map<VNode, VNode[]>();
   let remainingSubtrees = 0;
   let currentRoot: VNode | null = null;
 
@@ -323,7 +323,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       if (!componentRoots.has(parent)) {
         componentRoots.set(parent, []);
       }
-      componentRoots.get(parent).push(vnode);
+      componentRoots.get(parent)!.push(vnode);
 
       // add the number of Component leaf nodes in this node's tree
       remainingSubtrees += getComponentLeafNodes(vnode).length;
