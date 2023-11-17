@@ -60,7 +60,7 @@ Packages which may not work:
 
 #### How do I convert an existing (p)react application?
 
-See [migrating.md](migrating.md) for guidance on migrating an existing (p)react application to BOS.
+See [migrating.md](migrating.md)(placeholder) for guidance on migrating an existing (p)react application to BOS.
 
 #### What are the performance limits? How many sandboxed components can reasonably be rendered on a page?
 
@@ -78,7 +78,7 @@ You may be able to import component built in other frameworks if they can be bun
 
 #### Can I use web components?
 
-Yes, Preact supports embedding Web Components. See [components.md](components.md#web-components) for more details.
+Yes, Preact supports embedding Web Components. See [components.md](components.md#web-components)(placeholder) for more details.
 
 #### What about Shadow Realms?
 
@@ -95,11 +95,11 @@ The default trust model of BOS is to encourage risk-free composability by sandbo
 
 If a component does not need to be sandboxed, you can chaing the `trust` mode on the embed and the component will be directly executed in the same container instead of having a sandboxed iframe created for it. This can yield significant performance improvements for pages which render many components (e.g. social feeds).
 
-See [performance.md](performance.md#trust) for the syntax to change the trust mode of an embedded component
+See [performance.md](performance.md#trust)(placeholder) for the syntax to change the trust mode of an embedded component
 
 ##### Best Practices
 
-See [performance.md](performance.md#best-practices) for a general list of best practices for optimizing performance of BOS components.
+See [performance.md](performance.md#best-practices)(placeholder) for a general list of best practices for optimizing performance of BOS components.
 
 #### How do I interact with the external services?
 
