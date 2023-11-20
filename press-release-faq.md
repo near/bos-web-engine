@@ -93,7 +93,7 @@ The default trust model of BOS is to encourage risk-free composability by sandbo
 - embedding components from other developers you trust
 - embedding components you have audited for malicious behavior and are locked to a specific version
 
-If a component does not need to be sandboxed, you can chaing the `trust` mode on the embed and the component will be directly executed in the same container instead of having a sandboxed iframe created for it. This can yield significant performance improvements for pages which render many components (e.g. social feeds).
+If a component does not need to be sandboxed, you can change the `trust` mode on the embed and the component will be directly executed in the same container instead of having a sandboxed iframe created for it. This can yield significant performance improvements for pages which render many components (e.g. social feeds).
 
 See [performance.md](performance.md#trust)(placeholder) for the syntax to change the trust mode of an embedded component
 
