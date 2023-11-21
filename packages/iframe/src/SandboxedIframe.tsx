@@ -60,8 +60,8 @@ function buildSandboxedComponent({
 
           let props;
 
-          // TODO fixed with preact/compat?
-          const React = Preact;
+          // TODO map reference during transpilation
+          const React = { Fragment: Preact.Fragment };
 
           const {
             commit,
