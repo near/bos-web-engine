@@ -65,7 +65,7 @@ export function initContainer({
     });
   };
 
-  const { diffed } = composeRenderMethods({
+  const { commit } = composeRenderMethods({
     BWEComponent,
     Component,
     // @ts-expect-error FIXME signature types
@@ -113,7 +113,7 @@ export function initContainer({
   });
 
   return {
-    diffed,
+    commit,
     dispatchRender,
     processEvent,
     props,

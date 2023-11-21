@@ -174,7 +174,7 @@ interface ComposeRenderMethodsParams {
 export type ComposeRenderMethodsCallback = (
   params: ComposeRenderMethodsParams
 ) => {
-  diffed: (vnode: VNode) => void;
+  commit: (vnode: VNode) => void;
 };
 
 export interface ComposeSerializationMethodsParams {

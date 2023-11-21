@@ -32,19 +32,15 @@ function buildSandboxedComponent({
         {
           "imports": {
             "preact": "https://esm.sh/preact@10.17.1",
-            "preact/": "https://esm.sh/preact@10.17.1/",
-            "htm": "https://esm.sh/htm"
+            "preact/": "https://esm.sh/preact@10.17.1/"
           }
         }
         </script>
         <script type="module">
           import * as Preact from 'preact';
-          import { useEffect, useState } from 'preact/hooks';
-          import htm from 'htm';
+          import { useCallback, useEffect, useState } from 'preact/hooks';
 
           const { createElement } = Preact;
-
-          const html = htm.bind(createElement);
 
           const initContainer = ${initContainer.toString()};
 
@@ -68,7 +64,7 @@ function buildSandboxedComponent({
           const React = Preact;
 
           const {
-            diffed,
+            commit,
             dispatchRender,
             processEvent,
             props: containerProps,
@@ -100,7 +96,7 @@ function buildSandboxedComponent({
                 // if nothing has changed, the same [props] object will be returned
                 props = updateProps(props);
                 if (props !== originalProps) {
-                  Preact.render(html\`\<\${BWEComponent} />\`, document.body);
+                  Preact.render(createElement(BWEComponent), document.body);
                 }
               },
             },
@@ -113,16 +109,16 @@ function buildSandboxedComponent({
           /* The root Component definition is inlined here as [function BWEComponent() {...}] */
           ${scriptSrc}
           /* END BOS SOURCE */
-              
-          const oldDiff = Preact.options.__b;
-          Preact.options.__b = (vnode) => {
-            diffed(vnode);
-            oldDiff?.(vnode);
+
+          const oldCommit = Preact.options.__c;
+          Preact.options.__c = (vnode, commitQueue) => {
+            commit(vnode);
+            oldCommit?.(vnode, commitQueue);
           };
 
           window.addEventListener('message', processEvent);
 
-          Preact.render(html\`\<\${BWEComponent} />\`, document.body);
+          Preact.render(createElement(BWEComponent), document.body);
         </script>
       </body>
     </html>
