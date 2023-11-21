@@ -105,23 +105,26 @@ export function useWebEngine({
     ({
       componentId,
       element,
+      id,
     }: {
       componentId: string;
       element: ComponentDOMElement;
+      id?: string;
     }) => {
-      if (!domRoots.current[componentId]) {
-        const domElement = document.getElementById(getAppDomId(componentId));
+      const domId = id || getAppDomId(componentId);
+      if (!domRoots.current[domId]) {
+        const domElement = document.getElementById(domId);
         if (!domElement) {
           const metricKey = componentId.split('##')[0];
           componentMissing(metricKey);
-          console.error(`Node not found: #${getAppDomId(componentId)}`);
+          console.error(`Node not found: #${domId}`);
           return;
         }
 
-        domRoots.current[componentId] = ReactDOM.createRoot(domElement);
+        domRoots.current[domId] = ReactDOM.createRoot(domElement);
       }
 
-      domRoots.current[componentId].render(element);
+      domRoots.current[domId].render(element);
     },
     [domRoots, componentMissing]
   );
@@ -158,7 +161,7 @@ export function useWebEngine({
               getComponentRenderCount,
               mountElement: ({ componentId, element }) => {
                 renderComponent(componentId);
-                mountElement({ componentId, element });
+                mountElement({ componentId, element, id: data.node.props?.id });
               },
               loadComponent: (component) =>
                 loadComponent(component.componentId, component),
