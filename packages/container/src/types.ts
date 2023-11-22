@@ -154,14 +154,6 @@ export interface ComponentUpdate extends PostMessageParams {
   componentId: string;
 }
 
-interface PreactifyParams {
-  node: Node;
-  Component: Function;
-  createElement: PreactCreateElement;
-}
-
-export type PreactifyCallback = (params: PreactifyParams) => any;
-
 interface ComposeRenderMethodsParams {
   Fragment: FunctionComponent;
   Component: Function;
@@ -210,7 +202,6 @@ export interface ProcessEventParams {
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
-  renderDom: (node: any) => object;
   requests: RequestMap;
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
@@ -231,7 +222,6 @@ export interface InitContainerParams {
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
     postComponentRenderMessage: (p: any) => void;
-    preactify: PreactifyCallback;
   };
   context: {
     BWEComponent: FunctionComponent;
@@ -316,8 +306,6 @@ export interface SerializedComponentCallback {
   __componentMethod: string;
   parentId: string;
 }
-
-export type RenderComponentCallback = () => void;
 
 export interface DispatchRenderEventParams {
   callbacks: CallbackMap;

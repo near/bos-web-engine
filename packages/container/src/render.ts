@@ -3,7 +3,6 @@ import type { ComponentChildren, VNode } from 'preact';
 import type {
   BuildSafeProxyCallback,
   DispatchRenderEventCallback,
-  PreactifyCallback,
   WebEngineMeta,
 } from './types';
 import { ComposeRenderMethodsCallback } from './types';
@@ -23,46 +22,6 @@ export const buildSafeProxy: BuildSafeProxyCallback = ({
         }
       },
     }
-  );
-};
-
-export const preactify: PreactifyCallback = ({
-  node,
-  createElement,
-  Component,
-}) => {
-  if (!node || typeof node !== 'object') {
-    return node;
-  }
-
-  const { props, type } = node;
-  if (!props) {
-    return undefined;
-  }
-
-  // TODO handle other builtins
-  const isComponent = !!props!.src?.match(/[0-9a-z._-]{5,}\/[0-9a-z._-]+/gi);
-  const { children } = props;
-  if (!children) {
-    return undefined;
-  }
-
-  return createElement(
-    isComponent ? Component : type,
-    { ...props, key: node.key || props.key },
-    Array.isArray(children)
-      ? children.map((child) =>
-          preactify({
-            node: child,
-            createElement: createElement,
-            Component,
-          })
-        )
-      : preactify({
-          node: children,
-          createElement: createElement,
-          Component,
-        })
   );
 };
 

@@ -15,7 +15,6 @@ import type {
  * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
- * @param renderDom Callback for rendering DOM within the component
  * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  * @param serializeNode Function to serialize Preact DOM trees passed to window.postMessage
@@ -31,7 +30,6 @@ export function buildEventHandler({
   parentContainerId,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
-  renderDom,
   requests,
   serializeArgs,
   serializeNode,
@@ -172,7 +170,7 @@ export function buildEventHandler({
           return;
         }
 
-        resolver(applyRecursivelyToComponents(value, renderDom));
+        resolver(value);
         break;
       }
       case 'component.domCallback': {

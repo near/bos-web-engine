@@ -6,7 +6,6 @@ export {
   buildSafeProxy,
   composeRenderMethods,
   dispatchRenderEvent,
-  preactify,
 } from './render';
 export { composeSerializationMethods } from './serialize';
 export * from './types';
