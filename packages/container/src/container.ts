@@ -1,9 +1,4 @@
-import type {
-  CallbackRequest,
-  InitContainerParams,
-  Node,
-  Props,
-} from './types';
+import type { CallbackRequest, InitContainerParams, Props } from './types';
 
 export function initContainer({
   containerMethods: {
@@ -13,7 +8,6 @@ export function initContainer({
     composeMessagingMethods,
     composeRenderMethods,
     composeSerializationMethods,
-    dispatchRenderEvent,
     invokeCallback,
     invokeComponentCallback,
   },
@@ -37,7 +31,7 @@ export function initContainer({
     postComponentRenderMessage,
   } = composeMessagingMethods();
 
-  const { deserializeProps, serializeArgs, serializeNode, serializeProps } =
+  const { deserializeProps, serializeArgs, serializeNode } =
     composeSerializationMethods({
       buildRequest,
       callbacks,
@@ -46,24 +40,14 @@ export function initContainer({
       requests,
     });
 
-  const dispatchRender = (vnode: Node) => {
-    dispatchRenderEvent({
-      callbacks,
-      componentId,
-      node: vnode,
-      postComponentRenderMessage,
-      serializeNode,
-      serializeProps,
-      trust,
-    });
-  };
-
   const { commit } = composeRenderMethods({
     BWEComponent,
     Component,
-    // @ts-expect-error FIXME signature types
-    dispatchRender,
+    componentId,
     Fragment,
+    postComponentRenderMessage,
+    serializeNode,
+    trust,
   });
 
   const isMatchingProps = (props: Props, compareProps: Props) => {
@@ -117,7 +101,6 @@ export function initContainer({
 
   return {
     commit,
-    dispatchRender,
     processEvent,
     props,
   };

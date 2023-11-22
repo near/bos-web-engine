@@ -2,10 +2,10 @@ import type { ComponentChildren, VNode } from 'preact';
 
 import type {
   BuildSafeProxyCallback,
-  DispatchRenderEventCallback,
+  ComposeRenderMethodsCallback,
+  Node,
   WebEngineMeta,
 } from './types';
-import { ComposeRenderMethodsCallback } from './types';
 
 export const buildSafeProxy: BuildSafeProxyCallback = ({
   props,
@@ -23,41 +23,6 @@ export const buildSafeProxy: BuildSafeProxyCallback = ({
       },
     }
   );
-};
-
-export const dispatchRenderEvent: DispatchRenderEventCallback = ({
-  componentId,
-  node,
-  postComponentRenderMessage,
-  serializeNode,
-  trust,
-}) => {
-  const serializedNode = serializeNode({
-    node,
-    childComponents: [],
-    parentId: componentId,
-  });
-
-  if (!serializedNode?.type) {
-    return;
-  }
-
-  const { childComponents } = serializedNode;
-  delete serializedNode.childComponents;
-
-  try {
-    postComponentRenderMessage({
-      childComponents: childComponents || [],
-      componentId: componentId,
-      node: serializedNode,
-      trust,
-    });
-  } catch (error) {
-    console.warn(`failed to dispatch render for ${componentId}`, {
-      error,
-      serializedNode,
-    });
-  }
 };
 
 interface BOSComponentProps {
@@ -82,12 +47,46 @@ interface RenderedVNode extends VNode<any> {
   __k?: RenderedVNode[];
 }
 
+type DispatchRenderCallback = (vnode: VNode) => void;
+
 export const composeRenderMethods: ComposeRenderMethodsCallback = ({
-  Fragment,
-  Component,
   BWEComponent,
-  dispatchRender,
+  Component,
+  componentId,
+  Fragment,
+  postComponentRenderMessage,
+  serializeNode,
+  trust,
 }) => {
+  const dispatchRender: DispatchRenderCallback = (node) => {
+    const serializedNode = serializeNode({
+      node: node as Node,
+      childComponents: [],
+      parentId: componentId,
+    });
+
+    if (!serializedNode?.type) {
+      return;
+    }
+
+    const { childComponents } = serializedNode;
+    delete serializedNode.childComponents;
+
+    try {
+      postComponentRenderMessage({
+        childComponents: childComponents || [],
+        componentId,
+        node: serializedNode,
+        trust,
+      });
+    } catch (error) {
+      console.warn(`failed to dispatch render for ${componentId}`, {
+        error,
+        serializedNode,
+      });
+    }
+  };
+
   const buildBWEComponentNode = (
     node: BWEComponentNode,
     children: ComponentChildren

@@ -155,10 +155,13 @@ export interface ComponentUpdate extends PostMessageParams {
 }
 
 interface ComposeRenderMethodsParams {
-  Fragment: FunctionComponent;
-  Component: Function;
   BWEComponent: FunctionComponent;
-  dispatchRender: (vnode: VNode) => void;
+  Component: Function;
+  componentId: string;
+  Fragment: FunctionComponent;
+  postComponentRenderMessage: PostMessageComponentRenderCallback;
+  serializeNode: SerializeNodeCallback;
+  trust: ComponentTrust;
 }
 
 export type ComposeRenderMethodsCallback = (
@@ -181,7 +184,6 @@ export type ComposeSerializationMethodsCallback = (
   deserializeProps: DeserializePropsCallback;
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
-  serializeProps: SerializePropsCallback;
 };
 
 export type ComposeMessagingMethodsCallback = () => {

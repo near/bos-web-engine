@@ -335,6 +335,5 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       deserializeProps,
       serializeArgs,
       serializeNode,
-      serializeProps,
     };
   };

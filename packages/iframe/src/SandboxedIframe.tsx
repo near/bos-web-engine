@@ -5,7 +5,6 @@ import {
   invokeComponentCallback,
   buildRequest,
   composeMessagingMethods,
-  dispatchRenderEvent,
   initContainer,
   buildSafeProxy,
   composeSerializationMethods,
@@ -63,7 +62,6 @@ function buildSandboxedComponent({
 
           const {
             commit,
-            dispatchRender,
             processEvent,
             props: containerProps,
           } = initContainer({
@@ -74,7 +72,6 @@ function buildSandboxedComponent({
               composeMessagingMethods: ${composeMessagingMethods.toString()},
               composeRenderMethods: ${composeRenderMethods.toString()},
               composeSerializationMethods: ${composeSerializationMethods.toString()},
-              dispatchRenderEvent: ${dispatchRenderEvent.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
             },
