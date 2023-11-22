@@ -154,8 +154,6 @@ export interface ComponentUpdate extends PostMessageParams {
   componentId: string;
 }
 
-export type IsMatchingPropsCallback = (a: Props, b: Props) => boolean;
-
 interface PreactifyParams {
   node: Node;
   Component: Function;
@@ -230,7 +228,6 @@ export interface InitContainerParams {
     dispatchRenderEvent: DispatchRenderEventCallback;
     invokeCallback: (args: InvokeCallbackParams) => any;
     invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
-    isMatchingProps: IsMatchingPropsCallback;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
     postComponentRenderMessage: (p: any) => void;
@@ -326,7 +323,6 @@ export interface DispatchRenderEventParams {
   callbacks: CallbackMap;
   componentId: string;
   node: Node;
-  nodeRenders: Map<string, string>;
   postComponentRenderMessage: PostMessageComponentRenderCallback;
   serializeNode: (p: SerializeNodeParams) => SerializedNode;
   serializeProps: SerializePropsCallback;

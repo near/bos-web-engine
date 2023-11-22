@@ -16,7 +16,6 @@ export function initContainer({
     dispatchRenderEvent,
     invokeCallback,
     invokeComponentCallback,
-    isMatchingProps,
     preactify,
   },
   context: {
@@ -49,15 +48,11 @@ export function initContainer({
       requests,
     });
 
-  // cache previous renders
-  const nodeRenders = new Map<string, string>();
-
   const dispatchRender = (vnode: Node) => {
     dispatchRenderEvent({
       callbacks,
       componentId,
       node: vnode,
-      nodeRenders,
       postComponentRenderMessage,
       serializeNode,
       serializeProps,
@@ -72,6 +67,17 @@ export function initContainer({
     dispatchRender,
     Fragment,
   });
+
+  const isMatchingProps = (props: Props, compareProps: Props) => {
+    const getComparable = (p: Props) =>
+      Object.entries(p)
+        .sort(([aKey], [bKey]) => (aKey === bKey ? 0 : aKey > bKey ? 1 : -1))
+        .filter(([k]) => k !== '__bweMeta')
+        .map(([key, value]) => `${key}::${value?.toString()}`)
+        .join(',');
+
+    return getComparable(props) === getComparable(compareProps);
+  };
 
   const processEvent = buildEventHandler({
     buildRequest,

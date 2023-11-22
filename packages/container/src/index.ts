@@ -6,7 +6,6 @@ export {
   buildSafeProxy,
   composeRenderMethods,
   dispatchRenderEvent,
-  isMatchingProps,
   preactify,
 } from './render';
 export { composeSerializationMethods } from './serialize';

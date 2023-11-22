@@ -7,7 +7,6 @@ import {
   composeMessagingMethods,
   dispatchRenderEvent,
   initContainer,
-  isMatchingProps,
   preactify,
   buildSafeProxy,
   composeSerializationMethods,
@@ -79,7 +78,6 @@ function buildSandboxedComponent({
               dispatchRenderEvent: ${dispatchRenderEvent.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
-              isMatchingProps: ${isMatchingProps.toString()},
               preactify: ${preactify.toString()},
             },
             context: {

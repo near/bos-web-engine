@@ -1,11 +1,9 @@
-import type { ComponentChild, ComponentChildren, VNode } from 'preact';
+import type { ComponentChildren, VNode } from 'preact';
 
 import type {
   BuildSafeProxyCallback,
   DispatchRenderEventCallback,
   PreactifyCallback,
-  Props,
-  IsMatchingPropsCallback,
   WebEngineMeta,
 } from './types';
 import { ComposeRenderMethodsCallback } from './types';
@@ -68,24 +66,9 @@ export const preactify: PreactifyCallback = ({
   );
 };
 
-export const isMatchingProps: IsMatchingPropsCallback = (
-  props,
-  compareProps
-) => {
-  const getComparable = (p: Props) =>
-    Object.entries(p)
-      .sort(([aKey], [bKey]) => (aKey === bKey ? 0 : aKey > bKey ? 1 : -1))
-      .filter(([k]) => k !== '__bweMeta')
-      .map(([key, value]) => `${key}::${value?.toString()}`)
-      .join(',');
-
-  return getComparable(props) === getComparable(compareProps);
-};
-
 export const dispatchRenderEvent: DispatchRenderEventCallback = ({
   componentId,
   node,
-  nodeRenders,
   postComponentRenderMessage,
   serializeNode,
   trust,
@@ -100,40 +83,6 @@ export const dispatchRenderEvent: DispatchRenderEventCallback = ({
     return;
   }
 
-  function stringify(value: any): string {
-    if (!value) {
-      return '';
-    }
-
-    if (Array.isArray(value)) {
-      return value.map(stringify).join(',');
-    }
-
-    if (typeof value === 'object') {
-      return stringifyObject(value);
-    }
-
-    return value.toString();
-  }
-
-  function stringifyObject(obj: any): string {
-    if (Array.isArray(obj) || typeof obj !== 'object') {
-      return stringify(obj);
-    }
-
-    const sortedEntries = Object.entries(obj);
-    sortedEntries.sort();
-    return sortedEntries.reduce(
-      (acc, [key, value]) => [acc, key, stringify(value)].join(':'),
-      ''
-    );
-  }
-  const stringifiedNode = stringifyObject(serializedNode);
-  if (nodeRenders.get(componentId) === stringifiedNode) {
-    return;
-  }
-
-  nodeRenders.set(componentId, stringifiedNode);
   const { childComponents } = serializedNode;
   delete serializedNode.childComponents;
 
@@ -145,7 +94,7 @@ export const dispatchRenderEvent: DispatchRenderEventCallback = ({
       trust,
     });
   } catch (error) {
-    console.warn('failed to dispatch render for ${id}', {
+    console.warn(`failed to dispatch render for ${componentId}`, {
       error,
       serializedNode,
     });
