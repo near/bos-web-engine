@@ -1,32 +1,27 @@
 # BOS Web Engine R&D
 
-The BOS Web Engine (BWE) is an experimental runtime/rendering layer aimed at replacing the Discovery VM with a full-featured React(or Preact) environment which would enable access to the greater web ecosystem including NPM dependencies. It is an R&D effort lead by Pagoda and will be considered for production usage once it surpasses the existing VM capabilities.
+The BOS Web Engine (BWE) is an experimental runtime/rendering layer aimed at replacing the Discovery VM with a full-featured React(or Preact) environment which would enable access to the greater web ecosystem including NPM dependencies. It is an R&D effort lead by Pagoda and will be considered for production usage once our GitHub issues tagged as `P0 - Release Requirement` are completed.
+
+> Note: developers who have created components on the Discovery VM should expect a reasonable migration effort to make their components compatible with BWE once it launches. See _"Will BWE be backwards compatible with existing VM components?"_ in the [FAQ](#FAQ) section for more info
 
 Some core goals:
-- [ ] support npm dependencies
-- [ ] component code is minimally different from vanilla React
-- [ ] isolation of component execution leverages browser sandboxing (iframes)
-- [ ] configurable trust model to tune performance when embedded components have been vetted
+- ability to import npm packages
+- component code is minimally different from vanilla React
+- isolation of component execution leverages browser sandboxing (iframes)
+- configurable trust model to tune performance when embedded components are known to be safe
 
-Further goals:
-- [ ] TypeScript support
-- [ ] Full web API support (canvas, etc)
-- [ ] Cross-component global state management
+Examples of other impactful features we plan to research:
+- TypeScript support
+- Full web API support (canvas, etc)
+- Cross-component global state management
 
 For a more detailed breakdown of the work, see [issues labeled with `Epic`](https://github.com/near/bos-web-engine/issues?q=is:open+is:issue+label:Epic)
 
 ## Solution Architecture
 
-The prototype for BOS Web Engine works by executing Component source code in iframes, sandboxed to enforce isolation between Components as well as the application running in the outer window.
+BWE works by executing Component source code in hidden iframes, sandboxed to enforce isolation between Components as well as the application running in the outer window. Those iframes emit render events with the DOM produced, which is then displayed on the page by the outer window application
 
-See [architecture.md](./architecture.md) for full details
-
-### Challenges
-- [ ] controlled components
-- [ ] secure inter-component communication & function execution
-- [ ] decentralization of dependencies hosting
-- [ ] performance of pages with large number of components
-- [ ] maintainability of logic for sanitization of component output
+See [architecture.md](./architecture.md) for more details
 
 ### Writing Components
 See [components.md](./components.md) for details on the syntax and patterns necessary for writing BWE compatible components
