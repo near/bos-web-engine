@@ -2,7 +2,7 @@
 
 The BOS Web Engine (BWE) is an experimental runtime/rendering layer aimed at replacing the Discovery VM with a full-featured React(or Preact) environment which would enable access to the greater web ecosystem including NPM dependencies. It is an R&D effort lead by Pagoda and will be considered for production usage once our GitHub [issues tagged as `P0 - Release requirement`](https://github.com/near/bos-web-engine/issues?q=is:open+is:issue+label:%22P0+-+Release+requirement%22) are completed.
 
-> Note: developers who have created components on the Discovery VM should expect a reasonable migration effort to make their components compatible with BWE once it launches. See _"Will BWE be backwards compatible with existing VM components?"_ in the [FAQ](#FAQ) section for more info
+**Developers who have created components on the Discovery VM should expect a reasonable migration effort to make their components compatible with BWE once it launches. See _"Will BWE be backwards compatible with existing VM components?"_ in the [FAQ](#FAQ) section for more info**
 
 Some core goals:
 - ability to import npm packages
@@ -16,6 +16,8 @@ Examples of other impactful features we plan to research:
 - Cross-component global state management
 
 For a more detailed breakdown of the work, see [issues labeled with `Epic`](https://github.com/near/bos-web-engine/issues?q=is:open+is:issue+label:Epic)
+
+For a more comprehensive overview of our vision for the project, see our [Press Release / FAQ](./press-release-faq.md) document.
 
 ## Solution Architecture
 
