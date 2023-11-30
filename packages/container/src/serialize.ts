@@ -25,7 +25,6 @@ interface SerializeChildComponentParams {
  * @param callbacks Component container's callbacks
  * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
- * @param preactRootComponentName The name of the root/Fragment Preact function
  * @param requests Set of current callback requests
  */
 export const composeSerializationMethods: ComposeSerializationMethodsCallback =
@@ -34,7 +33,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     callbacks,
     parentContainerId,
     postCallbackInvocationMessage,
-    preactRootComponentName,
     requests,
   }) => {
     /**
@@ -295,48 +293,21 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           );
         });
 
-      if (!type) {
-        serializedElementType = 'div';
-      }
-
       if (typeof type === 'function') {
-        const { name: component } = type;
-
-        if (component === preactRootComponentName) {
-          serializedElementType = 'div';
-        } else if (component === 'Widget') {
-          const { child, placeholder } = serializeChildComponent({
-            parentId,
-            props,
-          });
-
-          if (child) {
-            childComponents.push(child);
-          }
-
-          return placeholder;
-        } else {
-          const componentId = buildComponentId({
-            instanceId: props?.id,
-            componentPath: props.src,
-            parentComponentId: parentId,
-          });
-
-          // `type` is a Preact component function for a child Component
-          // invoke it with the passed props to render the component and serialize its DOM tree
-          return serializeNode({
-            node: type({
-              ...props,
-              __bweMeta: {
-                ...props?.__bweMeta,
-                componentId,
-              },
-              id: 'dom-' + componentId,
-            }),
-            parentId: componentId,
-            childComponents,
-          });
+        if (type.name !== 'Widget') {
+          throw new Error(`unrecognized Component function ${type.name}`);
         }
+
+        const { child, placeholder } = serializeChildComponent({
+          parentId,
+          props,
+        });
+
+        if (child) {
+          childComponents.push(child);
+        }
+
+        return placeholder;
       }
 
       return {
@@ -364,6 +335,5 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       deserializeProps,
       serializeArgs,
       serializeNode,
-      serializeProps,
     };
   };
