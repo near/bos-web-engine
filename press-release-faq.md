@@ -17,13 +17,13 @@ Until now, BOS components required compatibility with [near-social's VM](https:/
 
 BWE takes an alternative approach by leveraging the sandboxing feature of iframes in web browsers to isolate the execution of each component.
 	
-	Here's how it works:
+Here's how it works:
 	
-	- Code for each component is sent to a hidden iframe, accompanied by an instance of [Preact](https://preactjs.com/), a "fast 3kB alternative to React with the same modern API"
-	- Within this iframe, Preact executes the component's code. Once rendered, the resulting UI is transferred out of the iframe.
-	- The outputs from all iframes are then assembled onto the page.
+  - Code for each component is sent to a hidden iframe, accompanied by an instance of [Preact](https://preactjs.com/), a "fast 3kB alternative to React with the same modern API"
+  - Within this iframe, Preact executes the component's code. Once rendered, the resulting UI is transferred out of the iframe.
+  - The outputs from all iframes are then assembled onto the page.
 	
-	Imagine each component operating as a self-contained mini-application with access to a communication system to synchronize with other components. This architecture allows for significantly fewer restrictions on the code that components can execute since the execution takes place in an isolated sandbox and cannot reach the main web application. Additionally, a wide set of javascript libraries and third party React components can be imported and used seamlessly in BWE components.
+Imagine each component operating as a self-contained mini-application with access to a communication system to synchronize with other components. This architecture allows for significantly fewer restrictions on the code that components can execute since the execution takes place in an isolated sandbox and cannot reach the main web application. Additionally, a wide set of javascript libraries and third-party React components can be imported and used seamlessly in BWE components.
 
 ## F.A.Q
 
@@ -43,7 +43,7 @@ After the grace period, the VM will be deprecated and removed from the BOS runti
 
 #### What language and framework are BOS components written in?
 
-BOS components are written in TypeScript or JavaScript and use Preact as the rendering engine with the React compatibility layer enabled. One of the main goals of BWE is to have syntax that is minimally different from vanilla (p)react, and only stray from it where necessary to accomodate the architecture of the engine and sandbox communication patterns.
+BOS components are written in TypeScript or JavaScript and use Preact as the rendering engine with the React compatibility layer enabled. One of the main goals of BWE is to have syntax that is minimally different from vanilla (p)react, and only stray from it where necessary to accommodate the architecture of the engine and sandbox communication patterns.
 
 See [components.md](components.md) for a detailed overview of the syntax required to build BOS components.
 
@@ -109,7 +109,7 @@ You can directly call out to external services with the browser-native [Fetch AP
 
 > TBD (we might provide a typescript definition package to help with this)
 
-#### What happens whgen I set an `onClick` function and it gets called?
+#### What happens when I set an `onClick` function and it gets called?
 
 ### Architecture
 
@@ -134,7 +134,7 @@ In keeping with our goal to be minimally different from vanilla (p)react, we hav
 
 #### How do cross-components function calls work?
 
-> @andy (very high level summary then link to architecture doc)
+> @andy (very high-level summary then link to architecture doc)
 
 #### What are the downsides of using iframes?
 
