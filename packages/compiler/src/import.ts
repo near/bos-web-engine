@@ -58,13 +58,16 @@ export const buildModuleImports = (
   );
 
   const containerImports: ContainerImport = {
-    statement: '',
+    statements: [],
     imports: new Map<string, string[]>(),
   };
 
   moduleReferences.forEach((components, module) => {
-    const { statement, imports } = aggregateModuleImports(module, components);
-    containerImports.statement += `${statement}\n`;
+    const { statements, imports } = aggregateModuleImports(module, components);
+    containerImports.statements = [
+      ...containerImports.statements,
+      ...statements,
+    ];
     imports.forEach((importStatements, componentId) => {
       if (!containerImports.imports.has(componentId)) {
         containerImports.imports.set(componentId, []);
@@ -179,7 +182,7 @@ const aggregateModuleImports = (
   }
 
   return {
-    statement: containerImportComponents.join(' '),
+    statements: [containerImportComponents.join(' ')],
     imports,
   };
 };
@@ -227,7 +230,7 @@ const parseImport = (statement: string) => {
     parsed = parsed.slice(0, parsed.length - 2);
   }
 
-  // side-effect import
+  // import 'x'
   if (!parsed.includes(' from ')) {
     return { module: parsed.trim().replace(/"'/g, '') };
   }

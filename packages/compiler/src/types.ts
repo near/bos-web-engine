@@ -59,7 +59,7 @@ export interface BOSComponent {
 
 // container-wide imports
 export interface ContainerImport {
-  statement: string;
+  statements: string[];
   imports: ComponentImports;
 }
 
