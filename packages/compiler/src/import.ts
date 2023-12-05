@@ -41,9 +41,26 @@ export const buildModuleImports = (
   const componentImports = components.map((component) => ({
     ...component,
     imports: component.source
-      .split('\n')
-      .filter((line) => line.startsWith('import '))
-      .map(parseImport),
+      .split('import ')
+      .slice(1)
+      .map((statement, i, statements) => {
+        // for the last import statement, truncate the remaining code
+        if (i === statements.length - 1) {
+          const matches = statement.match(/(from\s+)?['"][\w+-]+["']/gi);
+          if (!matches) {
+            throw new Error(`Failed to match import statement: ${statement}`);
+          }
+
+          const [importMatch] = matches;
+          return parseImport(
+            statement.slice(
+              0,
+              statement.indexOf(importMatch) + importMatch.length
+            )
+          );
+        }
+        return parseImport(statement);
+      }),
   }));
 
   const moduleReferences = componentImports.reduce(
@@ -52,6 +69,7 @@ export const buildModuleImports = (
         if (!importsByModule.has(module)) {
           importsByModule.set(module, []);
         }
+
         importsByModule.get(module).push({
           componentId,
           importReferences,
@@ -87,6 +105,14 @@ export const buildModuleImports = (
 };
 
 /**
+ * Map a valid module/NPM package name to a valid JS identifier
+ * @param moduleName name of the imported module
+ */
+const escapeModuleName = (moduleName: string) => {
+  return moduleName.replace(/-/g, '_');
+};
+
+/**
  * For the given module, construct the import statements at the container level
  * and assignment statements for each Component referencing this module
  * @param module name of the module being imported
@@ -98,8 +124,9 @@ const aggregateModuleImports = (
   module: string,
   components: BOSComponent[]
 ): ContainerImport => {
-  const bweAlias = `__BWEModule__${module}`;
-  const bweNamespacedAlias = `__BWEModule__namespaced__${module}`;
+  const moduleAlias = escapeModuleName(module);
+  const bweAlias = `__BWEModule__${moduleAlias}`;
+  const bweNamespacedAlias = `__BWEModule__namespaced__${moduleAlias}`;
   let hasNamespace = false;
 
   const imports = components.reduce(
@@ -230,7 +257,7 @@ const parseImport = (statement: string) => {
   }
 
   let [imported, module] = parsed.split(' from ');
-  module = module.replace(/["']/g, '');
+  module = module.replace(/["';\n]/g, '');
 
   let openDestructure = false;
   const importReferences = imported
