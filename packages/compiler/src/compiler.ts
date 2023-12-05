@@ -7,55 +7,15 @@ import {
 import { parseChildComponents, ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
-
-export type ComponentCompilerRequest =
-  | CompilerExecuteAction
-  | CompilerInitAction;
-
-interface CompilerExecuteAction {
-  action: 'execute';
-  componentId: string;
-}
-
-interface CompilerInitAction {
-  action: 'init';
-  localFetchUrl?: string;
-}
-
-export interface ComponentCompilerResponse {
-  componentId: string;
-  componentSource: string;
-  rawSource: string;
-  componentPath: string;
-  error?: Error;
-}
-
-type SendMessageCallback = (res: ComponentCompilerResponse) => void;
-
-interface ComponentCompilerParams {
-  sendMessage: SendMessageCallback;
-}
-
-interface TranspiledComponentLookupParams {
-  componentPath: string;
-  componentSource: string;
-  isRoot: boolean;
-}
-
-interface ParseComponentTreeParams {
-  mapped: { [key: string]: { transpiled: string } };
-  transpiledComponent: string;
-  componentPath: string;
-  isComponentPathTrusted?: (path: string) => boolean;
-  trustedRoot?: TrustedRoot;
-}
-
-interface TrustedRoot {
-  rootPath: string;
-  trustMode: string;
-  /* predicates for determining trust under a trusted root */
-  matchesRootAuthor: (path: string) => boolean;
-}
+import type {
+  CompilerExecuteAction,
+  CompilerInitAction,
+  ComponentCompilerParams,
+  ParseComponentTreeParams,
+  SendMessageCallback,
+  TranspiledComponentLookupParams,
+  TrustedRoot,
+} from './types';
 
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<string>>;

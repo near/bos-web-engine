@@ -1,33 +1,9 @@
-// mapping of component IDs to the set of statements
-// required to assign aliases to imported references
-type ComponentImports = Map<string, string[]>;
-
-// imported references for a single Component
-interface BOSComponent {
-  componentId: string;
-  importReferences?: (ImportExpression | null)[];
-  source: string;
-}
-
-// container-wide imports
-interface ContainerImport {
-  statement: string;
-  imports: ComponentImports;
-}
-
-// structured representation of import statement
-interface ImportExpression {
-  alias?: string;
-  isDefault?: boolean;
-  isDestructured?: boolean;
-  isNamespace?: boolean;
-  reference?: string;
-}
-
-interface ImportTypes {
-  topLevelImports: ImportExpression[];
-  destructuredImports: ImportExpression[];
-}
+import type {
+  BOSComponent,
+  ContainerImport,
+  ImportExpression,
+  ImportTypes,
+} from './types';
 
 /**
  * Aggregate imports for all modules across all referencing Components
