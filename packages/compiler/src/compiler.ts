@@ -4,6 +4,7 @@ import {
   buildComponentFunction,
   buildComponentFunctionName,
 } from './component';
+import { buildModuleImports, extractImportStatements } from './import';
 import { parseChildComponents, ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
@@ -11,6 +12,7 @@ import type {
   CompilerExecuteAction,
   CompilerInitAction,
   ComponentCompilerParams,
+  ComponentTreeNode,
   ParseComponentTreeParams,
   SendMessageCallback,
   TranspiledComponentLookupParams,
@@ -107,10 +109,19 @@ export class ComponentCompiler {
     return false;
   }
 
+  /**
+   * Traverse the Component tree, building the set of Components to be included within the container
+   * @param componentPath the path to the root Component of the current tree
+   * @param transpiledComponent transpiled JSX source code
+   * @param mapped set of Components accumulated while traversing the Component tree
+   * @param isComponentPathTrusted flag indicating whether the current Component is to be trusted in the container
+   * @param trustedRoot the trust mode inherited by the current Component from an ancestor Component (e.g. that extends trust to all child Components of the same author)
+   */
   async parseComponentTree({
     componentPath,
     transpiledComponent,
     mapped,
+    componentImports,
     isComponentPathTrusted,
     trustedRoot,
   }: ParseComponentTreeParams) {
@@ -143,7 +154,8 @@ export class ComponentCompiler {
     );
 
     // add the transformed source to the returned Component tree
-    mapped[componentPath] = {
+    mapped.set(componentPath, {
+      imports: componentImports,
       // replace each child [Component] reference in the target Component source
       // with the generated name of the inlined Component function definition
       transpiled: trustedChildComponents.reduce(
@@ -151,7 +163,7 @@ export class ComponentCompiler {
           transform(transformed, buildComponentFunctionName(path)),
         transpiledComponent
       ),
-    };
+    });
 
     // fetch the set of child Component sources not already added to the tree
     const childComponentSources = this.getComponentSources(
@@ -164,15 +176,26 @@ export class ComponentCompiler {
     await Promise.all(
       trustedChildComponents.map(async (childComponent) => {
         const { path } = childComponent;
-        let transpiledChild = mapped[path]?.transpiled;
+        let transpiledChild = mapped.get(path)?.transpiled;
+        let imports = transpiledChild
+          ? extractImportStatements(transpiledChild).imports
+          : [];
+
         if (!transpiledChild) {
+          let componentSource;
+          ({ imports, source: componentSource } = extractImportStatements(
+            (await childComponentSources.get(path))!
+          ));
+
+          const componentFunction = buildComponentFunction({
+            componentPath: path,
+            componentSource,
+            isRoot: false,
+          });
+
           transpiledChild = this.getTranspiledComponentSource({
             componentPath: path,
-            componentSource: buildComponentFunction({
-              componentPath: path,
-              componentSource: (await childComponentSources.get(path))!,
-              isRoot: false,
-            }),
+            componentSource: componentFunction,
             isRoot: false,
           });
         }
@@ -185,6 +208,7 @@ export class ComponentCompiler {
           transpiledComponent: transpiledChild,
           mapped,
           trustedRoot: childTrustedRoot,
+          componentImports: imports,
           isComponentPathTrusted:
             trustedRoot?.trustMode === TrustMode.Sandboxed
               ? undefined
@@ -219,31 +243,39 @@ export class ComponentCompiler {
       throw new Error(`Component not found at ${componentPath}`);
     }
 
+    const { imports, source: rootComponentSource } =
+      extractImportStatements(source);
+
     const componentFunctionSource = buildComponentFunction({
       componentPath,
-      componentSource: source,
+      componentSource: rootComponentSource,
       isRoot: true,
     });
+
     const transpiledComponent = this.getTranspiledComponentSource({
       componentPath,
       componentSource: componentFunctionSource,
       isRoot: true,
     });
 
-    let componentSource = transpiledComponent;
     // recursively parse the Component tree for child Components
     const transformedComponents = await this.parseComponentTree({
       componentPath,
       transpiledComponent,
-      mapped: {},
+      mapped: new Map<string, ComponentTreeNode>(),
+      componentImports: imports,
     });
 
-    const [rootComponent, ...childComponents] = Object.values(
+    const { statements: importStatements } = buildModuleImports(
       transformedComponents
-    ).map(({ transpiled }) => transpiled);
-    const aggregatedSourceLines = rootComponent.split('\n');
-    aggregatedSourceLines.splice(1, 0, childComponents.join('\n\n'));
-    componentSource = aggregatedSourceLines.join('\n');
+    );
+
+    const componentSource = [
+      ...importStatements,
+      ...[...transformedComponents.values()].map(
+        ({ transpiled }) => transpiled
+      ),
+    ].join('\n\n');
 
     this.sendWorkerMessage({
       componentId,

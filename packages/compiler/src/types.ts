@@ -32,10 +32,18 @@ export interface TranspiledComponentLookupParams {
   isRoot: boolean;
 }
 
+export type ComponentMap = Map<string, ComponentTreeNode>;
+
+export interface ComponentTreeNode {
+  imports: ModuleImports[];
+  transpiled: string;
+}
+
 export interface ParseComponentTreeParams {
-  mapped: { [key: string]: { transpiled: string } };
+  mapped: ComponentMap;
   transpiledComponent: string;
   componentPath: string;
+  componentImports: ModuleImports[];
   isComponentPathTrusted?: (path: string) => boolean;
   trustedRoot?: TrustedRoot;
 }
@@ -46,16 +54,14 @@ export interface TrustedRoot {
   /* predicates for determining trust under a trusted root */
   matchesRootAuthor: (path: string) => boolean;
 }
+
+export interface ComponentImport {
+  statements: string[];
+}
+
 // mapping of component IDs to the set of statements
 // required to assign aliases to imported references
-export type ComponentImports = Map<string, string[]>;
-
-// imported references for a single Component
-export interface BOSComponent {
-  componentId: string;
-  importReferences?: (ImportExpression | null)[];
-  source: string;
-}
+export type ComponentImports = Map<string, ComponentImport>;
 
 // container-wide imports
 export interface ContainerImport {
@@ -64,17 +70,19 @@ export interface ContainerImport {
 }
 
 // structured representation of import statement
+export interface ModuleImports {
+  imports: ImportExpression[];
+  isSideEffect?: boolean;
+  module: string;
+}
+
+// structured representation of individual imported reference statement
 export interface ImportExpression {
   alias?: string;
   isDefault?: boolean;
   isDestructured?: boolean;
   isNamespace?: boolean;
   reference?: string;
-}
-
-export interface ImportTypes {
-  topLevelImports: ImportExpression[];
-  destructuredImports: ImportExpression[];
 }
 
 interface SocialComponent {

@@ -1,9 +1,54 @@
 import type {
-  BOSComponent,
+  ComponentImport,
+  ComponentMap,
   ContainerImport,
   ImportExpression,
-  ImportTypes,
+  ModuleImports,
 } from './types';
+
+interface BOSComponent {
+  componentPath: string;
+  importReferences?: ImportExpression[];
+}
+
+/**
+ * Given BOS Component source code, return an object with the `import`-less source code and array of structured import statements
+ * @param source BOS Component source code
+ */
+export const extractImportStatements = (source: string) => {
+  let importStatements = source.split('import ').slice(1);
+  // no import statements
+  if (!importStatements.length) {
+    return {
+      imports: [],
+      source,
+    };
+  }
+
+  const [statementWithSource] = importStatements.slice(-1);
+  importStatements = importStatements.slice(0, -1);
+
+  const matches = statementWithSource.match(/(from\s+)?['"][\w+/-]+["']/gi);
+  if (!matches) {
+    throw new Error(`Failed to match import statement: ${statementWithSource}`);
+  }
+
+  const [importMatch] = matches;
+  const finalImportStatement = statementWithSource.slice(
+    0,
+    statementWithSource.indexOf(importMatch) + importMatch.length
+  );
+  importStatements.push(finalImportStatement);
+
+  const componentSource = statementWithSource.slice(
+    finalImportStatement.length + 1
+  );
+
+  return {
+    imports: importStatements.map((statement) => parseImport(statement)),
+    source: componentSource,
+  };
+};
 
 /**
  * Aggregate imports for all modules across all referencing Components
@@ -12,71 +57,48 @@ import type {
  * @return container and component-level import and assignment statements for all imported modules
  */
 export const buildModuleImports = (
-  components: BOSComponent[]
+  components: ComponentMap
 ): ContainerImport => {
-  const componentImports = components.map((component) => ({
-    ...component,
-    imports: component.source
-      .split('import ')
-      .slice(1)
-      .map((statement, i, statements) => {
-        // for the last import statement, truncate the remaining code
-        if (i === statements.length - 1) {
-          const matches = statement.match(/(from\s+)?['"][\w+-]+["']/gi);
-          if (!matches) {
-            throw new Error(`Failed to match import statement: ${statement}`);
-          }
-
-          const [importMatch] = matches;
-          return parseImport(
-            statement.slice(
-              0,
-              statement.indexOf(importMatch) + importMatch.length
-            )
-          );
-        }
-        return parseImport(statement);
-      }),
-  }));
-
-  const moduleReferences = componentImports.reduce(
-    (importsByModule, { componentId, imports }) => {
-      for (let { importReferences, module } of imports) {
-        if (!importsByModule.has(module)) {
-          importsByModule.set(module, []);
+  const moduleImports = [...components.entries()].reduce(
+    (acc, [path, { imports }]) => {
+      imports.forEach(({ imports: importReferences, module }) => {
+        if (!acc.has(module)) {
+          acc.set(module, []);
         }
 
-        importsByModule.get(module).push({
-          componentId,
+        acc.get(module)!.push({
+          componentPath: path,
           importReferences,
         });
-      }
-
-      return importsByModule;
+      });
+      return acc;
     },
-    new Map()
+    new Map<string, BOSComponent[]>()
   );
 
   const containerImports: ContainerImport = {
     statements: [],
-    imports: new Map<string, string[]>(),
+    imports: new Map<string, ComponentImport>(),
   };
 
-  moduleReferences.forEach((components, module) => {
+  moduleImports.forEach((components, module) => {
     const { statements, imports } = aggregateModuleImports(module, components);
     containerImports.statements = [
       ...containerImports.statements,
       ...statements,
     ];
-    imports.forEach((importStatements, componentId) => {
-      if (!containerImports.imports.has(componentId)) {
-        containerImports.imports.set(componentId, []);
+
+    imports.forEach(({ statements }, componentPath) => {
+      if (!containerImports.imports.has(componentPath)) {
+        containerImports.imports.set(componentPath, { statements: [] });
       }
 
       const componentImports = containerImports.imports
-        .get(componentId)!
-        .concat(importStatements);
-      containerImports.imports.set(componentId, componentImports);
+        .get(componentPath)!
+        .statements.concat(statements);
+
+      containerImports.imports.get(componentPath)!.statements =
+        componentImports;
     });
   });
 
@@ -88,7 +110,7 @@ export const buildModuleImports = (
  * @param moduleName name of the imported module
  */
 const escapeModuleName = (moduleName: string) => {
-  return moduleName.replace(/-/g, '_');
+  return moduleName.replace(/[:?&/@-]/g, '_');
 };
 
 /**
@@ -109,48 +131,34 @@ const aggregateModuleImports = (
   let hasNamespace = false;
 
   const imports = components.reduce(
-    (componentImports, { componentId, importReferences }) => {
-      if (!componentImports.has(componentId)) {
-        componentImports.set(componentId, []);
+    (componentImports, { componentPath, importReferences }) => {
+      if (!componentImports.has(componentPath)) {
+        componentImports.set(componentPath, { statements: [] });
       }
 
       if (!importReferences) {
         return componentImports;
       }
 
-      const { topLevelImports, destructuredImports } = importReferences.reduce(
-        (importTypes: ImportTypes, ref: ImportExpression | null) => {
-          if (!ref) {
-            return importTypes;
+      const topLevelStatements = importReferences
+        .filter(({ isDestructured }) => !isDestructured)
+        .map(
+          ({ alias, isDefault, isNamespace, reference }: ImportExpression) => {
+            // import X from 'x'
+            if (isDefault) {
+              return `const ${reference} = ${bweAlias};`;
+            }
+
+            // import * as X from 'x'
+            if (isNamespace && alias) {
+              hasNamespace = true;
+              return `const ${alias} = ${bweNamespacedAlias}`;
+            }
           }
+        );
 
-          if (ref.isDestructured) {
-            importTypes.destructuredImports.push(ref);
-          } else {
-            importTypes.topLevelImports.push(ref);
-          }
-
-          return importTypes;
-        },
-        { topLevelImports: [], destructuredImports: [] }
-      );
-
-      const topLevelStatements = topLevelImports.map(
-        ({ alias, isDefault, isNamespace, reference }: ImportExpression) => {
-          // import X from 'x'
-          if (isDefault) {
-            return `const ${reference} = ${bweAlias};`;
-          }
-
-          // import * as X from 'x'
-          if (isNamespace && alias) {
-            hasNamespace = true;
-            return `const ${alias} = ${bweNamespacedAlias}`;
-          }
-        }
-      );
-
-      const destructuredReferences = destructuredImports
+      const destructuredReferences = importReferences
+        .filter(({ isDestructured }) => isDestructured)
         .map(({ alias, reference }: ImportExpression) => {
           // import { X as x } from 'x'
           if (alias) {
@@ -166,14 +174,16 @@ const aggregateModuleImports = (
         ? `const { ${destructuredReferences} } = ${bweAlias};`
         : null;
 
-      componentImports.set(componentId, [
-        ...topLevelStatements,
-        ...(destructuredAssignment ? [destructuredAssignment] : []),
-      ]);
+      componentImports.set(componentPath, {
+        statements: [
+          ...topLevelStatements,
+          ...(destructuredAssignment ? [destructuredAssignment] : []),
+        ] as string[],
+      });
 
       return componentImports;
     },
-    new Map()
+    new Map<string, ComponentImport>()
   );
 
   let containerImportComponents = [`import ${bweAlias}`, `from '${module}';`];
@@ -224,7 +234,7 @@ const parseImportReference = (
  * Extract metadata from an import statement
  * @param statement import statement
  */
-const parseImport = (statement: string) => {
+const parseImport = (statement: string): ModuleImports => {
   let parsed = statement.replace('import ', '');
   if (parsed.endsWith(';')) {
     parsed = parsed.slice(0, parsed.length - 2);
@@ -232,14 +242,18 @@ const parseImport = (statement: string) => {
 
   // import 'x'
   if (!parsed.includes(' from ')) {
-    return { module: parsed.trim().replace(/"'/g, '') };
+    return {
+      module: parsed.trim().replace(/"'/g, ''),
+      isSideEffect: true,
+      imports: [],
+    };
   }
 
   let [imported, module] = parsed.split(' from ');
   module = module.replace(/["';\n]/g, '');
 
   let openDestructure = false;
-  const importReferences = imported
+  const imports = imported
     .split(',')
     .map((reference) => {
       let ref = reference.trim();
@@ -262,11 +276,10 @@ const parseImport = (statement: string) => {
       return parsedExpression;
     })
     .flat()
-    .filter((refMeta) => !!refMeta);
+    .filter((refMeta) => !!refMeta) as ImportExpression[]; // filter out null values from comments
 
   return {
-    importReferences,
+    imports,
     module,
-    statement,
   };
 };
