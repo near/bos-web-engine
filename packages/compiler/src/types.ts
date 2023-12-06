@@ -40,11 +40,11 @@ export interface ComponentTreeNode {
 }
 
 export interface ParseComponentTreeParams {
-  mapped: ComponentMap;
-  transpiledComponent: string;
+  components: ComponentMap;
+  componentSource: string;
   componentPath: string;
-  componentImports: ModuleImports[];
   isComponentPathTrusted?: (path: string) => boolean;
+  isRoot: boolean;
   trustedRoot?: TrustedRoot;
 }
 

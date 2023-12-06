@@ -113,18 +113,37 @@ export class ComponentCompiler {
    * Traverse the Component tree, building the set of Components to be included within the container
    * @param componentPath the path to the root Component of the current tree
    * @param transpiledComponent transpiled JSX source code
-   * @param mapped set of Components accumulated while traversing the Component tree
-   * @param isComponentPathTrusted flag indicating whether the current Component is to be trusted in the container
+   * @param components set of Components accumulated while traversing the Component tree
+   * @param isComponentPathTrusted callback to determine whether the current Component is to be trusted in the container
+   * @param isRoot flag indicating whether the current Component is the container root
    * @param trustedRoot the trust mode inherited by the current Component from an ancestor Component (e.g. that extends trust to all child Components of the same author)
    */
   async parseComponentTree({
     componentPath,
-    transpiledComponent,
-    mapped,
-    componentImports,
+    componentSource,
+    components,
     isComponentPathTrusted,
+    isRoot,
     trustedRoot,
   }: ParseComponentTreeParams) {
+    // separate out import statements from Component source
+    const { imports, source: cleanComponentSource } =
+      extractImportStatements(componentSource);
+
+    // wrap the Component's JSX body source in a function to be rendered as a Component
+    const componentFunctionSource = buildComponentFunction({
+      componentPath,
+      componentSource: cleanComponentSource,
+      isRoot,
+    });
+
+    // transpile and cache the Component
+    const transpiledComponent = this.getTranspiledComponentSource({
+      componentPath,
+      componentSource: componentFunctionSource,
+      isRoot,
+    });
+
     // enumerate the set of Components referenced in the target Component
     const childComponents = parseChildComponents(transpiledComponent);
 
@@ -132,6 +151,7 @@ export class ComponentCompiler {
     // will track inclusion criteria when evaluating trust for their children in turn
     const buildTrustedRootKey = ({ index, path }: ParsedChildComponent) =>
       `${index}:${path}`;
+
     const trustedRoots = childComponents.reduce((trusted, childComponent) => {
       const { trustMode } = childComponent;
 
@@ -149,13 +169,14 @@ export class ComponentCompiler {
       return trusted;
     }, new Map<string, TrustedRoot>());
 
+    // get the set of trusted child Components to be inlined in the container
     const trustedChildComponents = childComponents.filter((child) =>
       ComponentCompiler.isChildComponentTrusted(child, isComponentPathTrusted)
     );
 
     // add the transformed source to the returned Component tree
-    mapped.set(componentPath, {
-      imports: componentImports,
+    components.set(componentPath, {
+      imports,
       // replace each child [Component] reference in the target Component source
       // with the generated name of the inlined Component function definition
       transpiled: trustedChildComponents.reduce(
@@ -169,46 +190,24 @@ export class ComponentCompiler {
     const childComponentSources = this.getComponentSources(
       trustedChildComponents
         .map(({ path }) => path)
-        .filter((path) => !(path in mapped))
+        .filter((path) => !(path in components))
     );
 
     // transpile the set of new child Components and recursively parse their Component subtrees
     await Promise.all(
       trustedChildComponents.map(async (childComponent) => {
         const { path } = childComponent;
-        let transpiledChild = mapped.get(path)?.transpiled;
-        let imports = transpiledChild
-          ? extractImportStatements(transpiledChild).imports
-          : [];
-
-        if (!transpiledChild) {
-          let componentSource;
-          ({ imports, source: componentSource } = extractImportStatements(
-            (await childComponentSources.get(path))!
-          ));
-
-          const componentFunction = buildComponentFunction({
-            componentPath: path,
-            componentSource,
-            isRoot: false,
-          });
-
-          transpiledChild = this.getTranspiledComponentSource({
-            componentPath: path,
-            componentSource: componentFunction,
-            isRoot: false,
-          });
-        }
+        const componentSource = (await childComponentSources.get(path))!;
 
         const childTrustedRoot =
           trustedRoots.get(buildTrustedRootKey(childComponent)) || trustedRoot;
 
         await this.parseComponentTree({
           componentPath: path,
-          transpiledComponent: transpiledChild,
-          mapped,
+          componentSource,
+          components,
           trustedRoot: childTrustedRoot,
-          componentImports: imports,
+          isRoot: false,
           isComponentPathTrusted:
             trustedRoot?.trustMode === TrustMode.Sandboxed
               ? undefined
@@ -222,7 +221,7 @@ export class ComponentCompiler {
       })
     );
 
-    return mapped;
+    return components;
   }
 
   async compileComponent({ componentId }: CompilerExecuteAction) {
@@ -243,27 +242,12 @@ export class ComponentCompiler {
       throw new Error(`Component not found at ${componentPath}`);
     }
 
-    const { imports, source: rootComponentSource } =
-      extractImportStatements(source);
-
-    const componentFunctionSource = buildComponentFunction({
-      componentPath,
-      componentSource: rootComponentSource,
-      isRoot: true,
-    });
-
-    const transpiledComponent = this.getTranspiledComponentSource({
-      componentPath,
-      componentSource: componentFunctionSource,
-      isRoot: true,
-    });
-
     // recursively parse the Component tree for child Components
     const transformedComponents = await this.parseComponentTree({
       componentPath,
-      transpiledComponent,
-      mapped: new Map<string, ComponentTreeNode>(),
-      componentImports: imports,
+      componentSource: source,
+      components: new Map<string, ComponentTreeNode>(),
+      isRoot: true,
     });
 
     const { statements: importStatements } = buildModuleImports(
