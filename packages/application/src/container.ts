@@ -54,7 +54,7 @@ export function deserializeProps({
         const event = args[0] || {};
 
         // TODO make this opt-in/out?
-        event?.preventDefault();
+        event.preventDefault?.();
 
         const { target } = event;
         // is this a DOM event?
