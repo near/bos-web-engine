@@ -51,12 +51,22 @@ export function deserializeProps({
     ([propKey, callback]: [string, any]) => {
       props[propKey.split('::')[0]] = (...args: any[]) => {
         let serializedArgs: any = args;
+        const event = args[0] || {};
+
+        // TODO make this opt-in/out?
+        event.preventDefault?.();
+
+        const { target } = event;
         // is this a DOM event?
-        if (args[0]?.target) {
+        if (target && typeof target === 'object') {
+          const { checked, name, type, value } = target;
           serializedArgs = {
             event: {
               target: {
-                value: args[0].target?.value,
+                checked,
+                name,
+                type,
+                value,
               },
             },
           };
