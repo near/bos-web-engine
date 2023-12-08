@@ -1,6 +1,6 @@
 import type { ImportExpression, ModuleImport } from './types';
 
-type ImportModule = { moduleName: string };
+type ImportModule = { modulePath: string };
 type ImportMixed = ImportModule & {
   destructured?: string;
   namespace?: string;
@@ -9,9 +9,9 @@ type ImportMixed = ImportModule & {
 
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
-  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<moduleName>[\w@\/.-]+)["'];?\s*/gi;
+  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<modulePath>[\w@\/.-]+)["'];?\s*/gi;
 const SIDE_EFFECT_IMPORT_REGEX =
-  /^import\s+["'](?<moduleName>[\w@\/.-]+)["'];?\s*/gi;
+  /^import\s+["'](?<modulePath>[\w@\/.-]+)["'];?\s*/gi;
 
 /**
  * Given BOS Component source code, return an object with the `import`-less source code and array of structured import statements
@@ -24,8 +24,10 @@ export const extractImportStatements = (source: string) => {
   while (src.startsWith('import')) {
     const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
     if (mixedMatch) {
-      const { reference, namespace, destructured, moduleName } =
+      const { reference, namespace, destructured, modulePath } =
         mixedMatch.groups as ImportMixed;
+
+      const moduleName = extractModuleName(modulePath);
 
       if (destructured) {
         const destructuredReferences = destructured
@@ -47,6 +49,7 @@ export const extractImportStatements = (source: string) => {
 
         imports.push({
           moduleName,
+          modulePath,
           imports: [
             ...(reference ? [{ isDefault: true, reference }] : []),
             ...destructuredReferences,
@@ -55,6 +58,7 @@ export const extractImportStatements = (source: string) => {
       } else if (namespace) {
         imports.push({
           moduleName,
+          modulePath,
           imports: [
             ...(reference ? [{ isDefault: true, reference }] : []),
             { isNamespace: true, alias: namespace },
@@ -63,6 +67,7 @@ export const extractImportStatements = (source: string) => {
       } else {
         imports.push({
           moduleName,
+          modulePath,
           imports: [{ isDefault: true, reference }],
         });
       }
@@ -71,11 +76,12 @@ export const extractImportStatements = (source: string) => {
     } else {
       const [sideEffectMatch] = [...src.matchAll(SIDE_EFFECT_IMPORT_REGEX)];
       if (sideEffectMatch) {
-        const { moduleName } = sideEffectMatch.groups as ImportModule;
+        const { modulePath } = sideEffectMatch.groups as ImportModule;
         imports.push({
           imports: [],
           isSideEffect: true,
-          moduleName,
+          moduleName: extractModuleName(modulePath),
+          modulePath,
         });
         src = src.replace(sideEffectMatch[0], '');
       } else {
@@ -92,6 +98,19 @@ export const extractImportStatements = (source: string) => {
     imports,
     source: src,
   };
+};
+
+const extractModuleName = (modulePath: string) => {
+  if (modulePath.startsWith('https://')) {
+    const suffix = modulePath.split('/')[3];
+    return suffix.slice(0, suffix.match(/[&?]/gi)?.index || suffix.length);
+  }
+
+  if (modulePath.startsWith('@')) {
+    return `@${modulePath.split('@')[1]}`;
+  }
+
+  return modulePath.split('@')[0];
 };
 
 /**
@@ -269,12 +288,16 @@ const aggregateModuleImports = (imports: ImportExpression[]): ImportsByType => {
  */
 export const buildModulePackageUrl = (
   moduleName: string,
+  modulePath: string,
   preactVersion: string
 ) => {
-  // if the value specified is a URL, use that
-  if (moduleName.startsWith('https://')) {
-    return moduleName;
+  // if the value specified is a URL, don't add it to the importmap
+  if (modulePath.startsWith('https://')) {
+    return null;
   }
 
-  return `https://esm.sh/${moduleName}?alias=react:preact/compat&deps=preact@${preactVersion}`;
+  return {
+    moduleName,
+    url: `https://esm.sh/${moduleName}?alias=react:preact/compat&deps=preact@${preactVersion}`,
+  };
 };

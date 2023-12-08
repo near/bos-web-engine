@@ -267,15 +267,28 @@ export class ComponentCompiler {
       .map(({ imports }) => imports)
       .flat();
 
-    const importedModules = [
-      ...new Set(containerModuleImports.map(({ moduleName }) => moduleName)),
-    ].reduce((modules, moduleName) => {
-      modules.set(
-        moduleName,
-        buildModulePackageUrl(moduleName, this.preactVersion!)
-      );
-      return modules;
-    }, new Map<string, string>());
+    const importedModules = containerModuleImports.reduce(
+      (importMap, { moduleName, modulePath }) => {
+        const importMapEntries = buildModulePackageUrl(
+          moduleName,
+          modulePath,
+          this.preactVersion!
+        );
+
+        if (!importMapEntries) {
+          return importMap;
+        }
+
+        const moduleEntry = importMap.get(moduleName);
+        if (moduleEntry) {
+          return importMap;
+        }
+
+        importMap.set(importMapEntries.moduleName, importMapEntries.url);
+        return importMap;
+      },
+      new Map<string, string>()
+    );
 
     const componentSource = [
       ...buildModuleImports(containerModuleImports),

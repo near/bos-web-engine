@@ -62,6 +62,7 @@ export interface ModuleImport {
   imports: ImportExpression[];
   isSideEffect?: boolean;
   moduleName: string;
+  modulePath: string;
 }
 
 // structured representation of individual imported reference statement
