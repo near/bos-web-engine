@@ -9,9 +9,9 @@ type ImportMixed = ImportModule & {
 
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
-  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<module>[\w@\/-]+)["'];?\s*/gi;
+  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<module>[\w@\/.-]+)["'];?\s*/gi;
 const SIDE_EFFECT_IMPORT_REGEX =
-  /^import\s+["'](?<module>[\w@\/-]+)["'];?\s*/gi;
+  /^import\s+["'](?<module>[\w@\/.-]+)["'];?\s*/gi;
 
 /**
  * Given BOS Component source code, return an object with the `import`-less source code and array of structured import statements
@@ -163,7 +163,7 @@ export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
  */
 const buildModuleAliases = (moduleName: string) => {
   // replace invalid JS identifier chars with _
-  const moduleAlias = moduleName.replace(/[:?&/@-]/g, '_');
+  const moduleAlias = moduleName.replace(/[:?&/@.-]/g, '_');
 
   return {
     defaultAlias: `__BWEModule__${moduleAlias}`,
