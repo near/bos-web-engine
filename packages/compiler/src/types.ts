@@ -35,7 +35,7 @@ export interface TranspiledComponentLookupParams {
 export type ComponentMap = Map<string, ComponentTreeNode>;
 
 export interface ComponentTreeNode {
-  imports: ModuleImports[];
+  imports: ModuleImport[];
   transpiled: string;
 }
 
@@ -55,22 +55,8 @@ export interface TrustedRoot {
   matchesRootAuthor: (path: string) => boolean;
 }
 
-export interface ComponentImport {
-  statements: string[];
-}
-
-// mapping of component IDs to the set of statements
-// required to assign aliases to imported references
-export type ComponentImports = Map<string, ComponentImport>;
-
-// container-wide imports
-export interface ContainerImport {
-  statements: string[];
-  imports: ComponentImports;
-}
-
 // structured representation of import statement
-export interface ModuleImports {
+export interface ModuleImport {
   imports: ImportExpression[];
   isSideEffect?: boolean;
   module: string;

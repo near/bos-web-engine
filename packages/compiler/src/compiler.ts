@@ -4,7 +4,11 @@ import {
   buildComponentFunction,
   buildComponentFunctionName,
 } from './component';
-import { buildModuleImports, extractImportStatements } from './import';
+import {
+  buildComponentImportStatements,
+  buildModuleImports,
+  extractImportStatements,
+} from './import';
 import { parseChildComponents, ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
@@ -130,10 +134,19 @@ export class ComponentCompiler {
     const { imports, source: cleanComponentSource } =
       extractImportStatements(componentSource);
 
+    const componentImports = imports
+      .map(
+        (moduleImport) =>
+          buildComponentImportStatements(moduleImport).statements
+      )
+      .flat()
+      .filter((statement) => !!statement) as string[];
+
     // wrap the Component's JSX body source in a function to be rendered as a Component
     const componentFunctionSource = buildComponentFunction({
       componentPath,
       componentSource: cleanComponentSource,
+      componentImports,
       isRoot,
     });
 
@@ -250,8 +263,8 @@ export class ComponentCompiler {
       isRoot: true,
     });
 
-    const { statements: importStatements } = buildModuleImports(
-      transformedComponents
+    const importStatements = buildModuleImports(
+      [...transformedComponents.values()].map(({ imports }) => imports).flat()
     );
 
     const componentSource = [

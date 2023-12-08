@@ -97,10 +97,10 @@ function buildSandboxedComponent({
           // intialize props
           props = containerProps;
 
-          /* BEGIN BOS SOURCE */
-          /* The root Component definition is inlined here as [function BWEComponent() {...}] */
-          ${scriptSrc}
-          /* END BOS SOURCE */
+/******** BEGIN BOS SOURCE ********/
+/******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
+${scriptSrc}
+/******** END BOS SOURCE ********/
 
           const oldCommit = Preact.options.__c;
           Preact.options.__c = (vnode, commitQueue) => {
