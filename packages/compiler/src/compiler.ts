@@ -266,7 +266,7 @@ export class ComponentCompiler {
     const containerModuleImports = [...transformedComponents.values()]
       .map(({ imports }) => imports)
       .flat();
-    const importStatements = buildModuleImports(containerModuleImports);
+
     const importedModules = [
       ...new Set(containerModuleImports.map(({ module }) => module)),
     ].reduce((modules, module) => {
@@ -275,7 +275,7 @@ export class ComponentCompiler {
     }, new Map<string, string>());
 
     const componentSource = [
-      ...importStatements,
+      ...buildModuleImports(containerModuleImports),
       ...[...transformedComponents.values()].map(
         ({ transpiled }) => transpiled
       ),

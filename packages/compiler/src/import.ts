@@ -20,7 +20,7 @@ const SIDE_EFFECT_IMPORT_REGEX =
 export const extractImportStatements = (source: string) => {
   let src = source.trim();
 
-  const imports = [];
+  const imports: ModuleImport[] = [];
   while (src.startsWith('import')) {
     const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
     if (mixedMatch) {
@@ -73,6 +73,7 @@ export const extractImportStatements = (source: string) => {
       if (sideEffectMatch) {
         const { module } = sideEffectMatch.groups as ImportModule;
         imports.push({
+          imports: [],
           isSideEffect: true,
           module,
         });
@@ -88,7 +89,7 @@ export const extractImportStatements = (source: string) => {
   }
 
   return {
-    imports: imports as ModuleImport[],
+    imports,
     source: src,
   };
 };
@@ -104,7 +105,7 @@ export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
 
   const sideEffectImports = moduleImports
     .filter(({ isSideEffect }) => isSideEffect)
-    .map(({ module }) => `import ${module};`);
+    .map(({ module }) => `import "${module}";`);
 
   const importsByModule = moduleImports.reduce(
     (byModule, { imports, isSideEffect, module }) => {
