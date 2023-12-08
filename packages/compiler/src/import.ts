@@ -20,14 +20,6 @@ const SIDE_EFFECT_IMPORT_REGEX =
 export const extractImportStatements = (source: string) => {
   let src = source.trim();
 
-  // source does not have top-level `import` statements, return unmodified source
-  if (!src.startsWith('import')) {
-    return {
-      imports: [],
-      source,
-    };
-  }
-
   const imports = [];
   while (src.startsWith('import')) {
     const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
@@ -185,13 +177,16 @@ interface ImportsByType {
   namespaceImport: ImportExpression;
 }
 
-export const buildComponentImportStatements = (moduleImport: ModuleImport) => {
+/**
+ * Build the set of assignment statements for a Component to reference an imported module
+ * @param moduleImport all imported references for a specific module imported by a Component
+ */
+export const buildComponentImportStatements = (
+  moduleImport: ModuleImport
+): string[] => {
   const { imports, isSideEffect, module } = moduleImport;
   if (isSideEffect) {
-    return {
-      componentImports: [],
-      hasNamespaceImport: false,
-    };
+    return [];
   }
 
   const { defaultAlias, namespaceAlias } = buildModuleAliases(module);
@@ -233,10 +228,7 @@ export const buildComponentImportStatements = (moduleImport: ModuleImport) => {
     throw new Error(`Invalid import for module ${module}`);
   }
 
-  return {
-    statements,
-    hasNamespaceImport: !!namespaceImport,
-  };
+  return statements;
 };
 
 /**

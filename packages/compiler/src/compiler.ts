@@ -135,10 +135,7 @@ export class ComponentCompiler {
       extractImportStatements(componentSource);
 
     const componentImports = imports
-      .map(
-        (moduleImport) =>
-          buildComponentImportStatements(moduleImport).statements
-      )
+      .map((moduleImport) => buildComponentImportStatements(moduleImport))
       .flat()
       .filter((statement) => !!statement) as string[];
 
