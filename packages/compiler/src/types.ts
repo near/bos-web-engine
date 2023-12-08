@@ -61,7 +61,7 @@ export interface TrustedRoot {
 export interface ModuleImport {
   imports: ImportExpression[];
   isSideEffect?: boolean;
-  module: string;
+  moduleName: string;
 }
 
 // structured representation of individual imported reference statement

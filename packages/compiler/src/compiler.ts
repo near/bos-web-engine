@@ -268,9 +268,12 @@ export class ComponentCompiler {
       .flat();
 
     const importedModules = [
-      ...new Set(containerModuleImports.map(({ module }) => module)),
-    ].reduce((modules, module) => {
-      modules.set(module, buildModulePackageUrl(module, this.preactVersion!));
+      ...new Set(containerModuleImports.map(({ moduleName }) => moduleName)),
+    ].reduce((modules, moduleName) => {
+      modules.set(
+        moduleName,
+        buildModulePackageUrl(moduleName, this.preactVersion!)
+      );
       return modules;
     }, new Map<string, string>());
 

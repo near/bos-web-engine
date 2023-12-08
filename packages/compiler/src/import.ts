@@ -1,6 +1,6 @@
 import type { ImportExpression, ModuleImport } from './types';
 
-type ImportModule = { module: string };
+type ImportModule = { moduleName: string };
 type ImportMixed = ImportModule & {
   destructured?: string;
   namespace?: string;
@@ -9,9 +9,9 @@ type ImportMixed = ImportModule & {
 
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
-  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<module>[\w@\/.-]+)["'];?\s*/gi;
+  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<moduleName>[\w@\/.-]+)["'];?\s*/gi;
 const SIDE_EFFECT_IMPORT_REGEX =
-  /^import\s+["'](?<module>[\w@\/.-]+)["'];?\s*/gi;
+  /^import\s+["'](?<moduleName>[\w@\/.-]+)["'];?\s*/gi;
 
 /**
  * Given BOS Component source code, return an object with the `import`-less source code and array of structured import statements
@@ -24,7 +24,7 @@ export const extractImportStatements = (source: string) => {
   while (src.startsWith('import')) {
     const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
     if (mixedMatch) {
-      const { reference, namespace, destructured, module } =
+      const { reference, namespace, destructured, moduleName } =
         mixedMatch.groups as ImportMixed;
 
       if (destructured) {
@@ -46,7 +46,7 @@ export const extractImportStatements = (source: string) => {
           });
 
         imports.push({
-          module,
+          moduleName,
           imports: [
             ...(reference ? [{ isDefault: true, reference }] : []),
             ...destructuredReferences,
@@ -54,7 +54,7 @@ export const extractImportStatements = (source: string) => {
         });
       } else if (namespace) {
         imports.push({
-          module,
+          moduleName,
           imports: [
             ...(reference ? [{ isDefault: true, reference }] : []),
             { isNamespace: true, alias: namespace },
@@ -62,7 +62,7 @@ export const extractImportStatements = (source: string) => {
         });
       } else {
         imports.push({
-          module,
+          moduleName,
           imports: [{ isDefault: true, reference }],
         });
       }
@@ -71,11 +71,11 @@ export const extractImportStatements = (source: string) => {
     } else {
       const [sideEffectMatch] = [...src.matchAll(SIDE_EFFECT_IMPORT_REGEX)];
       if (sideEffectMatch) {
-        const { module } = sideEffectMatch.groups as ImportModule;
+        const { moduleName } = sideEffectMatch.groups as ImportModule;
         imports.push({
           imports: [],
           isSideEffect: true,
-          module,
+          moduleName,
         });
         src = src.replace(sideEffectMatch[0], '');
       } else {
@@ -105,20 +105,20 @@ export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
 
   const sideEffectImports = moduleImports
     .filter(({ isSideEffect }) => isSideEffect)
-    .map(({ module }) => `import "${module}";`);
+    .map(({ moduleName }) => `import "${moduleName}";`);
 
   const importsByModule = moduleImports.reduce(
-    (byModule, { imports, isSideEffect, module }) => {
+    (byModule, { imports, isSideEffect, moduleName }) => {
       if (isSideEffect) {
         return byModule;
       }
 
-      if (!byModule.has(module)) {
-        byModule.set(module, []);
+      if (!byModule.has(moduleName)) {
+        byModule.set(moduleName, []);
       }
 
-      const currentImports = byModule.get(module)!;
-      byModule.set(module, currentImports.concat(imports));
+      const currentImports = byModule.get(moduleName)!;
+      byModule.set(moduleName, currentImports.concat(imports));
 
       return byModule;
     },
@@ -126,8 +126,8 @@ export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
   );
 
   const importStatements: string[] = [];
-  importsByModule.forEach((imports, module) => {
-    const { defaultAlias, namespaceAlias } = buildModuleAliases(module);
+  importsByModule.forEach((imports, moduleName) => {
+    const { defaultAlias, namespaceAlias } = buildModuleAliases(moduleName);
     const { defaultImport, destructuredImports, namespaceImport } =
       aggregateModuleImports(imports);
 
@@ -142,22 +142,22 @@ export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
     // only destructured references, cannot assume the module has a default import
     if (!defaultImport && !namespaceImport) {
       importStatements.push(
-        `import { ${destructuredReferences} } from "${module}";`
+        `import { ${destructuredReferences} } from "${moduleName}";`
       );
     } else if (defaultImport) {
       if (namespaceImport) {
         importStatements.push(
-          `import ${defaultAlias}, * as ${namespaceAlias} from "${module}";`
+          `import ${defaultAlias}, * as ${namespaceAlias} from "${moduleName}";`
         );
       } else if (destructuredReferences) {
         importStatements.push(
-          `import ${defaultAlias}, { ${destructuredReferences} } from "${module}";`
+          `import ${defaultAlias}, { ${destructuredReferences} } from "${moduleName}";`
         );
       } else {
-        importStatements.push(`import ${defaultAlias} from "${module}";`);
+        importStatements.push(`import ${defaultAlias} from "${moduleName}";`);
       }
     } else if (namespaceImport) {
-      `import * as ${namespaceAlias} from "${module}";`;
+      `import * as ${namespaceAlias} from "${moduleName}";`;
     }
   });
 
@@ -191,12 +191,12 @@ interface ImportsByType {
 export const buildComponentImportStatements = (
   moduleImport: ModuleImport
 ): string[] => {
-  const { imports, isSideEffect, module } = moduleImport;
+  const { imports, isSideEffect, moduleName } = moduleImport;
   if (isSideEffect) {
     return [];
   }
 
-  const { defaultAlias, namespaceAlias } = buildModuleAliases(module);
+  const { defaultAlias, namespaceAlias } = buildModuleAliases(moduleName);
   const { defaultImport, destructuredImports, namespaceImport } =
     aggregateModuleImports(imports);
 
@@ -232,7 +232,7 @@ export const buildComponentImportStatements = (
     // assume that all imports with only destructuring behave in this way
     // this means references for destructuring imports are always at container scope
   } else {
-    throw new Error(`Invalid import for module ${module}`);
+    throw new Error(`Invalid import for module ${moduleName}`);
   }
 
   return statements;
