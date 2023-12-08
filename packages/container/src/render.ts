@@ -116,7 +116,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     node: RenderedVNode,
     renderedChildren?: RenderedVNode[],
     childIndex?: number
-  ): VNode {
+  ): VNode | VNode[] {
     if (!node || !renderedChildren) {
       return node;
     }
@@ -127,6 +127,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
         fragmentChildren.length === 1 &&
         fragmentChildren[0]?.type === BWEComponent
       ) {
+        // this node is the root of a component defined in the container
         return parseRenderedTree(
           {
             type: 'div',
@@ -137,10 +138,9 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
         );
       }
 
-      return parseRenderedTree(
-        { type: 'div', props: null, key: 'fragment-root' },
-        renderedChildren
-      );
+      return renderedChildren.map((child) =>
+        parseRenderedTree(child)
+      ) as VNode[];
     }
 
     const props =
@@ -207,7 +207,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       parseRenderedTree(
         { type: vnode.type, props: vnode.props, key: 'root-component' },
         vnode.__k
-      )
+      ) as VNode
     );
   };
 
