@@ -77,6 +77,12 @@ export const extractImportStatements = (source: string) => {
           module,
         });
         src = src.replace(sideEffectMatch[0], '');
+      } else {
+        // invalid import
+        console.error(
+          `Could not parse import statement: ${src.slice(0, 255)}...`
+        );
+        break;
       }
     }
   }
