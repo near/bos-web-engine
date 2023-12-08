@@ -254,3 +254,20 @@ const aggregateModuleImports = (imports: ImportExpression[]): ImportsByType => {
     } as ImportsByType
   );
 };
+
+/**
+ * Build the importmap URL based on package name/URL
+ * @param moduleName module name specified in the import statement
+ * @param preactVersion version of Preact dependency
+ */
+export const buildModulePackageUrl = (
+  moduleName: string,
+  preactVersion: string
+) => {
+  // if the value specified is a URL, use that
+  if (moduleName.startsWith('https://')) {
+    return moduleName;
+  }
+
+  return `https://esm.sh/${moduleName}?alias=react:preact/compat&deps=preact@${preactVersion}`;
+};

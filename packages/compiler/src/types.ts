@@ -10,6 +10,7 @@ export interface CompilerExecuteAction {
 export interface CompilerInitAction {
   action: 'init';
   localFetchUrl?: string;
+  preactVersion: string;
 }
 
 export interface ComponentCompilerResponse {
@@ -18,6 +19,7 @@ export interface ComponentCompilerResponse {
   rawSource: string;
   componentPath: string;
   error?: Error;
+  importedModules: Map<string, string>;
 }
 
 export type SendMessageCallback = (res: ComponentCompilerResponse) => void;

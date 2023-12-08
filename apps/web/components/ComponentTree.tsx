@@ -37,7 +37,10 @@ export default function ComponentTree({
           {Object.entries(components)
             .filter(([, component]) => !!component?.componentSource)
             .map(
-              ([componentId, { trust, props, componentSource, parentId }]) => (
+              ([
+                componentId,
+                { trust, props, componentSource, parentId, moduleImports },
+              ]) => (
                 <div key={componentId} component-id={componentId}>
                   <SandboxedIframe
                     id={getIframeId(componentId)}
@@ -45,6 +48,7 @@ export default function ComponentTree({
                     scriptSrc={componentSource}
                     componentProps={props}
                     parentContainerId={parentId}
+                    moduleImports={moduleImports}
                   />
                 </div>
               )

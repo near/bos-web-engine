@@ -7,6 +7,7 @@ import {
 import {
   buildComponentImportStatements,
   buildModuleImports,
+  buildModulePackageUrl,
   extractImportStatements,
 } from './import';
 import { parseChildComponents, ParsedChildComponent } from './parser';
@@ -29,6 +30,7 @@ export class ComponentCompiler {
   private readonly sendWorkerMessage: SendMessageCallback;
   private hasFetchedLocal: boolean = false;
   private localFetchUrl?: string;
+  private preactVersion?: string;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<string>>();
@@ -36,8 +38,9 @@ export class ComponentCompiler {
     this.sendWorkerMessage = sendMessage;
   }
 
-  init({ localFetchUrl }: CompilerInitAction) {
+  init({ localFetchUrl, preactVersion }: CompilerInitAction) {
     this.localFetchUrl = localFetchUrl;
+    this.preactVersion = preactVersion;
   }
 
   getComponentSources(componentPaths: string[]) {
@@ -260,9 +263,16 @@ export class ComponentCompiler {
       isRoot: true,
     });
 
-    const importStatements = buildModuleImports(
-      [...transformedComponents.values()].map(({ imports }) => imports).flat()
-    );
+    const containerModuleImports = [...transformedComponents.values()]
+      .map(({ imports }) => imports)
+      .flat();
+    const importStatements = buildModuleImports(containerModuleImports);
+    const importedModules = [
+      ...new Set(containerModuleImports.map(({ module }) => module)),
+    ].reduce((modules, module) => {
+      modules.set(module, buildModulePackageUrl(module, this.preactVersion!));
+      return modules;
+    }, new Map<string, string>());
 
     const componentSource = [
       ...importStatements,
@@ -276,6 +286,7 @@ export class ComponentCompiler {
       componentSource,
       rawSource: source,
       componentPath,
+      importedModules,
     });
   }
 

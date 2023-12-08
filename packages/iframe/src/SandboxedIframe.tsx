@@ -17,6 +17,7 @@ function buildSandboxedComponent({
   scriptSrc,
   componentProps,
   parentContainerId,
+  moduleImports,
 }: SandboxedIframeProps) {
   const componentPropsJson = componentProps
     ? JSON.stringify(componentProps)
@@ -26,12 +27,13 @@ function buildSandboxedComponent({
     <html>
       <body>
         <script type="importmap">
-        {
-          "imports": {
-            "preact": "https://esm.sh/preact@10.17.1",
-            "preact/": "https://esm.sh/preact@10.17.1/"
+          {
+            "imports": {
+              ${[...moduleImports.entries()]
+                .map(([module, url]) => `"${module}": "${url}"`)
+                .join(',\n')}
+            }
           }
-        }
         </script>
         <script type="module">
           import * as Preact from 'preact';
@@ -123,6 +125,7 @@ interface SandboxedIframeProps {
   scriptSrc: string;
   componentProps?: any;
   parentContainerId: string | null;
+  moduleImports: Map<string, string>;
 }
 
 export function SandboxedIframe({
@@ -131,6 +134,7 @@ export function SandboxedIframe({
   scriptSrc,
   componentProps,
   parentContainerId,
+  moduleImports,
 }: SandboxedIframeProps) {
   return (
     <iframe
@@ -153,6 +157,7 @@ export function SandboxedIframe({
         scriptSrc,
         componentProps,
         parentContainerId,
+        moduleImports,
       })}
       title="code-container"
       width={0}
