@@ -48,9 +48,8 @@ ${scriptSrc}
 
           const initContainer = ${initContainer.toString()};
 
-          // placeholder function to bind to Component/Widget references 
+          // placeholder function to bind Component references in BOS Component source
           function Component() {}
-          function Widget() {}
 
           function useComponentCallback(cb, args) {
             const [value, setValue] = useState(undefined);
@@ -99,7 +98,6 @@ ${scriptSrc}
                   Preact.render(createElement(BWEComponent, props), document.body);
                 }
               },
-              Widget,
             },
           });
 

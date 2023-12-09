@@ -33,7 +33,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     buildRequest,
     callbacks,
     isComponent,
-    isWidget,
     parentContainerId,
     postCallbackInvocationMessage,
     requests,
@@ -297,7 +296,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         });
 
       if (typeof type === 'function') {
-        if (!isWidget(type) && !isComponent(type)) {
+        if (!isComponent(type)) {
           throw new Error(`unrecognized Component function ${type.name}`);
         }
 
