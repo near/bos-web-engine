@@ -1,4 +1,4 @@
-import type { ComponentChildren, VNode } from 'preact';
+import type { ComponentChildren, ComponentType, VNode } from 'preact';
 
 import type {
   BuildSafeProxyCallback,
@@ -50,10 +50,10 @@ interface RenderedVNode extends VNode<any> {
 type DispatchRenderCallback = (vnode: VNode) => void;
 
 export const composeRenderMethods: ComposeRenderMethodsCallback = ({
-  BWEComponent,
-  Component,
   componentId,
-  Fragment,
+  isRootComponent,
+  isComponent,
+  isFragment,
   postComponentRenderMessage,
   serializeNode,
   trust,
@@ -121,11 +121,11 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       return node;
     }
 
-    if (node.type === Fragment) {
+    if (isFragment(node.type as ComponentType)) {
       const fragmentChildren = renderedChildren || [];
       if (
         fragmentChildren.length === 1 &&
-        fragmentChildren[0]?.type === BWEComponent
+        isRootComponent(fragmentChildren[0]?.type as ComponentType)
       ) {
         // this node is the root of a component defined in the container
         return parseRenderedTree(
@@ -150,8 +150,8 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           )
         : node.props;
 
-    if (typeof node.type === 'function' && node.type !== Component) {
-      if (isBWEComponent(node) && node.type !== BWEComponent) {
+    if (typeof node.type === 'function' && isComponent(node.type)) {
+      if (isBWEComponent(node) && !isRootComponent(node.type)) {
         const componentNode = buildBWEComponentNode(
           node as BWEComponentNode,
           renderedChildren

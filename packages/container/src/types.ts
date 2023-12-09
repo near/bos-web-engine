@@ -155,10 +155,10 @@ export interface ComponentUpdate extends PostMessageParams {
 }
 
 interface ComposeRenderMethodsParams {
-  BWEComponent: FunctionComponent;
-  Component: Function;
   componentId: string;
-  Fragment: FunctionComponent;
+  isComponent: (component: Function) => boolean;
+  isFragment: (component: Function) => boolean;
+  isRootComponent: (component: Function) => boolean;
   postComponentRenderMessage: PostMessageComponentRenderCallback;
   serializeNode: SerializeNodeCallback;
   trust: ComponentTrust;

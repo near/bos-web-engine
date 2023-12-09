@@ -41,10 +41,10 @@ export function initContainer({
     });
 
   const { commit } = composeRenderMethods({
-    BWEComponent,
-    Component,
     componentId,
-    Fragment,
+    isComponent: (c) => c === Component,
+    isFragment: (c) => c === Fragment,
+    isRootComponent: (c) => c === BWEComponent,
     postComponentRenderMessage,
     serializeNode,
     trust,
