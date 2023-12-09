@@ -20,6 +20,7 @@ export function initContainer({
     parentContainerId,
     trust,
     updateContainerProps,
+    Widget, // TODO remove when <Widget /> no longer supported
   },
 }: InitContainerParams) {
   const callbacks: { [key: string]: Function } = {};
@@ -35,6 +36,8 @@ export function initContainer({
     composeSerializationMethods({
       buildRequest,
       callbacks,
+      isComponent: (c) => c === Component,
+      isWidget: (c) => c === Widget, // TODO remove when <Widget /> no longer supported
       parentContainerId,
       postCallbackInvocationMessage,
       requests,
@@ -45,6 +48,7 @@ export function initContainer({
     isComponent: (c) => c === Component,
     isFragment: (c) => c === Fragment,
     isRootComponent: (c) => c === BWEComponent,
+    isWidget: (c) => c === Widget, // TODO remove when <Widget /> no longer supported
     postComponentRenderMessage,
     serializeNode,
     trust,

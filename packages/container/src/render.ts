@@ -54,6 +54,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
   isRootComponent,
   isComponent,
   isFragment,
+  isWidget, // TODO remove when <Widget /> no longer supported
   postComponentRenderMessage,
   serializeNode,
   trust,
@@ -150,7 +151,11 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           )
         : node.props;
 
-    if (typeof node.type === 'function' && isComponent(node.type)) {
+    if (
+      typeof node.type === 'function' &&
+      !isComponent(node.type) &&
+      !isWidget(node.type)
+    ) {
       if (isBWEComponent(node) && !isRootComponent(node.type)) {
         const componentNode = buildBWEComponentNode(
           node as BWEComponentNode,

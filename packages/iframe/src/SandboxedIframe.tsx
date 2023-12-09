@@ -43,7 +43,8 @@ function buildSandboxedComponent({
 
           const initContainer = ${initContainer.toString()};
 
-          // placeholder to prevent <Widget /> references from breaking 
+          // placeholder function to bind to Component/Widget references 
+          function Component() {}
           function Widget() {}
 
           function useComponentCallback(cb, args) {
@@ -79,7 +80,7 @@ function buildSandboxedComponent({
             },
             context: {
               BWEComponent,
-              Component: Widget,
+              Component,
               componentId: '${id}',
               componentPropsJson: ${componentPropsJson},
               Fragment: Preact.Fragment,
@@ -93,6 +94,7 @@ function buildSandboxedComponent({
                   Preact.render(createElement(BWEComponent), document.body);
                 }
               },
+              Widget,
             },
           });
 
