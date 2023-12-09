@@ -300,6 +300,12 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           throw new Error(`unrecognized Component function ${type.name}`);
         }
 
+        if (isWidget(type)) {
+          console.warn(
+            '<Widget /> will be deprecated in upcoming versions of BOS Web Engine. Please update your code to reference <Component /> instead.'
+          );
+        }
+
         const { child, placeholder } = serializeChildComponent({
           parentId,
           props,
