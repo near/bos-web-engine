@@ -47,7 +47,6 @@ export class ComponentCompiler {
     const unfetchedPaths = componentPaths.filter(
       (componentPath) => !this.bosSourceCache.has(componentPath)
     );
-
     if (unfetchedPaths.length > 0) {
       const pathsFetch = fetchComponentSources(
         'https://rpc.near.org',
@@ -325,10 +324,14 @@ export class ComponentCompiler {
       throw new Error('Network response was not OK');
     }
 
-    const data = (await res.json()) as Record<string, { code: string }>;
-    for (const [componentPath, componentSource] of Object.entries(data)) {
+    const data = (await res.json()) as {
+      components: Record<string, { code: string }>;
+    };
+    for (const [componentPath, componentSource] of Object.entries(
+      data.components
+    )) {
       this.bosSourceCache.set(
-        componentPath.replace('/widget', ''),
+        componentPath,
         Promise.resolve(componentSource.code)
       );
     }
