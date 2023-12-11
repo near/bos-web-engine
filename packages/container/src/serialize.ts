@@ -31,6 +31,8 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
   ({
     buildRequest,
     callbacks,
+    isComponent,
+    isWidget,
     parentContainerId,
     postCallbackInvocationMessage,
     requests,
@@ -201,16 +203,16 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       componentPath,
       parentComponentId,
     }: BuildComponentIdParams) {
-      // TODO warn on missing instanceId (<Widget>'s id prop) here?
+      // TODO warn on missing instanceId (<Component>'s id prop) here?
       return [componentPath, instanceId?.toString(), parentComponentId].join(
         '##'
       );
     }
 
     /**
-     * Serialize a sandboxed <Widget /> component
+     * Serialize a sandboxed <Component /> component
      * @param parentId ID of the parent Component
-     * @param props Props passed to the <Widget /> component
+     * @param props Props passed to the <Component /> component
      */
     const serializeChildComponent = ({
       parentId,
@@ -294,8 +296,14 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         });
 
       if (typeof type === 'function') {
-        if (type.name !== 'Widget') {
+        if (!isWidget(type) && !isComponent(type)) {
           throw new Error(`unrecognized Component function ${type.name}`);
+        }
+
+        if (isWidget(type)) {
+          console.warn(
+            '<Widget /> will be deprecated in upcoming versions of BOS Web Engine. Please update your code to reference <Component /> instead.'
+          );
         }
 
         const { child, placeholder } = serializeChildComponent({
