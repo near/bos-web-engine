@@ -25,7 +25,12 @@ import { useComponentMetrics } from './useComponentMetrics';
 import { useFlags } from './useFlags';
 import { useComponentSourcesStore } from '../stores/component-sources';
 
+interface WebEngineConfiguration {
+  preactVersion: string;
+}
+
 interface UseWebEngineParams {
+  config?: WebEngineConfiguration;
   rootComponentPath?: string;
   debugConfig: DebugConfig;
 }
@@ -34,7 +39,12 @@ interface CompilerWorker extends Omit<Worker, 'postMessage'> {
   postMessage(comilerRequest: ComponentCompilerRequest): void;
 }
 
+const DEFAULT_CONFIG = {
+  preactVersion: '10.17.1',
+};
+
 export function useWebEngine({
+  config = DEFAULT_CONFIG,
   rootComponentPath,
   debugConfig,
 }: UseWebEngineParams) {
@@ -217,6 +227,7 @@ export function useWebEngine({
       const initPayload: ComponentCompilerRequest = {
         action: 'init',
         localFetchUrl: flags?.bosLoaderUrl,
+        preactVersion: config?.preactVersion,
       };
       worker.postMessage(initPayload);
       setCompiler(worker);
@@ -232,6 +243,7 @@ export function useWebEngine({
           rawSource,
           componentPath,
           error: loadError,
+          importedModules,
         } = data;
 
         if (loadError) {
@@ -241,11 +253,24 @@ export function useWebEngine({
 
         addSource(componentPath, rawSource);
 
+        // set the Preact import maps
+        // TODO find a better place for this
+        importedModules.set(
+          'preact',
+          `https://esm.sh/preact@${config.preactVersion}`
+        );
+        importedModules.set(
+          'preact/',
+          `https://esm.sh/preact@${config.preactVersion}/`
+        );
+
         const component = {
           ...components[componentId],
           componentId,
           componentSource,
+          moduleImports: importedModules,
         };
+
         if (!rootComponentSource && componentId === rootComponentPath) {
           setRootComponentSource(componentId);
         }
@@ -269,6 +294,7 @@ export function useWebEngine({
     isValidRootComponentPath,
     flags?.bosLoaderUrl,
     addSource,
+    config?.preactVersion,
   ]);
 
   return {

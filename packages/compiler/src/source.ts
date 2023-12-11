@@ -1,10 +1,7 @@
 import { JsonRpcProvider } from '@near-js/providers';
 import type { CodeResult } from '@near-js/types';
 
-interface SocialComponent {
-  widget: { [name: string]: string };
-}
-type SocialComponentsByAuthor = { [author: string]: SocialComponent };
+import type { SocialComponentsByAuthor } from './types';
 
 const encodeComponentKeyArgs = (componentPaths: string[]) => {
   const bytes = new TextEncoder().encode(
