@@ -9,9 +9,9 @@ type ImportMixed = ImportModule & {
 
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
-  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<modulePath>[\w@\/.-]+)["'];?\s*/gi;
+  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
 const SIDE_EFFECT_IMPORT_REGEX =
-  /^import\s+["'](?<modulePath>[\w@\/.-]+)["'];?\s*/gi;
+  /^import\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
 
 /**
  * Given BOS Component source code, return an object with the `import`-less source code and array of structured import statements
@@ -101,16 +101,24 @@ export const extractImportStatements = (source: string) => {
 };
 
 const extractModuleName = (modulePath: string) => {
+  let path = modulePath;
   if (modulePath.startsWith('https://')) {
-    const suffix = modulePath.split('/')[3];
-    return suffix.slice(0, suffix.match(/[&?]/gi)?.index || suffix.length);
+    path = modulePath.split('/').slice(3).join('/');
+    const terminatingIndex = ['&', '?'].reduce(
+      (min, c) => Math.min(path.indexOf(c), min),
+      path.length
+    );
+
+    if (terminatingIndex > 1) {
+      path = path.slice(0, terminatingIndex);
+    }
   }
 
-  if (modulePath.startsWith('@')) {
-    return `@${modulePath.split('@')[1]}`;
+  if (path.startsWith('@')) {
+    return `@${path.split('@')[1]}`;
   }
 
-  return modulePath.split('@')[0];
+  return path;
 };
 
 /**
@@ -291,9 +299,11 @@ export const buildModulePackageUrl = (
   modulePath: string,
   preactVersion: string
 ) => {
-  // if the value specified is a URL, don't add it to the importmap
   if (modulePath.startsWith('https://')) {
-    return null;
+    return {
+      moduleName,
+      url: modulePath,
+    };
   }
 
   return {
