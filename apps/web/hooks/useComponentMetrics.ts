@@ -21,6 +21,6 @@ export function useComponentMetrics() {
 
   return {
     metrics,
-    recordMessage: buildAppender<BWEMessage>('messages'),
+    reportMessage: buildAppender<BWEMessage>('messages'),
   };
 }

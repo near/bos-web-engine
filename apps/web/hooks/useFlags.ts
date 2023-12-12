@@ -1,3 +1,4 @@
+import type { WebEngineFlags } from '@bos-web-engine/application';
 import { useCallback, useEffect, useState } from 'react';
 
 /**
@@ -8,12 +9,8 @@ import { useCallback, useEffect, useState } from 'react';
  * Warning: setFlags causes page reload
  */
 
-type Flags = {
-  bosLoaderUrl?: string;
-};
-
 export function useFlags() {
-  const [rawFlags, setRawFlags] = useState<Flags>();
+  const [rawFlags, setRawFlags] = useState<WebEngineFlags>();
 
   useEffect(() => {
     const flags = localStorage.getItem('flags')
@@ -22,7 +19,7 @@ export function useFlags() {
     setRawFlags(flags);
   }, []);
 
-  const setFlags = useCallback((newFlags: Flags) => {
+  const setFlags = useCallback((newFlags: WebEngineFlags) => {
     setRawFlags((f) => {
       const updated = { ...f, ...newFlags };
       localStorage.setItem('flags', JSON.stringify(updated));

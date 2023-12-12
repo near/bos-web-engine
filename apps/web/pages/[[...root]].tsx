@@ -3,9 +3,12 @@ import { useEffect } from 'react';
 
 import { ComponentTree } from '../components';
 import { Inspector } from '../components/Inspector';
-import { useWebEngine } from '../hooks';
+import { useFlags, useWebEngine } from '../hooks';
+import { useComponentMetrics } from '../hooks/useComponentMetrics';
+import { useComponentSourcesStore } from '../stores/component-sources';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;
+const PREACT_VERSION = '10.17.1';
 
 export default function Root() {
   const router = useRouter();
@@ -15,7 +18,20 @@ export default function Root() {
     ? query.root.join('/')
     : undefined;
 
-  const { components, error, metrics } = useWebEngine({
+  const [flags] = useFlags();
+  const { /* metrics, */ reportMessage } = useComponentMetrics();
+  const addSource = useComponentSourcesStore((store) => store.addSource);
+
+  const { components, error } = useWebEngine({
+    config: {
+      flags,
+      preactVersion: PREACT_VERSION,
+      hooks: {
+        containerSourceCompiled: ({ componentPath, rawSource }) =>
+          addSource(componentPath, rawSource),
+        messageReceived: reportMessage,
+      },
+    },
     rootComponentPath,
   });
 

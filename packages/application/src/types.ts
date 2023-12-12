@@ -1,4 +1,5 @@
 import { ComponentTrust } from '@bos-web-engine/common';
+import { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import type {
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
@@ -87,4 +88,19 @@ export interface CreateChildElementParams {
   index?: number;
   onMessageSent: OnMessageSentCallback;
   parentId: string;
+}
+
+export interface WebEngineHooks {
+  containerSourceCompiled?: (response: ComponentCompilerResponse) => void;
+  messageReceived?: (message: BWEMessage) => void;
+}
+
+export interface WebEngineConfiguration {
+  flags?: WebEngineFlags;
+  hooks?: WebEngineHooks;
+  preactVersion: string;
+}
+
+export interface WebEngineFlags {
+  bosLoaderUrl?: string;
 }
