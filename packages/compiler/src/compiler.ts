@@ -76,8 +76,17 @@ export class ComponentCompiler {
 
     // get the exported reference's name and remove the export keyword(s) from Component source
     // TODO halt parsing of the current Component if no export is found
-    const { exported, source: cleanComponentSource } =
-      extractExport(importlessSource);
+    const {
+      exportedReference,
+      hasExport,
+      source: cleanComponentSource,
+    } = extractExport(importlessSource);
+
+    if (!hasExport) {
+      throw new Error(
+        `Could not parse Component ${componentPath}: missing valid Component export`
+      );
+    }
 
     const componentImports = imports
       .map((moduleImport) => buildComponentImportStatements(moduleImport))
@@ -89,7 +98,7 @@ export class ComponentCompiler {
       componentPath,
       componentSource: cleanComponentSource,
       componentImports,
-      exported,
+      exportedReference,
       isRoot,
     });
 
