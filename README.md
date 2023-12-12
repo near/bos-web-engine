@@ -37,6 +37,8 @@ This project leverages [GitHub Discussions](https://github.com/near/bos-web-engi
 
 At this point, we are focused on communicating progress and do not have an estimate on a date when BWE will be production ready. Updates will be posted to BOS social feeds from the Pagoda account.
 
+### What are BWE's upcoming milestones?
+
 ### Will BWE be backwards compatible with existing VM components?
 
 No. BWE is a complete re-write of the component runtime and will not be backwards compatible with existing components due to significant architectural differences. Components will be similar in many ways since they are already written with JSX, but BWE code will look much more like vanilla React with some additional patterns on top.
@@ -46,4 +48,8 @@ Our primary goal is to build the most capable engine to support complex dapps fo
 ### Can existing React codebases be used with BWE?
 
 While the process to convert an existing React codebase to run on BWE will be significantly easier than the previous VM, there will still be some syntax and architecture changes which must be handled manually.
+
+### From a security perspective, our primary focus thus far has been to leverage iframes to sandbox untrusted components from affecting one another and from sneaking data from the parent context. We want to be open with our understanding that there's always room for someone to be a bad actor. So what other parts of security can we be concerned about? 
+1. What about components passing something malicious to the outer window via callback/post-message?
+2. What about components impersonating another well-known component?
 
