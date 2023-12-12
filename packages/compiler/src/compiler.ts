@@ -133,6 +133,12 @@ export class ComponentCompiler {
     return componentSources;
   }
 
+  /**
+   * Transpile the component and cache for future lookups
+   * @param componentPath path to the BOS Component
+   * @param componentSource source code of the BOS Component
+   * @param isRoot flag indicating whether this is the root Component of a container
+   */
   getTranspiledComponentSource({
     componentPath,
     componentSource,
@@ -152,10 +158,17 @@ export class ComponentCompiler {
     return this.compiledSourceCache.get(cacheKey)!;
   }
 
+  /**
+   * Determine whether a child Component is trusted and can be inlined within the current container
+   * @param trustMode explicit trust mode provided for this child render
+   * @param path child Component's path
+   * @param isComponentPathTrusted flag indicating whether the child is implicitly trusted by virtue of being under a trusted root
+   */
   static isChildComponentTrusted(
     { trustMode, path }: ParsedChildComponent,
     isComponentPathTrusted?: (p: string) => boolean
   ) {
+    // child is explicitly trusted by parent or constitutes a new trusted root
     if (
       trustMode === TrustMode.Trusted ||
       trustMode === TrustMode.TrustAuthor
@@ -163,6 +176,7 @@ export class ComponentCompiler {
       return true;
     }
 
+    // child is explicitly sandboxed
     if (trustMode === TrustMode.Sandboxed) {
       return false;
     }
@@ -280,6 +294,10 @@ export class ComponentCompiler {
     return components;
   }
 
+  /**
+   * Build the source for a container rooted at the target Component
+   * @param componentId ID for the new container's root Component
+   */
   async compileComponent({ componentId }: CompilerExecuteAction) {
     if (this.localFetchUrl && !this.hasFetchedLocal) {
       try {
@@ -310,6 +328,7 @@ export class ComponentCompiler {
       .map(({ imports }) => imports)
       .flat();
 
+    // build the import map used by the container
     const importedModules = containerModuleImports.reduce(
       (importMap, { moduleName, modulePath }) => {
         const importMapEntries = buildModulePackageUrl(
