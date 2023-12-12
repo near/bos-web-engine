@@ -5,23 +5,22 @@
  *  - export const BWEComponent...
  */
 const EXPORT_REGEX =
-  /^export\s+(?<qualifier>const|default|function)\s+(?<identifier>[\w$_]+)/gm;
+  /^export(?<defaultExport>\s+default)?\s+(const|function)\s+(?<identifier>[\w$_]+)?/gm;
 
 /**
  * Extract the name of the exported reference and strip the export keyword(s) from the source
  * @param source BOS Component source
  */
 export const extractExport = (source: string) => {
-  const matches = [...source.matchAll(EXPORT_REGEX)];
-
-  return matches.reduce(
+  return [...source.matchAll(EXPORT_REGEX)].reduce(
     (exported, match) => {
       if (!exported.hasExport) {
-        const { identifier, qualifier } = match.groups as {
+        const { defaultExport, identifier } = match.groups as {
+          defaultExport: string;
           identifier: string;
-          qualifier: string;
         };
-        if (qualifier === 'default') {
+
+        if (defaultExport) {
           if (!identifier) {
             exported.source = exported.source
               .replace(
