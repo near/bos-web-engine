@@ -15,6 +15,7 @@ interface BuildComponentFunctionParams {
   componentImports: string[];
   componentPath: string;
   componentSource: string;
+  exported: string | null;
   isRoot: boolean;
 }
 
@@ -22,27 +23,41 @@ export function buildComponentFunction({
   componentImports,
   componentPath,
   componentSource,
+  exported,
   isRoot,
 }: BuildComponentFunctionParams) {
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
   const importAssignments = componentImports.join('\n');
+  const commentHeader = `${componentPath} ${isRoot ? '(root)' : ''}`;
 
-  if (isRoot) {
+  // TODO remove once export is required
+  if (!exported) {
+    if (isRoot) {
+      return `
+        function ${functionName}() {
+          ${importAssignments}
+          ${componentSource}
+        }
+      `;
+    }
+
     return `
-      function ${functionName}() {
+      /************************* ${componentPath} *************************/
+      function ${functionName}(__bweInlineComponentProps) {
         ${importAssignments}
+        const { __bweMeta, props: __componentProps } = __bweInlineComponentProps;
+        const props = Object.assign({ __bweMeta }, __componentProps); 
         ${componentSource}
       }
     `;
   }
 
   return `
-    /************************* ${componentPath} *************************/
-    function ${functionName}(__bweInlineComponentProps) {
+    /************************* ${commentHeader} *************************/
+    const ${functionName} = (() => {
       ${importAssignments}
-      const { __bweMeta, props: __componentProps } = __bweInlineComponentProps;
-      const props = Object.assign({ __bweMeta }, __componentProps); 
       ${componentSource}
-    }
+      return ${exported};
+    })();
   `;
 }

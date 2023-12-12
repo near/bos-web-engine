@@ -4,6 +4,7 @@ import {
   buildComponentFunction,
   buildComponentFunctionName,
 } from './component';
+import { extractExport } from './export';
 import {
   buildComponentImportStatements,
   buildModuleImports,
@@ -133,19 +134,25 @@ export class ComponentCompiler {
     trustedRoot,
   }: ParseComponentTreeParams) {
     // separate out import statements from Component source
-    const { imports, source: cleanComponentSource } =
+    const { imports, source: importlessSource } =
       extractImportStatements(componentSource);
+
+    // get the exported reference's name and remove the export keyword(s) from Component source
+    // TODO halt parsing of the current Component if no export is found
+    const { exported, source: cleanComponentSource } =
+      extractExport(importlessSource);
 
     const componentImports = imports
       .map((moduleImport) => buildComponentImportStatements(moduleImport))
       .flat()
       .filter((statement) => !!statement) as string[];
 
-    // wrap the Component's JSX body source in a function to be rendered as a Component
+    // assign a known alias to the exported Component
     const componentFunctionSource = buildComponentFunction({
       componentPath,
       componentSource: cleanComponentSource,
       componentImports,
+      exported,
       isRoot,
     });
 

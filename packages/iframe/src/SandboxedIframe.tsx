@@ -41,6 +41,11 @@ function buildSandboxedComponent({
 
           const { createElement } = Preact;
 
+/******** BEGIN BOS SOURCE ********/
+/******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
+${scriptSrc}
+/******** END BOS SOURCE ********/
+
           const initContainer = ${initContainer.toString()};
 
           // placeholder function to bind to Component/Widget references 
@@ -91,7 +96,7 @@ function buildSandboxedComponent({
                 // if nothing has changed, the same [props] object will be returned
                 props = updateProps(props);
                 if (props !== originalProps) {
-                  Preact.render(createElement(BWEComponent), document.body);
+                  Preact.render(createElement(BWEComponent, props), document.body);
                 }
               },
               Widget,
@@ -101,11 +106,6 @@ function buildSandboxedComponent({
           // intialize props
           props = containerProps;
 
-/******** BEGIN BOS SOURCE ********/
-/******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
-${scriptSrc}
-/******** END BOS SOURCE ********/
-
           const oldCommit = Preact.options.__c;
           Preact.options.__c = (vnode, commitQueue) => {
             commit(vnode);
@@ -114,7 +114,7 @@ ${scriptSrc}
 
           window.addEventListener('message', processEvent);
 
-          Preact.render(createElement(BWEComponent), document.body);
+          Preact.render(createElement(BWEComponent, props), document.body);
         </script>
       </body>
     </html>
