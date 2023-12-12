@@ -29,13 +29,10 @@ export interface ComponentInstance {
 export interface ComponentMetrics {
   componentsLoaded: string[];
   messages: SendMessageParams[];
-  missingComponents: string[];
 }
 
 export interface RenderHandlerParams {
   data: ComponentRender;
-  isDebug?: boolean;
-  getComponentRenderCount: (componentId: string) => number;
   mountElement: ({
     componentId,
     element,
@@ -46,7 +43,6 @@ export interface RenderHandlerParams {
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;
   onMessageSent: OnMessageSentCallback;
-  debugConfig: DebugConfig;
 }
 
 export interface IframePostMessageParams {
@@ -91,9 +87,4 @@ export interface CreateChildElementParams {
   index?: number;
   onMessageSent: OnMessageSentCallback;
   parentId: string;
-}
-
-export interface DebugConfig {
-  isDebug: boolean;
-  showMonitor: boolean;
 }

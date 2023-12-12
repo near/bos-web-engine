@@ -76,7 +76,6 @@ export function ComponentMonitor({
       messageMetrics.get('component.callbackInvocation')?.length || 0,
     'Callbacks Returned':
       messageMetrics.get('component.callbackResponse')?.length || 0,
-    'Missing Components': metrics.missingComponents.length,
   };
 
   const parseComponentId = (componentId: string): ComponentId | null => {

@@ -11,18 +11,12 @@ export default function Root() {
   const router = useRouter();
   const { query } = router;
 
-  const isDebug = query.isDebug === 'true';
-  const showMonitor = query.showMonitor === 'true';
   const rootComponentPath = Array.isArray(query.root)
     ? query.root.join('/')
     : undefined;
 
   const { components, error, metrics } = useWebEngine({
     rootComponentPath,
-    debugConfig: {
-      isDebug,
-      showMonitor,
-    },
   });
 
   useEffect(() => {
@@ -39,10 +33,7 @@ export default function Root() {
           {error && <div className="error">{error}</div>}
           <ComponentTree
             components={components}
-            isDebug={isDebug}
-            metrics={metrics}
             rootComponentPath={rootComponentPath}
-            showMonitor={showMonitor}
           />
           <Inspector />
         </>

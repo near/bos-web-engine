@@ -1,7 +1,6 @@
 import {
   BWEMessage,
   ComponentDOMElement,
-  DebugConfig,
   onCallbackInvocation,
   onCallbackResponse,
   onRender,
@@ -32,7 +31,6 @@ interface WebEngineConfiguration {
 interface UseWebEngineParams {
   config?: WebEngineConfiguration;
   rootComponentPath?: string;
-  debugConfig: DebugConfig;
 }
 
 interface CompilerWorker extends Omit<Worker, 'postMessage'> {
@@ -46,7 +44,6 @@ const DEFAULT_CONFIG = {
 export function useWebEngine({
   config = DEFAULT_CONFIG,
   rootComponentPath,
-  debugConfig,
 }: UseWebEngineParams) {
   const [compiler, setCompiler] = useState<CompilerWorker | null>(null);
   const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
@@ -60,7 +57,7 @@ export function useWebEngine({
 
   const [flags] = useFlags();
 
-  const { metrics, recordMessage, componentMissing } = useComponentMetrics();
+  const { metrics, recordMessage } = useComponentMetrics();
 
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef(
     {}
@@ -125,8 +122,6 @@ export function useWebEngine({
       if (!domRoots.current[domId]) {
         const domElement = document.getElementById(domId);
         if (!domElement) {
-          const metricKey = componentId.split('##')[0];
-          componentMissing(metricKey);
           console.error(`Node not found: #${domId}`);
           return;
         }
@@ -136,7 +131,7 @@ export function useWebEngine({
 
       domRoots.current[domId].render(element);
     },
-    [domRoots, componentMissing]
+    [domRoots]
   );
 
   const processMessage = useCallback(
@@ -168,7 +163,6 @@ export function useWebEngine({
           case 'component.render': {
             onRender({
               data,
-              getComponentRenderCount,
               mountElement: ({ componentId, element }) => {
                 renderComponent(componentId);
                 mountElement({ componentId, element, id: data.node.props?.id });
@@ -177,7 +171,6 @@ export function useWebEngine({
                 loadComponent(component.componentId, component),
               isComponentLoaded: (c: string) => !!components[c],
               onMessageSent,
-              debugConfig,
             });
             break;
           }
@@ -188,15 +181,7 @@ export function useWebEngine({
         console.error({ event }, e);
       }
     },
-    [
-      debugConfig,
-      components,
-      loadComponent,
-      mountElement,
-      getComponentRenderCount,
-      renderComponent,
-      recordMessage,
-    ]
+    [components, loadComponent, mountElement, renderComponent, recordMessage]
   );
 
   useEffect(() => {
