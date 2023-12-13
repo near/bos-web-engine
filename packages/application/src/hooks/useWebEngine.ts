@@ -3,7 +3,6 @@ import type {
   ComponentCompilerRequest,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
-import { getAppDomId } from '@bos-web-engine/iframe';
 import {
   MutableRefObject,
   useCallback,
@@ -13,6 +12,7 @@ import {
 } from 'react';
 import ReactDOM from 'react-dom/client';
 
+import { getAppDomId } from '../container';
 import {
   onCallbackInvocation,
   onCallbackResponse,

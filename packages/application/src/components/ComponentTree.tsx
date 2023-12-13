@@ -1,8 +1,5 @@
-import {
-  getAppDomId,
-  getIframeId,
-  SandboxedIframe,
-} from '@bos-web-engine/iframe';
+import { SandboxedIframe } from './SandboxedIframe';
+import { getAppDomId, getIframeId } from '../container';
 
 interface ComponentTreeParams {
   components: { [componentId: string]: any };

@@ -11,11 +11,10 @@
   },
   "dependencies": {
     "@bos-web-engine/compiler": "workspace:*",
-    "@bos-web-engine/iframe": "workspace:*"
+    "@bos-web-engine/container": "workspace:*"
   },
   "devDependencies": {
     "@bos-web-engine/common": "workspace:*",
-    "@bos-web-engine/container": "workspace:*",
     "@types/node": "^17.0.12",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
