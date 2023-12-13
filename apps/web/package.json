@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@bos-web-engine/application": "workspace:*",
-    "@bos-web-engine/common": "workspace:*",
     "next": "^13.5.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -24,6 +23,7 @@
     "zustand": "^4.4.3"
   },
   "devDependencies": {
+    "@bos-web-engine/common": "workspace:*",
     "@types/node": "^17.0.12",
     "@types/react": "^18.0.22",
     "@types/react-dom": "^18.0.7",
