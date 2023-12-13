@@ -1,8 +1,6 @@
-import type {
-  PostMessageEvent,
-  ProcessEventParams,
-  SerializedArgs,
-} from './types';
+import type { PostMessageEvent, SerializedArgs } from '@bos-web-engine/common';
+
+import type { ProcessEventParams } from './types';
 
 /**
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`

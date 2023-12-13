@@ -1,11 +1,11 @@
-import { ComponentTrust } from '@bos-web-engine/common';
-import { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import type {
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
   ComponentRender,
+  ComponentTrust,
   MessagePayload,
-} from '@bos-web-engine/container';
+} from '@bos-web-engine/common';
+import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import type { DOMElement } from 'react';
 
 export interface CallbackInvocationHandlerParams {
@@ -88,6 +88,11 @@ export interface CreateChildElementParams {
   index?: number;
   onMessageSent: OnMessageSentCallback;
   parentId: string;
+}
+
+export interface UseWebEngineParams {
+  config: WebEngineConfiguration;
+  rootComponentPath?: string;
 }
 
 export interface WebEngineHooks {

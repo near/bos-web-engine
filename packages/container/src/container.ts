@@ -1,4 +1,6 @@
-import type { CallbackRequest, InitContainerParams, Props } from './types';
+import type { Props } from '@bos-web-engine/common';
+
+import type { CallbackRequest, InitContainerParams } from './types';
 
 export function initContainer({
   containerMethods: {

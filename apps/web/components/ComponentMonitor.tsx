@@ -3,7 +3,7 @@ import type {
   ComponentInstance,
   ComponentMetrics,
 } from '@bos-web-engine/application';
-import type { EventType, MessagePayload } from '@bos-web-engine/container';
+import type { EventType, MessagePayload } from '@bos-web-engine/common';
 
 interface ComponentId {
   author: string;

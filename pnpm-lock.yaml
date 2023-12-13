@@ -24,9 +24,7 @@ importers:
   apps/web:
     specifiers:
       '@bos-web-engine/application': workspace:*
-      '@bos-web-engine/compiler': workspace:*
-      '@bos-web-engine/container': workspace:*
-      '@bos-web-engine/iframe': workspace:*
+      '@bos-web-engine/common': workspace:*
       '@types/node': ^17.0.12
       '@types/react': ^18.0.22
       '@types/react-dom': ^18.0.7
@@ -49,9 +47,7 @@ importers:
       zustand: ^4.4.3
     dependencies:
       '@bos-web-engine/application': link:../../packages/application
-      '@bos-web-engine/compiler': link:../../packages/compiler
-      '@bos-web-engine/container': link:../../packages/container
-      '@bos-web-engine/iframe': link:../../packages/iframe
+      '@bos-web-engine/common': link:../../packages/common
       next: 13.5.6_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

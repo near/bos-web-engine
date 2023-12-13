@@ -1,10 +1,10 @@
+import type { WebEngineMeta } from '@bos-web-engine/common';
 import type { ComponentChildren, ComponentType, VNode } from 'preact';
 
 import type {
   BuildSafeProxyCallback,
   ComposeRenderMethodsCallback,
   Node,
-  WebEngineMeta,
 } from './types';
 
 export const buildSafeProxy: BuildSafeProxyCallback = ({

@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { Inspector } from '../components';
-import { useFlags, useComponentMetrics } from '../hooks';
+import { useComponentMetrics, useFlags } from '../hooks';
 import { useComponentSourcesStore } from '../stores/component-sources';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;

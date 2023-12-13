@@ -1,6 +1,7 @@
+import type { Props } from '@bos-web-engine/common';
+
 import type {
   DeserializePropsCallback,
-  Props,
   SerializePropsCallback,
   SerializeArgsCallback,
   SerializeNodeCallback,
