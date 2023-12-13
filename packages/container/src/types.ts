@@ -4,7 +4,6 @@ import type {
   Props,
   SerializedArgs,
   SerializedNode,
-  SerializedProps,
 } from '@bos-web-engine/common';
 import { FunctionComponent, VNode } from 'preact';
 
