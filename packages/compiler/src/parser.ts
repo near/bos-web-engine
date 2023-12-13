@@ -50,10 +50,36 @@ export function parseChildComponents(
       path: source,
       trustMode: trustMatch?.[1],
       transform: (componentSource: string, componentName: string) => {
-        const signaturePrefix = `${componentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
+        const propsMatch = expression.match(/\s+props:\s*/);
+
+        if (!propsMatch?.index) {
+          return componentSource.replaceAll(
+            expression,
+            expression.replace(/(Widget|Component)/, componentName)
+          );
+        }
+
+        const openPropsBracketIndex = propsMatch.index + propsMatch[0].length;
+        let closePropsBracketIndex = openPropsBracketIndex + 1;
+        let openBracketCount = 1;
+        while (openBracketCount) {
+          const char = expression[closePropsBracketIndex];
+          if (char === '{') {
+            openBracketCount++;
+          } else if (char === '}') {
+            openBracketCount--;
+          }
+
+          closePropsBracketIndex++;
+        }
+
+        const propsString = expression
+          .slice(openPropsBracketIndex + 1, closePropsBracketIndex - 1)
+          .trim();
+
         return componentSource.replaceAll(
           expression,
-          expression.replace(/(Widget|Component),\s*\{/, signaturePrefix)
+          `createElement(${componentName}, { __bweMeta: { parentMeta: props.__bweMeta }, ${propsString} })`
         );
       },
     };
