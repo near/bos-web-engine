@@ -10,6 +10,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@bos-web-engine/compiler": "workspace:*",
     "@bos-web-engine/iframe": "workspace:*"
   },
   "devDependencies": {

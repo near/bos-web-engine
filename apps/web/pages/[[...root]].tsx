@@ -1,10 +1,9 @@
+import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { ComponentTree } from '../components';
-import { Inspector } from '../components/Inspector';
-import { useFlags, useWebEngine } from '../hooks';
-import { useComponentMetrics } from '../hooks/useComponentMetrics';
+import { Inspector } from '../components';
+import { useFlags, useComponentMetrics } from '../hooks';
 import { useComponentSourcesStore } from '../stores/component-sources';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;

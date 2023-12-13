@@ -1,16 +1,8 @@
-import {
-  BWEMessage,
-  ComponentDOMElement,
-  onCallbackInvocation,
-  onCallbackResponse,
-  onRender,
-  WebEngineConfiguration,
-} from '@bos-web-engine/application';
+import type { MessagePayload } from '@bos-web-engine/common';
 import type {
   ComponentCompilerRequest,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
-import type { MessagePayload } from '@bos-web-engine/container';
 import { getAppDomId } from '@bos-web-engine/iframe';
 import {
   MutableRefObject,
@@ -21,10 +13,16 @@ import {
 } from 'react';
 import ReactDOM from 'react-dom/client';
 
-interface UseWebEngineParams {
-  config: WebEngineConfiguration;
-  rootComponentPath?: string;
-}
+import {
+  onCallbackInvocation,
+  onCallbackResponse,
+  onRender,
+} from '../handlers';
+import type {
+  BWEMessage,
+  ComponentDOMElement,
+  UseWebEngineParams,
+} from '../types';
 
 interface CompilerWorker extends Omit<Worker, 'postMessage'> {
   postMessage(compilerRequest: ComponentCompilerRequest): void;
@@ -130,7 +128,7 @@ export function useWebEngine({
 
         const { data } = event;
         if (data.type) {
-          // @ts-expect-error FIXME
+          // @ts-expect-error
           const fromComponent = data.componentId || data.originator;
           hooks?.messageReceived?.({ fromComponent, message: data });
         }
@@ -192,7 +190,7 @@ export function useWebEngine({
 
     if (!compiler) {
       const worker = new Worker(
-        new URL('../workers/compiler.ts', import.meta.url)
+        new URL('../workers/compiler.js', import.meta.url)
       );
       const initPayload: ComponentCompilerRequest = {
         action: 'init',
