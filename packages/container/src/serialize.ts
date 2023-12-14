@@ -21,7 +21,7 @@ interface SerializeChildComponentParams {
 }
 
 interface SerializedPropsCallback {
-  componentId: string;
+  containerId: string;
   callbackIdentifier: string;
 }
 
@@ -29,7 +29,7 @@ interface DeepTransformParams {
   value: any;
   onString?: (s: string) => string;
   onFunction?: (f: Function, path: string) => any;
-  onSerializedCallback?: (cb: SerializedPropsCallback) => any;
+  onSerializedCallback?: (cb: SerializedPropsCallback) => Function;
 }
 
 interface BuildContainerMethodIdentifierParams {
@@ -43,7 +43,6 @@ interface BuildContainerMethodIdentifierParams {
  * @param buildRequest Method for building callback requests
  * @param builtinComponents Set of builtin BOS Web Engine Components
  * @param callbacks Component container's callbacks
- * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param requests Set of current callback requests
  */
@@ -52,7 +51,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     buildRequest,
     callbacks,
     isComponent,
-    parentContainerId,
     postCallbackInvocationMessage,
     requests,
   }) => {
@@ -61,7 +59,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       typeof o === 'object' &&
       Object.keys(o).length === 2 &&
       'callbackIdentifier' in o &&
-      'componentId' in o;
+      'containerId' in o;
 
     const deepTransform = ({
       value,
@@ -119,15 +117,10 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
 
     /**
      * Serialize props of a child Component to be rendered in the outer application
-     * @param componentId The target Component ID
-     * @param parentId Component's parent container
+     * @param containerId Component's parent container
      * @param props The props for this container's Component
      */
-    const serializeProps: SerializePropsCallback = ({
-      componentId,
-      parentId,
-      props,
-    }) => {
+    const serializeProps: SerializePropsCallback = ({ containerId, props }) => {
       return Object.entries(props).reduce(
         (newProps, [key, value]: [string, any]) => {
           // TODO better preact component check
@@ -142,26 +135,17 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
             callbackName: string,
             callback: Function
           ) => {
-            // [componentId] only applies to props on components, use method
-            // body to distinguish between non-component callbacks
-
             const fnKey = buildContainerMethodIdentifier({
               callback,
               callbackName,
-              componentId,
+              componentId: containerId,
             });
 
             callbacks[fnKey] = callback;
 
-            if (componentId) {
-              return {
-                callbackIdentifier: fnKey,
-                componentId,
-              };
-            }
-
             return {
               callbackIdentifier: fnKey,
+              containerId,
             };
           };
 
@@ -173,7 +157,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
               newProps[key] = serializeNode({
                 childComponents: [],
                 node: value,
-                parentId,
+                parentId: containerId,
               });
             } else if (isProxy) {
               newProps[key] = { ...serializedValue };
@@ -198,11 +182,12 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     }) => {
       return deepTransform({
         value: args,
-        onSerializedCallback: (cb) =>
-          deserializePropsCallback({
-            componentId,
+        onSerializedCallback: (cb) => {
+          return deserializePropsCallback({
+            containerId: componentId,
             callbackIdentifier: cb.callbackIdentifier,
-          }),
+          });
+        },
       });
     };
 
@@ -244,13 +229,13 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         callbacks[fnKey] = arg;
         return {
           callbackIdentifier: fnKey,
-          componentId,
+          containerId: componentId,
         };
       });
     };
 
     const deserializePropsCallback = ({
-      componentId,
+      containerId,
       callbackIdentifier,
     }: SerializedPropsCallback) => {
       return (...args: any) => {
@@ -262,12 +247,11 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         postCallbackInvocationMessage({
           args,
           callbacks,
-          componentId,
+          componentId: containerId,
           method: callbackIdentifier,
-
           requestId,
           serializeArgs,
-          targetId: parentContainerId,
+          targetId: callbackIdentifier.split('::')[0],
         });
 
         return requests[requestId].promise;
@@ -284,11 +268,12 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
 
       return deepTransform({
         value: props,
-        onSerializedCallback: (cb) =>
-          deserializePropsCallback({
-            componentId,
+        onSerializedCallback: (cb) => {
+          return deserializePropsCallback({
+            containerId: componentId,
             callbackIdentifier: cb.callbackIdentifier,
-          }),
+          });
+        },
       });
     };
 
@@ -325,9 +310,8 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           trust,
           props: componentProps
             ? serializeProps({
+                containerId: parentId,
                 props: componentProps,
-                parentId,
-                componentId,
               })
             : {},
           source: src,
@@ -347,7 +331,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           props: {
             id: 'dom-' + componentId,
             __bweMeta: {
-              componentId: componentId,
+              componentId,
             },
             className: 'container-child',
           },
@@ -410,9 +394,8 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         type: serializedElementType,
         props: {
           ...serializeProps({
+            containerId: parentId,
             props,
-            parentId,
-            componentId: parentId,
           }),
           children: unifiedChildren.flat().map((c) =>
             c?.props

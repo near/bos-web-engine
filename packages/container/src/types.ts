@@ -207,8 +207,7 @@ export type SerializeNodeCallback = (
 ) => SerializedNode;
 
 export interface SerializePropsParams {
-  componentId?: string;
-  parentId: string;
+  containerId: string;
   props: any;
 }
 
