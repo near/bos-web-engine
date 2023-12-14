@@ -57,7 +57,7 @@ export function invokeComponentCallback({
   // these must be replaced with wrappers invoking Component methods
   if (
     typeof args?.some === 'function' &&
-    args.some((arg: any) => arg.callbackIdentifier)
+    args.some((arg: any) => arg?.callbackIdentifier)
   ) {
     args = args.map((arg: any) => {
       const { callbackIdentifier } = arg;
@@ -75,7 +75,6 @@ export function invokeComponentCallback({
           componentId,
           method: callbackIdentifier,
           requestId,
-          // TODO must specify a real value here
           serializeArgs,
           targetId: callbackIdentifier.split('::').slice(1).join('::'),
         });
