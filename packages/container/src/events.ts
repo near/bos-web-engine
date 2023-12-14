@@ -102,7 +102,7 @@ export function buildEventHandler({
         result = applyRecursivelyToComponents(result, (n: any) =>
           serializeNode({
             node: n,
-            parentId: method,
+            parentId: method.split('::')[0],
             childComponents: [],
           })
         );
