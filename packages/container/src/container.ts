@@ -67,7 +67,7 @@ export function initContainer({
   const processEvent = buildEventHandler({
     buildRequest,
     callbacks,
-    componentId,
+    containerId: componentId,
     deserializeArgs,
     deserializeProps,
     invokeCallback,
@@ -97,7 +97,7 @@ export function initContainer({
   const props = buildSafeProxy({
     componentId,
     props: deserializeProps({
-      componentId,
+      containerId: componentId,
       props: componentPropsJson,
     }),
   });

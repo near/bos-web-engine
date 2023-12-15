@@ -21,12 +21,12 @@ export type CallbackMap = { [key: string]: Function };
 export type DeserializeArgsCallback = (params: DeserializeArgsParams) => any;
 export interface DeserializeArgsParams {
   args: any;
-  componentId: string;
+  containerId: string;
 }
 
 export type DeserializePropsCallback = (params: DeserializePropsParams) => any;
 export interface DeserializePropsParams {
-  componentId: string;
+  containerId: string;
   props: Props;
 }
 
@@ -41,7 +41,7 @@ export interface InvokeComponentCallbackParams {
   args: SerializedArgs;
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
-  componentId: string;
+  containerId: string;
   invokeCallback: (args: InvokeCallbackParams) => any;
   method: string;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
@@ -56,18 +56,18 @@ export type PostMessageComponentInvocationCallback = (
 export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
   callbacks: CallbackMap;
+  containerId: string;
   method: string;
   requestId: string;
   serializeArgs: SerializeArgsCallback;
   targetId: string;
-  componentId: string;
 }
 
 export type PostMessageComponentResponseCallback = (
   message: PostMessageComponentCallbackResponseParams
 ) => void;
 export interface PostMessageComponentCallbackResponseParams {
-  componentId: string;
+  containerId: string;
   error: Error | null;
   requestId: string;
   result: any;
@@ -129,7 +129,7 @@ export type UpdateContainerPropsCallback = (props: Props) => void;
 export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
-  componentId: string;
+  containerId: string;
   deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
   invokeCallback: (args: InvokeCallbackParams) => any;
@@ -177,7 +177,7 @@ export type SerializeArgsCallback = (
 export interface SerializeArgsParams {
   args: any[];
   callbacks: CallbackMap;
-  componentId: string;
+  containerId: string;
 }
 
 export interface PreactElement {

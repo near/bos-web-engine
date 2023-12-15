@@ -35,16 +35,16 @@ export function composeMessagingMethods() {
   function postCallbackInvocationMessage({
     args,
     callbacks,
-    componentId,
+    containerId,
     method,
     requestId,
     serializeArgs,
     targetId,
   }: PostMessageComponentCallbackInvocationParams): void {
     postMessage<ComponentCallbackInvocation>({
-      args: serializeArgs({ args, callbacks, componentId }),
+      args: serializeArgs({ args, callbacks, containerId }),
       method,
-      originator: componentId,
+      originator: containerId,
       requestId,
       targetId,
       type: 'component.callbackInvocation',
@@ -53,7 +53,7 @@ export function composeMessagingMethods() {
 
   function postCallbackResponseMessage({
     error,
-    componentId,
+    containerId,
     requestId,
     result,
     targetId,
@@ -63,7 +63,7 @@ export function composeMessagingMethods() {
 
     postMessage<ComponentCallbackResponse>({
       requestId,
-      componentId,
+      containerId,
       result: JSON.stringify({
         value: result,
         error: serializedError,

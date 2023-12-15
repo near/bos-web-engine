@@ -40,7 +40,7 @@ export function invokeComponentCallback({
   args,
   buildRequest,
   callbacks,
-  componentId,
+  containerId,
   invokeCallback,
   method,
   postCallbackInvocationMessage,
@@ -49,7 +49,7 @@ export function invokeComponentCallback({
 }: InvokeComponentCallbackParams): any {
   // unknown method
   if (!callbacks[method]) {
-    console.error(`No method ${method} on component ${componentId}`);
+    console.error(`No method ${method} on container ${containerId}`);
     return null;
   }
 
@@ -72,7 +72,7 @@ export function invokeComponentCallback({
         postCallbackInvocationMessage({
           args: childArgs,
           callbacks,
-          componentId,
+          containerId,
           method: callbackIdentifier,
           requestId,
           serializeArgs,

@@ -181,7 +181,7 @@ export function ComponentMonitor({
           badgeClass: 'bg-success',
           name: 'return',
           componentId: parseComponentId(
-            isFromComponent ? message.componentId : message.targetId
+            isFromComponent ? message.containerId : message.targetId
           )!,
           summary: `[${requestId.split('-')[0]}] returned ${result} ${
             !isFromComponent ? 'to' : ''

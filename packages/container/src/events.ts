@@ -6,7 +6,7 @@ import type { ProcessEventParams } from './types';
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
  * @param buildRequest Function to build an inter-Component asynchronous callback request
  * @param callbacks The set of callbacks defined on the target Component
- * @param componentId ID of the target Component on which the
+ * @param containerId ID of the container handling messages
  * @param deserializeProps Function to deserialize props passed on the event
  * @param invokeCallback Function to execute the specified function in the current context
  * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
@@ -20,7 +20,7 @@ import type { ProcessEventParams } from './types';
 export function buildEventHandler({
   buildRequest,
   callbacks,
-  componentId,
+  containerId,
   deserializeArgs,
   deserializeProps,
   invokeCallback,
@@ -43,12 +43,12 @@ export function buildEventHandler({
       args: SerializedArgs;
       method: string;
     }) {
-      const deserializedArgs = deserializeArgs({ args, componentId });
+      const deserializedArgs = deserializeArgs({ args, containerId });
       return invokeComponentCallback({
         args: deserializedArgs,
         buildRequest,
         callbacks,
-        componentId,
+        containerId,
         invokeCallback,
         method,
         postCallbackInvocationMessage,
@@ -111,7 +111,7 @@ export function buildEventHandler({
           if (requestId) {
             postCallbackResponseMessage({
               error,
-              componentId,
+              containerId,
               requestId,
               result: value,
               targetId: originator,
@@ -182,7 +182,7 @@ export function buildEventHandler({
       case 'component.update': {
         updateProps(
           deserializeProps({
-            componentId,
+            containerId,
             props: event.data.props,
           })
         );

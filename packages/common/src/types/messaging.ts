@@ -34,7 +34,7 @@ export interface ComponentCallbackInvocation extends PostMessageParams {
 }
 
 export interface ComponentCallbackResponse extends PostMessageParams {
-  componentId: string;
+  containerId: string;
   requestId: string;
   result: string; // stringified JSON in the form of { result: any, error: string }
   targetId: string;

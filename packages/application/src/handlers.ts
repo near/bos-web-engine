@@ -39,11 +39,11 @@ export function onCallbackResponse({
     a component has executed a callback invoked from another component
     return the value of the callback execution to the calling component
   */
-  const { requestId, result, targetId, componentId } = data;
+  const { requestId, result, targetId, containerId } = data;
   sendMessage({
     componentId: targetId,
     message: {
-      componentId,
+      containerId,
       result,
       requestId,
       targetId,

@@ -188,13 +188,13 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
 
     const deserializeArgs: DeserializeArgsCallback = ({
       args,
-      componentId,
+      containerId,
     }) => {
       return deepTransform({
         value: args,
         onSerializedCallback: (cb) => {
           return deserializePropsCallback({
-            containerId: componentId,
+            containerId,
             callbackIdentifier: cb.callbackIdentifier,
           });
         },
@@ -204,7 +204,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     const serializeArgs: SerializeArgsCallback = ({
       args,
       callbacks,
-      componentId,
+      containerId,
     }) => {
       return (args || []).map((arg) => {
         if (!arg) {
@@ -212,7 +212,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         }
 
         if (Array.isArray(arg)) {
-          return serializeArgs({ args: arg, callbacks, componentId });
+          return serializeArgs({ args: arg, callbacks, containerId });
         }
 
         if (typeof arg === 'object') {
@@ -221,7 +221,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
             serializeArgs({
               args: Object.values(arg),
               callbacks,
-              componentId,
+              containerId,
             }).map((value, i) => [argKeys[i], value])
           );
         }
@@ -233,13 +233,13 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         const fnKey = buildContainerMethodIdentifier({
           callback: arg,
           callbackName: arg?.name, // FIXME
-          containerId: componentId,
+          containerId,
         });
 
         callbacks[fnKey] = arg;
         return {
           callbackIdentifier: fnKey,
-          containerId: componentId,
+          containerId,
         };
       });
     };
@@ -257,7 +257,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         postCallbackInvocationMessage({
           args,
           callbacks,
-          componentId: containerId,
+          containerId,
           method: callbackIdentifier,
           requestId,
           serializeArgs,
@@ -269,7 +269,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     };
 
     const deserializeProps: DeserializePropsCallback = ({
-      componentId,
+      containerId,
       props,
     }) => {
       if (!props || Array.isArray(props) || typeof props !== 'object') {
@@ -280,7 +280,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         value: props,
         onSerializedCallback: (cb) => {
           return deserializePropsCallback({
-            containerId: componentId,
+            containerId,
             callbackIdentifier: cb.callbackIdentifier,
           });
         },
