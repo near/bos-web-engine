@@ -36,6 +36,7 @@ interface BuildContainerMethodIdentifierParams {
   callback: Function;
   callbackName: string;
   componentId?: string;
+  containerId: string;
 }
 
 /**
@@ -110,17 +111,25 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       callback,
       callbackName,
       componentId,
+      containerId,
     }: BuildContainerMethodIdentifierParams) =>
-      [componentId, callback.toString().replace(/\s+/g, ''), callbackName].join(
-        '::'
-      );
+      [
+        containerId,
+        callback.toString().replace(/\s+/g, ''),
+        callbackName,
+        componentId,
+      ].join('::');
 
     /**
      * Serialize props of a child Component to be rendered in the outer application
      * @param containerId Component's parent container
      * @param props The props for this container's Component
      */
-    const serializeProps: SerializePropsCallback = ({ containerId, props }) => {
+    const serializeProps: SerializePropsCallback = ({
+      componentId,
+      containerId,
+      props,
+    }) => {
       return Object.entries(props).reduce(
         (newProps, [key, value]: [string, any]) => {
           // TODO better preact component check
@@ -138,7 +147,8 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
             const fnKey = buildContainerMethodIdentifier({
               callback,
               callbackName,
-              componentId: containerId,
+              componentId,
+              containerId,
             });
 
             callbacks[fnKey] = callback;
@@ -223,7 +233,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         const fnKey = buildContainerMethodIdentifier({
           callback: arg,
           callbackName: arg?.name, // FIXME
-          componentId,
+          containerId: componentId,
         });
 
         callbacks[fnKey] = arg;
@@ -310,6 +320,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           trust,
           props: componentProps
             ? serializeProps({
+                componentId,
                 containerId: parentId,
                 props: componentProps,
               })
