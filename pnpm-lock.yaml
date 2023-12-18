@@ -21,6 +21,12 @@ importers:
       rimraf: 5.0.1
       turbo: 1.10.15
 
+  apps/demos:
+    specifiers:
+      '@types/react': ^18.2.34
+    devDependencies:
+      '@types/react': 18.2.45
+
   apps/web:
     specifiers:
       '@bos-web-engine/application': workspace:*
@@ -1935,13 +1941,13 @@ packages:
   /@types/react-dom/18.2.7:
     resolution: {integrity: sha512-GRaAEriuT4zp9N4p1i8BDBYmEyfo+xQ3yHjJU4eiK5NDa1RmUZG+unZABUTK4/Ox/M+GaHwb6Ow8rUITrtjszA==}
     dependencies:
-      '@types/react': 18.2.20
+      '@types/react': 18.2.45
     dev: true
 
   /@types/react-syntax-highlighter/15.5.8:
     resolution: {integrity: sha512-GT1PLGzhF3ilGaQiCHFDShxDBb014s01MQi0nWfXJ23efjWfUrZ2i0g4tH1JGdfnIGBtQDge/k3ON3fLoAuU/w==}
     dependencies:
-      '@types/react': 18.2.25
+      '@types/react': 18.2.45
     dev: true
 
   /@types/react/18.2.20:
@@ -1953,6 +1959,14 @@ packages:
 
   /@types/react/18.2.25:
     resolution: {integrity: sha512-24xqse6+VByVLIr+xWaQ9muX1B4bXJKXBbjszbld/UEDslGLY53+ZucF44HCmLbMPejTzGG9XgR+3m2/Wqu1kw==}
+    dependencies:
+      '@types/prop-types': 15.7.5
+      '@types/scheduler': 0.16.3
+      csstype: 3.1.2
+    dev: true
+
+  /@types/react/18.2.45:
+    resolution: {integrity: sha512-TtAxCNrlrBp8GoeEp1npd5g+d/OejJHFxS3OWmrPBMFaVQMSN0OFySozJio5BHxTuTeug00AVXVAjfDSfk+lUg==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
