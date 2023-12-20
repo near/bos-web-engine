@@ -1,18 +1,14 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
 import {
-  buildUseComponentCallback,
   buildEventHandler,
   invokeCallback,
   invokeComponentCallback,
   buildRequest,
   composeMessagingMethods,
-  dispatchRenderEvent,
   initContainer,
-  isMatchingProps,
-  preactify,
-  renderContainerComponent,
   buildSafeProxy,
   composeSerializationMethods,
+  composeRenderMethods,
 } from '@bos-web-engine/container';
 
 function buildSandboxedComponent({
@@ -21,6 +17,7 @@ function buildSandboxedComponent({
   scriptSrc,
   componentProps,
   parentContainerId,
+  moduleImports,
 }: SandboxedIframeProps) {
   const componentPropsJson = componentProps
     ? JSON.stringify(componentProps)
@@ -28,97 +25,96 @@ function buildSandboxedComponent({
 
   return `
     <html>
-      <head>
-        <script src="https://cdn.jsdelivr.net/npm/near-api-js@2.1.3/dist/near-api-js.min.js"></script>
-      </head>
       <body>
-        <div id="${id}"></div>
-          <script type="importmap">
+        <script type="importmap">
           {
             "imports": {
-              "preact": "https://esm.sh/preact@10.17.1",
-              "preact/": "https://esm.sh/preact@10.17.1/"
+              ${[...moduleImports.entries()]
+                .map(([module, url]) => `"${module}": "${url}"`)
+                .join(',\n')}
             }
           }
-          </script>
+        </script>
         <script type="module">
           import * as Preact from 'preact';
-          import { useEffect, useState } from 'preact/hooks';
+          import { useCallback, useEffect, useState } from 'preact/hooks';
 
           const { createElement } = Preact;
 
+/******** BEGIN BOS SOURCE ********/
+/******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
+${scriptSrc}
+/******** END BOS SOURCE ********/
+
           const initContainer = ${initContainer.toString()};
 
-          // placeholder to prevent <Widget /> references from breaking 
+          // placeholder function to bind to Component/Widget references 
+          function Component() {}
           function Widget() {}
+
+          function useComponentCallback(cb, args) {
+            const [value, setValue] = useState(undefined);
+            useEffect(() => {
+              (async () => {
+                setValue(await cb(args));
+              })();
+            }, []);
+        
+            return () => value;
+          }
 
           let props;
 
-          // TODO fixed with preact/compat?
-          const React = Preact;
+          // TODO map reference during transpilation
+          const React = { Fragment: Preact.Fragment };
 
           const {
-            diffComponent,
+            commit,
             processEvent,
             props: containerProps,
-            renderComponent,
-            useComponentCallback,
           } = initContainer({
             containerMethods: {
               buildEventHandler: ${buildEventHandler.toString()},
               buildRequest: ${buildRequest.toString()},
               buildSafeProxy: ${buildSafeProxy.toString()},
-              buildUseComponentCallback: ${buildUseComponentCallback.toString()},
               composeMessagingMethods: ${composeMessagingMethods.toString()},
+              composeRenderMethods: ${composeRenderMethods.toString()},
               composeSerializationMethods: ${composeSerializationMethods.toString()},
-              dispatchRenderEvent: ${dispatchRenderEvent.toString()},
               invokeCallback: ${invokeCallback.toString()},
               invokeComponentCallback: ${invokeComponentCallback.toString()},
-              isMatchingProps: ${isMatchingProps.toString()},
-              preactify: ${preactify.toString()},
-              renderContainerComponent: ${renderContainerComponent.toString()},
             },
             context: {
-              Component: Widget,
+              BWEComponent,
+              Component,
               componentId: '${id}',
               componentPropsJson: ${componentPropsJson},
-              /* "function BWEComponent() {...}" is added to module scope when [scriptSrc] is interpolated */
-              ContainerComponent: BWEComponent,
-              createElement,
+              Fragment: Preact.Fragment,
               parentContainerId: '${parentContainerId}',
-              preactHooksDiffed: Preact.options.diffed,
-              preactRootComponentName: Preact.Fragment.name,
-              render: Preact.render,
               trust: ${JSON.stringify(trust)},
               updateContainerProps: (updateProps) => {
                 const originalProps = props;
                 // if nothing has changed, the same [props] object will be returned
                 props = updateProps(props);
                 if (props !== originalProps) {
-                  renderComponent();
+                  Preact.render(createElement(BWEComponent, props), document.body);
                 }
               },
+              Widget,
             },
           });
-
-          // initialize container state
-          const ComponentState = new Map();
 
           // intialize props
           props = containerProps;
 
-          /* BEGIN BOS SOURCE */
-          ${scriptSrc}
-          /* END BOS SOURCE */
-
-          // register handler executed upon vnode render
-          Preact.options.diffed = diffComponent;
+          const oldCommit = Preact.options.__c;
+          Preact.options.__c = (vnode, commitQueue) => {
+            commit(vnode);
+            oldCommit?.(vnode, commitQueue);
+          };
 
           window.addEventListener('message', processEvent);
 
-          // first render once container is initialized
-          // this should always happen last
-          renderComponent();
+          Preact.render(createElement(BWEComponent, props), document.body);
         </script>
       </body>
     </html>
@@ -131,6 +127,7 @@ interface SandboxedIframeProps {
   scriptSrc: string;
   componentProps?: any;
   parentContainerId: string | null;
+  moduleImports: Map<string, string>;
 }
 
 export function SandboxedIframe({
@@ -139,6 +136,7 @@ export function SandboxedIframe({
   scriptSrc,
   componentProps,
   parentContainerId,
+  moduleImports,
 }: SandboxedIframeProps) {
   return (
     <iframe
@@ -161,6 +159,7 @@ export function SandboxedIframe({
         scriptSrc,
         componentProps,
         parentContainerId,
+        moduleImports,
       })}
       title="code-container"
       width={0}

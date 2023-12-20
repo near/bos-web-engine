@@ -1,7 +1,7 @@
 function parseWidgetRenders(transpiledComponent: string) {
   const functionOffset = 'createElement'.length;
   const componentRegex =
-    /createElement\(Widget,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/[\w.-]+))["|']/gi;
+    /createElement\((?:Widget|Component),\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/[\w.-]+))["|']/gi;
   return [...transpiledComponent.matchAll(componentRegex)].map((match) => {
     const openParenIndex = match.index! + functionOffset;
     let parenCount = 1;
@@ -53,7 +53,7 @@ export function parseChildComponents(
         const signaturePrefix = `${componentName},{__bweMeta:{parentMeta:props.__bweMeta},`;
         return componentSource.replaceAll(
           expression,
-          expression.replace(/Widget,\s*\{/, signaturePrefix)
+          expression.replace(/(Widget|Component),\s*\{/, signaturePrefix)
         );
       },
     };

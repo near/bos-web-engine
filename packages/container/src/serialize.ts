@@ -25,16 +25,16 @@ interface SerializeChildComponentParams {
  * @param callbacks Component container's callbacks
  * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
- * @param preactRootComponentName The name of the root/Fragment Preact function
  * @param requests Set of current callback requests
  */
 export const composeSerializationMethods: ComposeSerializationMethodsCallback =
   ({
     buildRequest,
     callbacks,
+    isComponent,
+    isWidget,
     parentContainerId,
     postCallbackInvocationMessage,
-    preactRootComponentName,
     requests,
   }) => {
     /**
@@ -203,16 +203,16 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       componentPath,
       parentComponentId,
     }: BuildComponentIdParams) {
-      // TODO warn on missing instanceId (<Widget>'s id prop) here?
+      // TODO warn on missing instanceId (<Component>'s id prop) here?
       return [componentPath, instanceId?.toString(), parentComponentId].join(
         '##'
       );
     }
 
     /**
-     * Serialize a sandboxed <Widget /> component
+     * Serialize a sandboxed <Component /> component
      * @param parentId ID of the parent Component
-     * @param props Props passed to the <Widget /> component
+     * @param props Props passed to the <Component /> component
      */
     const serializeChildComponent = ({
       parentId,
@@ -295,48 +295,27 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           );
         });
 
-      if (!type) {
-        serializedElementType = 'div';
-      }
-
       if (typeof type === 'function') {
-        const { name: component } = type;
-
-        if (component === preactRootComponentName) {
-          serializedElementType = 'div';
-        } else if (component === 'Widget') {
-          const { child, placeholder } = serializeChildComponent({
-            parentId,
-            props,
-          });
-
-          if (child) {
-            childComponents.push(child);
-          }
-
-          return placeholder;
-        } else {
-          const componentId = buildComponentId({
-            instanceId: props?.id,
-            componentPath: props.src,
-            parentComponentId: parentId,
-          });
-
-          // `type` is a Preact component function for a child Component
-          // invoke it with the passed props to render the component and serialize its DOM tree
-          return serializeNode({
-            node: type({
-              ...props,
-              __bweMeta: {
-                ...props?.__bweMeta,
-                componentId,
-              },
-              id: 'dom-' + componentId,
-            }),
-            parentId: componentId,
-            childComponents,
-          });
+        if (!isWidget(type) && !isComponent(type)) {
+          throw new Error(`unrecognized Component function ${type.name}`);
         }
+
+        if (isWidget(type)) {
+          console.warn(
+            '<Widget /> will be deprecated in upcoming versions of BOS Web Engine. Please update your code to reference <Component /> instead.'
+          );
+        }
+
+        const { child, placeholder } = serializeChildComponent({
+          parentId,
+          props,
+        });
+
+        if (child) {
+          childComponents.push(child);
+        }
+
+        return placeholder;
       }
 
       return {
@@ -364,6 +343,5 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       deserializeProps,
       serializeArgs,
       serializeNode,
-      serializeProps,
     };
   };

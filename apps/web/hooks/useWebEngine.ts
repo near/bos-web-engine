@@ -25,7 +25,12 @@ import { useComponentMetrics } from './useComponentMetrics';
 import { useFlags } from './useFlags';
 import { useComponentSourcesStore } from '../stores/component-sources';
 
+interface WebEngineConfiguration {
+  preactVersion: string;
+}
+
 interface UseWebEngineParams {
+  config?: WebEngineConfiguration;
   rootComponentPath?: string;
   debugConfig: DebugConfig;
 }
@@ -34,7 +39,12 @@ interface CompilerWorker extends Omit<Worker, 'postMessage'> {
   postMessage(comilerRequest: ComponentCompilerRequest): void;
 }
 
+const DEFAULT_CONFIG = {
+  preactVersion: '10.17.1',
+};
+
 export function useWebEngine({
+  config = DEFAULT_CONFIG,
   rootComponentPath,
   debugConfig,
 }: UseWebEngineParams) {
@@ -105,23 +115,26 @@ export function useWebEngine({
     ({
       componentId,
       element,
+      id,
     }: {
       componentId: string;
       element: ComponentDOMElement;
+      id?: string;
     }) => {
-      if (!domRoots.current[componentId]) {
-        const domElement = document.getElementById(getAppDomId(componentId));
+      const domId = id || getAppDomId(componentId);
+      if (!domRoots.current[domId]) {
+        const domElement = document.getElementById(domId);
         if (!domElement) {
           const metricKey = componentId.split('##')[0];
           componentMissing(metricKey);
-          console.error(`Node not found: #${getAppDomId(componentId)}`);
+          console.error(`Node not found: #${domId}`);
           return;
         }
 
-        domRoots.current[componentId] = ReactDOM.createRoot(domElement);
+        domRoots.current[domId] = ReactDOM.createRoot(domElement);
       }
 
-      domRoots.current[componentId].render(element);
+      domRoots.current[domId].render(element);
     },
     [domRoots, componentMissing]
   );
@@ -158,7 +171,7 @@ export function useWebEngine({
               getComponentRenderCount,
               mountElement: ({ componentId, element }) => {
                 renderComponent(componentId);
-                mountElement({ componentId, element });
+                mountElement({ componentId, element, id: data.node.props?.id });
               },
               loadComponent: (component) =>
                 loadComponent(component.componentId, component),
@@ -214,6 +227,7 @@ export function useWebEngine({
       const initPayload: ComponentCompilerRequest = {
         action: 'init',
         localFetchUrl: flags?.bosLoaderUrl,
+        preactVersion: config?.preactVersion,
       };
       worker.postMessage(initPayload);
       setCompiler(worker);
@@ -229,6 +243,7 @@ export function useWebEngine({
           rawSource,
           componentPath,
           error: loadError,
+          importedModules,
         } = data;
 
         if (loadError) {
@@ -238,11 +253,24 @@ export function useWebEngine({
 
         addSource(componentPath, rawSource);
 
+        // set the Preact import maps
+        // TODO find a better place for this
+        importedModules.set(
+          'preact',
+          `https://esm.sh/preact@${config.preactVersion}`
+        );
+        importedModules.set(
+          'preact/',
+          `https://esm.sh/preact@${config.preactVersion}/`
+        );
+
         const component = {
           ...components[componentId],
           componentId,
           componentSource,
+          moduleImports: importedModules,
         };
+
         if (!rootComponentSource && componentId === rootComponentPath) {
           setRootComponentSource(componentId);
         }
@@ -266,6 +294,7 @@ export function useWebEngine({
     isValidRootComponentPath,
     flags?.bosLoaderUrl,
     addSource,
+    config?.preactVersion,
   ]);
 
   return {

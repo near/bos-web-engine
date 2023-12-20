@@ -85,7 +85,7 @@ export function ComponentMonitor({
     }
 
     const [path, id, , ...ancestors] = componentId.split('##');
-    const [author, , name] = path.split('/');
+    const [author, name] = path.split('/');
     return {
       author,
       name,

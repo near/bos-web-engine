@@ -48,6 +48,9 @@ export default function FlagsPage() {
   return (
     <Container className="container-xl">
       <h1>Flags</h1>
+      <p>
+        Use the <code>-w</code> flag on bos-loader to run in BOS Web Engine mode
+      </p>
 
       <Form onSubmit={form.handleSubmit(submitHandler)}>
         <InputGrid>
