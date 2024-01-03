@@ -1,4 +1,4 @@
-function parseWidgetRenders(transpiledComponent: string) {
+function parseComponentRenders(transpiledComponent: string) {
   const functionOffset = 'createElement'.length;
   const componentRegex =
     /createElement\(Component,\s*\{(?:[\w\W]*?)(?:\s*src:\s*["|'](?<src>((([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+)\/[\w.-]+))["|']/gi;
@@ -36,9 +36,9 @@ export interface ParsedChildComponent {
 export function parseChildComponents(
   transpiledComponent: string
 ): ParsedChildComponent[] {
-  const widgetRenders = parseWidgetRenders(transpiledComponent);
-  widgetRenders.sort((a, b) => a.index - b.index);
-  return widgetRenders.map(({ expression, index, source }) => {
+  const componentRenders = parseComponentRenders(transpiledComponent);
+  componentRenders.sort((a, b) => a.index - b.index);
+  return componentRenders.map(({ expression, index, source }) => {
     const [trustMatch] = [
       ...expression.matchAll(
         /trust(?:\s*:\s*{(?:[\w\W])*?mode\s*:\s*['"](trusted-author|trusted|sandboxed))/gi
