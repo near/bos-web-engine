@@ -1,4 +1,10 @@
-export function BWEComponent() {
+interface Props {
+  account_id: string;
+  block_timestamp: number;
+  content: string;
+}
+
+export function BWEComponent(props: Props) {
   const { content: contentRaw, account_id: author, block_timestamp } = props;
 
   let content = 'bad content';
