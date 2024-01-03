@@ -1,28 +1,37 @@
+import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { ComponentTree } from '../components';
-import { Inspector } from '../components/Inspector';
-import { useWebEngine } from '../hooks';
+import { Inspector } from '../components';
+import { useComponentMetrics, useFlags } from '../hooks';
+import { useComponentSourcesStore } from '../stores/component-sources';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;
+const PREACT_VERSION = '10.17.1';
 
 export default function Root() {
   const router = useRouter();
   const { query } = router;
 
-  const isDebug = query.isDebug === 'true';
-  const showMonitor = query.showMonitor === 'true';
   const rootComponentPath = Array.isArray(query.root)
     ? query.root.join('/')
     : undefined;
 
-  const { components, error, metrics } = useWebEngine({
-    rootComponentPath,
-    debugConfig: {
-      isDebug,
-      showMonitor,
+  const [flags] = useFlags();
+  const { /* metrics, */ reportMessage } = useComponentMetrics();
+  const addSource = useComponentSourcesStore((store) => store.addSource);
+
+  const { components, error } = useWebEngine({
+    config: {
+      flags,
+      preactVersion: PREACT_VERSION,
+      hooks: {
+        containerSourceCompiled: ({ componentPath, rawSource }) =>
+          addSource(componentPath, rawSource),
+        messageReceived: reportMessage,
+      },
     },
+    rootComponentPath,
   });
 
   useEffect(() => {
@@ -39,10 +48,7 @@ export default function Root() {
           {error && <div className="error">{error}</div>}
           <ComponentTree
             components={components}
-            isDebug={isDebug}
-            metrics={metrics}
             rootComponentPath={rootComponentPath}
-            showMonitor={showMonitor}
           />
           <Inspector />
         </>

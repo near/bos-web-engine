@@ -1,7 +1,9 @@
-import type { EventType, MessagePayload } from '@bos-web-engine/container';
-
-import type { ComponentInstance, ComponentMetrics } from './types';
-import { BWEMessage } from './types';
+import type {
+  BWEMessage,
+  ComponentInstance,
+  ComponentMetrics,
+} from '@bos-web-engine/application';
+import type { EventType, MessagePayload } from '@bos-web-engine/common';
 
 interface ComponentId {
   author: string;
@@ -76,7 +78,6 @@ export function ComponentMonitor({
       messageMetrics.get('component.callbackInvocation')?.length || 0,
     'Callbacks Returned':
       messageMetrics.get('component.callbackResponse')?.length || 0,
-    'Missing Components': metrics.missingComponents.length,
   };
 
   const parseComponentId = (componentId: string): ComponentId | null => {

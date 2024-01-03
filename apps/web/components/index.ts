@@ -1,3 +1,1 @@
-import ComponentTree from './ComponentTree';
-
-export { ComponentTree };
+export { Inspector } from './Inspector';

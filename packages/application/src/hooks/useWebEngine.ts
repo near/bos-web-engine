@@ -1,17 +1,8 @@
-import {
-  BWEMessage,
-  ComponentDOMElement,
-  DebugConfig,
-  onCallbackInvocation,
-  onCallbackResponse,
-  onRender,
-} from '@bos-web-engine/application';
+import type { MessagePayload } from '@bos-web-engine/common';
 import type {
   ComponentCompilerRequest,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
-import type { MessagePayload } from '@bos-web-engine/container';
-import { getAppDomId } from '@bos-web-engine/iframe';
 import {
   MutableRefObject,
   useCallback,
@@ -21,32 +12,25 @@ import {
 } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { useComponentMetrics } from './useComponentMetrics';
-import { useFlags } from './useFlags';
-import { useComponentSourcesStore } from '../stores/component-sources';
-
-interface WebEngineConfiguration {
-  preactVersion: string;
-}
-
-interface UseWebEngineParams {
-  config?: WebEngineConfiguration;
-  rootComponentPath?: string;
-  debugConfig: DebugConfig;
-}
+import { getAppDomId } from '../container';
+import {
+  onCallbackInvocation,
+  onCallbackResponse,
+  onRender,
+} from '../handlers';
+import type {
+  BWEMessage,
+  ComponentDOMElement,
+  UseWebEngineParams,
+} from '../types';
 
 interface CompilerWorker extends Omit<Worker, 'postMessage'> {
-  postMessage(comilerRequest: ComponentCompilerRequest): void;
+  postMessage(compilerRequest: ComponentCompilerRequest): void;
 }
 
-const DEFAULT_CONFIG = {
-  preactVersion: '10.17.1',
-};
-
 export function useWebEngine({
-  config = DEFAULT_CONFIG,
+  config,
   rootComponentPath,
-  debugConfig,
 }: UseWebEngineParams) {
   const [compiler, setCompiler] = useState<CompilerWorker | null>(null);
   const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
@@ -58,9 +42,7 @@ export function useWebEngine({
   const [isValidRootComponentPath, setIsValidRootComponentPath] =
     useState(false);
 
-  const [flags] = useFlags();
-
-  const { metrics, recordMessage, componentMissing } = useComponentMetrics();
+  const { flags, hooks, preactVersion } = config;
 
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef(
     {}
@@ -104,12 +86,12 @@ export function useWebEngine({
     });
   }, []);
 
-  const getComponentRenderCount = useCallback(
-    (componentId: string) => {
-      return components?.[componentId]?.renderCount;
-    },
-    [components]
-  );
+  // const getComponentRenderCount = useCallback(
+  //   (componentId: string) => {
+  //     return components?.[componentId]?.renderCount;
+  //   },
+  //   [components]
+  // );
 
   const mountElement = useCallback(
     ({
@@ -125,8 +107,6 @@ export function useWebEngine({
       if (!domRoots.current[domId]) {
         const domElement = document.getElementById(domId);
         if (!domElement) {
-          const metricKey = componentId.split('##')[0];
-          componentMissing(metricKey);
           console.error(`Node not found: #${domId}`);
           return;
         }
@@ -136,7 +116,7 @@ export function useWebEngine({
 
       domRoots.current[domId].render(element);
     },
-    [domRoots, componentMissing]
+    [domRoots]
   );
 
   const processMessage = useCallback(
@@ -148,13 +128,13 @@ export function useWebEngine({
 
         const { data } = event;
         if (data.type) {
-          // @ts-expect-error FIXME
+          // @ts-expect-error
           const fromComponent = data.componentId || data.originator;
-          recordMessage({ fromComponent, message: data });
+          hooks?.messageReceived?.({ fromComponent, message: data });
         }
 
         const onMessageSent = ({ toComponent, message }: BWEMessage) =>
-          recordMessage({ toComponent, message });
+          hooks?.messageReceived?.({ toComponent, message });
 
         switch (data.type) {
           case 'component.callbackInvocation': {
@@ -168,7 +148,6 @@ export function useWebEngine({
           case 'component.render': {
             onRender({
               data,
-              getComponentRenderCount,
               mountElement: ({ componentId, element }) => {
                 renderComponent(componentId);
                 mountElement({ componentId, element, id: data.node.props?.id });
@@ -177,7 +156,6 @@ export function useWebEngine({
                 loadComponent(component.componentId, component),
               isComponentLoaded: (c: string) => !!components[c],
               onMessageSent,
-              debugConfig,
             });
             break;
           }
@@ -188,15 +166,7 @@ export function useWebEngine({
         console.error({ event }, e);
       }
     },
-    [
-      debugConfig,
-      components,
-      loadComponent,
-      mountElement,
-      getComponentRenderCount,
-      renderComponent,
-      recordMessage,
-    ]
+    [components, loadComponent, mountElement, renderComponent, hooks]
   );
 
   useEffect(() => {
@@ -213,8 +183,6 @@ export function useWebEngine({
     );
   }, [rootComponentPath]);
 
-  const addSource = useComponentSourcesStore((store) => store.addSource);
-
   useEffect(() => {
     if (!rootComponentPath || !isValidRootComponentPath) {
       return;
@@ -222,12 +190,12 @@ export function useWebEngine({
 
     if (!compiler) {
       const worker = new Worker(
-        new URL('../workers/compiler.ts', import.meta.url)
+        new URL('../workers/compiler.js', import.meta.url)
       );
       const initPayload: ComponentCompilerRequest = {
         action: 'init',
         localFetchUrl: flags?.bosLoaderUrl,
-        preactVersion: config?.preactVersion,
+        preactVersion,
       };
       worker.postMessage(initPayload);
       setCompiler(worker);
@@ -240,8 +208,6 @@ export function useWebEngine({
         const {
           componentId,
           componentSource,
-          rawSource,
-          componentPath,
           error: loadError,
           importedModules,
         } = data;
@@ -251,17 +217,14 @@ export function useWebEngine({
           return;
         }
 
-        addSource(componentPath, rawSource);
+        hooks?.containerSourceCompiled?.(data);
 
         // set the Preact import maps
         // TODO find a better place for this
-        importedModules.set(
-          'preact',
-          `https://esm.sh/preact@${config.preactVersion}`
-        );
+        importedModules.set('preact', `https://esm.sh/preact@${preactVersion}`);
         importedModules.set(
           'preact/',
-          `https://esm.sh/preact@${config.preactVersion}/`
+          `https://esm.sh/preact@${preactVersion}/`
         );
 
         const component = {
@@ -293,8 +256,8 @@ export function useWebEngine({
     error,
     isValidRootComponentPath,
     flags?.bosLoaderUrl,
-    addSource,
-    config?.preactVersion,
+    preactVersion,
+    hooks,
   ]);
 
   return {
@@ -302,9 +265,5 @@ export function useWebEngine({
     error: isValidRootComponentPath
       ? error
       : `Invalid Component path ${rootComponentPath}`,
-    metrics: {
-      ...metrics,
-      componentsLoaded: Object.keys(components),
-    },
   };
 }

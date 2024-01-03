@@ -1,10 +1,16 @@
-import { getIframeId } from '@bos-web-engine/iframe';
-
 import type {
   DeserializePropsParams,
   IframePostMessageParams,
   SendMessageParams,
 } from './types';
+
+export function getAppDomId(id: string) {
+  return `dom-${id}`;
+}
+
+export function getIframeId(id: string) {
+  return `iframe-${id}`;
+}
 
 function postMessageToIframe({
   id,

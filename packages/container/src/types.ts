@@ -1,11 +1,12 @@
-import type { ComponentTrust } from '@bos-web-engine/common';
+import type {
+  ComponentChildMetadata,
+  ComponentTrust,
+  Props,
+  SerializedArgs,
+  SerializedNode,
+  SerializedProps,
+} from '@bos-web-engine/common';
 import { FunctionComponent, VNode } from 'preact';
-
-export interface WebEngineMeta {
-  componentId?: string;
-  isProxy?: boolean;
-  parentMeta?: WebEngineMeta;
-}
 
 export type BuildRequestCallback = () => CallbackRequest;
 
@@ -26,18 +27,6 @@ export interface DeserializePropsParams {
 
 export type EventArgs = { event: any };
 
-type ComponentCallbackInvocationType = 'component.callbackInvocation';
-type ComponentCallbackResponseType = 'component.callbackResponse';
-type ComponentDomCallbackType = 'component.domCallback';
-type ComponentRenderType = 'component.render';
-type ComponentUpdateType = 'component.update';
-export type EventType =
-  | ComponentCallbackInvocationType
-  | ComponentCallbackResponseType
-  | ComponentDomCallbackType
-  | ComponentRenderType
-  | ComponentUpdateType;
-
 export interface InvokeCallbackParams {
   args: SerializedArgs | EventArgs;
   callback: Function;
@@ -56,52 +45,9 @@ export interface InvokeComponentCallbackParams {
   targetId: string;
 }
 
-export interface KeyValuePair {
-  [key: string]: any;
-}
-
-export interface Props extends KeyValuePair {
-  __bweMeta?: WebEngineMeta;
-  __domcallbacks?: { [key: string]: any };
-  __componentcallbacks?: { [key: string]: any };
-  children?: any[];
-  className?: string;
-  id?: string;
-}
-
-export interface DomCallback {
-  args: SerializedArgs;
-  componentId?: string;
-  method: string;
-  type: ComponentDomCallbackType;
-}
-
-export type MessagePayload =
-  | ComponentCallbackInvocation
-  | ComponentCallbackResponse
-  | DomCallback
-  | ComponentRender
-  | ComponentUpdate;
-
-export interface PostMessageEvent {
-  data: MessagePayload;
-}
-
-export interface PostMessageParams {
-  type: EventType;
-}
-
 export type PostMessageComponentInvocationCallback = (
   message: PostMessageComponentCallbackInvocationParams
 ) => void;
-export interface ComponentCallbackInvocation extends PostMessageParams {
-  args: SerializedArgs;
-  method: string;
-  originator: string;
-  requestId: string;
-  targetId: string;
-  type: ComponentCallbackInvocationType;
-}
 
 export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
@@ -116,13 +62,6 @@ export interface PostMessageComponentCallbackInvocationParams {
 export type PostMessageComponentResponseCallback = (
   message: PostMessageComponentCallbackResponseParams
 ) => void;
-export interface ComponentCallbackResponse extends PostMessageParams {
-  componentId: string;
-  requestId: string;
-  result: string; // stringified JSON in the form of { result: any, error: string }
-  targetId: string;
-  type: ComponentCallbackResponseType;
-}
 export interface PostMessageComponentCallbackResponseParams {
   componentId: string;
   error: Error | null;
@@ -134,24 +73,11 @@ export interface PostMessageComponentCallbackResponseParams {
 export type PostMessageComponentRenderCallback = (
   message: PostMessageComponentRenderParams
 ) => void;
-export interface ComponentRender extends PostMessageParams {
-  childComponents: ComponentChildMetadata[];
-  componentId: string;
-  node: SerializedNode;
-  trust: ComponentTrust;
-  type: ComponentRenderType;
-}
 export interface PostMessageComponentRenderParams {
   childComponents: ComponentChildMetadata[];
   componentId: string;
   node: SerializedNode;
   trust: ComponentTrust;
-}
-
-export interface ComponentUpdate extends PostMessageParams {
-  props: any;
-  type: ComponentUpdateType;
-  componentId: string;
 }
 
 interface ComposeRenderMethodsParams {
@@ -243,9 +169,6 @@ export interface InitContainerParams {
   };
 }
 
-export type SerializedArgs = Array<
-  string | number | object | any[] | { __componentMethod: string }
->;
 export type SerializeArgsCallback = (
   args: SerializeArgsParams
 ) => SerializedArgs;
@@ -272,13 +195,6 @@ export interface Node {
   key?: string;
 }
 
-interface ComponentChildMetadata {
-  componentId: string;
-  props: Props;
-  source: string;
-  trust: ComponentTrust;
-}
-
 export interface SerializeNodeParams {
   node: Node;
   childComponents: ComponentChildMetadata[];
@@ -288,18 +204,6 @@ export type SerializeNodeCallback = (
   args: SerializeNodeParams
 ) => SerializedNode;
 
-export interface SerializedNode {
-  childComponents?: ComponentChildMetadata[];
-  type: string;
-  props: Props;
-}
-
-export interface SerializedProps extends KeyValuePair {
-  __componentcallbacks?: {
-    [key: string]: SerializedComponentCallback;
-  };
-}
-
 export interface SerializePropsParams {
   componentId?: string;
   parentId: string;
@@ -307,11 +211,6 @@ export interface SerializePropsParams {
 }
 
 export type SerializePropsCallback = (params: SerializePropsParams) => Props;
-
-export interface SerializedComponentCallback {
-  __componentMethod: string;
-  parentId: string;
-}
 
 export interface DispatchRenderEventParams {
   callbacks: CallbackMap;

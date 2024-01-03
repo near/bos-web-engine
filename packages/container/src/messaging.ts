@@ -1,11 +1,14 @@
 import type {
-  CallbackRequest,
-  PostMessageParams,
   ComponentCallbackInvocation,
-  PostMessageComponentCallbackInvocationParams,
   ComponentCallbackResponse,
-  PostMessageComponentCallbackResponseParams,
   ComponentRender,
+  PostMessageParams,
+} from '@bos-web-engine/common';
+
+import type {
+  CallbackRequest,
+  PostMessageComponentCallbackInvocationParams,
+  PostMessageComponentCallbackResponseParams,
   PostMessageComponentRenderParams,
 } from './types';
 
