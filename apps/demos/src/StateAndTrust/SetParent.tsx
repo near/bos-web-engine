@@ -1,4 +1,14 @@
-export function BWEComponent() {
+interface Props {
+  circle: string;
+  id: string;
+  square: string;
+  triangle: string;
+  updateCircle: () => {};
+  updateSquare: () => {};
+  updateTriangle: () => {};
+}
+
+export function BWEComponent(props: Props) {
   const {
     circle,
     square,

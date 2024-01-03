@@ -1,4 +1,12 @@
-export function BWEComponent() {
+interface Props {
+  color: string;
+  height: number;
+  icon: string;
+  iconColor: string;
+  onClick: () => {};
+}
+
+export function BWEComponent(props: Props) {
   return (
     <div
       onClick={props.onClick}

@@ -1,4 +1,13 @@
-export function BWEComponent() {
+interface Props {
+  circle: string;
+  square: string;
+  triangle: string;
+  updateCircle: () => {};
+  updateSquare: () => {};
+  updateTriangle: () => {};
+}
+
+export function BWEComponent(props: Props) {
   return (
     <div className="row" style={{ padding: '8px 4px' }}>
       <div className="col">

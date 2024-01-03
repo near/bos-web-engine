@@ -1,4 +1,8 @@
-export function BWEComponent() {
+interface Props {
+  title: string;
+}
+
+export function BWEComponent(props: Props) {
   const [circle, setCircle] = useState('circle');
   const [triangle, setTriangle] = useState('triangle');
   const [square, setSquare] = useState('square');

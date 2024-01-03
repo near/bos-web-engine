@@ -1,4 +1,12 @@
-export function BWEComponent() {
+interface Props {
+  color: string;
+  icon: string;
+  iconColor: string;
+  onClick: () => {};
+  radius: number;
+}
+
+export function BWEComponent(props: Props) {
   const diameterPx = `${props.radius * 2}px`;
   return (
     <div

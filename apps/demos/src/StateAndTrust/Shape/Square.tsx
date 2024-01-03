@@ -1,4 +1,12 @@
-export function BWEComponent() {
+interface Props {
+  color: string;
+  icon: string;
+  length: number;
+  iconColor: string;
+  onClick: () => {};
+}
+
+export function BWEComponent(props: Props) {
   const lengthPx = `${props.length}px`;
   return (
     <div
