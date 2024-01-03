@@ -16,7 +16,7 @@
   "devDependencies": {
     "@bos-web-engine/common": "workspace:*",
     "@types/node": "^17.0.12",
-    "@types/react": "^18.0.17",
+    "@types/react": "^18.2.34",
     "@types/react-dom": "^18.0.6",
     "eslint": "^7.32.0",
     "eslint-config-custom": "workspace:*",

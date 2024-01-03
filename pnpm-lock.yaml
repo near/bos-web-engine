@@ -32,7 +32,7 @@ importers:
       '@bos-web-engine/application': workspace:*
       '@bos-web-engine/common': workspace:*
       '@types/node': ^17.0.12
-      '@types/react': ^18.0.22
+      '@types/react': ^18.2.34
       '@types/react-dom': ^18.0.7
       '@types/react-syntax-highlighter': ^15.5.8
       '@types/uuid': ^9.0.1
@@ -60,11 +60,11 @@ importers:
       react-syntax-highlighter: 15.5.0_react@18.2.0
       styled-components: 6.0.8_biqbaboplfbrettd7655fr4n2y
       uuid: 9.0.0
-      zustand: 4.4.3_j3ahe22lw6ac2w6qvqp4kjqnqy
+      zustand: 4.4.3_qinpt5tsrh57s4kh6guy25fqdq
     devDependencies:
       '@bos-web-engine/common': link:../../packages/common
       '@types/node': 17.0.45
-      '@types/react': 18.2.20
+      '@types/react': 18.2.45
       '@types/react-dom': 18.2.7
       '@types/react-syntax-highlighter': 15.5.8
       '@types/uuid': 9.0.2
@@ -82,7 +82,7 @@ importers:
       '@bos-web-engine/compiler': workspace:*
       '@bos-web-engine/container': workspace:*
       '@types/node': ^17.0.12
-      '@types/react': ^18.0.17
+      '@types/react': ^18.2.34
       '@types/react-dom': ^18.0.6
       eslint: ^7.32.0
       eslint-config-custom: workspace:*
@@ -95,7 +95,7 @@ importers:
     devDependencies:
       '@bos-web-engine/common': link:../common
       '@types/node': 17.0.45
-      '@types/react': 18.2.20
+      '@types/react': 18.2.45
       '@types/react-dom': 18.2.7
       eslint: 7.32.0
       eslint-config-custom: link:../eslint-config-custom
@@ -106,7 +106,7 @@ importers:
   packages/common:
     specifiers:
       '@types/node': ^17.0.12
-      '@types/react': ^18.2.25
+      '@types/react': ^18.2.34
       eslint: ^7.32.0
       eslint-config-custom: workspace:*
       react: ^18.2.0
@@ -114,7 +114,7 @@ importers:
       typescript: ^4.5.2
     devDependencies:
       '@types/node': 17.0.45
-      '@types/react': 18.2.25
+      '@types/react': 18.2.45
       eslint: 7.32.0
       eslint-config-custom: link:../eslint-config-custom
       react: 18.2.0
@@ -1950,28 +1950,12 @@ packages:
       '@types/react': 18.2.45
     dev: true
 
-  /@types/react/18.2.20:
-    resolution: {integrity: sha512-WKNtmsLWJM/3D5mG4U84cysVY31ivmyw85dE84fOCk5Hx78wezB/XEjVPWl2JTZ5FkEeaTJf+VgUAUn3PE7Isw==}
-    dependencies:
-      '@types/prop-types': 15.7.5
-      '@types/scheduler': 0.16.3
-      csstype: 3.1.2
-
-  /@types/react/18.2.25:
-    resolution: {integrity: sha512-24xqse6+VByVLIr+xWaQ9muX1B4bXJKXBbjszbld/UEDslGLY53+ZucF44HCmLbMPejTzGG9XgR+3m2/Wqu1kw==}
-    dependencies:
-      '@types/prop-types': 15.7.5
-      '@types/scheduler': 0.16.3
-      csstype: 3.1.2
-    dev: true
-
   /@types/react/18.2.45:
     resolution: {integrity: sha512-TtAxCNrlrBp8GoeEp1npd5g+d/OejJHFxS3OWmrPBMFaVQMSN0OFySozJio5BHxTuTeug00AVXVAjfDSfk+lUg==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
       csstype: 3.1.2
-    dev: true
 
   /@types/scheduler/0.16.3:
     resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
@@ -4757,7 +4741,7 @@ packages:
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
 
-  /zustand/4.4.3_j3ahe22lw6ac2w6qvqp4kjqnqy:
+  /zustand/4.4.3_qinpt5tsrh57s4kh6guy25fqdq:
     resolution: {integrity: sha512-oRy+X3ZazZvLfmv6viIaQmtLOMeij1noakIsK/Y47PWYhT8glfXzQ4j0YcP5i0P0qI1A4rIB//SGROGyZhx91A==}
     engines: {node: '>=12.7.0'}
     peerDependencies:
@@ -4772,7 +4756,7 @@ packages:
       react:
         optional: true
     dependencies:
-      '@types/react': 18.2.20
+      '@types/react': 18.2.45
       react: 18.2.0
       use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
