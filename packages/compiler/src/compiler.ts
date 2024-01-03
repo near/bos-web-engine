@@ -19,11 +19,18 @@ import type {
   CompilerInitAction,
   ComponentCompilerParams,
   ComponentTreeNode,
+  ModuleImport,
   ParseComponentTreeParams,
   SendMessageCallback,
   TranspiledComponentLookupParams,
   TrustedRoot,
 } from './types';
+
+interface BuildComponentSourceParams {
+  componentPath: string;
+  componentSource: string;
+  isRoot: boolean;
+}
 
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<string>>;
@@ -44,6 +51,68 @@ export class ComponentCompiler {
     this.preactVersion = preactVersion;
   }
 
+  /**
+   * Build the transpiled source of a BOS Component along with its imports
+   * @param componentPath path to the BOS Component
+   * @param componentSource source code of the BOS Component
+   * @param isRoot flag indicating whether this is the root Component of a container
+   */
+  buildComponentSource({
+    componentPath,
+    componentSource,
+    isRoot,
+  }: BuildComponentSourceParams): { imports: ModuleImport[]; source: string } {
+    // transpile and cache the Component
+    const transpiledComponentSource = this.getTranspiledComponentSource({
+      componentPath,
+      componentSource: componentSource,
+      isRoot,
+    });
+
+    // separate out import statements from Component source
+    const { imports, source: importlessSource } = extractImportStatements(
+      transpiledComponentSource
+    );
+
+    // get the exported reference's name and remove the export keyword(s) from Component source
+    // TODO halt parsing of the current Component if no export is found
+    const {
+      exportedReference,
+      hasExport,
+      source: cleanComponentSource,
+    } = extractExport(importlessSource);
+
+    if (!hasExport) {
+      throw new Error(
+        `Could not parse Component ${componentPath}: missing valid Component export`
+      );
+    }
+
+    const componentImports = imports
+      .map((moduleImport) => buildComponentImportStatements(moduleImport))
+      .flat()
+      .filter((statement) => !!statement) as string[];
+
+    // assign a known alias to the exported Component
+    const source = buildComponentFunction({
+      componentPath,
+      componentSource: cleanComponentSource,
+      componentImports,
+      exportedReference,
+      isRoot,
+    });
+
+    return {
+      imports,
+      source,
+    };
+  }
+
+  /**
+   * Fetch and cache sources for an array of Component paths
+   * If a requested path has not been cached, initialize a Promise to resolve the source
+   * @param componentPaths set of Component paths to fetch source for
+   */
   getComponentSources(componentPaths: string[]) {
     const unfetchedPaths = componentPaths.filter(
       (componentPath) => !this.bosSourceCache.has(componentPath)
@@ -73,6 +142,12 @@ export class ComponentCompiler {
     return componentSources;
   }
 
+  /**
+   * Transpile the component and cache for future lookups
+   * @param componentPath path to the BOS Component
+   * @param componentSource source code of the BOS Component
+   * @param isRoot flag indicating whether this is the root Component of a container
+   */
   getTranspiledComponentSource({
     componentPath,
     componentSource,
@@ -92,10 +167,17 @@ export class ComponentCompiler {
     return this.compiledSourceCache.get(cacheKey)!;
   }
 
+  /**
+   * Determine whether a child Component is trusted and can be inlined within the current container
+   * @param trustMode explicit trust mode provided for this child render
+   * @param path child Component's path
+   * @param isComponentPathTrusted flag indicating whether the child is implicitly trusted by virtue of being under a trusted root
+   */
   static isChildComponentTrusted(
     { trustMode, path }: ParsedChildComponent,
     isComponentPathTrusted?: (p: string) => boolean
   ) {
+    // child is explicitly trusted by parent or constitutes a new trusted root
     if (
       trustMode === TrustMode.Trusted ||
       trustMode === TrustMode.TrustAuthor
@@ -103,6 +185,7 @@ export class ComponentCompiler {
       return true;
     }
 
+    // child is explicitly sandboxed
     if (trustMode === TrustMode.Sandboxed) {
       return false;
     }
@@ -133,38 +216,15 @@ export class ComponentCompiler {
     isRoot,
     trustedRoot,
   }: ParseComponentTreeParams) {
-    // separate out import statements from Component source
-    const { imports, source: importlessSource } =
-      extractImportStatements(componentSource);
-
-    // get the exported reference's name and remove the export keyword(s) from Component source
-    // TODO halt parsing of the current Component if no export is found
-    const { exported, source: cleanComponentSource } =
-      extractExport(importlessSource);
-
-    const componentImports = imports
-      .map((moduleImport) => buildComponentImportStatements(moduleImport))
-      .flat()
-      .filter((statement) => !!statement) as string[];
-
-    // assign a known alias to the exported Component
-    const componentFunctionSource = buildComponentFunction({
-      componentPath,
-      componentSource: cleanComponentSource,
-      componentImports,
-      exported,
-      isRoot,
-    });
-
-    // transpile and cache the Component
-    const transpiledComponent = this.getTranspiledComponentSource({
-      componentPath,
-      componentSource: componentFunctionSource,
-      isRoot,
-    });
+    const { imports, source: componentFunctionSource } =
+      this.buildComponentSource({
+        componentPath,
+        componentSource,
+        isRoot,
+      });
 
     // enumerate the set of Components referenced in the target Component
-    const childComponents = parseChildComponents(transpiledComponent);
+    const childComponents = parseChildComponents(componentFunctionSource);
 
     // each child Component being rendered as a new trusted root (i.e. trust mode `trusted-author`)
     // will track inclusion criteria when evaluating trust for their children in turn
@@ -201,7 +261,7 @@ export class ComponentCompiler {
       transpiled: trustedChildComponents.reduce(
         (transformed, { path, transform }) =>
           transform(transformed, buildComponentFunctionName(path)),
-        transpiledComponent
+        componentFunctionSource
       ),
     });
 
@@ -243,6 +303,10 @@ export class ComponentCompiler {
     return components;
   }
 
+  /**
+   * Build the source for a container rooted at the target Component
+   * @param componentId ID for the new container's root Component
+   */
   async compileComponent({ componentId }: CompilerExecuteAction) {
     if (this.localFetchUrl && !this.hasFetchedLocal) {
       try {
@@ -273,6 +337,7 @@ export class ComponentCompiler {
       .map(({ imports }) => imports)
       .flat();
 
+    // build the import map used by the container
     const importedModules = containerModuleImports.reduce(
       (importMap, { moduleName, modulePath }) => {
         const importMapEntries = buildModulePackageUrl(
