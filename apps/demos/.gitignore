@@ -1,4 +1,5 @@
-ignore
+ignore/**
+!ignore/README.md
 node_modules
 
 .idea
