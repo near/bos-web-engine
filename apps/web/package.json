@@ -25,7 +25,7 @@
   "devDependencies": {
     "@bos-web-engine/common": "workspace:*",
     "@types/node": "^17.0.12",
-    "@types/react": "^18.0.22",
+    "@types/react": "^18.2.34",
     "@types/react-dom": "^18.0.7",
     "@types/react-syntax-highlighter": "^15.5.8",
     "@types/uuid": "^9.0.1",
