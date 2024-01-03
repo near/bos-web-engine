@@ -33,7 +33,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     buildRequest,
     callbacks,
     isComponent,
-    isWidget,
     parentContainerId,
     postCallbackInvocationMessage,
     requests,
@@ -297,14 +296,8 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         });
 
       if (typeof type === 'function') {
-        if (!isWidget(type) && !isComponent(type)) {
+        if (!isComponent(type)) {
           throw new Error(`unrecognized Component function ${type.name}`);
-        }
-
-        if (isWidget(type)) {
-          console.warn(
-            '<Widget /> will be deprecated in upcoming versions of BOS Web Engine. Please update your code to reference <Component /> instead.'
-          );
         }
 
         const { child, placeholder } = serializeChildComponent({

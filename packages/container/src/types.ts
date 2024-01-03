@@ -85,7 +85,6 @@ interface ComposeRenderMethodsParams {
   isComponent: (component: Function) => boolean;
   isFragment: (component: Function) => boolean;
   isRootComponent: (component: Function) => boolean;
-  isWidget: (component: Function) => boolean; // TODO remove when <Widget /> no longer supported
   postComponentRenderMessage: PostMessageComponentRenderCallback;
   serializeNode: SerializeNodeCallback;
   trust: ComponentTrust;
@@ -101,7 +100,6 @@ export interface ComposeSerializationMethodsParams {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   isComponent: (component: Function) => boolean;
-  isWidget: (component: Function) => boolean; // TODO remove when <Widget /> no longer supported
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: RequestMap;
@@ -165,7 +163,6 @@ export interface InitContainerParams {
     props: any;
     trust: ComponentTrust;
     updateContainerProps: UpdateContainerPropsCallback;
-    Widget: Function; // TODO remove when <Widget /> no longer supported
   };
 }
 
