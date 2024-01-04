@@ -181,7 +181,7 @@ export function ComponentMonitor({
           badgeClass: 'bg-success',
           name: 'return',
           componentId: parseComponentId(
-            isFromComponent ? message.componentId : message.targetId
+            isFromComponent ? message.containerId : message.targetId
           )!,
           summary: `[${requestId.split('-')[0]}] returned ${result} ${
             !isFromComponent ? 'to' : ''
@@ -189,14 +189,13 @@ export function ComponentMonitor({
         };
       }
       case 'component.update': {
-        const { __componentcallbacks, ...simpleProps } = message.props || {};
         return {
           message,
           isFromComponent,
           badgeClass: 'bg-warning',
           name: 'update',
           componentId: parseComponentId(toComponent!)!,
-          summary: `updated props ${JSON.stringify(simpleProps)} on`,
+          summary: `updated props ${JSON.stringify(message.props || {})} on`,
         };
       }
       case 'component.domCallback': {

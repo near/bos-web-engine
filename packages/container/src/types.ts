@@ -4,7 +4,6 @@ import type {
   Props,
   SerializedArgs,
   SerializedNode,
-  SerializedProps,
 } from '@bos-web-engine/common';
 import { FunctionComponent, VNode } from 'preact';
 
@@ -19,10 +18,16 @@ export interface CallbackRequest {
 export type RequestMap = { [key: string]: CallbackRequest };
 export type CallbackMap = { [key: string]: Function };
 
+export type DeserializeArgsCallback = (params: DeserializeArgsParams) => any;
+export interface DeserializeArgsParams {
+  args: any;
+  containerId: string;
+}
+
 export type DeserializePropsCallback = (params: DeserializePropsParams) => any;
 export interface DeserializePropsParams {
-  componentId: string;
-  props: SerializedProps;
+  containerId: string;
+  props: Props;
 }
 
 export type EventArgs = { event: any };
@@ -36,13 +41,12 @@ export interface InvokeComponentCallbackParams {
   args: SerializedArgs;
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
-  componentId: string;
+  containerId: string;
   invokeCallback: (args: InvokeCallbackParams) => any;
   method: string;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
-  targetId: string;
 }
 
 export type PostMessageComponentInvocationCallback = (
@@ -52,18 +56,18 @@ export type PostMessageComponentInvocationCallback = (
 export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
   callbacks: CallbackMap;
+  containerId: string;
   method: string;
   requestId: string;
   serializeArgs: SerializeArgsCallback;
   targetId: string;
-  componentId: string;
 }
 
 export type PostMessageComponentResponseCallback = (
   message: PostMessageComponentCallbackResponseParams
 ) => void;
 export interface PostMessageComponentCallbackResponseParams {
-  componentId: string;
+  containerId: string;
   error: Error | null;
   requestId: string;
   result: any;
@@ -108,6 +112,7 @@ export interface ComposeSerializationMethodsParams {
 export type ComposeSerializationMethodsCallback = (
   params: ComposeSerializationMethodsParams
 ) => {
+  deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
   serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
@@ -124,11 +129,11 @@ export type UpdateContainerPropsCallback = (props: Props) => void;
 export interface ProcessEventParams {
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
-  componentId: string;
+  containerId: string;
+  deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
   invokeCallback: (args: InvokeCallbackParams) => any;
   invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
-  parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   requests: RequestMap;
@@ -172,7 +177,7 @@ export type SerializeArgsCallback = (
 export interface SerializeArgsParams {
   args: any[];
   callbacks: CallbackMap;
-  componentId: string;
+  containerId: string;
 }
 
 export interface PreactElement {
@@ -203,7 +208,7 @@ export type SerializeNodeCallback = (
 
 export interface SerializePropsParams {
   componentId?: string;
-  parentId: string;
+  containerId: string;
   props: any;
 }
 

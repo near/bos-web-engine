@@ -10,8 +10,6 @@ export interface KeyValuePair {
 
 export interface Props extends KeyValuePair {
   __bweMeta?: WebEngineMeta;
-  __domcallbacks?: { [key: string]: any };
-  __componentcallbacks?: { [key: string]: any };
   children?: any[];
   className?: string;
   id?: string;
