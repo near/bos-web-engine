@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import styled from 'styled-components';
@@ -73,6 +73,8 @@ const Panel = styled.div<{ $show?: boolean }>`
 `;
 
 export function Inspector() {
+  const preRef = useRef<HTMLPreElement | null>(null);
+
   // at some point this state may be hoisted, but for now this component handles
   // its own visibility
   const [show, setShow] = useState(false);
@@ -82,6 +84,13 @@ export function Inspector() {
   // path of selected component, will need to be modified once we support version locking
   // since it will be possible to have multiple versions of the same component
   const [selectedComponent, setSelectedComponent] = useState<string>();
+
+  const PreTagWithRef = (
+    preProps: React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLPreElement>,
+      HTMLPreElement
+    >
+  ) => <pre {...preProps} ref={preRef} />;
 
   if (!show) {
     return (
@@ -137,6 +146,7 @@ export function Inspector() {
             borderRadius: 0,
           }}
           showLineNumbers={true}
+          PreTag={PreTagWithRef}
         >
           {selectedComponent
             ? componentSources[selectedComponent]
