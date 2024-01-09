@@ -54,7 +54,7 @@ export function BWEComponent() {
                 checked={isDebug}
                 onChange={() => setIsDebug(!isDebug)}
               />
-              <label className="form-check-label" for="flexCheckDefault">
+              <label className="form-check-label" htmlFor="flexCheckDefault">
                 Enable debug mode
               </label>
             </div>
@@ -67,7 +67,7 @@ export function BWEComponent() {
                 checked={showMonitor}
                 onChange={() => setShowMonitor(!showMonitor)}
               />
-              <label className="form-check-label" for="flexCheckChecked">
+              <label className="form-check-label" htmlFor="flexCheckChecked">
                 Display Component monitor
               </label>
             </div>
