@@ -48,6 +48,10 @@ export function useWebEngine({
     {}
   );
 
+  useEffect(() => {
+    domRoots.current = {};
+  }, [rootComponentPath]);
+
   const addComponent = useCallback((componentId: string, component: any) => {
     setComponents((currentComponents) => ({
       ...currentComponents,
@@ -72,6 +76,20 @@ export function useWebEngine({
       });
     },
     [compiler, components, addComponent]
+  );
+
+  const setComponentData = useCallback(
+    (componentPath: string, componentSource: string) => {
+      if (!rootComponentPath) return;
+
+      compiler?.postMessage({
+        action: 'set-component-data',
+        componentPath,
+        componentSource,
+        rootComponentPath,
+      });
+    },
+    [compiler, rootComponentPath]
   );
 
   const renderComponent = useCallback((componentId: string) => {
@@ -104,6 +122,7 @@ export function useWebEngine({
       id?: string;
     }) => {
       const domId = id || getAppDomId(componentId);
+
       if (!domRoots.current[domId]) {
         const domElement = document.getElementById(domId);
         if (!domElement) {
@@ -265,5 +284,6 @@ export function useWebEngine({
     error: isValidRootComponentPath
       ? error
       : `Invalid Component path ${rootComponentPath}`,
+    setComponentData,
   };
 }
