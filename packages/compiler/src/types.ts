@@ -1,12 +1,11 @@
 export type ComponentCompilerRequest =
   | CompilerExecuteAction
   | CompilerInitAction
-  | CompilerSetComponentDataAction;
+  | CompilerSetLocalComponentAction;
 
 export interface CompilerExecuteAction {
   action: 'execute';
   componentId: string;
-  shouldIgnoreTranspiledCache?: boolean;
 }
 
 export interface CompilerInitAction {
@@ -15,9 +14,9 @@ export interface CompilerInitAction {
   preactVersion: string;
 }
 
-export interface CompilerSetComponentDataAction {
-  action: 'set-component-data';
-  componentsToUpdate: { componentPath: string; componentSource: string }[];
+export interface CompilerSetLocalComponentAction {
+  action: 'set-local-components';
+  components: { componentPath: string; componentSource: string }[];
   resetCache?: boolean;
   rootComponentPath: string;
 }
@@ -41,7 +40,6 @@ export interface TranspiledComponentLookupParams {
   componentPath: string;
   componentSource: string;
   isRoot: boolean;
-  shouldIgnoreTranspiledCache?: boolean;
 }
 
 export type ComponentMap = Map<string, ComponentTreeNode>;
@@ -57,7 +55,6 @@ export interface ParseComponentTreeParams {
   componentPath: string;
   isComponentPathTrusted?: (path: string) => boolean;
   isRoot: boolean;
-  shouldIgnoreTranspiledCache?: boolean;
   trustedRoot?: TrustedRoot;
 }
 

@@ -7,53 +7,14 @@ import {
 import Editor, { Monaco } from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
 
-type Library = {
-  resolutionPath: string;
-  source?: string;
-  url?: string;
-};
-
-const librariesToLoad: Library[] = [
-  {
-    resolutionPath: 'file:///node_modules/@types/react/index.d.ts',
-    url: 'https://unpkg.com/@types/react@18.2.47/index.d.ts',
-  },
-  {
-    resolutionPath: 'file:///node_modules/@types/react-dom/index.d.ts',
-    url: 'https://unpkg.com/@types/react-dom@18.2.18/index.d.ts',
-  },
-  {
-    resolutionPath: 'file:///node_modules/@types/react/jsx-runtime.d.ts',
-    url: 'https://unpkg.com/@types/react@18.2.47/jsx-runtime.d.ts',
-  },
-  {
-    resolutionPath: 'file:///globals.d.ts',
-    source: `import {
-      useState as useReactState,
-      useEffect as useReactEffect,
-      FunctionComponent,
-    } from 'react';
-    
-    declare global {
-      const useState: typeof useReactState;
-      const useEffect: typeof useReactEffect;
-      const props: any;
-      const Component: FunctionComponent<{
-        src: string;
-        props?: any;
-        trust?: { mode: string };
-        id?: string;
-      }>;
-      const Widget: typeof Component;
-    }`,
-  },
-];
+import { MONACO_EXTERNAL_LIBRARIES } from '../constants';
+import { MonacoExternalLibrary } from '../types';
 
 export function MonacoEditor() {
   const { sandpack } = useSandpack();
   const { activeFile } = sandpack;
   const { code, updateCode } = useActiveCode();
-  const [libraries, setLibraries] = useState<Library[]>();
+  const [libraries, setLibraries] = useState<MonacoExternalLibrary[]>();
 
   useEffect(() => {
     const loadSourceForLibrary = async (url?: string) => {
@@ -75,8 +36,8 @@ export function MonacoEditor() {
     };
 
     const loadAllLibraries = async () => {
-      const result: Library[] = await Promise.all(
-        librariesToLoad.map(async (library) => {
+      const result: MonacoExternalLibrary[] = await Promise.all(
+        MONACO_EXTERNAL_LIBRARIES.map(async (library) => {
           const source =
             library.source ?? (await loadSourceForLibrary(library.url));
           return {
@@ -94,7 +55,6 @@ export function MonacoEditor() {
 
   const beforeMonacoMount = (monaco: Monaco) => {
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      lib: ['es6', 'dom'],
       jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
     });
 
@@ -125,12 +85,14 @@ export function MonacoEditor() {
           path={activeFile}
           value={code}
           beforeMount={beforeMonacoMount}
-          options={{ minimap: { enabled: false } }}
+          options={{
+            minimap: { enabled: false },
+          }}
           onChange={(value) => updateCode(value || '')}
         />
       </SandpackStack>
     );
   } else {
-    return <p>Loading...</p>;
+    return <p>Loading IDE environment...</p>; // TODO: Prettier loading state
   }
 }

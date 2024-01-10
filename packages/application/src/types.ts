@@ -6,7 +6,7 @@ import type {
   MessagePayload,
 } from '@bos-web-engine/common';
 import type {
-  CompilerSetComponentDataAction,
+  CompilerSetLocalComponentAction,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
 import type { DOMElement } from 'react';
@@ -95,8 +95,12 @@ export interface CreateChildElementParams {
 
 export interface UseWebEngineParams {
   config: WebEngineConfiguration;
+  localComponents?: WebEngineLocalComponents;
   rootComponentPath?: string;
 }
+
+export type WebEngineLocalComponents =
+  CompilerSetLocalComponentAction['components'];
 
 export interface WebEngineHooks {
   containerSourceCompiled?: (response: ComponentCompilerResponse) => void;
@@ -111,9 +115,4 @@ export interface WebEngineConfiguration {
 
 export interface WebEngineFlags {
   bosLoaderUrl?: string;
-}
-
-export interface SetComponentDataOptions {
-  componentsToUpdate: CompilerSetComponentDataAction['componentsToUpdate'];
-  resetCache?: boolean;
 }

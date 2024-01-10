@@ -1,4 +1,4 @@
-import type { SetComponentDataOptions } from '@bos-web-engine/application';
+import type { WebEngineLocalComponents } from '@bos-web-engine/application';
 import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
 import {
   SandpackFileExplorer,
@@ -9,38 +9,38 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { MonacoEditor } from './MonacoEditor';
+import { ACCOUNT_ID, PREACT_VERSION } from '../constants';
 import { convertSandpackFilePathToComponentName } from '../utils';
-
-const PREACT_VERSION = '10.17.1';
 
 const Preview = styled.div`
   flex: 1 1 0;
+  color: #000;
   background: #fff;
 `;
 
 export function CustomSandpackLayout() {
   const { sandpack } = useSandpack();
   const { activeFile, files, visibleFiles } = sandpack;
-  const accountId = 'bwe-demos.near';
-
+  const [localComponents, setLocalComponents] =
+    useState<WebEngineLocalComponents>();
   const [rootComponentPath, setRootComponentPath] = useState('');
 
-  const { components, setComponentData } = useWebEngine({
+  const { components, nonce } = useWebEngine({
     config: {
       preactVersion: PREACT_VERSION,
     },
+    localComponents,
     rootComponentPath,
   });
 
   useEffect(() => {
     const componentName = convertSandpackFilePathToComponentName(activeFile);
-    const componentPath = `${accountId}/${componentName}`;
+    const componentPath = `${ACCOUNT_ID}/${componentName}`;
     setRootComponentPath(componentPath);
   }, [activeFile]);
 
   useEffect(() => {
-    const componentsToUpdate: SetComponentDataOptions['componentsToUpdate'] =
-      [];
+    const editorComponents: WebEngineLocalComponents = [];
 
     visibleFiles.forEach((sandpackFilePath) => {
       const fileType = sandpackFilePath.split('.').pop() ?? '';
@@ -50,19 +50,16 @@ export function CustomSandpackLayout() {
       const sandpackFile = files[sandpackFilePath];
       const componentName =
         convertSandpackFilePathToComponentName(sandpackFilePath);
-      const componentPath = `${accountId}/${componentName}`;
+      const componentPath = `${ACCOUNT_ID}/${componentName}`;
 
-      componentsToUpdate.push({
+      editorComponents.push({
         componentPath,
         componentSource: sandpackFile.code,
       });
     });
 
-    setComponentData({
-      componentsToUpdate,
-      resetCache: true,
-    });
-  }, [files, setComponentData, visibleFiles]);
+    setLocalComponents(editorComponents);
+  }, [files, visibleFiles]);
 
   return (
     <SandpackLayout>
@@ -72,6 +69,7 @@ export function CustomSandpackLayout() {
 
       <Preview>
         <ComponentTree
+          key={nonce}
           components={components}
           rootComponentPath={rootComponentPath}
         />

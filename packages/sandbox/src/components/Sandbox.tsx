@@ -1,4 +1,5 @@
 import { SandpackProvider } from '@codesandbox/sandpack-react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { CustomSandpackLayout } from './CustomSandpackLayout';
@@ -26,13 +27,17 @@ const Wrapper = styled.div`
 `;
 
 export function Sandbox() {
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    setShouldRender(true);
+  }, []);
+
+  if (!shouldRender) return null;
+
   return (
     <Wrapper>
-      <SandpackProvider
-        theme="auto"
-        template="vanilla-ts"
-        files={DEFAULT_SANDPACK_FILES}
-      >
+      <SandpackProvider theme="auto" files={DEFAULT_SANDPACK_FILES}>
         <CustomSandpackLayout />
       </SandpackProvider>
     </Wrapper>

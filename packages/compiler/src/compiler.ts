@@ -17,7 +17,7 @@ import { transpileSource } from './transpile';
 import type {
   CompilerExecuteAction,
   CompilerInitAction,
-  CompilerSetComponentDataAction,
+  CompilerSetLocalComponentAction,
   ComponentCompilerParams,
   ComponentTreeNode,
   ModuleImport,
@@ -31,7 +31,6 @@ interface BuildComponentSourceParams {
   componentPath: string;
   componentSource: string;
   isRoot: boolean;
-  shouldIgnoreTranspiledCache?: boolean;
 }
 
 export class ComponentCompiler {
@@ -63,14 +62,12 @@ export class ComponentCompiler {
     componentPath,
     componentSource,
     isRoot,
-    shouldIgnoreTranspiledCache,
   }: BuildComponentSourceParams): { imports: ModuleImport[]; source: string } {
     // transpile and cache the Component
     const transpiledComponentSource = this.getTranspiledComponentSource({
       componentPath,
       componentSource: componentSource,
       isRoot,
-      shouldIgnoreTranspiledCache,
     });
 
     // separate out import statements from Component source
@@ -156,13 +153,9 @@ export class ComponentCompiler {
     componentPath,
     componentSource,
     isRoot,
-    shouldIgnoreTranspiledCache,
   }: TranspiledComponentLookupParams) {
     const cacheKey = JSON.stringify({ componentPath, isRoot });
-    if (
-      shouldIgnoreTranspiledCache ||
-      !this.compiledSourceCache.has(cacheKey)
-    ) {
+    if (!this.compiledSourceCache.has(cacheKey)) {
       try {
         const { code } = transpileSource(componentSource);
         this.compiledSourceCache.set(cacheKey, code || null);
@@ -222,7 +215,6 @@ export class ComponentCompiler {
     components,
     isComponentPathTrusted,
     isRoot,
-    shouldIgnoreTranspiledCache,
     trustedRoot,
   }: ParseComponentTreeParams) {
     const { imports, source: componentFunctionSource } =
@@ -230,7 +222,6 @@ export class ComponentCompiler {
         componentPath,
         componentSource,
         isRoot,
-        shouldIgnoreTranspiledCache,
       });
 
     // enumerate the set of Components referenced in the target Component
@@ -306,7 +297,6 @@ export class ComponentCompiler {
                   }
                   return false;
                 },
-          shouldIgnoreTranspiledCache,
         });
       })
     );
@@ -318,10 +308,7 @@ export class ComponentCompiler {
    * Build the source for a container rooted at the target Component
    * @param componentId ID for the new container's root Component
    */
-  async compileComponent({
-    componentId,
-    shouldIgnoreTranspiledCache,
-  }: CompilerExecuteAction) {
+  async compileComponent({ componentId }: CompilerExecuteAction) {
     if (this.localFetchUrl && !this.hasFetchedLocal) {
       try {
         await this.fetchLocalComponents();
@@ -346,7 +333,6 @@ export class ComponentCompiler {
       componentSource: source,
       components: new Map<string, ComponentTreeNode>(),
       isRoot: true,
-      shouldIgnoreTranspiledCache,
     });
 
     const containerModuleImports = [...transformedComponents.values()]
@@ -425,23 +411,22 @@ export class ComponentCompiler {
     }
   }
 
-  setComponentData({
-    componentsToUpdate,
-    resetCache,
+  setLocalComponents({
+    components,
     rootComponentPath,
-  }: CompilerSetComponentDataAction) {
-    if (resetCache) {
-      this.bosSourceCache.clear();
-    }
+  }: CompilerSetLocalComponentAction) {
+    // TODO: Implement separated cache layers
 
-    componentsToUpdate.forEach(({ componentPath, componentSource }) => {
+    this.bosSourceCache.clear();
+    this.compiledSourceCache.clear();
+
+    components.forEach(({ componentPath, componentSource }) => {
       this.bosSourceCache.set(componentPath, Promise.resolve(componentSource));
     });
 
     this.compileComponent({
       action: 'execute',
       componentId: rootComponentPath,
-      shouldIgnoreTranspiledCache: true,
     });
   }
 }

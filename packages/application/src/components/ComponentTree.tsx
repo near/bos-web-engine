@@ -11,7 +11,7 @@ export default function ComponentTree({
   rootComponentPath,
 }: ComponentTreeParams) {
   return (
-    <div className="App" key={rootComponentPath}>
+    <div className="App">
       <>
         <div
           id={getAppDomId(rootComponentPath)}
