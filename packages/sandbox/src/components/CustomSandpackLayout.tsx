@@ -1,6 +1,6 @@
+import type { SetComponentDataOptions } from '@bos-web-engine/application';
 import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
 import {
-  SandpackCodeEditor,
   SandpackFileExplorer,
   SandpackLayout,
   useSandpack,
@@ -8,6 +8,7 @@ import {
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { MonacoEditor } from './MonacoEditor';
 import { convertSandpackFilePathToComponentName } from '../utils';
 
 const PREACT_VERSION = '10.17.1';
@@ -21,7 +22,6 @@ export function CustomSandpackLayout() {
   const { sandpack } = useSandpack();
   const { activeFile, files, visibleFiles } = sandpack;
   const accountId = 'bwe-demos.near';
-  // const activeFileCode = files[activeFile].code;
 
   const [rootComponentPath, setRootComponentPath] = useState('');
 
@@ -39,13 +39,28 @@ export function CustomSandpackLayout() {
   }, [activeFile]);
 
   useEffect(() => {
+    const componentsToUpdate: SetComponentDataOptions['componentsToUpdate'] =
+      [];
+
     visibleFiles.forEach((sandpackFilePath) => {
+      const fileType = sandpackFilePath.split('.').pop() ?? '';
+
+      if (!['jsx', 'tsx'].includes(fileType)) return;
+
       const sandpackFile = files[sandpackFilePath];
       const componentName =
         convertSandpackFilePathToComponentName(sandpackFilePath);
       const componentPath = `${accountId}/${componentName}`;
-      setComponentData(componentPath, sandpackFile.code);
-      // TODO: This is going to re-run on all files any time a file changes - might need to refactor a bit.
+
+      componentsToUpdate.push({
+        componentPath,
+        componentSource: sandpackFile.code,
+      });
+    });
+
+    setComponentData({
+      componentsToUpdate,
+      resetCache: true,
     });
   }, [files, setComponentData, visibleFiles]);
 
@@ -53,7 +68,7 @@ export function CustomSandpackLayout() {
     <SandpackLayout>
       <SandpackFileExplorer autoHiddenFiles />
 
-      <SandpackCodeEditor showTabs closableTabs />
+      <MonacoEditor />
 
       <Preview>
         <ComponentTree

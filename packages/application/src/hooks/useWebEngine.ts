@@ -21,6 +21,7 @@ import {
 import type {
   BWEMessage,
   ComponentDOMElement,
+  SetComponentDataOptions,
   UseWebEngineParams,
 } from '../types';
 
@@ -79,13 +80,17 @@ export function useWebEngine({
   );
 
   const setComponentData = useCallback(
-    (componentPath: string, componentSource: string) => {
+    ({ componentsToUpdate, resetCache }: SetComponentDataOptions) => {
       if (!rootComponentPath) return;
+
+      if (resetCache) {
+        setComponents({});
+      }
 
       compiler?.postMessage({
         action: 'set-component-data',
-        componentPath,
-        componentSource,
+        componentsToUpdate,
+        resetCache,
         rootComponentPath,
       });
     },

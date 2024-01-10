@@ -17,8 +17,8 @@ export interface CompilerInitAction {
 
 export interface CompilerSetComponentDataAction {
   action: 'set-component-data';
-  componentPath: string;
-  componentSource: string;
+  componentsToUpdate: { componentPath: string; componentSource: string }[];
+  resetCache?: boolean;
   rootComponentPath: string;
 }
 

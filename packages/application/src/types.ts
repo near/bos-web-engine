@@ -5,7 +5,10 @@ import type {
   ComponentTrust,
   MessagePayload,
 } from '@bos-web-engine/common';
-import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
+import type {
+  CompilerSetComponentDataAction,
+  ComponentCompilerResponse,
+} from '@bos-web-engine/compiler';
 import type { DOMElement } from 'react';
 
 export interface CallbackInvocationHandlerParams {
@@ -108,4 +111,9 @@ export interface WebEngineConfiguration {
 
 export interface WebEngineFlags {
   bosLoaderUrl?: string;
+}
+
+export interface SetComponentDataOptions {
+  componentsToUpdate: CompilerSetComponentDataAction['componentsToUpdate'];
+  resetCache?: boolean;
 }

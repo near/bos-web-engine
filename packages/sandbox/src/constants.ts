@@ -9,7 +9,6 @@ export const DEFAULT_SANDPACK_FILES: SandpackFiles = {
       <h1>Welcome!</h1>
       <Component
         src="bwe-demos.near/Message"
-        trust={{ mode: 'trusted-author' }}
         props={{ message: 'Hello world!' }}
       />
     </div>

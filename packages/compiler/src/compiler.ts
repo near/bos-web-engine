@@ -426,11 +426,17 @@ export class ComponentCompiler {
   }
 
   setComponentData({
-    componentPath,
-    componentSource,
+    componentsToUpdate,
+    resetCache,
     rootComponentPath,
   }: CompilerSetComponentDataAction) {
-    this.bosSourceCache.set(componentPath, Promise.resolve(componentSource));
+    if (resetCache) {
+      this.bosSourceCache.clear();
+    }
+
+    componentsToUpdate.forEach(({ componentPath, componentSource }) => {
+      this.bosSourceCache.set(componentPath, Promise.resolve(componentSource));
+    });
 
     this.compileComponent({
       action: 'execute',
