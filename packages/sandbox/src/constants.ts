@@ -12,7 +12,7 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
   },
   {
     resolutionPath: 'file:///es.d.ts',
-    url: 'https://www.unpkg.com/typescript@5.3.3/lib/lib.es2021.d.ts',
+    url: 'https://www.unpkg.com/typescript@5.3.3/lib/lib.esnext.d.ts',
   },
   {
     resolutionPath: 'file:///node_modules/@types/react/index.d.ts',
