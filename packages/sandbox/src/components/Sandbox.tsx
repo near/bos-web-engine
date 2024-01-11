@@ -33,7 +33,7 @@ export function Sandbox() {
     /*
       This prevents Next JS from attempting to render this component on 
       the server. Without this logic, Next JS complains about things like
-      `className` not matching what's rendered on the server. Base on 
+      `className` not matching what's rendered on the server. Based on 
       current assumptions, rendering this component via SSR wouldn't make 
       much sense anyways.
     */

@@ -7,10 +7,12 @@ export const PREACT_VERSION = '10.17.1';
 
 export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
   {
+    // Include the DOM types manually due to TS Config `lib: ["dom"]` not working in Monaco:
     resolutionPath: 'file:///dom.d.ts',
     url: 'https://www.unpkg.com/typescript@5.3.3/lib/lib.dom.d.ts',
   },
   {
+    // Include the ES types manually due to TS Config `lib: ["ESNext"]` not working in Monaco:
     resolutionPath: 'file:///es.d.ts',
     url: 'https://www.unpkg.com/typescript@5.3.3/lib/lib.esnext.d.ts',
   },
