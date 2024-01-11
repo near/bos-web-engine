@@ -9,15 +9,48 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { MonacoEditor } from './MonacoEditor';
+import { SidebarActions } from './SidebarActions';
 import { ACCOUNT_ID, PREACT_VERSION } from '../constants';
+import { PanelType } from '../types';
 import { convertSandpackFilePathToComponentName } from '../utils';
 
-const Editor = styled.div`
-  flex: 1 1 0;
+const Wrapper = styled.div`
+  --file-explorer-width: 12rem;
+  --grid-template-columns: min-content var(--file-explorer-width) 1fr 1fr;
+  width: 100%;
+  height: 100%;
+
+  .sp-layout {
+    width: 100%;
+    display: grid;
+    grid-template-columns: var(--grid-template-columns);
+    border-radius: 0;
+
+    > * {
+      overflow: hidden;
+    }
+  }
+
+  .sp-layout,
+  .sp-stack,
+  .sp-code-editor,
+  .sp-file-explorer {
+    height: 100%;
+    min-width: unset;
+  }
+
+  &[data-expanded-panel='EDITOR'] {
+    --grid-template-columns: min-content var(--file-explorer-width) 1fr 0px;
+  }
+
+  &[data-expanded-panel='PREVIEW'] {
+    --grid-template-columns: min-content 0px 0px 1fr;
+  }
 `;
 
+const Editor = styled.div``;
+
 const Preview = styled.div`
-  flex: 1 1 0;
   color: #000;
   background: #fff;
 `;
@@ -28,6 +61,7 @@ export function CustomSandpackLayout() {
   const [localComponents, setLocalComponents] =
     useState<WebEngineLocalComponents>();
   const [rootComponentPath, setRootComponentPath] = useState('');
+  const [expandedPanel, setExpandedPanel] = useState<PanelType | null>(null);
 
   const { components, nonce } = useWebEngine({
     config: {
@@ -65,20 +99,27 @@ export function CustomSandpackLayout() {
   }, [files, visibleFiles]);
 
   return (
-    <SandpackLayout>
-      <SandpackFileExplorer autoHiddenFiles />
-
-      <Editor>
-        <MonacoEditor />
-      </Editor>
-
-      <Preview>
-        <ComponentTree
-          key={nonce}
-          components={components}
-          rootComponentPath={rootComponentPath}
+    <Wrapper data-expanded-panel={expandedPanel ?? ''}>
+      <SandpackLayout>
+        <SidebarActions
+          expandedPanel={expandedPanel}
+          onSelectExpandPanel={setExpandedPanel}
         />
-      </Preview>
-    </SandpackLayout>
+
+        <SandpackFileExplorer autoHiddenFiles />
+
+        <Editor>
+          <MonacoEditor />
+        </Editor>
+
+        <Preview>
+          <ComponentTree
+            key={nonce}
+            components={components}
+            rootComponentPath={rootComponentPath}
+          />
+        </Preview>
+      </SandpackLayout>
+    </Wrapper>
   );
 }
