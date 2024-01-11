@@ -12,6 +12,10 @@ import { MonacoEditor } from './MonacoEditor';
 import { ACCOUNT_ID, PREACT_VERSION } from '../constants';
 import { convertSandpackFilePathToComponentName } from '../utils';
 
+const Editor = styled.div`
+  flex: 1 1 0;
+`;
+
 const Preview = styled.div`
   flex: 1 1 0;
   color: #000;
@@ -64,7 +68,9 @@ export function CustomSandpackLayout() {
     <SandpackLayout>
       <SandpackFileExplorer autoHiddenFiles />
 
-      <MonacoEditor />
+      <Editor>
+        <MonacoEditor />
+      </Editor>
 
       <Preview>
         <ComponentTree

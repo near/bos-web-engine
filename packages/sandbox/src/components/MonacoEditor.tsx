@@ -6,15 +6,32 @@ import {
 } from '@codesandbox/sandpack-react';
 import Editor, { Monaco } from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
+import styled from 'styled-components';
 
+import { Loading } from './Loading';
 import { MONACO_EXTERNAL_LIBRARIES } from '../constants';
 import { MonacoExternalLibrary } from '../types';
+
+const Wrapper = styled.div`
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+
+  &[data-loading='true'] {
+    .sp-stack {
+      position: absolute;
+      opacity: 0;
+    }
+  }
+`;
 
 export function MonacoEditor() {
   const { sandpack } = useSandpack();
   const { activeFile } = sandpack;
   const { code, updateCode } = useActiveCode();
   const [libraries, setLibraries] = useState<MonacoExternalLibrary[]>();
+  const [mounted, setMounted] = useState(false);
+  const isLoading = !mounted || !libraries;
 
   useEffect(() => {
     const loadSourceForLibrary = async (url?: string) => {
@@ -74,25 +91,28 @@ export function MonacoEditor() {
     });
   };
 
-  if (libraries) {
-    return (
-      <SandpackStack>
-        <FileTabs closableTabs />
+  return (
+    <Wrapper data-loading={isLoading}>
+      {isLoading && <Loading message="Loading IDE environment..." />}
 
-        <Editor
-          theme="vs-dark"
-          language="typescript"
-          path={activeFile}
-          value={code}
-          beforeMount={beforeMonacoMount}
-          options={{
-            minimap: { enabled: false },
-          }}
-          onChange={(value) => updateCode(value || '')}
-        />
-      </SandpackStack>
-    );
-  } else {
-    return <p>Loading IDE environment...</p>; // TODO: Prettier loading state
-  }
+      {libraries && (
+        <SandpackStack>
+          <FileTabs closableTabs />
+
+          <Editor
+            theme="vs-dark"
+            language="typescript"
+            path={activeFile}
+            value={code}
+            beforeMount={beforeMonacoMount}
+            options={{
+              minimap: { enabled: false },
+            }}
+            onChange={(value) => updateCode(value || '')}
+            onMount={() => setMounted(true)}
+          />
+        </SandpackStack>
+      )}
+    </Wrapper>
+  );
 }
