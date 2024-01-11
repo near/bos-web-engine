@@ -1,3 +1,4 @@
+import { useMonaco } from '@monaco-editor/react';
 import {
   Plus,
   PencilSimple,
@@ -53,6 +54,22 @@ const Action = styled.button`
 `;
 
 export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
+  const monaco = useMonaco();
+  const editors = monaco?.editor.getEditors();
+  const editor = editors && editors[Math.max(editors.length - 1, 0)];
+
+  const formatCode = () => {
+    const actionName = 'editor.action.formatDocument';
+    const action = editor?.getAction(actionName);
+
+    if (!action) {
+      console.warn(`Action not found ${actionName}`);
+      return;
+    }
+
+    action.run();
+  };
+
   return (
     <Wrapper>
       <Tooltip content="Create New Component" side="right">
@@ -62,7 +79,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
       </Tooltip>
 
       <Tooltip content="Format Code" side="right">
-        <Action type="button">
+        <Action type="button" onClick={formatCode}>
           <BracketsCurly />
         </Action>
       </Tooltip>
