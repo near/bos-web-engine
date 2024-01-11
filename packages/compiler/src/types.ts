@@ -16,8 +16,11 @@ export interface CompilerInitAction {
 
 export interface CompilerSetLocalComponentAction {
   action: 'set-local-components';
-  components: { componentPath: string; componentSource: string }[];
-  resetCache?: boolean;
+  components: {
+    [path: string]: {
+      source: string;
+    };
+  };
   rootComponentPath: string;
 }
 

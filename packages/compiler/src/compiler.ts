@@ -420,8 +420,8 @@ export class ComponentCompiler {
     this.bosSourceCache.clear();
     this.compiledSourceCache.clear();
 
-    components.forEach(({ componentPath, componentSource }) => {
-      this.bosSourceCache.set(componentPath, Promise.resolve(componentSource));
+    Object.entries(components).forEach(([path, component]) => {
+      this.bosSourceCache.set(path, Promise.resolve(component.source));
     });
 
     this.compileComponent({

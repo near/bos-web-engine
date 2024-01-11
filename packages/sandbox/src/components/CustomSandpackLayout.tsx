@@ -40,7 +40,7 @@ export function CustomSandpackLayout() {
   }, [activeFile]);
 
   useEffect(() => {
-    const editorComponents: WebEngineLocalComponents = [];
+    const editorComponents: WebEngineLocalComponents = {};
 
     visibleFiles.forEach((sandpackFilePath) => {
       const fileType = sandpackFilePath.split('.').pop() ?? '';
@@ -50,12 +50,11 @@ export function CustomSandpackLayout() {
       const sandpackFile = files[sandpackFilePath];
       const componentName =
         convertSandpackFilePathToComponentName(sandpackFilePath);
-      const componentPath = `${ACCOUNT_ID}/${componentName}`;
+      const path = `${ACCOUNT_ID}/${componentName}`;
 
-      editorComponents.push({
-        componentPath,
-        componentSource: sandpackFile.code,
-      });
+      editorComponents[path] = {
+        source: sandpackFile.code,
+      };
     });
 
     setLocalComponents(editorComponents);
