@@ -17,6 +17,7 @@ import { transpileSource } from './transpile';
 import type {
   CompilerExecuteAction,
   CompilerInitAction,
+  CompilerSetLocalComponentAction,
   ComponentCompilerParams,
   ComponentTreeNode,
   ModuleImport,
@@ -321,6 +322,7 @@ export class ComponentCompiler {
     const source = await this.getComponentSources([componentPath]).get(
       componentPath
     );
+
     if (!source) {
       throw new Error(`Component not found at ${componentPath}`);
     }
@@ -407,5 +409,24 @@ export class ComponentCompiler {
         Promise.resolve(componentSource.code)
       );
     }
+  }
+
+  setLocalComponents({
+    components,
+    rootComponentPath,
+  }: CompilerSetLocalComponentAction) {
+    // TODO: Implement separated cache layers
+
+    this.bosSourceCache.clear();
+    this.compiledSourceCache.clear();
+
+    Object.entries(components).forEach(([path, component]) => {
+      this.bosSourceCache.set(path, Promise.resolve(component.source));
+    });
+
+    this.compileComponent({
+      action: 'execute',
+      componentId: rootComponentPath,
+    });
   }
 }

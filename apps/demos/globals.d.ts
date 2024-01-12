@@ -1,18 +1,12 @@
-import {
-  useState as useReactState,
-  useEffect as useReactEffect,
-  FunctionComponent,
-} from 'react';
+import { useState as useReactState, useEffect as useReactEffect } from 'react';
 
 declare global {
   const useState: typeof useReactState;
   const useEffect: typeof useReactEffect;
-  const props: any;
-  const Component: FunctionComponent<{
+  function Component(props: {
     src: string;
-    props?: any;
+    props?: Record<any, any>;
     trust?: { mode: string };
     id?: string;
-  }>;
-  const Widget: typeof Component;
+  }): JSX.Element;
 }

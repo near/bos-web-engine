@@ -1,6 +1,7 @@
 export type ComponentCompilerRequest =
   | CompilerExecuteAction
-  | CompilerInitAction;
+  | CompilerInitAction
+  | CompilerSetLocalComponentAction;
 
 export interface CompilerExecuteAction {
   action: 'execute';
@@ -11,6 +12,16 @@ export interface CompilerInitAction {
   action: 'init';
   localFetchUrl?: string;
   preactVersion: string;
+}
+
+export interface CompilerSetLocalComponentAction {
+  action: 'set-local-components';
+  components: {
+    [path: string]: {
+      source: string;
+    };
+  };
+  rootComponentPath: string;
 }
 
 export interface ComponentCompilerResponse {

@@ -29,6 +29,7 @@ interface CompilerWorker extends Omit<Worker, 'postMessage'> {
 }
 
 export function useWebEngine({
+  localComponents,
   config,
   rootComponentPath,
 }: UseWebEngineParams) {
@@ -41,12 +42,27 @@ export function useWebEngine({
   const [error, setError] = useState<string | null>(null);
   const [isValidRootComponentPath, setIsValidRootComponentPath] =
     useState(false);
+  const [nonce, setNonce] = useState('');
 
   const { flags, hooks, preactVersion } = config;
 
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef(
     {}
   );
+
+  useEffect(() => {
+    if (!localComponents || !rootComponentPath) return;
+
+    domRoots.current = {};
+    setComponents({});
+    setNonce(`${rootComponentPath}:${Date.now().toString()}`);
+
+    compiler?.postMessage({
+      action: 'set-local-components',
+      components: localComponents,
+      rootComponentPath,
+    });
+  }, [compiler, localComponents, rootComponentPath]);
 
   const addComponent = useCallback((componentId: string, component: any) => {
     setComponents((currentComponents) => ({
@@ -104,8 +120,10 @@ export function useWebEngine({
       id?: string;
     }) => {
       const domId = id || getAppDomId(componentId);
+
       if (!domRoots.current[domId]) {
         const domElement = document.getElementById(domId);
+
         if (!domElement) {
           console.error(`Node not found: #${domId}`);
           return;
@@ -265,5 +283,6 @@ export function useWebEngine({
     error: isValidRootComponentPath
       ? error
       : `Invalid Component path ${rootComponentPath}`,
+    nonce,
   };
 }
