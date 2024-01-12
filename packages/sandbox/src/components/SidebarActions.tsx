@@ -1,16 +1,10 @@
 import { useMonaco } from '@monaco-editor/react';
-import {
-  Plus,
-  PencilSimple,
-  Trash,
-  Code,
-  Eye,
-  BracketsCurly,
-  SquareSplitHorizontal,
-} from '@phosphor-icons/react';
+import { Plus, Code, Eye, BracketsCurly } from '@phosphor-icons/react';
 import styled from 'styled-components';
 
 import { Tooltip } from './Tooltip';
+import { NEW_COMPONENT_TEMPLATE } from '../constants';
+import { useSandboxStore } from '../hooks/useSandboxStore';
 import { PanelType } from '../types';
 
 type Props = {
@@ -21,12 +15,11 @@ type Props = {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
   align-items: center;
-  width: 2rem;
+  width: 2.5rem;
   flex-shrink: 0;
-  padding: 0.25rem 0;
-  background: #000;
+  padding: 0.5rem 0;
 `;
 
 const Action = styled.button`
@@ -37,7 +30,7 @@ const Action = styled.button`
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 0.25rem;
-  color: #fff;
+  color: var(--color-text-1);
   cursor: pointer;
 
   svg {
@@ -45,11 +38,11 @@ const Action = styled.button`
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--color-surface-3);
   }
 
   &:focus {
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 0 0 1px var(--color-border-1);
   }
 `;
 
@@ -57,6 +50,18 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
   const monaco = useMonaco();
   const editors = monaco?.editor.getEditors();
   const editor = editors && editors[Math.max(editors.length - 1, 0)];
+  const setActiveFile = useSandboxStore((store) => store.setActiveFile);
+  const setFile = useSandboxStore((store) => store.setFile);
+
+  const addNewComponent = () => {
+    const filePath = 'Untitled.tsx';
+
+    setFile(filePath, {
+      source: NEW_COMPONENT_TEMPLATE.source,
+    });
+
+    setActiveFile(filePath);
+  };
 
   const formatCode = () => {
     const actionName = 'editor.action.formatDocument';
@@ -73,7 +78,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
   return (
     <Wrapper>
       <Tooltip content="Create New Component" side="right">
-        <Action type="button">
+        <Action type="button" onClick={addNewComponent}>
           <Plus />
         </Action>
       </Tooltip>
@@ -81,18 +86,6 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
       <Tooltip content="Format Code" side="right">
         <Action type="button" onClick={formatCode}>
           <BracketsCurly />
-        </Action>
-      </Tooltip>
-
-      <Tooltip content="Rename Selected Component" side="right">
-        <Action type="button">
-          <PencilSimple />
-        </Action>
-      </Tooltip>
-
-      <Tooltip content="Delete Selected Component" side="right">
-        <Action type="button">
-          <Trash />
         </Action>
       </Tooltip>
 

@@ -1,5 +1,4 @@
-import { SandpackFiles } from '@codesandbox/sandpack-react/types';
-
+import { SandboxFiles } from './hooks/useSandboxStore';
 import { MonacoExternalLibrary } from './types';
 
 export const ACCOUNT_ID = 'bwe-demos.near';
@@ -49,10 +48,9 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
   },
 ];
 
-export const DEFAULT_SANDPACK_FILES: SandpackFiles = {
-  '/HelloWorld.tsx': {
-    active: true,
-    code: `export function BWEComponent() {
+export const DEFAULT_FILES: SandboxFiles = {
+  'HelloWorld.tsx': {
+    source: `export function BWEComponent() {
   const [count, setCount] = useState(0);
 
   return (
@@ -71,8 +69,8 @@ export const DEFAULT_SANDPACK_FILES: SandpackFiles = {
   );
 }`,
   },
-  '/Message.tsx': {
-    code: `interface Props {
+  'Message.tsx': {
+    source: `interface Props {
   message: string;
 }
 
@@ -85,4 +83,18 @@ export function BWEComponent(props: Props) {
   );
 }`,
   },
+};
+
+export const NEW_COMPONENT_TEMPLATE = {
+  source: `interface Props {
+  message?: string;
+}
+
+export function BWEComponent({ message = "Hello"}: Props) {
+  return (
+    <div>
+      <p>{message}</p>
+    </div>
+  );
+}`,
 };

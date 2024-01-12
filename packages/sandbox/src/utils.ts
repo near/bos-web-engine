@@ -1,14 +1,11 @@
-export function convertSandpackFilePathToComponentName(
-  sandpackFilePath: string
-) {
-  // Input: "/MyFolder/MyFile.tsx"
+export function convertFilePathToComponentName(filePath: string) {
+  // Input: "MyFolder/MyFile.tsx"
   // Output: "MyFolder.MyFile"
 
-  const componentName = sandpackFilePath
+  const componentName = filePath
     .split('.')
     .slice(0, -1)
     .join('') // Remove file extension
-    .replace(/^\//, '') // Remove prefixed "/"
     .replace(/\//g, '.'); // Replace all other "/" with "."
 
   return componentName;

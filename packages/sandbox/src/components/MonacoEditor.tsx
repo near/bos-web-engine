@@ -1,24 +1,18 @@
-import {
-  useActiveCode,
-  SandpackStack,
-  FileTabs,
-  useSandpack,
-} from '@codesandbox/sandpack-react';
 import Editor, { Monaco } from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Loading } from './Loading';
 import { MONACO_EXTERNAL_LIBRARIES } from '../constants';
+import { useActiveFile } from '../hooks/useActiveFile';
+import { useSandboxStore } from '../hooks/useSandboxStore';
 import { MonacoExternalLibrary } from '../types';
 
 const Wrapper = styled.div`
-  flex: 1 1 0;
-  width: 100%;
-  height: 100%;
+  flex: 1 0 auto;
 
   &[data-loading='true'] {
-    .sp-stack {
+    .monaco-editor {
       position: absolute;
       opacity: 0;
     }
@@ -26,9 +20,8 @@ const Wrapper = styled.div`
 `;
 
 export function MonacoEditor() {
-  const { sandpack } = useSandpack();
-  const { activeFile } = sandpack;
-  const { code, updateCode } = useActiveCode();
+  const { activeFile, activeFilePath } = useActiveFile();
+  const setFile = useSandboxStore((store) => store.setFile);
   const [libraries, setLibraries] = useState<MonacoExternalLibrary[]>();
   const [mounted, setMounted] = useState(false);
   const isLoading = !mounted || !libraries;
@@ -95,23 +88,24 @@ export function MonacoEditor() {
     <Wrapper data-loading={isLoading}>
       {isLoading && <Loading message="Loading IDE environment..." />}
 
-      {libraries && (
-        <SandpackStack>
-          <FileTabs closableTabs />
-
-          <Editor
-            theme="vs-dark"
-            language="typescript"
-            path={activeFile}
-            value={code}
-            beforeMount={beforeMonacoMount}
-            options={{
-              minimap: { enabled: false },
-            }}
-            onChange={(value) => updateCode(value || '')}
-            onMount={() => setMounted(true)}
-          />
-        </SandpackStack>
+      {libraries && activeFilePath && activeFile && (
+        <Editor
+          className="monaco-editor"
+          theme="vs-dark"
+          language="typescript"
+          path={activeFilePath}
+          value={activeFile.source}
+          beforeMount={beforeMonacoMount}
+          options={{
+            minimap: { enabled: false },
+          }}
+          onChange={(source) => {
+            setFile(activeFilePath, {
+              source: source ?? '',
+            });
+          }}
+          onMount={() => setMounted(true)}
+        />
       )}
     </Wrapper>
   );
