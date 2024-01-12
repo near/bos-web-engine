@@ -52,7 +52,7 @@ const Action = styled.button`
   }
 
   &:hover {
-    background: var(--color-surface-3);
+    background: var(--color-surface-4);
   }
 
   &:focus {
@@ -94,19 +94,19 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
 
   return (
     <Wrapper>
-      <Tooltip content="Create New Component" side="right">
+      <Tooltip content="Create New Component" side="right" sideOffset={10}>
         <Action type="button" onClick={addNewComponent}>
           <Plus />
         </Action>
       </Tooltip>
 
-      <Tooltip content="Format Code" side="right">
+      <Tooltip content="Format Code" side="right" sideOffset={10}>
         <Action type="button" onClick={formatCode}>
           <BracketsCurly />
         </Action>
       </Tooltip>
 
-      <Tooltip content="Toggle Editor Panel View" side="right">
+      <Tooltip content="Toggle Editor Panel View" side="right" sideOffset={10}>
         <Action
           type="button"
           onClick={() =>
@@ -117,7 +117,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         </Action>
       </Tooltip>
 
-      <Tooltip content="Toggle Preview Panel View" side="right">
+      <Tooltip content="Toggle Preview Panel View" side="right" sideOffset={10}>
         <Action
           type="button"
           onClick={() =>
@@ -128,13 +128,17 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         </Action>
       </Tooltip>
 
-      <Tooltip content="Sandbox Docs" side="right">
+      <Tooltip content="Sandbox Docs" side="right" sideOffset={10}>
         <Action as="a" href="/help" target="_blank">
           <BookOpenText />
         </Action>
       </Tooltip>
 
-      <Tooltip content="View this project on GitHub" side="right">
+      <Tooltip
+        content="View this project on GitHub"
+        side="right"
+        sideOffset={10}
+      >
         <Action
           as="a"
           href="https://github.com/near/bos-web-engine"
@@ -145,7 +149,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         </Action>
       </Tooltip>
 
-      <Tooltip content="Powered by NEAR" side="right">
+      <Tooltip content="Powered by NEAR" side="right" sideOffset={10}>
         <Action as="a" href="https://near.org" target="_blank">
           <NearIconSvg />
         </Action>

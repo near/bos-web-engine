@@ -20,18 +20,18 @@ const Content = styled(TooltipPrimitive.Content)`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--color-surface-primary);
+  background-color: var(--color-surface-4);
   z-index: 1000;
   max-width: 20rem;
   font-size: 0.8rem;
   line-height: 1.5;
   word-break: break-word;
   font-family: sans-serif;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.325);
 `;
 
 const Arrow = styled(TooltipPrimitive.Arrow)`
-  fill: var(--color-surface-primary);
+  fill: var(--color-surface-4);
 `;
 
 export function Tooltip({
