@@ -1,7 +1,7 @@
 import { SandboxFiles } from './hooks/useSandboxStore';
 import { MonacoExternalLibrary } from './types';
 
-export const ACCOUNT_ID = 'bwe-demos.near';
+export const ACCOUNT_ID = 'bwe-web.near';
 export const PREACT_VERSION = '10.17.1';
 export const VALID_FILE_EXTENSION_REGEX = /\.(tsx)$/;
 
@@ -50,7 +50,25 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
 
 export const DEFAULT_FILES: SandboxFiles = {
   'HelloWorld.tsx': {
-    source: `export function BWEComponent() {
+    source: `/*
+  Welcome to the BOS Web Engine Sandbox!
+
+  This environment has TypeScript support. All changes in this IDE 
+  are automatically persisted in local storage. Feel free to add, 
+  remove, and rename files.
+  
+  For now, you should reference "${ACCOUNT_ID}" in the src prop 
+  when creating a new  component and referencing it via <Component />. 
+  For example: "${ACCOUNT_ID}/MyNewComponent.tsx". We will support 
+  signing in and referencing your own account soon.
+  
+  The following code example demonstrates multi file component editing 
+  capabilities. Try opening up Message.tsx from the file explorer, 
+  make a visible code change, and then come back to HelloWorld.tsx
+  to see your changes reflected in the <Component /> reference.
+*/
+
+export function BWEComponent() {
   const [count, setCount] = useState(0);
 
   return (
@@ -58,8 +76,14 @@ export const DEFAULT_FILES: SandboxFiles = {
       <h1>Welcome!</h1>
 
       <Component
-        src="bwe-demos.near/Message"
+        src="${ACCOUNT_ID}/Message"
         props={{ message: 'Hello world!' }}
+        /*
+          The props object for <Component /> doesn't support type 
+          safety at the moment due to the dynamic complexities 
+          involved. Implementing type safety for props is a long 
+          term goal.
+        */
       />
 
       <button type="button" onClick={() => setCount((value) => value + 1)}>
@@ -67,7 +91,8 @@ export const DEFAULT_FILES: SandboxFiles = {
       </button>
     </div>
   );
-}`,
+}
+`,
   },
   'Message.tsx': {
     source: `interface Props {
