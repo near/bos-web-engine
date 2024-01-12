@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   --color-surface-2: #131313;
   --color-surface-3: #272727;
   --color-surface-4: #333333;
-  --color-surface-primary: #515b83;
+  --color-surface-primary: #536e8e;
   --color-danger: #d76464;
   --font-primary: sans-serif;
 

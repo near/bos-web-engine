@@ -18,9 +18,12 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   align-items: center;
+  position: relative;
+  z-index: 20;
   width: 2.5rem;
   flex-shrink: 0;
   padding: 0.5rem 0;
+  box-shadow: 3px 0 3px rgba(0, 0, 0, 0.15);
 `;
 
 const Action = styled.button`

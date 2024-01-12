@@ -24,17 +24,18 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 12rem;
+  position: relative;
+  z-index: 10;
   height: 100%;
   background: var(--color-surface-2);
   overflow: auto;
   scroll-behavior: smooth;
+  box-shadow: 3px 0 3px rgba(0, 0, 0, 0.15);
 `;
 
 const FileList = styled.ul`
   all: unset;
   display: block;
-  padding: 0.25rem 0;
 `;
 
 const FileDropdownButton = styled.button`

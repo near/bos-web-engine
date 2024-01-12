@@ -13,7 +13,7 @@ import { convertFilePathToComponentName } from '../utils';
 
 const Wrapper = styled.div`
   display: grid;
-  grid-template-columns: min-content min-content 1fr 1fr;
+  grid-template-columns: min-content 14rem 1fr 1fr;
   width: 100%;
   height: 100%;
 
@@ -22,7 +22,7 @@ const Wrapper = styled.div`
   }
 
   &[data-expanded-panel='EDITOR'] {
-    grid-template-columns: min-content min-content 1fr 0px;
+    grid-template-columns: min-content 14rem 1fr 0px;
   }
 
   &[data-expanded-panel='PREVIEW'] {
@@ -34,6 +34,7 @@ const Editor = styled.div`
   display: flex;
   min-width: 0;
   height: 100%;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
 `;
 
 const Preview = styled.div`

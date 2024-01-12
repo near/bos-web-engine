@@ -10,6 +10,7 @@ export const Trigger = DropdownMenuPrimitive.Trigger;
 export const Portal = DropdownMenuPrimitive.Portal;
 
 const ContentStyled = styled(DropdownMenuPrimitive.Content)`
+  z-index: 1000;
   min-width: 8rem;
   max-width: 100vw;
   background-color: var(--color-surface-4);
