@@ -51,6 +51,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
   const editors = monaco?.editor.getEditors();
   const editor = editors && editors[Math.max(editors.length - 1, 0)];
   const setActiveFile = useSandboxStore((store) => store.setActiveFile);
+  const setEditFileName = useSandboxStore((store) => store.setEditFileName);
   const setFile = useSandboxStore((store) => store.setFile);
 
   const addNewComponent = () => {
@@ -61,6 +62,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
     });
 
     setActiveFile(filePath);
+    setEditFileName(filePath);
   };
 
   const formatCode = () => {
