@@ -39,14 +39,15 @@ const Editor = styled.div`
 
 const Preview = styled.div`
   height: 100%;
+  position: relative;
   color: #000;
   background: linear-gradient(#5676a7, #72cbdb);
   box-sizing: border-box;
-  padding: 1rem;
 `;
 
 const PreviewScroll = styled.div`
-  height: 100%;
+  position: absolute;
+  inset: 1rem;
   overflow: auto;
   scroll-behavior: smooth;
   background: #fff;
