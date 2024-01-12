@@ -28,7 +28,7 @@ const Wrapper = styled.div`
   align-items: center;
   position: relative;
   z-index: 20;
-  width: 2.5rem;
+  width: 3rem;
   flex-shrink: 0;
   padding: 0.5rem 0;
   box-shadow: 3px 0 3px rgba(0, 0, 0, 0.15);
@@ -39,15 +39,15 @@ const Action = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 0.25rem;
   color: var(--color-text-1);
   cursor: pointer;
 
   svg {
-    width: 1rem;
-    height: 1rem;
+    width: 1.25rem;
+    height: 1.25rem;
     fill: currentColor;
   }
 

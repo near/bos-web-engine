@@ -23,7 +23,7 @@ const Content = styled(TooltipPrimitive.Content)`
   background-color: var(--color-surface-primary);
   z-index: 1000;
   max-width: 20rem;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   line-height: 1.5;
   word-break: break-word;
   font-family: sans-serif;
