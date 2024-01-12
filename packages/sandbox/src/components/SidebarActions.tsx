@@ -6,6 +6,7 @@ import { Tooltip } from './Tooltip';
 import { NEW_COMPONENT_TEMPLATE } from '../constants';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { PanelType } from '../types';
+import { returnUniqueFilePath } from '../utils';
 
 type Props = {
   expandedPanel: PanelType | null;
@@ -50,19 +51,20 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
   const monaco = useMonaco();
   const editors = monaco?.editor.getEditors();
   const editor = editors && editors[Math.max(editors.length - 1, 0)];
+  const files = useSandboxStore((store) => store.files);
   const setActiveFile = useSandboxStore((store) => store.setActiveFile);
-  const setEditFileName = useSandboxStore((store) => store.setEditFileName);
+  const setEditingFileName = useSandboxStore(
+    (store) => store.setEditingFileName
+  );
   const setFile = useSandboxStore((store) => store.setFile);
 
   const addNewComponent = () => {
-    const filePath = 'Untitled.tsx';
-
+    const filePath = returnUniqueFilePath(files, 'Untitled', 'tsx');
     setFile(filePath, {
       source: NEW_COMPONENT_TEMPLATE.source,
     });
-
     setActiveFile(filePath);
-    setEditFileName(filePath);
+    setEditingFileName(filePath);
   };
 
   const formatCode = () => {

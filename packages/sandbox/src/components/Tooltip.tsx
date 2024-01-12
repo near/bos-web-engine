@@ -37,7 +37,7 @@ const Arrow = styled(TooltipPrimitive.Arrow)`
 export function Tooltip({
   children,
   content,
-  root,
+  root = { disableHoverableContent: true },
   side = 'top',
   sideOffset = 3,
   ...props

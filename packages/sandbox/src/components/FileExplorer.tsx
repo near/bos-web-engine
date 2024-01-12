@@ -4,11 +4,21 @@ import {
   Trash,
   PencilSimple,
 } from '@phosphor-icons/react';
-import { useEffect } from 'react';
+import {
+  FocusEventHandler,
+  KeyboardEventHandler,
+  useEffect,
+  useRef,
+} from 'react';
 import styled from 'styled-components';
 
 import * as Dropdown from './Dropdown';
+import {
+  NEW_COMPONENT_TEMPLATE,
+  VALID_FILE_EXTENSION_REGEX,
+} from '../constants';
 import { useSandboxStore } from '../hooks/useSandboxStore';
+import { returnUniqueFilePath } from '../utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -24,6 +34,7 @@ const Wrapper = styled.div`
 const FileList = styled.ul`
   all: unset;
   display: block;
+  padding: 0.25rem 0;
 `;
 
 const FileDropdownButton = styled.button`
@@ -33,12 +44,16 @@ const FileDropdownButton = styled.button`
   justify-content: center;
   width: 1.5rem;
   flex-shrink: 0;
-  color: var(--color-text-1);
+  color: var(--color-text-2);
   cursor: pointer;
   background: none;
 
   svg {
     fill: currentColor;
+  }
+
+  &:hover {
+    color: var(--color-text-1);
   }
 
   &:focus {
@@ -61,8 +76,7 @@ const FileButton = styled.button`
   line-height: 1.3;
   font-weight: 400;
   color: var(--color-text-1);
-  padding: 0.25rem;
-  padding-left: 0.5rem;
+  padding: 0.25rem 0.75rem;
   box-sizing: border-box;
   cursor: pointer;
   min-width: 0;
@@ -79,6 +93,10 @@ const FileListItem = styled.li`
   min-width: 0;
   align-items: stretch;
 
+  &[data-active='true'] {
+    background: var(--color-surface-3);
+  }
+
   &:hover {
     background: var(--color-surface-4);
 
@@ -94,7 +112,9 @@ const FileListItem = styled.li`
   }
 
   &:focus-within {
-    box-shadow: inset 0 0 0 1px var(--color-border-1);
+    box-shadow:
+      inset 0 0 15px rgba(255, 255, 255, 0.2),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
   }
 `;
 
@@ -112,62 +132,141 @@ const FileName = styled.span`
 
 export function FileExplorer() {
   const activeFilePath = useSandboxStore((store) => store.activeFilePath);
-  const editFilePathName = useSandboxStore((store) => store.editFilePathName);
+  const editingFileNamePath = useSandboxStore(
+    (store) => store.editingFileNamePath
+  );
   const files = useSandboxStore((store) => store.files);
-  const removeFile = useSandboxStore((store) => store.removeFile);
+  const removeFileFromStore = useSandboxStore((store) => store.removeFile);
   const setActiveFile = useSandboxStore((store) => store.setActiveFile);
-  const setEditFileName = useSandboxStore((store) => store.setEditFileName);
+  const setEditingFileName = useSandboxStore(
+    (store) => store.setEditingFileName
+  );
+  const setFile = useSandboxStore((store) => store.setFile);
+  const updateFilePath = useSandboxStore((store) => store.updateFilePath);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  const onClickEditFileName = (path: string) => {
-    setEditFileName(path);
+  const editFileName = (path: string) => {
+    setEditingFileName(path);
   };
 
-  const onClickRemoveFile = (path: string) => {
-    removeFile(path);
+  const removeFile = (path: string) => {
+    const isLastFile = Object.keys(files).length < 2;
+
+    removeFileFromStore(path);
+
+    if (isLastFile) {
+      const filePath = returnUniqueFilePath(files, 'Untitled', 'tsx');
+      setFile(filePath, {
+        source: NEW_COMPONENT_TEMPLATE.source,
+      });
+      setActiveFile(filePath);
+      setEditingFileName(filePath);
+    }
+  };
+
+  const onFileNameInputKeyDown: KeyboardEventHandler<HTMLSpanElement> = (
+    event
+  ) => {
+    const target = event.target as HTMLSpanElement;
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      target.blur();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      target.innerText = editingFileNamePath ?? '';
+      target.blur();
+    }
+  };
+
+  const onFileNameInputBlur: FocusEventHandler<HTMLSpanElement> = (event) => {
+    if (!editingFileNamePath) return;
+
+    let newPath = event.target.innerText.trim();
+    const isEditingFileNameForActiveFile =
+      editingFileNamePath === activeFilePath;
+
+    if (newPath) {
+      const hasValidExtension = !!newPath.match(VALID_FILE_EXTENSION_REGEX);
+      if (!hasValidExtension) {
+        newPath += '.tsx';
+      }
+
+      const newPathSegments = newPath.split('.');
+      const newPathExtension = newPathSegments.pop()!;
+      const newPathWithoutExtension = newPathSegments.join('.');
+      newPath = returnUniqueFilePath(
+        files,
+        newPathWithoutExtension,
+        newPathExtension
+      );
+
+      updateFilePath(editingFileNamePath, newPath);
+
+      if (isEditingFileNameForActiveFile) {
+        setActiveFile(newPath);
+      }
+    }
+
+    setEditingFileName(undefined);
   };
 
   useEffect(() => {
-    // TODO: Convert the edit file name item to use [contenteditable] and save result on pressing enter
-    // TODO: Auto focus the matching field
-  }, [editFilePathName]);
+    setTimeout(() => {
+      if (!editingFileNamePath || !wrapperRef.current) return;
+
+      const fieldNameInput = wrapperRef.current.querySelector(
+        `[data-file-name-input="${editingFileNamePath}"]`
+      ) as HTMLSpanElement | null;
+
+      if (!fieldNameInput) return;
+
+      fieldNameInput.focus();
+    }, 50);
+  }, [editingFileNamePath]);
 
   return (
-    <Wrapper>
+    <Wrapper ref={wrapperRef}>
       <FileList>
         {Object.keys(files).map((path) => (
-          <FileListItem key={path}>
+          <FileListItem key={path} data-active={activeFilePath === path}>
             <FileButton
-              data-active={activeFilePath === path}
               type="button"
               title={path}
               onClick={() => setActiveFile(path)}
+              onDoubleClick={() => {
+                editFileName(path);
+              }}
             >
               <File />
 
-              <FileName
-                contentEditable={
-                  editFilePathName === path ? 'plaintext-only' : undefined
-                }
-                spellCheck="false"
-              >
-                {path}
-              </FileName>
+              {editingFileNamePath === path ? (
+                <FileName
+                  contentEditable="plaintext-only"
+                  data-file-name-input={path}
+                  spellCheck="false"
+                  onBlur={onFileNameInputBlur}
+                  onKeyDown={onFileNameInputKeyDown}
+                />
+              ) : (
+                <FileName>{path}</FileName>
+              )}
             </FileButton>
 
             <Dropdown.Root>
               <Dropdown.Trigger asChild>
-                <FileDropdownButton type="button">
+                <FileDropdownButton type="button" tabIndex={-1}>
                   <DotsThreeVertical weight="bold" />
                 </FileDropdownButton>
               </Dropdown.Trigger>
 
               <Dropdown.Content sideOffset={2}>
-                <Dropdown.Item onClick={() => onClickEditFileName(path)}>
+                <Dropdown.Item onClick={() => editFileName(path)}>
                   <PencilSimple />
                   Rename File
                 </Dropdown.Item>
 
-                <Dropdown.Item onClick={() => onClickRemoveFile(path)}>
+                <Dropdown.Item onClick={() => removeFile(path)}>
                   <Trash color="var(--color-danger)" />
                   Delete File
                 </Dropdown.Item>
