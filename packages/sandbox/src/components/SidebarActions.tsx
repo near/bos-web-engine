@@ -1,7 +1,15 @@
 import { useMonaco } from '@monaco-editor/react';
-import { Plus, Code, Eye, BracketsCurly } from '@phosphor-icons/react';
+import {
+  Plus,
+  Code,
+  Eye,
+  BracketsCurly,
+  BookOpenText,
+} from '@phosphor-icons/react';
 import styled from 'styled-components';
 
+import { GitHubIconSvg } from './GitHubIconSvg';
+import { NearIconSvg } from './NearIconSvg';
 import { Tooltip } from './Tooltip';
 import { NEW_COMPONENT_TEMPLATE } from '../constants';
 import { useSandboxStore } from '../hooks/useSandboxStore';
@@ -38,6 +46,8 @@ const Action = styled.button`
   cursor: pointer;
 
   svg {
+    width: 1rem;
+    height: 1rem;
     fill: currentColor;
   }
 
@@ -115,6 +125,29 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
           }
         >
           <Eye />
+        </Action>
+      </Tooltip>
+
+      <Tooltip content="Sandbox Docs" side="right">
+        <Action as="a" href="/help" target="_blank">
+          <BookOpenText />
+        </Action>
+      </Tooltip>
+
+      <Tooltip content="View this project on GitHub" side="right">
+        <Action
+          as="a"
+          href="https://github.com/near/bos-web-engine"
+          target="_blank"
+          style={{ marginTop: 'auto' }}
+        >
+          <GitHubIconSvg />
+        </Action>
+      </Tooltip>
+
+      <Tooltip content="Powered by NEAR" side="right">
+        <Action as="a" href="https://near.org" target="_blank">
+          <NearIconSvg />
         </Action>
       </Tooltip>
     </Wrapper>

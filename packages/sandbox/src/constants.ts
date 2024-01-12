@@ -3,7 +3,7 @@ import { MonacoExternalLibrary } from './types';
 
 export const ACCOUNT_ID = 'bwe-demos.near';
 export const PREACT_VERSION = '10.17.1';
-export const VALID_FILE_EXTENSION_REGEX = /\.(jsx)|(tsx)$/;
+export const VALID_FILE_EXTENSION_REGEX = /\.(tsx)$/;
 
 export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
   {
@@ -32,8 +32,7 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
     resolutionPath: 'file:///globals.d.ts',
     source: `import {
       useState as useReactState,
-      useEffect as useReactEffect,
-      ComponentType,
+      useEffect as useReactEffect
     } from 'react';
     
     declare global {
