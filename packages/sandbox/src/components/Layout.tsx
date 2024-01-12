@@ -41,6 +41,7 @@ const Preview = styled.div`
   height: 100%;
   color: #000;
   background: linear-gradient(#5676a7, #72cbdb);
+  box-sizing: border-box;
   padding: 1rem;
 `;
 
