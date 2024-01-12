@@ -39,7 +39,17 @@ const Editor = styled.div`
 
 const Preview = styled.div`
   height: 100%;
+  position: relative;
   color: #000;
+  background: linear-gradient(#5676a7, #72cbdb);
+  box-sizing: border-box;
+`;
+
+const PreviewScroll = styled.div`
+  position: absolute;
+  inset: 1rem;
+  overflow: auto;
+  scroll-behavior: smooth;
   background: #fff;
 `;
 
@@ -101,11 +111,13 @@ export function Layout() {
       </Editor>
 
       <Preview>
-        <ComponentTree
-          key={nonce}
-          components={components}
-          rootComponentPath={rootComponentPath}
-        />
+        <PreviewScroll>
+          <ComponentTree
+            key={nonce}
+            components={components}
+            rootComponentPath={rootComponentPath}
+          />
+        </PreviewScroll>
       </Preview>
     </Wrapper>
   );
