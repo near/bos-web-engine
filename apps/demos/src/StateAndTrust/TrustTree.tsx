@@ -135,11 +135,11 @@ export function BWEComponent(props: Props) {
   ];
 
   const getRandomIcon = useCallback(
-    () => icons[Math.floor(Math.random() * icons.length)]
+    () => icons[Math.floor(Math.random() * icons.length)], []
   );
-  const updateCircle = useCallback(() => setCircle(getRandomIcon()));
-  const updateSquare = useCallback(() => setSquare(getRandomIcon()));
-  const updateTriangle = useCallback(() => setTriangle(getRandomIcon()));
+  const updateCircle = useCallback(() => setCircle(getRandomIcon()), []);
+  const updateSquare = useCallback(() => setSquare(getRandomIcon()), []);
+  const updateTriangle = useCallback(() => setTriangle(getRandomIcon()), []);
 
   return (
     <div>
