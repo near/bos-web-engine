@@ -4,6 +4,7 @@ import { MonacoExternalLibrary } from './types';
 export const ACCOUNT_ID = 'bwe-web.near';
 export const PREACT_VERSION = '10.17.1';
 export const VALID_FILE_EXTENSION_REGEX = /\.(tsx)$/;
+export const PREVIEW_UPDATE_DEBOUNCE_DELAY = 750;
 
 export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
   {

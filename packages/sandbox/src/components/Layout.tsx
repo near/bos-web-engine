@@ -6,7 +6,12 @@ import styled from 'styled-components';
 import { FileExplorer } from './FileExplorer';
 import { MonacoEditor } from './MonacoEditor';
 import { SidebarActions } from './SidebarActions';
-import { ACCOUNT_ID, PREACT_VERSION } from '../constants';
+import {
+  ACCOUNT_ID,
+  PREACT_VERSION,
+  PREVIEW_UPDATE_DEBOUNCE_DELAY,
+} from '../constants';
+import { useDebouncedValue } from '../hooks/useDebounced';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { PanelType } from '../types';
 import { convertFilePathToComponentName } from '../utils';
@@ -56,6 +61,10 @@ const PreviewScroll = styled.div`
 export function Layout() {
   const activeFilePath = useSandboxStore((store) => store.activeFilePath);
   const files = useSandboxStore((store) => store.files);
+  const debouncedFiles = useDebouncedValue(
+    files,
+    PREVIEW_UPDATE_DEBOUNCE_DELAY
+  );
   const [localComponents, setLocalComponents] =
     useState<WebEngineLocalComponents>();
   const [rootComponentPath, setRootComponentPath] = useState('');
@@ -79,7 +88,7 @@ export function Layout() {
   useEffect(() => {
     const editorComponents: WebEngineLocalComponents = {};
 
-    Object.entries(files).forEach(([filePath, file]) => {
+    Object.entries(debouncedFiles).forEach(([filePath, file]) => {
       if (!file) return;
 
       const fileType = filePath.split('.').pop() ?? '';
@@ -95,7 +104,7 @@ export function Layout() {
     });
 
     setLocalComponents(editorComponents);
-  }, [files]);
+  }, [debouncedFiles]);
 
   return (
     <Wrapper data-expanded-panel={expandedPanel ?? ''}>
