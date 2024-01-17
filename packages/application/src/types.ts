@@ -97,8 +97,11 @@ export interface CreateChildElementParams {
 
 export interface UseWebEngineParams {
   config: WebEngineConfiguration;
-  localComponents?: WebEngineLocalComponents;
   rootComponentPath?: string;
+}
+
+export interface UseWebEngineSandboxParams extends UseWebEngineParams {
+  localComponents?: WebEngineLocalComponents;
 }
 
 export type WebEngineLocalComponents =
