@@ -1,4 +1,5 @@
 import Editor, { type OnMount, type BeforeMount } from '@monaco-editor/react';
+import { emmetJSX } from 'emmet-monaco-es';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -65,6 +66,8 @@ export function MonacoEditor() {
   }, []);
 
   const beforeMonacoMount: BeforeMount = (monaco) => {
+    emmetJSX(monaco, ['javascript', 'typescript']);
+
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
     });
