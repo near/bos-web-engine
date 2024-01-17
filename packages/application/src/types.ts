@@ -112,6 +112,7 @@ export interface WebEngineDebug {
 }
 
 export interface WebEngineHooks {
+  componentRendered?: (componentId: string) => void;
   containerSourceCompiled?: (response: ComponentCompilerResponse) => void;
   messageReceived?: (message: BWEMessage) => void;
 }

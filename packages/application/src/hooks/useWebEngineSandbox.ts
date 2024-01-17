@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { useCompilerWorker } from './useCompilerWorker';
 import { useComponents } from './useComponents';
 import { useComponentTree } from './useComponentTree';
 import type { UseWebEngineSandboxParams } from '../types';
@@ -11,21 +10,17 @@ export function useWebEngineSandbox({
   rootComponentPath,
 }: UseWebEngineSandboxParams) {
   const [nonce, setNonce] = useState('');
-  const { addComponent, components, componentRendered, setComponents } =
-    useComponents();
-  const { compiler, error } = useCompilerWorker({
-    addComponent,
-    components,
-    config,
-    rootComponentPath,
-  });
+  const { addComponent, compiler, components, error, hooks, setComponents } =
+    useComponents({
+      config,
+      rootComponentPath,
+    });
 
   const { domRoots } = useComponentTree({
     addComponent,
     compiler,
-    componentRendered,
     components,
-    hooks: config.hooks,
+    hooks,
   });
 
   useEffect(() => {

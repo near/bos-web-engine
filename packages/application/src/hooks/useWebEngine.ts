@@ -1,4 +1,3 @@
-import { useCompilerWorker } from './useCompilerWorker';
 import { useComponents } from './useComponents';
 import { useComponentTree } from './useComponentTree';
 import type { UseWebEngineParams } from '../types';
@@ -7,15 +6,7 @@ export function useWebEngine({
   config,
   rootComponentPath,
 }: UseWebEngineParams) {
-  const {
-    addComponent,
-    components,
-    componentRendered,
-    getComponentRenderCount,
-  } = useComponents();
-  const { compiler, error } = useCompilerWorker({
-    addComponent,
-    components,
+  const { addComponent, compiler, components, error, getComponentRenderCount, hooks } = useComponents({
     config,
     rootComponentPath,
   });
@@ -23,11 +14,10 @@ export function useWebEngine({
   useComponentTree({
     addComponent,
     compiler,
-    componentRendered,
     components,
     debug: config.debug,
     getComponentRenderCount,
-    hooks: config.hooks,
+    hooks,
   });
 
   return {

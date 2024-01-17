@@ -23,7 +23,6 @@ interface CompilerWorker extends Omit<Worker, 'postMessage'> {
 interface UseComponentTreeParams {
   addComponent: (componentId: string, component: any) => void;
   compiler: CompilerWorker | null;
-  componentRendered: (componentId: string) => void;
   components: { [p: string]: any };
   debug?: WebEngineDebug;
   getComponentRenderCount: (componentId: string) => number;
@@ -36,7 +35,6 @@ export function useComponentTree({
   hooks,
   components,
   addComponent,
-  componentRendered,
   getComponentRenderCount,
 }: UseComponentTreeParams) {
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef(
@@ -56,11 +54,6 @@ export function useComponentTree({
       });
     },
     [compiler, components, addComponent]
-  );
-
-  const renderComponent = useCallback(
-    (componentId: string) => componentRendered(componentId),
-    []
   );
 
   const mountElement = useCallback(
@@ -122,7 +115,7 @@ export function useComponentTree({
               data,
               debug,
               mountElement: ({ componentId, element }) => {
-                renderComponent(componentId);
+                hooks?.componentRendered?.(componentId);
                 mountElement({ componentId, element, id: data.node.props?.id });
               },
               loadComponent: (component) =>
@@ -140,11 +133,7 @@ export function useComponentTree({
         console.error({ event }, e);
       }
     },
-    [
-      components,
-      loadComponent,
-      mountElement,
-      renderComponent,
+    [components, loadComponent, mountElement,
       hooks,
       debug,
       getComponentRenderCount,
