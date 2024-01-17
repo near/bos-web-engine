@@ -44,7 +44,7 @@ export function useWebEngine({
     useState(false);
   const [nonce, setNonce] = useState('');
 
-  const { flags, hooks, preactVersion } = config;
+  const { debug, flags, hooks, preactVersion } = config;
 
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef(
     {}
@@ -102,12 +102,12 @@ export function useWebEngine({
     });
   }, []);
 
-  // const getComponentRenderCount = useCallback(
-  //   (componentId: string) => {
-  //     return components?.[componentId]?.renderCount;
-  //   },
-  //   [components]
-  // );
+  const getComponentRenderCount = useCallback(
+    (componentId: string) => {
+      return components?.[componentId]?.renderCount;
+    },
+    [components]
+  );
 
   const mountElement = useCallback(
     ({
@@ -166,6 +166,7 @@ export function useWebEngine({
           case 'component.render': {
             onRender({
               data,
+              debug,
               mountElement: ({ componentId, element }) => {
                 renderComponent(componentId);
                 mountElement({ componentId, element, id: data.node.props?.id });
@@ -173,6 +174,8 @@ export function useWebEngine({
               loadComponent: (component) =>
                 loadComponent(component.componentId, component),
               isComponentLoaded: (c: string) => !!components[c],
+              getContainerRenderCount: (containerId: string) =>
+                getComponentRenderCount(containerId),
               onMessageSent,
             });
             break;

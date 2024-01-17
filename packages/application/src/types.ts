@@ -37,6 +37,7 @@ export interface ComponentMetrics {
 
 export interface RenderHandlerParams {
   data: ComponentRender;
+  debug?: WebEngineDebug;
   mountElement: ({
     componentId,
     element,
@@ -46,6 +47,7 @@ export interface RenderHandlerParams {
   }) => void;
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;
+  getContainerRenderCount(containerId: string): number;
   onMessageSent: OnMessageSentCallback;
 }
 
@@ -102,12 +104,17 @@ export interface UseWebEngineParams {
 export type WebEngineLocalComponents =
   CompilerSetLocalComponentAction['components'];
 
+export interface WebEngineDebug {
+  showContainerBoundaries?: boolean;
+}
+
 export interface WebEngineHooks {
   containerSourceCompiled?: (response: ComponentCompilerResponse) => void;
   messageReceived?: (message: BWEMessage) => void;
 }
 
 export interface WebEngineConfiguration {
+  debug?: WebEngineDebug;
   flags?: WebEngineFlags;
   hooks?: WebEngineHooks;
   preactVersion: string;
