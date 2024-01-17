@@ -1,4 +1,5 @@
-import Editor, { Monaco } from '@monaco-editor/react';
+import Editor, { type OnMount, type BeforeMount } from '@monaco-editor/react';
+import { emmetJSX } from 'emmet-monaco-es';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -6,7 +7,8 @@ import { Loading } from './Loading';
 import { MONACO_EXTERNAL_LIBRARIES } from '../constants';
 import { useActiveFile } from '../hooks/useActiveFile';
 import { useSandboxStore } from '../hooks/useSandboxStore';
-import { MonacoExternalLibrary } from '../types';
+import { autoCloseHtmlTags } from '../monaco/auto-close-html-tags';
+import type { MonacoExternalLibrary } from '../types';
 
 const Wrapper = styled.div`
   flex: 1 0 auto;
@@ -63,7 +65,9 @@ export function MonacoEditor() {
     loadAllLibraries();
   }, []);
 
-  const beforeMonacoMount = (monaco: Monaco) => {
+  const beforeMonacoMount: BeforeMount = (monaco) => {
+    emmetJSX(monaco, ['javascript', 'typescript']);
+
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
     });
@@ -82,6 +86,11 @@ export function MonacoEditor() {
         library.resolutionPath
       );
     });
+  };
+
+  const onMonacoMount: OnMount = (editor, monaco) => {
+    setMounted(true);
+    autoCloseHtmlTags(editor, monaco);
   };
 
   return (
@@ -104,7 +113,7 @@ export function MonacoEditor() {
               source: source ?? '',
             });
           }}
-          onMount={() => setMounted(true)}
+          onMount={onMonacoMount}
         />
       )}
     </Wrapper>

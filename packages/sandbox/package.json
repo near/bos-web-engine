@@ -15,6 +15,7 @@
     "@phosphor-icons/react": "^2.0.15",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "emmet-monaco-es": "^5.3.0",
     "lodash.debounce": "^4.0.8",
     "styled-components": "^6.0.8",
     "zustand": "^4.4.3"
