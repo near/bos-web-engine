@@ -14,7 +14,7 @@ export default function Root() {
   const { query } = router;
 
   // TODO update parameter name/source
-  const isDebug = query.isDebug === 'true';
+  const showContainerBoundaries = query.showContainerBoundaries === 'true';
 
   const rootComponentPath = Array.isArray(query.root)
     ? query.root.join('/')
@@ -27,7 +27,7 @@ export default function Root() {
   const { components, error } = useWebEngine({
     config: {
       debug: {
-        showContainerBoundaries: isDebug,
+        showContainerBoundaries,
       },
       flags,
       preactVersion: PREACT_VERSION,
@@ -48,7 +48,7 @@ export default function Root() {
   }, [router, router.isReady, query.root]);
 
   return (
-    <div className={`App ${isDebug ? 'bwe-debug' : ''}`}>
+    <div className={`App ${showContainerBoundaries ? 'bwe-debug' : ''}`}>
       {rootComponentPath && (
         <>
           {error && <div className="error">{error}</div>}

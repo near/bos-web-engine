@@ -1,9 +1,9 @@
 export function BWEComponent() {
-  const [isDebug, setIsDebug] = useState<boolean>(true);
-  const [showMonitor, setShowMonitor] = useState<boolean>(true);
+  const [showContainerBoundaries, setShowContainerBoundaries] =
+    useState<boolean>(true);
 
   const buildUrl = (componentPath) => {
-    return `/${componentPath}?isDebug=${isDebug}&showMonitor=${showMonitor}`;
+    return `/${componentPath}?showContainerBoundaries=${showContainerBoundaries}`;
   };
 
   return (
@@ -51,24 +51,13 @@ export function BWEComponent() {
                 type="checkbox"
                 value=""
                 id="flexCheckDefault"
-                checked={isDebug}
-                onChange={() => setIsDebug(!isDebug)}
+                checked={showContainerBoundaries}
+                onChange={() =>
+                  setShowContainerBoundaries(!showContainerBoundaries)
+                }
               />
               <label className="form-check-label" htmlFor="flexCheckDefault">
-                Enable debug mode
-              </label>
-            </div>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                value=""
-                id="flexCheckChecked"
-                checked={showMonitor}
-                onChange={() => setShowMonitor(!showMonitor)}
-              />
-              <label className="form-check-label" htmlFor="flexCheckChecked">
-                Display Component monitor
+                Show Container Boundaries
               </label>
             </div>
             <ul className="icon-list">
