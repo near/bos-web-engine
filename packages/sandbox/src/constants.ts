@@ -32,11 +32,13 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
   {
     resolutionPath: 'file:///globals.d.ts',
     source: `import {
+      useCallback as useReactCallback,
       useState as useReactState,
       useEffect as useReactEffect
     } from 'react';
     
     declare global {
+      const useCallback: typeof useReactCallback;
       const useState: typeof useReactState;
       const useEffect: typeof useReactEffect;
       function Component(props: {
