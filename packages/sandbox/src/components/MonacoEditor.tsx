@@ -12,6 +12,8 @@ import type { MonacoExternalLibrary } from '../types';
 
 const Wrapper = styled.div`
   flex: 1 0 auto;
+  min-width: 0;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
 
   &[data-loading='true'] {
     .monaco-editor {
