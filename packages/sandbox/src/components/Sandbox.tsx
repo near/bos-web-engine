@@ -20,8 +20,9 @@ const Wrapper = styled.div`
   --color-danger: #d76464;
   --font-primary: sans-serif;
 
+  display: flex;
+  align-items: stretch;
   width: 100%;
-  height: 100%;
   font-family: var(--font-primary);
   color: var(--color-text-1);
   background: var(--color-surface-1);
