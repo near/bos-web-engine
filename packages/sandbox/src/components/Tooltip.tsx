@@ -2,6 +2,8 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import styled from 'styled-components';
 
+import { useSandboxStore } from '../hooks/useSandboxStore';
+
 type RootProps = Omit<ComponentProps<typeof TooltipPrimitive.Root>, 'children'>;
 
 type Props = Omit<
@@ -43,16 +45,19 @@ export function Tooltip({
   ...props
 }: Props) {
   const delayDuration = root?.delayDuration || 300;
+  const containerElement = useSandboxStore((store) => store.containerElement);
 
   return (
     <TooltipPrimitive.Provider>
       <TooltipPrimitive.Root delayDuration={delayDuration} {...root}>
         <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
 
-        <Content side={side} sideOffset={sideOffset} {...props}>
-          {content}
-          <Arrow offset={6} />
-        </Content>
+        <TooltipPrimitive.Portal container={containerElement}>
+          <Content side={side} sideOffset={sideOffset} {...props}>
+            {content}
+            <Arrow offset={6} />
+          </Content>
+        </TooltipPrimitive.Portal>
       </TooltipPrimitive.Root>
     </TooltipPrimitive.Provider>
   );

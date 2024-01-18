@@ -1,22 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Layout } from './Layout';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 
-type Props = {
-  id?: string;
-};
-
 const Wrapper = styled.div`
-  --color-border-1: #3c3c3c;
+  --color-border-1: #4a4a4a;
   --color-text-1: #fff;
-  --color-text-2: #d9d9d9;
+  --color-text-2: #c6c6c6;
   --color-surface-1: #000;
   --color-surface-2: #131313;
   --color-surface-3: #272727;
   --color-surface-4: #333333;
-  --color-surface-primary: #536e8e;
+  --color-surface-primary: #6e63d4;
+  --color-affirm: #7af5b8;
   --color-danger: #d76464;
   --font-primary: sans-serif;
 
@@ -28,8 +25,11 @@ const Wrapper = styled.div`
   background: var(--color-surface-1);
 `;
 
-export function Sandbox({ id = 'bwe-sandbox-ide-default' }: Props) {
-  const setId = useSandboxStore((store) => store.setId);
+export function Sandbox() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const setContainerElement = useSandboxStore(
+    (store) => store.setContainerElement
+  );
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
@@ -45,13 +45,15 @@ export function Sandbox({ id = 'bwe-sandbox-ide-default' }: Props) {
   }, []);
 
   useEffect(() => {
-    setId(id);
-  }, [id, setId]);
+    if (containerRef.current) {
+      setContainerElement(containerRef.current);
+    }
+  });
 
   if (!shouldRender) return null;
 
   return (
-    <Wrapper id={id}>
+    <Wrapper ref={containerRef}>
       <Layout />
     </Wrapper>
   );

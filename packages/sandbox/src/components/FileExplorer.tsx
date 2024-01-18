@@ -196,8 +196,14 @@ export function FileExplorer() {
       const newPathSegments = newPath.split('.');
       const newPathExtension = newPathSegments.pop()!;
       const newPathWithoutExtension = newPathSegments.join('.');
+
+      const otherFiles = {
+        ...files,
+      };
+      delete otherFiles[editingFileNamePath];
+
       newPath = returnUniqueFilePath(
-        files,
+        otherFiles,
         newPathWithoutExtension,
         newPathExtension
       );
@@ -262,12 +268,12 @@ export function FileExplorer() {
               </Dropdown.Trigger>
 
               <Dropdown.Content sideOffset={2}>
-                <Dropdown.Item onClick={() => editFileName(path)}>
+                <Dropdown.Item onSelect={() => editFileName(path)}>
                   <PencilSimple />
                   Rename File
                 </Dropdown.Item>
 
-                <Dropdown.Item onClick={() => removeFile(path)}>
+                <Dropdown.Item onSelect={() => removeFile(path)}>
                   <Trash color="var(--color-danger)" />
                   Delete File
                 </Dropdown.Item>
