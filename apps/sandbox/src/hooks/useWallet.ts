@@ -1,9 +1,11 @@
 import type {
+  Wallet,
   WalletSelector,
   WalletSelectorParams,
   WalletSelectorState,
 } from '@near-wallet-selector/core';
 import { setupWalletSelector } from '@near-wallet-selector/core';
+import { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
 import { setupHereWallet } from '@near-wallet-selector/here-wallet';
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
@@ -25,6 +27,9 @@ export function useWallet(
     network: 'mainnet',
   }
 ) {
+  const [wallet, setWallet] = useState<(Wallet & SignMessageMethod) | null>(
+    null
+  );
   const [walletSelector, setWalletSelector] = useState<WalletSelector | null>(
     null
   );
@@ -64,16 +69,27 @@ export function useWallet(
   useEffect(() => {
     if (!walletSelector) return;
 
-    const subscription = walletSelector.store.observable.subscribe((value) => {
-      setWalletSelectorState(value);
-    });
+    const subscription = walletSelector.store.observable.subscribe(
+      async (value) => {
+        setWalletSelectorState(value);
+
+        if (value.accounts.length > 0 && value.selectedWalletId) {
+          const wallet = await walletSelector.wallet();
+          setWallet(wallet);
+        } else {
+          setWallet(null);
+        }
+      }
+    );
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [walletSelector, walletSelector?.store]);
+  }, [walletSelector]);
 
   return {
+    account: walletSelectorState?.accounts[0],
+    wallet,
     walletSelector,
     walletSelectorModal,
     walletSelectorState,

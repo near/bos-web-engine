@@ -7,15 +7,16 @@ import { useSandboxStore } from '../hooks/useSandboxStore';
 const Wrapper = styled.div`
   --color-border-1: #4a4a4a;
   --color-text-1: #fff;
-  --color-text-2: #c6c6c6;
+  --color-text-2: #a8a8a8;
   --color-surface-1: #000;
   --color-surface-2: #131313;
-  --color-surface-3: #272727;
+  --color-surface-3: #1e1e1e;
   --color-surface-4: #333333;
   --color-surface-primary: #6e63d4;
+  --color-focus-outline: #b7b2f0;
   --color-affirm: #7af5b8;
   --color-danger: #d76464;
-  --font-primary: sans-serif;
+  --font-primary: 'Inter', sans-serif;
 
   display: flex;
   align-items: stretch;

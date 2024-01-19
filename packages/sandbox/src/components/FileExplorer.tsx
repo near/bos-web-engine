@@ -45,20 +45,18 @@ const FileDropdownButton = styled.button`
   justify-content: center;
   width: 1.5rem;
   flex-shrink: 0;
-  color: var(--color-text-2);
+  color: var(--color-text-1);
+  opacity: 0.5;
   cursor: pointer;
   background: none;
+  transition: all 200ms;
 
   svg {
     fill: currentColor;
   }
 
   &:hover {
-    color: var(--color-text-1);
-  }
-
-  &:focus {
-    box-shadow: inset 0 0 0 1px var(--color-border-1);
+    opacity: 1;
   }
 
   &[data-state='open'] {
@@ -93,6 +91,8 @@ const FileListItem = styled.li`
   display: flex;
   min-width: 0;
   align-items: stretch;
+  box-shadow: inset 0 0 0 0px var(--color-focus-outline);
+  transition: all 200ms;
 
   &[data-active='true'] {
     background: var(--color-surface-3);
@@ -113,9 +113,7 @@ const FileListItem = styled.li`
   }
 
   &:focus-within {
-    box-shadow:
-      inset 0 0 15px rgba(255, 255, 255, 0.2),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 0 0 2px var(--color-focus-outline);
   }
 `;
 

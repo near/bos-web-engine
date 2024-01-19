@@ -12,12 +12,12 @@ export const RadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 const ContentStyled = styled(DropdownMenuPrimitive.Content)`
   z-index: 1000;
-  min-width: 8rem;
+  min-width: 0;
   max-width: min(25rem, 100vw);
   max-height: 80vh;
-  background-color: var(--color-surface-4);
-  border-radius: 0.2rem;
-  padding: 0.25rem;
+  background-color: var(--color-surface-1);
+  border-radius: 0.3rem;
+  padding: 0.5rem;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
   overflow: auto;
   scroll-behavior: smooth;
@@ -30,13 +30,13 @@ const ContentStyled = styled(DropdownMenuPrimitive.Content)`
 `;
 
 const ArrowStyled = styled(DropdownMenuPrimitive.Arrow)`
-  fill: var(--color-surface-4);
+  fill: var(--color-surface-1);
 `;
 
 const itemCss = css`
   all: unset;
   color: var(--color-text-1);
-  border-radius: 0.1rem;
+  border-radius: 0.2rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -52,6 +52,7 @@ const itemCss = css`
   outline: none;
   cursor: pointer;
   overflow-wrap: anywhere;
+  transition: all 200ms;
 
   &[data-highlighted] {
     background-color: var(--color-surface-3);

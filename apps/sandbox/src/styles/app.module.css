@@ -11,20 +11,28 @@
   gap: 1rem;
   position: sticky;
   top: 0;
-  height: 2.75rem;
+  height: 3rem;
   flex-shrink: 0;
   padding: 0 1rem;
   z-index: 2000;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  background: #333333;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.15);
+  background: var(--color-surface-1);
 }
 
 .logo {
   display: inline-flex;
   gap: 1rem;
   align-items: center;
-  color: #808080;
+  color: var(--color-text-1);
+  opacity: 0.3;
   margin-right: auto;
+  transition: all 200ms;
+}
+.logo:hover {
+  opacity: 0.5;
+}
+.logo:focus {
+  opacity: 1;
 }
 
 .logoSvg {

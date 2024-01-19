@@ -33,6 +33,7 @@ const Wrapper = styled.div`
   box-sizing: border-box;
   padding: 0.5rem 0;
   box-shadow: 3px 0 3px rgba(0, 0, 0, 0.15);
+  background: var(--color-surface-2);
 `;
 
 const Action = styled.button`
@@ -45,6 +46,8 @@ const Action = styled.button`
   border-radius: 0.25rem;
   color: var(--color-text-1);
   cursor: pointer;
+  box-shadow: 0 0 0 0px var(--color-focus-outline);
+  transition: all 200ms;
 
   svg {
     width: 1.25rem;
@@ -57,7 +60,7 @@ const Action = styled.button`
   }
 
   &:focus {
-    box-shadow: inset 0 0 0 1px var(--color-border-1);
+    box-shadow: 0 0 0 2px var(--color-focus-outline);
   }
 `;
 

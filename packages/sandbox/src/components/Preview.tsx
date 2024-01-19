@@ -33,9 +33,10 @@ const Header = styled.div`
 
 const PinnedComponentSelector = styled.button`
   all: unset;
-  display: inline-flex;
+  display: flex;
   height: 100%;
-  max-width: 100%;
+  width: 100%;
+  min-width: 0;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
@@ -43,11 +44,12 @@ const PinnedComponentSelector = styled.button`
   font-size: 0.8rem;
   font-weight: 400;
   color: var(--color-text-1);
-  background: rgba(0, 0, 0, 0.4);
-  padding: 0 1rem;
-  border-radius: 5rem;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0 0.75rem;
   box-sizing: border-box;
   cursor: pointer;
+  transition: all 200ms;
+  mix-blend-mode: overlay;
 
   span {
     min-width: 0;
@@ -57,18 +59,18 @@ const PinnedComponentSelector = styled.button`
   }
 
   svg {
-    fill: currentColor;
     flex-shrink: 0;
   }
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.5);
+  &:hover,
+  &:focus {
+    background: rgba(0, 0, 0, 0.75);
   }
 `;
 
 const Scroll = styled.div`
   position: absolute;
-  inset: 3.5rem 1rem 1rem;
+  inset: 2.5rem 1rem 1rem;
   overflow: auto;
   scroll-behavior: smooth;
   background: #fff;
@@ -136,11 +138,11 @@ export function Preview() {
             <PinnedComponentSelector type="button">
               <Eye weight="fill" />
               <span>{pinnedPreviewFilePath ?? 'Current Editor Component'}</span>
-              <CaretDown weight="bold" />
+              <CaretDown weight="bold" style={{ opacity: 0.65 }} />
             </PinnedComponentSelector>
           </Dropdown.Trigger>
 
-          <Dropdown.Content>
+          <Dropdown.Content sideOffset={4}>
             <Dropdown.Label>Preview:</Dropdown.Label>
 
             <Dropdown.RadioGroup
