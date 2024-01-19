@@ -22,7 +22,7 @@ const Content = styled(TooltipPrimitive.Content)`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--color-surface-4);
+  background-color: var(--color-surface-primary);
   z-index: 1000;
   max-width: 20rem;
   font-size: 0.8rem;
@@ -33,7 +33,7 @@ const Content = styled(TooltipPrimitive.Content)`
 `;
 
 const Arrow = styled(TooltipPrimitive.Arrow)`
-  fill: var(--color-surface-4);
+  fill: var(--color-surface-primary);
 `;
 
 export function Tooltip({

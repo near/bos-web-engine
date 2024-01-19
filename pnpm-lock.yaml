@@ -59,6 +59,9 @@ importers:
       '@near-wallet-selector/sender':
         specifier: ^8.9.2
         version: 8.9.2(near-api-js@2.1.4)
+      '@phosphor-icons/react':
+        specifier: ^2.0.15
+        version: 2.0.15(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.0.6
         version: 2.0.6(@types/react-dom@18.2.7)(@types/react@18.2.45)(react-dom@18.2.0)(react@18.2.0)
