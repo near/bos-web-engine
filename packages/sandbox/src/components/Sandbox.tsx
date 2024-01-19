@@ -1,6 +1,5 @@
 import { Theme } from '@bos-web-engine/ui';
 import { useEffect, useRef, useState } from 'react';
-import root from 'react-shadow';
 import styled from 'styled-components';
 
 import { Layout } from './Layout';
@@ -42,6 +41,7 @@ export function Sandbox() {
 
   useEffect(() => {
     if (containerRef.current) {
+      console.log(containerRef.current);
       setContainerElement(containerRef.current);
     }
   });
@@ -49,12 +49,10 @@ export function Sandbox() {
   if (!shouldRender) return null;
 
   return (
-    // <root.div>
-    <Wrapper ref={containerRef}>
-      <Theme>
+    <Theme includeDefaultStyles>
+      <Wrapper ref={containerRef}>
         <Layout />
-      </Theme>
-    </Wrapper>
-    // </root.div>
+      </Wrapper>
+    </Theme>
   );
 }

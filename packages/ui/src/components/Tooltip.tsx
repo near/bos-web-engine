@@ -1,6 +1,7 @@
 import * as Primitive from '@radix-ui/react-tooltip';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
-import styled from 'styled-components';
+
+import s from './Tooltip.module.css';
 
 type RootProps = Omit<ComponentProps<typeof Primitive.Root>, 'children'>;
 
@@ -11,29 +12,9 @@ type Props = Omit<ComponentProps<typeof Primitive.Content>, 'content'> & {
   root?: RootProps;
 };
 
-const Content = styled(Primitive.Content)`
-  color: var(--color-text-1);
-  border-radius: 0.25rem;
-  padding: 0.3rem 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: var(--color-surface-primary);
-  z-index: 1000;
-  max-width: 20rem;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  word-break: break-word;
-  font-family: sans-serif;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.325);
-`;
-
-const Arrow = styled(Primitive.Arrow)`
-  fill: var(--color-surface-primary);
-`;
-
 export function Tooltip({
   children,
+  className = '',
   container,
   content,
   root = { disableHoverableContent: true },
@@ -49,10 +30,15 @@ export function Tooltip({
         <Primitive.Trigger asChild>{children}</Primitive.Trigger>
 
         <Primitive.Portal container={container}>
-          <Content side={side} sideOffset={sideOffset} {...props}>
+          <Primitive.Content
+            side={side}
+            sideOffset={sideOffset}
+            {...props}
+            className={`${s.content} ${className}`}
+          >
             {content}
-            <Arrow offset={6} />
-          </Content>
+            <Primitive.Arrow className={s.arrow} offset={6} />
+          </Primitive.Content>
         </Primitive.Portal>
       </Primitive.Root>
     </Primitive.Provider>

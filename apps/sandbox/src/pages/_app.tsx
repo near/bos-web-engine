@@ -1,6 +1,7 @@
-import '@/styles/reset.css';
-import '@/styles/globals.css';
+import '@bos-web-engine/ui/styles/reset.css';
 import '@near-wallet-selector/modal-ui/styles.css';
+import '@/styles/globals.css';
+
 import type { AppProps } from 'next/app';
 import s from '@/styles/app.module.css';
 import { CurrentWallet } from '@/components/CurrentWallet';
