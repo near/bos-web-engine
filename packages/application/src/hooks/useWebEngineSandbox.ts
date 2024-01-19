@@ -10,16 +10,24 @@ export function useWebEngineSandbox({
   rootComponentPath,
 }: UseWebEngineSandboxParams) {
   const [nonce, setNonce] = useState('');
-  const { addComponent, compiler, components, error, hooks, setComponents } =
-    useComponents({
-      config,
-      rootComponentPath,
-    });
+  const {
+    addComponent,
+    compiler,
+    components,
+    error,
+    getComponentRenderCount,
+    hooks,
+    setComponents,
+  } = useComponents({
+    config,
+    rootComponentPath,
+  });
 
   const { domRoots } = useComponentTree({
     addComponent,
     compiler,
     components,
+    getComponentRenderCount,
     hooks,
   });
 
