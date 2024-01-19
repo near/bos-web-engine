@@ -35,9 +35,10 @@
   cursor: pointer;
   overflow-wrap: anywhere;
   transition: all 200ms;
-}
-.item[data-highlighted] {
-  background-color: var(--color-surface-3);
+
+  &[data-highlighted] {
+    background-color: var(--color-surface-3);
+  }
 }
 
 .label {
@@ -56,6 +57,15 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+
+  &[data-state='checked'] {
+    .checkedIndicatorSvg {
+      display: block;
+    }
+    .uncheckedIndicatorSvg {
+      display: none;
+    }
+  }
 }
 
 .checkedIndicatorSvg {
@@ -63,15 +73,9 @@
   opacity: 1;
   fill: var(--color-affirm);
 }
-[data-state='checked'] .checkedIndicatorSvg {
-  display: block;
-}
 
 .uncheckedIndicatorSvg {
   display: block;
   opacity: 0.5;
   fill: currentColor;
-}
-[data-state='checked'] .checkedIndicatorSvg {
-  display: none;
 }

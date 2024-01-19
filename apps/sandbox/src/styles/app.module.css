@@ -27,12 +27,15 @@
   opacity: 0.3;
   margin-right: auto;
   transition: all 200ms;
-}
-.logo:hover {
-  opacity: 0.5;
-}
-.logo:focus {
-  opacity: 1;
+  text-decoration: none;
+  outline: none;
+
+  &:hover {
+    opacity: 0.5;
+  }
+  &:focus {
+    opacity: 1;
+  }
 }
 
 .logoSvg {
