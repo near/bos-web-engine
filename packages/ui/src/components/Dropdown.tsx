@@ -1,21 +1,21 @@
 import { Circle, CheckCircle } from '@phosphor-icons/react';
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import * as Primitive from '@radix-ui/react-dropdown-menu';
 import type { ComponentProps, ReactNode } from 'react';
 import { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
-import { useSandboxStore } from '../hooks/useSandboxStore';
+export const Root = Primitive.Root;
+export const Trigger = Primitive.Trigger;
+export const RadioGroup = Primitive.RadioGroup;
+export const Portal = Primitive.Portal;
 
-export const Root = DropdownMenuPrimitive.Root;
-export const Trigger = DropdownMenuPrimitive.Trigger;
-export const RadioGroup = DropdownMenuPrimitive.RadioGroup;
-
-const ContentStyled = styled(DropdownMenuPrimitive.Content)`
+const ContentStyled = styled(Primitive.Content)`
   z-index: 1000;
   min-width: 0;
   max-width: min(25rem, 100vw);
   max-height: 80vh;
-  background-color: var(--color-surface-1);
+  background: var(--color-surface-1);
+  background: red;
   border-radius: 0.3rem;
   padding: 0.5rem;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
@@ -29,7 +29,7 @@ const ContentStyled = styled(DropdownMenuPrimitive.Content)`
   }
 `;
 
-const ArrowStyled = styled(DropdownMenuPrimitive.Arrow)`
+const ArrowStyled = styled(Primitive.Arrow)`
   fill: var(--color-surface-1);
 `;
 
@@ -59,13 +59,13 @@ const itemCss = css`
   }
 `;
 
-const CheckboxItemStyled = styled(DropdownMenuPrimitive.CheckboxItem)`
+const CheckboxItemStyled = styled(Primitive.CheckboxItem)`
   ${itemCss}
 `;
-const ItemStyled = styled(DropdownMenuPrimitive.Item)`
+const ItemStyled = styled(Primitive.Item)`
   ${itemCss}
 `;
-const RadioItemStyled = styled(DropdownMenuPrimitive.RadioItem)`
+const RadioItemStyled = styled(Primitive.RadioItem)`
   ${itemCss}
 `;
 
@@ -113,24 +113,20 @@ const StyledIndicator = styled.div`
 
 export const Content = forwardRef<
   HTMLDivElement,
-  ComponentProps<typeof DropdownMenuPrimitive.Content>
+  ComponentProps<typeof Primitive.Content>
 >(({ children, ...props }, ref) => {
-  const containerElement = useSandboxStore((store) => store.containerElement);
-
   return (
-    <DropdownMenuPrimitive.Portal container={containerElement}>
-      <ContentStyled sideOffset={0} ref={ref} {...props}>
-        {children}
-        <ArrowStyled />
-      </ContentStyled>
-    </DropdownMenuPrimitive.Portal>
+    <ContentStyled sideOffset={0} ref={ref} {...props}>
+      {children}
+      <ArrowStyled />
+    </ContentStyled>
   );
 });
 Content.displayName = 'Content';
 
 export const Item = forwardRef<
   HTMLDivElement,
-  ComponentProps<typeof DropdownMenuPrimitive.Item>
+  ComponentProps<typeof Primitive.Item>
 >((props, ref) => {
   return <ItemStyled ref={ref} {...props} />;
 });
@@ -138,7 +134,7 @@ Item.displayName = 'Item';
 
 export const RadioItem = forwardRef<
   HTMLInputElement,
-  ComponentProps<typeof DropdownMenuPrimitive.RadioItem>
+  ComponentProps<typeof Primitive.RadioItem>
 >((props, ref) => {
   return <RadioItemStyled ref={ref} {...props} />;
 });
@@ -146,7 +142,7 @@ RadioItem.displayName = 'RadioItem';
 
 export const CheckboxItem = forwardRef<
   HTMLInputElement,
-  ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>
+  ComponentProps<typeof Primitive.CheckboxItem>
 >((props, ref) => {
   return <CheckboxItemStyled ref={ref} {...props} />;
 });

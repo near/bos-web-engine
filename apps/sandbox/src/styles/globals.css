@@ -1,61 +1,7 @@
-:root {
-  --color-border-1: #4a4a4a;
-  --color-text-1: #fff;
-  --color-text-2: #a8a8a8;
-  --color-surface-1: #000;
-  --color-surface-2: #131313;
-  --color-surface-3: #1e1e1e;
-  --color-surface-4: #333333;
-  --color-surface-primary: #6e63d4;
-  --color-focus-outline: #b7b2f0;
-  --color-affirm: #7af5b8;
-  --color-danger: #d76464;
-  --font-primary: 'Inter', sans-serif;
-}
-
 html,
 body,
 #next {
   min-height: 100vh;
-}
-
-body {
-  font-family: var(--font-primary);
-  line-height: 1.5;
-  min-height: 100vh;
-  background: var(--color-surface-1);
-  color: var(--color-text-1);
-}
-
-h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.15;
-}
-h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.25;
-}
-h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.4;
-}
-h4 {
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.5;
-}
-h5 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  line-height: 1.5;
-}
-h6 {
-  font-size: 0.7rem;
-  font-weight: 700;
-  line-height: 1.5;
 }
 
 .nws-modal-wrapper {

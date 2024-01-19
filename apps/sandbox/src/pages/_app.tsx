@@ -3,17 +3,17 @@ import '@/styles/globals.css';
 import '@near-wallet-selector/modal-ui/styles.css';
 import type { AppProps } from 'next/app';
 import s from '@/styles/app.module.css';
-import { NearIconSvg } from '@/components/NearIconSvg';
 import { CurrentWallet } from '@/components/CurrentWallet';
 import Link from 'next/link';
+import { NearIconSvg, Theme } from '@bos-web-engine/ui';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <div className={s.wrapper}>
+    <Theme className={s.wrapper}>
       <header className={s.header}>
         <Link className={s.logo} href="/">
-          <NearIconSvg className={s.logoSvg} />
-          <h1 className={s.logoTitle}>Sandbox</h1>
+          <NearIconSvg />
+          <h1>Sandbox</h1>
         </Link>
 
         <CurrentWallet />
@@ -22,6 +22,6 @@ export default function App({ Component, pageProps }: AppProps) {
       <main className={s.main}>
         <Component {...pageProps} />
       </main>
-    </div>
+    </Theme>
   );
 }

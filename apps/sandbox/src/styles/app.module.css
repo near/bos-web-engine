@@ -36,19 +36,19 @@
   &:focus {
     opacity: 1;
   }
-}
 
-.logoSvg {
-  display: block;
-  height: 1rem;
-  flex-shrink: 0;
-}
+  svg {
+    display: block;
+    height: 1rem;
+    flex-shrink: 0;
+  }
 
-.logoTitle {
-  font-family: sans-serif;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  font-weight: 300;
+  h1 {
+    font-family: sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
 }
 
 .main {

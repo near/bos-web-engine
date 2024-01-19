@@ -1,10 +1,10 @@
 import type { WebEngineLocalComponents } from '@bos-web-engine/application';
 import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
+import { Dropdown } from '@bos-web-engine/ui';
 import { CaretDown, Eye } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import * as Dropdown from './Dropdown';
 import {
   ACCOUNT_ID,
   PREACT_VERSION,
@@ -77,6 +77,7 @@ const Scroll = styled.div`
 `;
 
 export function Preview() {
+  const containerElement = useSandboxStore((store) => store.containerElement);
   const activeFilePath = useSandboxStore((store) => store.activeFilePath);
   const pinnedPreviewFilePath = useSandboxStore(
     (store) => store.pinnedPreviewFilePath
@@ -142,30 +143,32 @@ export function Preview() {
             </PinnedComponentSelector>
           </Dropdown.Trigger>
 
-          <Dropdown.Content sideOffset={4}>
-            <Dropdown.Label>Preview:</Dropdown.Label>
+          <Dropdown.Portal container={containerElement}>
+            <Dropdown.Content sideOffset={4}>
+              <Dropdown.Label>Preview:</Dropdown.Label>
 
-            <Dropdown.RadioGroup
-              value={pinnedPreviewFilePath || ''}
-              onValueChange={(value) =>
-                setPinnedPreviewFile(value || undefined)
-              }
-            >
-              <Dropdown.RadioItem value="">
-                <Dropdown.CheckedIndicator />
-                Current Editor Component
-              </Dropdown.RadioItem>
-
-              <hr />
-
-              {Object.keys(files).map((path) => (
-                <Dropdown.RadioItem key={path} value={path}>
+              <Dropdown.RadioGroup
+                value={pinnedPreviewFilePath || ''}
+                onValueChange={(value) =>
+                  setPinnedPreviewFile(value || undefined)
+                }
+              >
+                <Dropdown.RadioItem value="">
                   <Dropdown.CheckedIndicator />
-                  {path}
+                  Current Editor Component
                 </Dropdown.RadioItem>
-              ))}
-            </Dropdown.RadioGroup>
-          </Dropdown.Content>
+
+                <hr />
+
+                {Object.keys(files).map((path) => (
+                  <Dropdown.RadioItem key={path} value={path}>
+                    <Dropdown.CheckedIndicator />
+                    {path}
+                  </Dropdown.RadioItem>
+                ))}
+              </Dropdown.RadioGroup>
+            </Dropdown.Content>
+          </Dropdown.Portal>
         </Dropdown.Root>
       </Header>
 

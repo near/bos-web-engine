@@ -1,5 +1,5 @@
 {
-  "name": "@bos-web-engine/sandbox",
+  "name": "@bos-web-engine/ui",
   "version": "0.1.0",
   "description": "",
   "main": "lib/index.js",
@@ -10,20 +10,13 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@bos-web-engine/application": "workspace:*",
-    "@bos-web-engine/ui": "workspace:*",
-    "@monaco-editor/react": "^4.6.0",
     "@phosphor-icons/react": "^2.0.15",
-    "emmet-monaco-es": "^5.3.0",
-    "lodash.debounce": "^4.0.8",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-tooltip": "^1.0.7",
     "react": "^18.2.0",
-    "react-shadow": "^20.4.0",
-    "styled-components": "^6.0.8",
-    "zustand": "^4.4.3"
+    "styled-components": "^6.0.8"
   },
   "devDependencies": {
-    "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^17.0.12",
     "@types/react": "^18.2.34",
     "@types/react-dom": "^18.0.6",
     "eslint": "^7.32.0",

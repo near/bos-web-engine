@@ -1,3 +1,4 @@
+import { Dropdown } from '@bos-web-engine/ui';
 import {
   File,
   DotsThreeVertical,
@@ -12,7 +13,6 @@ import {
 } from 'react';
 import styled from 'styled-components';
 
-import * as Dropdown from './Dropdown';
 import {
   NEW_COMPONENT_TEMPLATE,
   VALID_FILE_EXTENSION_REGEX,
@@ -130,6 +130,7 @@ const FileName = styled.span`
 `;
 
 export function FileExplorer() {
+  const containerElement = useSandboxStore((store) => store.containerElement);
   const activeFilePath = useSandboxStore((store) => store.activeFilePath);
   const editingFileNamePath = useSandboxStore(
     (store) => store.editingFileNamePath
@@ -265,17 +266,19 @@ export function FileExplorer() {
                 </FileDropdownButton>
               </Dropdown.Trigger>
 
-              <Dropdown.Content sideOffset={2}>
-                <Dropdown.Item onSelect={() => editFileName(path)}>
-                  <PencilSimple />
-                  Rename File
-                </Dropdown.Item>
+              <Dropdown.Portal container={containerElement}>
+                <Dropdown.Content sideOffset={2}>
+                  <Dropdown.Item onSelect={() => editFileName(path)}>
+                    <PencilSimple />
+                    Rename File
+                  </Dropdown.Item>
 
-                <Dropdown.Item onSelect={() => removeFile(path)}>
-                  <Trash color="var(--color-danger)" />
-                  Delete File
-                </Dropdown.Item>
-              </Dropdown.Content>
+                  <Dropdown.Item onSelect={() => removeFile(path)}>
+                    <Trash color="var(--color-danger)" />
+                    Delete File
+                  </Dropdown.Item>
+                </Dropdown.Content>
+              </Dropdown.Portal>
             </Dropdown.Root>
           </FileListItem>
         ))}

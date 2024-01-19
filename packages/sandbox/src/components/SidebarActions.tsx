@@ -1,3 +1,4 @@
+import { NearIconSvg, Tooltip } from '@bos-web-engine/ui';
 import { useMonaco } from '@monaco-editor/react';
 import {
   Plus,
@@ -9,8 +10,6 @@ import {
 import styled from 'styled-components';
 
 import { GitHubIconSvg } from './GitHubIconSvg';
-import { NearIconSvg } from './NearIconSvg';
-import { Tooltip } from './Tooltip';
 import { NEW_COMPONENT_TEMPLATE } from '../constants';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { PanelType } from '../types';
@@ -68,6 +67,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
   const monaco = useMonaco();
   const editors = monaco?.editor.getEditors();
   const editor = editors && editors[Math.max(editors.length - 1, 0)];
+  const containerElement = useSandboxStore((store) => store.containerElement);
   const files = useSandboxStore((store) => store.files);
   const setActiveFile = useSandboxStore((store) => store.setActiveFile);
   const setEditingFileName = useSandboxStore(
@@ -98,19 +98,34 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
 
   return (
     <Wrapper>
-      <Tooltip content="Create New Component" side="right" sideOffset={10}>
+      <Tooltip
+        content="Create New Component"
+        side="right"
+        sideOffset={10}
+        container={containerElement}
+      >
         <Action type="button" onClick={addNewComponent}>
           <Plus />
         </Action>
       </Tooltip>
 
-      <Tooltip content="Format Code" side="right" sideOffset={10}>
+      <Tooltip
+        content="Format Code"
+        side="right"
+        sideOffset={10}
+        container={containerElement}
+      >
         <Action type="button" onClick={formatCode}>
           <BracketsCurly />
         </Action>
       </Tooltip>
 
-      <Tooltip content="Toggle Editor Panel View" side="right" sideOffset={10}>
+      <Tooltip
+        content="Toggle Editor Panel View"
+        side="right"
+        sideOffset={10}
+        container={containerElement}
+      >
         <Action
           type="button"
           onClick={() =>
@@ -121,7 +136,12 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         </Action>
       </Tooltip>
 
-      <Tooltip content="Toggle Preview Panel View" side="right" sideOffset={10}>
+      <Tooltip
+        content="Toggle Preview Panel View"
+        side="right"
+        sideOffset={10}
+        container={containerElement}
+      >
         <Action
           type="button"
           onClick={() =>
@@ -132,7 +152,12 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         </Action>
       </Tooltip>
 
-      <Tooltip content="Sandbox Docs" side="right" sideOffset={10}>
+      <Tooltip
+        content="Sandbox Docs"
+        side="right"
+        sideOffset={10}
+        container={containerElement}
+      >
         <Action as="a" href="/help" target="_blank">
           <BookOpenText />
         </Action>
@@ -153,7 +178,12 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         </Action>
       </Tooltip>
 
-      <Tooltip content="Powered by NEAR" side="right" sideOffset={10}>
+      <Tooltip
+        content="Powered by NEAR"
+        side="right"
+        sideOffset={10}
+        container={containerElement}
+      >
         <Action as="a" href="https://near.org" target="_blank">
           <NearIconSvg />
         </Action>

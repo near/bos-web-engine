@@ -2,7 +2,7 @@
 
 import { useWallet } from '@/hooks/useWallet';
 import s from './CurrentWallet.module.css';
-import * as Dropdown from './Dropdown';
+import { Dropdown } from '@bos-web-engine/ui';
 import { X, CaretDown } from '@phosphor-icons/react';
 import { useProfile } from '@/hooks/useProfile';
 
