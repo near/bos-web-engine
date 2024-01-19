@@ -19,17 +19,23 @@
   line-height: 1;
   margin-right: -0.6rem;
   cursor: pointer;
+  border: none;
   border-radius: 10rem;
+  color: var(--color-text-1);
   background: var(--color-surface-1);
   box-shadow: 0 0 0 0px var(--color-focus-outline);
+  text-align: left;
+  outline: none;
   transition: all 200ms;
-}
-.accountDropdownButton:hover,
-.accountDropdownButton[data-state='open'] {
-  background: var(--color-surface-2);
-}
-.accountDropdownButton:focus {
-  box-shadow: 0 0 0 2px var(--color-focus-outline);
+
+  &:hover,
+  &[data-state='open'] {
+    background: var(--color-surface-2);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px var(--color-focus-outline);
+  }
 }
 
 .accountName {
@@ -37,10 +43,11 @@
   flex-direction: column;
   min-width: 0;
   gap: 0.15rem;
-}
-.accountName span:nth-child(2) {
-  color: var(--color-text-2);
-  font-size: 0.7rem;
+
+  span:nth-child(2) {
+    color: var(--color-text-2);
+    font-size: 0.7rem;
+  }
 }
 
 .avatar {
@@ -73,17 +80,21 @@
   gap: 0.75rem;
   line-height: 1;
   cursor: pointer;
+  border: none;
   border-radius: 10rem;
   color: var(--color-affirm);
   background: var(--color-surface-2);
   box-shadow: 0 0 0 1px var(--color-surface-3);
+  outline: none;
   transition: all 200ms;
-}
-.button:hover {
-  background: var(--color-surface-3);
-}
-.button:focus {
-  box-shadow:
-    0 0 0 1px var(--color-surface-primary),
-    0 0 0 3px var(--color-focus-outline);
+
+  &:hover {
+    background: var(--color-surface-3);
+  }
+
+  &:focus {
+    box-shadow:
+      0 0 0 1px var(--color-surface-primary),
+      0 0 0 3px var(--color-focus-outline);
+  }
 }
