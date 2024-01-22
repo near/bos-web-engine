@@ -10,6 +10,11 @@ interface CompilerWorker extends Omit<Worker, 'postMessage'> {
   postMessage(compilerRequest: ComponentCompilerRequest): void;
 }
 
+/**
+ * Provides an interface for managing containers
+ * @param config parameters to be applied to the entire Component tree
+ * @param rootComponentPath Component path for the root Component
+ */
 export function useComponents({
   config,
   rootComponentPath,

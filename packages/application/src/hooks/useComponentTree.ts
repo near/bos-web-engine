@@ -29,6 +29,15 @@ interface UseComponentTreeParams {
   hooks?: WebEngineHooks;
 }
 
+/**
+ * Manage the Component tree DOM for a set of containers
+ * @param compiler Compiler web worker responsible for fetching and parsing Components
+ * @param debug debugging options
+ * @param hooks callbacks to be invoked upon specific actions
+ * @param components set of active iframe containers
+ * @param addComponent callback to add a new iframe container (i.e. rendering a sandboxed child)
+ * @param getComponentRenderCount callback to get the number of renders for a given container
+ */
 export function useComponentTree({
   compiler,
   debug,
@@ -133,7 +142,10 @@ export function useComponentTree({
         console.error({ event }, e);
       }
     },
-    [components, loadComponent, mountElement,
+    [
+      components,
+      loadComponent,
+      mountElement,
       hooks,
       debug,
       getComponentRenderCount,
