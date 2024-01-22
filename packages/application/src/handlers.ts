@@ -1,4 +1,5 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
+import React from 'react';
 
 import { sendMessage } from './container';
 import { createChildElements, createElement } from './react';
@@ -62,9 +63,11 @@ interface ChildComponent {
 
 export function onRender({
   data,
+  debug,
   mountElement,
   isComponentLoaded,
   loadComponent,
+  getContainerRenderCount,
   onMessageSent,
 }: RenderHandlerParams) {
   /* a component has been rendered and is ready to be updated in the outer window */
@@ -78,7 +81,18 @@ export function onRender({
     onMessageSent,
   });
   const element = createElement({
-    children: [componentChildren].flat(),
+    children: [
+      ...(debug?.showContainerBoundaries
+        ? [
+            React.createElement('div', { className: 'dom-label' }, [
+              `[${
+                componentId.split('##')[0].split('/')[1]
+              } (${getContainerRenderCount(componentId)})]`,
+            ]),
+          ]
+        : []),
+      ...[componentChildren].flat(),
+    ],
     id: componentId,
     props,
     type: node.type,
