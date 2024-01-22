@@ -1,27 +1,28 @@
 {
-  "extends": "tsconfig/react-library.json",
-  "include": [
-    "src"
-  ],
-  "exclude": ["lib", "dist", "build", "node_modules"],
   "compilerOptions": {
-    "outDir": "./lib",
-    "lib": [
-      "dom",
-      "es2021"
-    ]
+    "moduleResolution": "node",
+    "target": "ESnext",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "lib": ["DOM", "ESNext"],
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "baseUrl": "src",
+    "outDir": "lib",
+    "declaration": true,
+    "emitDeclarationOnly": true,
   },
-  "watchOptions": {
-    // Use native file system events for files and directories
-    "watchFile": "useFsEvents",
-    "watchDirectory": "useFsEvents",
-    // Poll files for updates more frequently
-    // when they're updated a lot.
-    "fallbackPolling": "dynamicPriority",
-    // Don't coalesce watch notification
-    "synchronousWatchDirectory": true,
-    // Finally, two additional settings for reducing the amount of possible
-    // files to track  work from these directories
-    "excludeDirectories": ["**/node_modules", "_build"]
-  }
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+  ],
+  "exclude": [
+    "node_modules",
+    "lib",
+  ],
 }

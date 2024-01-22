@@ -1,7 +1,7 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
 
 import { sendMessage } from './container';
-import { createChildElements, createElement } from './react';
+import { createChildElements, createElement } from './react-helpers';
 import type {
   CallbackInvocationHandlerParams,
   CallbackResponseHandlerParams,

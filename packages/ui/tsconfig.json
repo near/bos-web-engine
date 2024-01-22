@@ -13,7 +13,7 @@
     "isolatedModules": true,
     "noEmit": false,
     "baseUrl": "src",
-    "outDir": "build",
+    "outDir": "lib",
     "declaration": true,
     "emitDeclarationOnly": true,
   },
@@ -23,6 +23,6 @@
   ],
   "exclude": [
     "node_modules",
-    "build",
+    "lib",
   ],
 }

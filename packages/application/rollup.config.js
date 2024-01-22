@@ -1,9 +1,9 @@
 import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
-import postcssPresetEnv from 'postcss-preset-env';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
-import postcss from 'rollup-plugin-postcss';
+import webWorkerLoader from 'rollup-plugin-web-worker-loader';
 
 const extensions = ['.js', '.jsx', '.ts', '.tsx'];
 const globals = {
@@ -13,6 +13,7 @@ const globals = {
 
 /** @type {import('rollup').RollupOptions} */
 const options = {
+  treeshake: 'smallest',
   input: ['./src/index.ts'],
   output: [
     {
@@ -31,17 +32,8 @@ const options = {
     nodeResolve({ extensions, browser: true }),
     commonjs(),
     typescript(),
-    postcss({
-      modules: true,
-      plugins: [
-        postcssPresetEnv({
-          stage: 3,
-          features: {
-            'nesting-rules': true,
-          },
-        }),
-      ],
-    }),
+    webWorkerLoader({ targetPlatform: 'browser' }),
+    json(),
   ],
 };
 

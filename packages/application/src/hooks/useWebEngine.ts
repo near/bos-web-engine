@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react';
 import ReactDOM from 'react-dom/client';
+import CompilerWebWorker from 'web-worker:../workers/compiler.ts';
 
 import { getAppDomId } from '../container';
 import {
@@ -207,9 +208,7 @@ export function useWebEngine({
     }
 
     if (!compiler) {
-      const worker = new Worker(
-        new URL('../workers/compiler.js', import.meta.url)
-      );
+      const worker = new CompilerWebWorker();
       const initPayload: ComponentCompilerRequest = {
         action: 'init',
         localFetchUrl: flags?.bosLoaderUrl,

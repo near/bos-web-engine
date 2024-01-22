@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "description": "",
   "files": [
-    "build/**/*"
+    "lib/**/*"
   ],
-  "main": "build/index.cjs.js",
-  "module": "build/index.esm.js",
-  "types": "build/index.d.ts",
+  "main": "lib/index.cjs.js",
+  "module": "lib/index.esm.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c",

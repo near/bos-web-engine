@@ -3,8 +3,8 @@ import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
 import { Dropdown } from '@bos-web-engine/ui';
 import { CaretDown, Eye } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
 
+import s from './Preview.module.css';
 import {
   ACCOUNT_ID,
   PREACT_VERSION,
@@ -13,68 +13,6 @@ import {
 import { useDebouncedValue } from '../hooks/useDebounced';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { convertFilePathToComponentName } from '../utils';
-
-const Wrapper = styled.div`
-  height: 100%;
-  position: relative;
-  color: #000;
-  background: linear-gradient(-45deg, #6861bd, #72cbdb);
-  box-sizing: border-box;
-`;
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.5rem;
-  box-sizing: border-box;
-  padding: 1rem 1rem 0;
-`;
-
-const PinnedComponentSelector = styled.button`
-  all: unset;
-  display: flex;
-  height: 100%;
-  width: 100%;
-  min-width: 0;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  font-family: var(--font-primary);
-  font-size: 0.8rem;
-  font-weight: 400;
-  color: var(--color-text-1);
-  background: rgba(0, 0, 0, 0.5);
-  padding: 0 0.75rem;
-  box-sizing: border-box;
-  cursor: pointer;
-  transition: all 200ms;
-  mix-blend-mode: overlay;
-
-  span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  svg {
-    flex-shrink: 0;
-  }
-
-  &:hover,
-  &:focus {
-    background: rgba(0, 0, 0, 0.75);
-  }
-`;
-
-const Scroll = styled.div`
-  position: absolute;
-  inset: 2.5rem 1rem 1rem;
-  overflow: auto;
-  scroll-behavior: smooth;
-  background: #fff;
-`;
 
 export function Preview() {
   const containerElement = useSandboxStore((store) => store.containerElement);
@@ -132,15 +70,15 @@ export function Preview() {
   }, [debouncedFiles]);
 
   return (
-    <Wrapper>
-      <Header>
+    <div className={s.wrapper}>
+      <div className={s.header}>
         <Dropdown.Root>
           <Dropdown.Trigger asChild>
-            <PinnedComponentSelector type="button">
+            <button className={s.pinnedComponentSelector} type="button">
               <Eye weight="fill" />
               <span>{pinnedPreviewFilePath ?? 'Current Editor Component'}</span>
               <CaretDown weight="bold" style={{ opacity: 0.65 }} />
-            </PinnedComponentSelector>
+            </button>
           </Dropdown.Trigger>
 
           <Dropdown.Portal container={containerElement}>
@@ -170,15 +108,15 @@ export function Preview() {
             </Dropdown.Content>
           </Dropdown.Portal>
         </Dropdown.Root>
-      </Header>
+      </div>
 
-      <Scroll>
+      <div className={s.scroll}>
         <ComponentTree
           key={nonce}
           components={components}
           rootComponentPath={rootComponentPath}
         />
-      </Scroll>
-    </Wrapper>
+      </div>
+    </div>
   );
 }

@@ -7,9 +7,9 @@ import {
   BracketsCurly,
   BookOpenText,
 } from '@phosphor-icons/react';
-import styled from 'styled-components';
 
 import { GitHubIconSvg } from './GitHubIconSvg';
+import s from './SidebarActions.module.css';
 import { NEW_COMPONENT_TEMPLATE } from '../constants';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { PanelType } from '../types';
@@ -19,49 +19,6 @@ type Props = {
   expandedPanel: PanelType | null;
   onSelectExpandPanel: (panel: PanelType | null) => void;
 };
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: center;
-  position: relative;
-  z-index: 20;
-  width: 3rem;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  padding: 0.5rem 0;
-  box-shadow: 3px 0 3px rgba(0, 0, 0, 0.15);
-  background: var(--color-surface-2);
-`;
-
-const Action = styled.button`
-  all: unset;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.25rem;
-  color: var(--color-text-1);
-  cursor: pointer;
-  box-shadow: 0 0 0 0px var(--color-focus-outline);
-  transition: all 200ms;
-
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: currentColor;
-  }
-
-  &:hover {
-    background: var(--color-surface-4);
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 2px var(--color-focus-outline);
-  }
-`;
 
 export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
   const monaco = useMonaco();
@@ -97,16 +54,16 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
   };
 
   return (
-    <Wrapper>
+    <div className={s.wrapper}>
       <Tooltip
         content="Create New Component"
         side="right"
         sideOffset={10}
         container={containerElement}
       >
-        <Action type="button" onClick={addNewComponent}>
+        <button className={s.action} type="button" onClick={addNewComponent}>
           <Plus />
-        </Action>
+        </button>
       </Tooltip>
 
       <Tooltip
@@ -115,9 +72,9 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         sideOffset={10}
         container={containerElement}
       >
-        <Action type="button" onClick={formatCode}>
+        <button className={s.action} type="button" onClick={formatCode}>
           <BracketsCurly />
-        </Action>
+        </button>
       </Tooltip>
 
       <Tooltip
@@ -126,14 +83,15 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         sideOffset={10}
         container={containerElement}
       >
-        <Action
+        <button
+          className={s.action}
           type="button"
           onClick={() =>
             onSelectExpandPanel(expandedPanel === 'EDITOR' ? null : 'EDITOR')
           }
         >
           <Code />
-        </Action>
+        </button>
       </Tooltip>
 
       <Tooltip
@@ -142,14 +100,15 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         sideOffset={10}
         container={containerElement}
       >
-        <Action
+        <button
+          className={s.action}
           type="button"
           onClick={() =>
             onSelectExpandPanel(expandedPanel === 'PREVIEW' ? null : 'PREVIEW')
           }
         >
           <Eye />
-        </Action>
+        </button>
       </Tooltip>
 
       <Tooltip
@@ -158,9 +117,9 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         sideOffset={10}
         container={containerElement}
       >
-        <Action as="a" href="/help" target="_blank">
+        <a className={s.action} href="/help" target="_blank">
           <BookOpenText />
-        </Action>
+        </a>
       </Tooltip>
 
       <Tooltip
@@ -168,14 +127,15 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         side="right"
         sideOffset={10}
       >
-        <Action
-          as="a"
+        <a
+          className={s.action}
           href="https://github.com/near/bos-web-engine"
           target="_blank"
           style={{ marginTop: 'auto' }}
+          rel="noreferrer"
         >
           <GitHubIconSvg />
-        </Action>
+        </a>
       </Tooltip>
 
       <Tooltip
@@ -184,10 +144,15 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         sideOffset={10}
         container={containerElement}
       >
-        <Action as="a" href="https://near.org" target="_blank">
+        <a
+          className={s.action}
+          href="https://near.org"
+          target="_blank"
+          rel="noreferrer"
+        >
           <NearIconSvg />
-        </Action>
+        </a>
       </Tooltip>
-    </Wrapper>
+    </div>
   );
 }
