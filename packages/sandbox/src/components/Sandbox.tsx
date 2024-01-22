@@ -1,49 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import { Theme } from '@bos-web-engine/ui';
+import type { WalletSelector } from '@near-wallet-selector/core';
+import { useEffect, useRef } from 'react';
 
 import { Layout } from './Layout';
+import s from './Sandbox.module.css';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 
-const Wrapper = styled.div`
-  --color-border-1: #4a4a4a;
-  --color-text-1: #fff;
-  --color-text-2: #a8a8a8;
-  --color-surface-1: #000;
-  --color-surface-2: #131313;
-  --color-surface-3: #1e1e1e;
-  --color-surface-4: #333333;
-  --color-surface-primary: #6e63d4;
-  --color-focus-outline: #b7b2f0;
-  --color-affirm: #7af5b8;
-  --color-danger: #d76464;
-  --font-primary: 'Inter', sans-serif;
+type Props = {
+  walletSelector: WalletSelector | null;
+};
 
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  font-family: var(--font-primary);
-  color: var(--color-text-1);
-  background: var(--color-surface-1);
-`;
-
-export function Sandbox() {
+export function Sandbox({ walletSelector }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const setContainerElement = useSandboxStore(
     (store) => store.setContainerElement
   );
-  const [shouldRender, setShouldRender] = useState(false);
-
-  useEffect(() => {
-    /*
-      This prevents Next JS from attempting to render this component on 
-      the server. Without this logic, Next JS complains about things like
-      `className` not matching what's rendered on the server. Based on 
-      current assumptions, rendering this component via SSR wouldn't make 
-      much sense anyways.
-    */
-
-    setShouldRender(true);
-  }, []);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -51,11 +22,18 @@ export function Sandbox() {
     }
   });
 
-  if (!shouldRender) return null;
+  useEffect(() => {
+    console.log(
+      'TODO: Use wallet selector instance to publish component changes',
+      walletSelector
+    );
+  }, [walletSelector]);
 
   return (
-    <Wrapper ref={containerRef}>
-      <Layout />
-    </Wrapper>
+    <Theme includeDefaultStyles className={s.wrapper}>
+      <div ref={containerRef}>
+        <Layout />
+      </div>
+    </Theme>
   );
 }

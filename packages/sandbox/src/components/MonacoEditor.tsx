@@ -1,27 +1,14 @@
 import Editor, { type OnMount, type BeforeMount } from '@monaco-editor/react';
 import { emmetJSX } from 'emmet-monaco-es';
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
 
 import { Loading } from './Loading';
+import s from './MonacoEditor.module.css';
 import { MONACO_EXTERNAL_LIBRARIES } from '../constants';
 import { useActiveFile } from '../hooks/useActiveFile';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { autoCloseHtmlTags } from '../monaco/auto-close-html-tags';
 import type { MonacoExternalLibrary } from '../types';
-
-const Wrapper = styled.div`
-  flex: 1 0 auto;
-  min-width: 0;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
-
-  &[data-loading='true'] {
-    .monaco-editor {
-      position: absolute;
-      opacity: 0;
-    }
-  }
-`;
 
 export function MonacoEditor() {
   const { activeFile, activeFilePath } = useActiveFile();
@@ -96,7 +83,7 @@ export function MonacoEditor() {
   };
 
   return (
-    <Wrapper data-loading={isLoading}>
+    <div className={s.wrapper} data-loading={isLoading}>
       {isLoading && <Loading message="Loading IDE environment..." />}
 
       {libraries && activeFilePath && activeFile && (
@@ -118,6 +105,6 @@ export function MonacoEditor() {
           onMount={onMonacoMount}
         />
       )}
-    </Wrapper>
+    </div>
   );
 }

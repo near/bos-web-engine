@@ -9,15 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@bos-web-engine/application": "workspace:*",
     "@bos-web-engine/sandbox": "workspace:*",
+    "@bos-web-engine/ui": "workspace:*",
+    "@bos-web-engine/wallet-selector-control": "workspace:*",
     "@near-wallet-selector/core": "^8.9.2",
     "@near-wallet-selector/here-wallet": "^8.9.2",
     "@near-wallet-selector/meteor-wallet": "^8.9.2",
     "@near-wallet-selector/modal-ui": "^8.9.2",
     "@near-wallet-selector/nightly": "^8.9.2",
     "@near-wallet-selector/sender": "^8.9.2",
-    "@phosphor-icons/react": "^2.0.15",
-    "@radix-ui/react-dropdown-menu": "^2.0.6",
     "next": "14.0.4",
     "postcss-preset-env": "^9.3.0",
     "react": "^18",
