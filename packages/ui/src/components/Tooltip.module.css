@@ -1,0 +1,20 @@
+.content {
+  color: var(--color-text-1);
+  border-radius: 0.25rem;
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-surface-primary);
+  z-index: 1000;
+  max-width: 20rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  word-break: break-word;
+  font-family: sans-serif;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.325);
+}
+
+.arrow {
+  fill: var(--color-surface-primary);
+}

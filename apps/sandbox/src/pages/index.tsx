@@ -1,13 +1,13 @@
 import { Sandbox } from '@bos-web-engine/sandbox';
 import s from '@/styles/home.module.css';
+import { useWallet } from '@/hooks/useWallet';
 
 export default function Home() {
-  // TODO: Pass walletSelector to <Sandbox />
-  // const { walletSelector } = useWallet();
+  const { walletSelector } = useWallet();
 
   return (
     <div className={s.wrapper}>
-      <Sandbox />
+      <Sandbox walletSelector={walletSelector} />
     </div>
   );
 }
