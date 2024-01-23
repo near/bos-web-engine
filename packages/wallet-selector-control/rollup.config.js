@@ -32,6 +32,7 @@ const options = {
     commonjs(),
     typescript(),
     postcss({
+      extract: 'styles.css',
       modules: true,
       plugins: [
         postcssPresetEnv({

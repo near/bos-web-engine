@@ -3,11 +3,27 @@
   "version": "0.1.0",
   "description": "",
   "files": [
-    "lib/**/*"
+    "lib"
   ],
   "main": "lib/index.cjs.js",
   "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.esm.js"
+      },
+      "require": {
+        "types": "./lib/cjs/index.d.ts",
+        "default": "./lib/cjs/index.cjs.js"
+      }
+    },
+    "./*.css": {
+      "import": "./lib/*.css",
+      "require": "./lib/*.css"
+    }
+  },
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c",
@@ -15,13 +31,13 @@
     "lint:fix": "eslint . --fix"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "@bos-web-engine/ui": "workspace:*",
     "@near-wallet-selector/core": "^8.9.2",
-    "@near-wallet-selector/modal-ui": "^8.9.2"
+    "@near-wallet-selector/modal-ui": "^8.9.2",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "dependencies": {
-    "@bos-web-engine/ui": "workspace:*",
     "@phosphor-icons/react": "^2.0.15"
   },
   "devDependencies": {

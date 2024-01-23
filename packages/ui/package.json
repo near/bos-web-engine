@@ -3,11 +3,27 @@
   "version": "0.1.0",
   "description": "",
   "files": [
-    "lib/**/*"
+    "lib"
   ],
   "main": "lib/index.cjs.js",
   "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.esm.js"
+      },
+      "require": {
+        "types": "./lib/cjs/index.d.ts",
+        "default": "./lib/cjs/index.cjs.js"
+      }
+    },
+    "./*.css": {
+      "import": "./lib/*.css",
+      "require": "./lib/*.css"
+    }
+  },
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c",

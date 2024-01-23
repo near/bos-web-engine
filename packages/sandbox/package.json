@@ -3,11 +3,27 @@
   "version": "0.1.0",
   "description": "",
   "files": [
-    "lib/**/*"
+    "lib"
   ],
   "main": "lib/index.cjs.js",
   "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.esm.js"
+      },
+      "require": {
+        "types": "./lib/cjs/index.d.ts",
+        "default": "./lib/cjs/index.cjs.js"
+      }
+    },
+    "./*.css": {
+      "import": "./lib/*.css",
+      "require": "./lib/*.css"
+    }
+  },
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c",
@@ -16,12 +32,12 @@
   },
   "peerDependencies": {
     "@bos-web-engine/application": "workspace:*",
+    "@bos-web-engine/ui": "workspace:*",
     "@near-wallet-selector/core": "^8.9.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
   "dependencies": {
-    "@bos-web-engine/ui": "workspace:*",
     "@monaco-editor/react": "^4.6.0",
     "@phosphor-icons/react": "^2.0.15",
     "emmet-monaco-es": "^5.3.0",

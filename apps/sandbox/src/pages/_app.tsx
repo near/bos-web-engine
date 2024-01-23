@@ -1,4 +1,7 @@
-import '@bos-web-engine/ui/styles/reset.css';
+import '@bos-web-engine/ui/reset.css';
+import '@bos-web-engine/ui/styles.css';
+import '@bos-web-engine/wallet-selector-control/styles.css';
+import '@bos-web-engine/sandbox/styles.css';
 import '@near-wallet-selector/modal-ui/styles.css';
 import '@/styles/globals.css';
 
