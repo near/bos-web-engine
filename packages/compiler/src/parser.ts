@@ -53,9 +53,14 @@ export function parseChildComponents(
         const propsMatch = expression.match(/\s+props:\s*/);
 
         if (!propsMatch?.index) {
+          const referencedExpression = expression.replace(
+            /Component,\s+\{/,
+            `${componentName}, { __bweMeta: { parentMeta: props.__bweMeta, `
+          );
+
           return componentSource.replaceAll(
             expression,
-            expression.replace(/Component/, componentName)
+            `${referencedExpression.slice(0, -1)}})`
           );
         }
 
@@ -77,9 +82,17 @@ export function parseChildComponents(
           .slice(openPropsBracketIndex + 1, closePropsBracketIndex - 1)
           .trim();
 
+        const expressionWithoutProps =
+          expression.slice(0, propsMatch.index) +
+          expression.slice(closePropsBracketIndex);
+
+        const bosComponentPropsString = expressionWithoutProps
+          .slice(expression.indexOf('{') + 1, -3)
+          .trim();
+
         return componentSource.replaceAll(
           expression,
-          `createElement(${componentName}, { __bweMeta: { parentMeta: props.__bweMeta }, ${propsString} })`
+          `createElement(${componentName}, { __bweMeta: { parentMeta: props.__bweMeta, ${bosComponentPropsString} }, ${propsString} })`
         );
       },
     };
