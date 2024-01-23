@@ -1,76 +1,9 @@
 import { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import styled from 'styled-components';
 
+import s from './Inspector.module.css';
 import { useComponentSourcesStore } from '../stores/component-sources';
-
-const SidebarButton = styled.button<{ $selected?: boolean }>`
-  background-color: ${(props) =>
-    props.$selected ? 'rebeccapurple' : 'transparent'};
-  padding: 0.5rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid black;
-  color: white;
-  text-align: left;
-  overflow-wrap: break-word;
-  &:hover {
-    border: 1px solid white;
-  }
-`;
-
-const CloseButton = styled.button`
-  background-color: #343028;
-  position: absolute;
-  top: 0;
-  right: 1.5rem;
-  padding: 0.5rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid black;
-  color: white;
-  text-align: left;
-  &:hover {
-    border: 1px solid white;
-  }
-`;
-
-const OpenButton = styled.button`
-  background-color: #343028;
-  position: fixed;
-  bottom: 0;
-  right: 1.5rem;
-  padding: 0.5rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid black;
-  color: white;
-  text-align: left;
-  &:hover {
-    border: 1px solid white;
-  }
-  border-radius: 0.5rem 0.5rem 0 0;
-`;
-
-const ComponentList = styled.div`
-  display: flex;
-  flex: none;
-  flex-direction: column;
-  min-width: 20rem;
-  max-width: 30rem;
-  background-color: #343028;
-  overflow-y: auto;
-`;
-
-const Panel = styled.div<{ $show?: boolean }>`
-  display: ${(props) => (props.$show ? 'flex' : 'none')};
-  flex-direction: row;
-  width: 100vw;
-  height: 40vh;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  z-index: 2;
-  border-top: 1px solid black;
-`;
 
 export function Inspector() {
   // at some point this state may be hoisted, but for now this component handles
@@ -85,48 +18,56 @@ export function Inspector() {
 
   if (!show) {
     return (
-      <OpenButton
+      <button
+        type="button"
+        className={s.openButton}
         onClick={() => {
           setShow(true);
         }}
       >
         Code
-      </OpenButton>
+      </button>
     );
   }
 
   return (
-    <Panel $show={show}>
-      <ComponentList>
+    <div className={s.panel}>
+      <div className={s.componentList}>
         {Object.keys(componentSources)
           .sort()
           .map((path) => {
             return (
-              <SidebarButton
+              <button
+                type="button"
+                className={s.button}
                 key={path}
                 onClick={() => {
                   setSelectedComponent(path);
                 }}
-                $selected={selectedComponent === path}
+                data-selected={selectedComponent === path}
               >
                 {path}
-              </SidebarButton>
+              </button>
             );
           })}
-      </ComponentList>
+      </div>
+
       <div
         style={{
           flex: 1,
           height: '100%',
         }}
       >
-        <CloseButton
+        <button
+          className={s.closeButton}
+          type="button"
           onClick={() => {
             setShow(false);
           }}
         >
           Close
-        </CloseButton>
+        </button>
+
         <SyntaxHighlighter
           language="jsx"
           style={oneDark}
@@ -143,6 +84,6 @@ export function Inspector() {
             : '// select a component from the list to inspect'}
         </SyntaxHighlighter>
       </div>
-    </Panel>
+    </div>
   );
 }

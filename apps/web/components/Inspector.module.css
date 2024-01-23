@@ -1,0 +1,72 @@
+.button {
+  background-color: transparent;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  border-bottom: 1px solid black;
+  color: white;
+  text-align: left;
+  overflow-wrap: break-word;
+
+  &:hover {
+    border: 1px solid white;
+  }
+
+  &[data-selected='true'] {
+    background-color: rebeccapurple;
+  }
+}
+
+.closeButton {
+  background-color: #343028;
+  position: absolute;
+  top: 0;
+  right: 1.5rem;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  border-bottom: 1px solid black;
+  color: white;
+  text-align: left;
+
+  &:hover {
+    border: 1px solid white;
+  }
+}
+
+.openButton {
+  background-color: #343028;
+  position: fixed;
+  bottom: 0;
+  right: 1.5rem;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  border-bottom: 1px solid black;
+  color: white;
+  text-align: left;
+  border-radius: 0.5rem 0.5rem 0 0;
+
+  &:hover {
+    border: 1px solid white;
+  }
+}
+
+.componentList {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  min-width: 20rem;
+  max-width: 30rem;
+  background-color: #343028;
+  overflow-y: auto;
+}
+
+.panel {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 40vh;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  border-top: 1px solid black;
+}
