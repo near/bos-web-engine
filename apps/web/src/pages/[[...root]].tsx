@@ -2,10 +2,10 @@ import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { Inspector } from '../components/Inspector';
-import { useComponentMetrics } from '../hooks/useComponentMetrics';
-import { useFlags } from '../hooks/useFlags';
-import { useComponentSourcesStore } from '../stores/component-sources';
+import { Inspector } from '@/components/Inspector';
+import { useComponentMetrics } from '@/hooks/useComponentMetrics';
+import { useFlags } from '@/hooks/useFlags';
+import { useComponentSourcesStore } from '@/stores/component-sources';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;
 const PREACT_VERSION = '10.17.1';

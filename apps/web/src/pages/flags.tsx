@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
-import { useFlags } from '../hooks/useFlags';
-import s from '../styles/flags.module.css';
+import { useFlags } from '@/hooks/useFlags';
+import s from '@/styles/flags.module.css';
 
 type FormData = {
   bosLoaderUrl: string;

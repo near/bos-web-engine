@@ -4,7 +4,7 @@ import '@bos-web-engine/ui/reset.css';
 import '@bos-web-engine/ui/styles.css';
 import '@bos-web-engine/wallet-selector-control/styles.css';
 import '@near-wallet-selector/modal-ui/styles.css';
-import '../styles/globals.css';
+import '@/styles/globals.css';
 
 import { NearIconSvg, Theme } from '@bos-web-engine/ui';
 import { WalletSelectorControl } from '@bos-web-engine/wallet-selector-control';
@@ -12,8 +12,8 @@ import type { AppProps } from 'next/app';
 import Link from 'next/link';
 import { useEffect } from 'react';
 
-import { useWallet } from '../hooks/useWallet';
-import s from '../styles/app.module.css';
+import { useWallet } from '@/hooks/useWallet';
+import s from '@/styles/app.module.css';
 
 /*
   TODO: Can we remove all of the Bootstrap CSS and library dependencies eventually? 
