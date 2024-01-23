@@ -18,7 +18,7 @@
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.15);
   background: var(--color-surface-1);
 
-  [data-wallet-selector-control-account-dropdown] {
+  [aria-haspopup='menu'] {
     margin-right: -0.6rem;
   }
 }

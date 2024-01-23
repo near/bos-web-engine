@@ -28,11 +28,7 @@ export function WalletSelectorControl({
     return (
       <Dropdown.Root>
         <Dropdown.Trigger asChild>
-          <button
-            type="button"
-            className={s.accountDropdownButton}
-            data-wallet-selector-control-account-dropdown
-          >
+          <button type="button" className={s.accountDropdownButton}>
             {profileImageUrl && (
               <div className={s.avatar}>
                 <img
@@ -70,12 +66,5 @@ export function WalletSelectorControl({
     );
   }
 
-  return (
-    <Button
-      onClick={() => walletSelectorModal?.show()}
-      data-wallet-selector-control-sign-in-button
-    >
-      Sign In
-    </Button>
-  );
+  return <Button onClick={() => walletSelectorModal?.show()}>Sign In</Button>;
 }
