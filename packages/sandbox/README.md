@@ -2,8 +2,6 @@
 
 An interactive sandbox for the web that allows you to experiment with writing BOS components and preview them in real time. Can be imported into a React or Next JS application.
 
-This package has peer dependencies on `@bos-web-engine/ui` and React 18.
-
 ## Usage
 
 First, include the package's styles inside the root of your application. For Next JS, this would be your `_app.tsx` file:

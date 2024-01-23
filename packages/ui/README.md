@@ -6,8 +6,6 @@ This package provides basic UI components to provide a consistent look and feel 
 
 When using any of the UI components provided by this library, make sure they are wrapped by the `<Theme>` component. If they aren't wrapped, they won't have access to the correct CSS theme variables to render correctly.
 
-This package has a peer dependency on React 18.
-
 ## Usage
 
 First, include the package's styles and `<Theme />` wrapper inside the root of your application. For Next JS, this would be your `_app.tsx` file:

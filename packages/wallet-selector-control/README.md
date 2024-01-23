@@ -2,8 +2,6 @@
 
 This package provides a convenient UI to show the currently signed in wallet (or allow a user to sign in). This component allows you to remain in control of initializing wallet selector and the sign in modal - you'll just pass those references through to the component. 
 
-This package has peer dependencies on `@bos-web-engine/ui`, `@near-wallet-selector/core`, `@near-wallet-selector/modal-ui`, and React 18.
-
 ## Usage
 
 An example of using `<WalletSelectorControl />` inside your Next JS `_app.tsx` file:
