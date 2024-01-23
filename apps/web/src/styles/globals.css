@@ -178,10 +178,6 @@ body,
   font-weight: 700;
 }
 
-span {
-  font-size: 12px;
-}
-
 .bwe-debug .container-child {
   border: 1px solid blue;
   padding: 0.5em;

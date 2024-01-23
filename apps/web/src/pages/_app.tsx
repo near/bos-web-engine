@@ -41,6 +41,7 @@ export default function App({ Component, pageProps }: AppProps) {
     >
       <Theme
         className={s.wrapper}
+        includeDefaultStyles
         style={{ background: '#fff', color: '#000' }}
       >
         <header className={s.header}>
