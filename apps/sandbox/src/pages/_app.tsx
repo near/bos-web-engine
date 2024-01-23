@@ -5,33 +5,37 @@ import '@bos-web-engine/sandbox/styles.css';
 import '@near-wallet-selector/modal-ui/styles.css';
 import '@/styles/globals.css';
 
-import type { AppProps } from 'next/app';
-import s from '@/styles/app.module.css';
-import Link from 'next/link';
 import { NearIconSvg, Theme } from '@bos-web-engine/ui';
-import { WalletSelectorControl } from '@bos-web-engine/wallet-selector-control';
-import { useWallet } from '@/hooks/useWallet';
+import {
+  WalletSelectorControl,
+  WalletSelectorProvider,
+} from '@bos-web-engine/wallet-selector-control';
+import type { AppProps } from 'next/app';
+import Link from 'next/link';
+
+import { MAINNET_WALLET_SELECTOR_PARAMS } from '@/constants';
+import s from '@/styles/app.module.css';
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { walletSelector, walletSelectorModal } = useWallet();
-
   return (
-    <Theme className={s.wrapper}>
-      <header className={s.header}>
-        <Link className={s.logo} href="/">
-          <NearIconSvg />
-          <h1>Sandbox</h1>
-        </Link>
+    <WalletSelectorProvider
+      contractId="social.near"
+      params={MAINNET_WALLET_SELECTOR_PARAMS}
+    >
+      <Theme className={s.wrapper}>
+        <header className={s.header}>
+          <Link className={s.logo} href="/">
+            <NearIconSvg />
+            <h1>Sandbox</h1>
+          </Link>
 
-        <WalletSelectorControl
-          walletSelector={walletSelector}
-          walletSelectorModal={walletSelectorModal}
-        />
-      </header>
+          <WalletSelectorControl />
+        </header>
 
-      <main className={s.main}>
-        <Component {...pageProps} />
-      </main>
-    </Theme>
+        <main className={s.main}>
+          <Component {...pageProps} />
+        </main>
+      </Theme>
+    </WalletSelectorProvider>
   );
 }

@@ -1,17 +1,19 @@
-import type {
-  Wallet,
-  WalletSelector,
-  WalletSelectorState,
-} from '@near-wallet-selector/core';
+import type { Wallet, WalletSelectorState } from '@near-wallet-selector/core';
 import type { SignMessageMethod } from '@near-wallet-selector/core/src/lib/wallet';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-export function useWalletState(walletSelector: WalletSelector | null) {
+import { WalletSelectorContext } from '../components/WalletSelectorProvider';
+
+export const useWallet = () => {
+  const { walletSelector, walletSelectorModal } = useContext(
+    WalletSelectorContext
+  ) ?? { walletSelector: null, walletSelectorModal: null };
   const [wallet, setWallet] = useState<(Wallet & SignMessageMethod) | null>(
     null
   );
   const [walletSelectorState, setWalletSelectorState] =
     useState<WalletSelectorState | null>(null);
+  const account = walletSelectorState?.accounts[0] ?? null;
 
   useEffect(() => {
     if (!walletSelector) return;
@@ -37,8 +39,10 @@ export function useWalletState(walletSelector: WalletSelector | null) {
   }, [walletSelector]);
 
   return {
-    account: walletSelectorState?.accounts[0],
+    account,
     wallet,
+    walletSelector,
+    walletSelectorModal,
     walletSelectorState,
   };
-}
+};

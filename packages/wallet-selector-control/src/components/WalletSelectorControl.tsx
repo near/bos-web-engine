@@ -1,24 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { Button, Dropdown } from '@bos-web-engine/ui';
-import type { WalletSelector } from '@near-wallet-selector/core';
-import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
 import { X, CaretDown } from '@phosphor-icons/react';
 
 import s from './WalletSelectorControl.module.css';
 import { useSocialProfile } from '../hooks/useSocialProfile';
-import { useWalletState } from '../hooks/useWalletState';
+import { useWallet } from '../hooks/useWallet';
 
-type Props = {
-  walletSelector: WalletSelector | null;
-  walletSelectorModal: WalletSelectorModal | null;
-};
-
-export function WalletSelectorControl({
-  walletSelector,
-  walletSelectorModal,
-}: Props) {
-  const { account, wallet } = useWalletState(walletSelector);
+export function WalletSelectorControl() {
+  const { account, wallet, walletSelector, walletSelectorModal } = useWallet();
   const { profile, profileImageUrl } = useSocialProfile(
     account?.accountId,
     walletSelector?.options.network

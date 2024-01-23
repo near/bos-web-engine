@@ -33,7 +33,7 @@
   "peerDependencies": {
     "@bos-web-engine/application": "workspace:*",
     "@bos-web-engine/ui": "workspace:*",
-    "@near-wallet-selector/core": "^8.9.2",
+    "@bos-web-engine/wallet-selector-control": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },

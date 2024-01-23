@@ -50,8 +50,8 @@ export function useSocialProfile(
         ]?.profile;
 
         setProfile(data ?? {});
-      } catch (err) {
-        console.log('profile fetch error', err);
+      } catch (error) {
+        console.error('Social profile fetch error', error);
       }
     };
 

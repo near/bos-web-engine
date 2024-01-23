@@ -25,3 +25,23 @@ export default function MyPage() {
   );
 }
 ```
+
+To provide access to the current wallet selector context (for things like publishing components), you'll need to set up the `<WalletSelectorProvider />` to wrap `<Sandbox />`:
+
+```tsx
+import { WalletSelectorProvider } from '@bos-web-engine/wallet-selector-control';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <WalletSelectorProvider
+      contractId="social.near"
+      params={{
+        network: 'mainnet',
+        modules: [...],
+      }}
+    >
+      <Component {...pageProps} />
+    </WalletSelectorProvider>
+  );
+}
+```

@@ -1,16 +1,13 @@
 import { Theme } from '@bos-web-engine/ui';
-import type { WalletSelector } from '@near-wallet-selector/core';
+import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { useEffect, useRef } from 'react';
 
 import { Layout } from './Layout';
 import s from './Sandbox.module.css';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 
-type Props = {
-  walletSelector: WalletSelector | null;
-};
-
-export function Sandbox({ walletSelector }: Props) {
+export function Sandbox() {
+  const { walletSelector } = useWallet();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const setContainerElement = useSandboxStore(
     (store) => store.setContainerElement
