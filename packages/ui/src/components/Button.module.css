@@ -1,0 +1,28 @@
+.button {
+  display: flex;
+  align-items: center;
+  height: 1.75rem;
+  padding: 0 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  gap: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  border: none;
+  border-radius: 10rem;
+  color: var(--color-affirm);
+  background: var(--color-surface-2);
+  box-shadow: 0 0 0 1px var(--color-surface-3);
+  outline: none;
+  transition: all 200ms;
+
+  &:hover {
+    background: var(--color-surface-3);
+  }
+
+  &:focus {
+    box-shadow:
+      0 0 0 1px var(--color-surface-primary),
+      0 0 0 3px var(--color-focus-outline);
+  }
+}

@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run build --filter=@bos-web-engine/* && turbo run dev",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

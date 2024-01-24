@@ -1,3 +1,19 @@
+html,
+body,
+#next {
+  min-height: 100vh;
+}
+
+.nws-modal-wrapper {
+  z-index: 5000 !important;
+}
+
+.nws-modal {
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* TODO: The following was copied over from ../styles.css (should probably be refactored into CSS Modules when we have time) */
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -160,10 +176,6 @@
   flex: 1;
   text-align: right;
   font-weight: 700;
-}
-
-span {
-  font-size: 12px;
 }
 
 .bwe-debug .container-child {

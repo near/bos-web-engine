@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inputGrid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}

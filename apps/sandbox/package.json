@@ -9,17 +9,28 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@bos-web-engine/application": "workspace:*",
     "@bos-web-engine/sandbox": "workspace:*",
+    "@bos-web-engine/ui": "workspace:*",
+    "@bos-web-engine/wallet-selector-control": "workspace:*",
+    "@near-wallet-selector/core": "^8.9.2",
+    "@near-wallet-selector/here-wallet": "^8.9.2",
+    "@near-wallet-selector/meteor-wallet": "^8.9.2",
+    "@near-wallet-selector/modal-ui": "^8.9.2",
+    "@near-wallet-selector/nightly": "^8.9.2",
+    "@near-wallet-selector/sender": "^8.9.2",
+    "next": "14.0.4",
+    "postcss-preset-env": "^9.3.0",
     "react": "^18",
-    "react-dom": "^18",
-    "next": "14.0.4"
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.0.4"
+    "eslint-config-next": "14.0.4",
+    "tsconfig": "workspace:*",
+    "typescript": "^5"
   }
 }

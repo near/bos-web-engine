@@ -1,33 +1,9 @@
 import { useEffect } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
-import styled from 'styled-components';
 
-import { useFlags } from '../hooks/useFlags';
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 2rem 1rem;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const InputGrid = styled.div`
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  align-items: center;
-  gap: 1rem;
-
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
-`;
+import { useFlags } from '@/hooks/useFlags';
+import s from '@/styles/flags.module.css';
 
 type FormData = {
   bosLoaderUrl: string;
@@ -46,14 +22,14 @@ export default function FlagsPage() {
   };
 
   return (
-    <Container className="container-xl">
+    <div className={`${s.container} container-xl`}>
       <h1>Flags</h1>
       <p>
         Use the <code>-w</code> flag on bos-loader to run in BOS Web Engine mode
       </p>
 
-      <Form onSubmit={form.handleSubmit(submitHandler)}>
-        <InputGrid>
+      <form className={s.form} onSubmit={form.handleSubmit(submitHandler)}>
+        <div className={s.inputGrid}>
           <label htmlFor="bosLoaderUrl">BOS Loader Url</label>
 
           <input
@@ -62,12 +38,12 @@ export default function FlagsPage() {
             id="bosLoaderUrl"
             {...form.register('bosLoaderUrl')}
           />
-        </InputGrid>
+        </div>
 
         <button type="submit" style={{ marginLeft: 'auto' }}>
           Save Flags
         </button>
-      </Form>
-    </Container>
+      </form>
+    </div>
   );
 }

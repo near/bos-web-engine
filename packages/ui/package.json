@@ -1,0 +1,62 @@
+{
+  "name": "@bos-web-engine/ui",
+  "version": "0.1.0",
+  "description": "",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.cjs.js",
+  "module": "lib/index.esm.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.esm.js"
+      },
+      "require": {
+        "types": "./lib/cjs/index.d.ts",
+        "default": "./lib/cjs/index.cjs.js"
+      }
+    },
+    "./*.css": {
+      "import": "./lib/*.css",
+      "require": "./lib/*.css"
+    }
+  },
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "lint": "eslint ./src/**/*.ts*",
+    "lint:fix": "eslint . --fix"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.0.15",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-tooltip": "^1.0.7"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.1",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.3.4",
+    "@types/react": "^18.2.34",
+    "@types/react-dom": "^18.0.6",
+    "eslint": "^7.32.0",
+    "eslint-config-custom": "workspace:*",
+    "postcss": "^8.4.14",
+    "postcss-preset-env": "^7.6.0",
+    "rollup": "^2.77.2",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "tsconfig": "workspace:*",
+    "tslib": "^2.6.2",
+    "typescript": "^4.7.4"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
