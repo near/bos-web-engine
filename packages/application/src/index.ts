@@ -1,4 +1,4 @@
 export { ComponentTree } from './components';
-export { useWebEngine } from './hooks';
+export { useWebEngine, useWebEngineSandbox } from './hooks';
 export { createChildElements, createElement } from './react';
 export * from './types';

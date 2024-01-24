@@ -1,5 +1,8 @@
 import type { WebEngineLocalComponents } from '@bos-web-engine/application';
-import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
+import {
+  ComponentTree,
+  useWebEngineSandbox,
+} from '@bos-web-engine/application';
 import { Dropdown } from '@bos-web-engine/ui';
 import { CaretDown, Eye } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
@@ -33,7 +36,7 @@ export function Preview() {
   const [rootComponentPath, setRootComponentPath] = useState('');
   const previewFilePath = pinnedPreviewFilePath ?? activeFilePath;
 
-  const { components, nonce } = useWebEngine({
+  const { components, nonce } = useWebEngineSandbox({
     config: {
       preactVersion: PREACT_VERSION,
     },
