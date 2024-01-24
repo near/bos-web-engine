@@ -65,7 +65,7 @@ export function Preview() {
       const path = `${ACCOUNT_ID}/${componentName}`;
 
       editorComponents[path] = {
-        source: file.source,
+        component: file.source,
       };
     });
 

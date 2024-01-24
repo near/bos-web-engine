@@ -17,9 +17,7 @@ export interface CompilerInitAction {
 export interface CompilerSetLocalComponentAction {
   action: 'set-local-components';
   components: {
-    [path: string]: {
-      source: string;
-    };
+    [path: string]: BOSModuleEntry;
   };
   rootComponentPath: string;
 }
@@ -27,6 +25,7 @@ export interface CompilerSetLocalComponentAction {
 export interface ComponentCompilerResponse {
   componentId: string;
   componentSource: string;
+  containerStyles: string;
   rawSource: string;
   componentPath: string;
   error?: Error;
@@ -48,6 +47,7 @@ export interface TranspiledComponentLookupParams {
 export type ComponentMap = Map<string, ComponentTreeNode>;
 
 export interface ComponentTreeNode {
+  css?: string;
   imports: ModuleImport[];
   transpiled: string;
 }
@@ -55,6 +55,7 @@ export interface ComponentTreeNode {
 export interface ParseComponentTreeParams {
   components: ComponentMap;
   componentSource: string;
+  componentStyles?: string;
   componentPath: string;
   isComponentPathTrusted?: (path: string) => boolean;
   isRoot: boolean;
@@ -85,8 +86,18 @@ export interface ImportExpression {
   reference?: string;
 }
 
+export interface BOSModuleEntry {
+  component: string;
+  css?: string;
+}
+
+interface ComponentEntry {
+  '': string;
+  css: string;
+}
+
 interface SocialComponent {
-  widget: { [name: string]: string };
+  widget: { [name: string]: string | ComponentEntry };
 }
 
 export type SocialComponentsByAuthor = { [author: string]: SocialComponent };
