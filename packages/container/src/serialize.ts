@@ -345,6 +345,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
               componentId,
             },
             className: 'container-child',
+            'data-component-src': src,
           },
         },
       };

@@ -13,4 +13,5 @@ export interface Props extends KeyValuePair {
   children?: any[];
   className?: string;
   id?: string;
+  'data-component-src'?: string;
 }
