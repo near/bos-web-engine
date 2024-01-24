@@ -95,6 +95,7 @@ export function useComponents({
         const {
           componentId,
           componentSource,
+          containerStyles,
           error: loadError,
           importedModules,
         } = data;
@@ -102,6 +103,16 @@ export function useComponents({
         if (loadError) {
           setError(loadError.message);
           return;
+        }
+
+        if (containerStyles) {
+          const targetStylesheet = document.styleSheets[1];
+          const css = new CSSStyleSheet();
+          css.replaceSync(containerStyles);
+
+          for (let i = 0; i < css.cssRules.length; i++) {
+            targetStylesheet.insertRule(css.cssRules[i].cssText);
+          }
         }
 
         hooks?.containerSourceCompiled?.(data);
