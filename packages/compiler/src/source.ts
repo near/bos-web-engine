@@ -37,8 +37,10 @@ export function fetchComponentSources(
           Object.entries(component).forEach(
             ([componentKey, componentSource]) => {
               if (typeof componentSource === 'string') {
+                const [component, css] = componentSource.split('/*CSS*/');
                 sources[`${author}/${componentKey}`] = {
-                  component: componentSource,
+                  component,
+                  css,
                 };
               } else if (componentSource) {
                 const { '': source, css } = componentSource;
