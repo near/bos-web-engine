@@ -15,6 +15,7 @@
 
 .action {
   all: unset;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,4 +40,20 @@
   &:focus {
     box-shadow: 0 0 0 2px var(--color-focus-outline);
   }
+}
+
+.actionBadge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 0.75rem;
+  height: 0.75rem;
+  font-size: 0.5rem;
+  font-weight: 700;
+  background: var(--color-affirm);
+  color: #000;
+  position: absolute;
+  top: -0.325rem;
+  right: -0.325rem;
+  border-radius: 100%;
 }

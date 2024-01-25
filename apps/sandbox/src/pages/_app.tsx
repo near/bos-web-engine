@@ -5,6 +5,10 @@ import '@bos-web-engine/sandbox/styles.css';
 import '@near-wallet-selector/modal-ui/styles.css';
 import '@/styles/globals.css';
 
+import {
+  MAINNET_SOCIAL_CONTRACT_ID,
+  SocialProvider,
+} from '@bos-web-engine/social-sdk';
 import { NearIconSvg, Theme } from '@bos-web-engine/ui';
 import {
   WalletSelectorControl,
@@ -19,23 +23,25 @@ import s from '@/styles/app.module.css';
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <WalletSelectorProvider
-      contractId="social.near"
+      contractId={MAINNET_SOCIAL_CONTRACT_ID}
       params={MAINNET_WALLET_SELECTOR_PARAMS}
     >
-      <Theme className={s.wrapper}>
-        <header className={s.header}>
-          <Link className={s.logo} href="/">
-            <NearIconSvg />
-            <h1>Sandbox</h1>
-          </Link>
+      <SocialProvider>
+        <Theme className={s.wrapper}>
+          <header className={s.header}>
+            <Link className={s.logo} href="/">
+              <NearIconSvg />
+              <h1>Sandbox</h1>
+            </Link>
 
-          <WalletSelectorControl />
-        </header>
+            <WalletSelectorControl />
+          </header>
 
-        <main className={s.main}>
-          <Component {...pageProps} />
-        </main>
-      </Theme>
+          <main className={s.main}>
+            <Component {...pageProps} />
+          </main>
+        </Theme>
+      </SocialProvider>
     </WalletSelectorProvider>
   );
 }

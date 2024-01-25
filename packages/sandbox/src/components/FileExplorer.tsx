@@ -1,4 +1,4 @@
-import { Dropdown } from '@bos-web-engine/ui';
+import { Checkbox, Dropdown } from '@bos-web-engine/ui';
 import {
   File,
   DotsThreeVertical,
@@ -6,17 +6,21 @@ import {
   PencilSimple,
 } from '@phosphor-icons/react';
 import {
+  ChangeEventHandler,
   FocusEventHandler,
   KeyboardEventHandler,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 
 import s from './FileExplorer.module.css';
+import { PublishButton } from './PublishButton';
 import {
   NEW_COMPONENT_TEMPLATE,
   VALID_FILE_EXTENSION_REGEX,
 } from '../constants';
+import { useModifiedFiles } from '../hooks/useModifiedFiles';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { returnUniqueFilePath } from '../utils';
 
@@ -34,7 +38,10 @@ export function FileExplorer() {
   );
   const setFile = useSandboxStore((store) => store.setFile);
   const updateFilePath = useSandboxStore((store) => store.updateFilePath);
+  const mode = useSandboxStore((store) => store.mode);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const { modifiedFilePaths } = useModifiedFiles();
+  const [selectedFilePaths, setSelectedFilePaths] = useState<string[]>([]);
 
   const editFileName = (path: string) => {
     setEditingFileName(path);
@@ -67,6 +74,18 @@ export function FileExplorer() {
       event.preventDefault();
       target.innerText = editingFileNamePath ?? '';
       target.blur();
+    }
+  };
+
+  const onFileCheckboxChange: ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    if (event.target.checked) {
+      setSelectedFilePaths((paths) => [...paths, event.target.value]);
+    } else {
+      setSelectedFilePaths((paths) =>
+        paths.filter((path) => path !== event.target.value)
+      );
     }
   };
 
@@ -109,6 +128,12 @@ export function FileExplorer() {
   };
 
   useEffect(() => {
+    if (mode === 'PUBLISH') {
+      setSelectedFilePaths(modifiedFilePaths);
+    }
+  }, [mode, modifiedFilePaths]);
+
+  useEffect(() => {
     setTimeout(() => {
       if (!editingFileNamePath || !wrapperRef.current) return;
 
@@ -122,6 +147,45 @@ export function FileExplorer() {
     }, 50);
   }, [editingFileNamePath]);
 
+  if (mode === 'PUBLISH') {
+    return (
+      <div className={s.wrapper} ref={wrapperRef}>
+        <ul className={s.fileList}>
+          {Object.keys(files)
+            .filter((path) => modifiedFilePaths.includes(path))
+            .map((path) => (
+              <li
+                className={s.fileListItem}
+                key={path}
+                data-active={activeFilePath === path}
+              >
+                <Checkbox
+                  aria-label={`Include ${path}?`}
+                  checked={selectedFilePaths.includes(path)}
+                  name={`file-included-${path}`}
+                  value={path}
+                  onChange={onFileCheckboxChange}
+                />
+
+                <button
+                  className={s.fileButton}
+                  type="button"
+                  title={path}
+                  onClick={() => setActiveFile(path)}
+                >
+                  <span className={s.fileName}>{path}</span>
+                </button>
+              </li>
+            ))}
+        </ul>
+
+        <div className={s.footer}>
+          <PublishButton selectedFilePaths={selectedFilePaths} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={s.wrapper} ref={wrapperRef}>
       <ul className={s.fileList}>
@@ -130,6 +194,7 @@ export function FileExplorer() {
             className={s.fileListItem}
             key={path}
             data-active={activeFilePath === path}
+            data-modified={modifiedFilePaths.includes(path)}
           >
             <button
               className={s.fileButton}
@@ -140,7 +205,7 @@ export function FileExplorer() {
                 editFileName(path);
               }}
             >
-              <File />
+              <File className={s.fileIcon} />
 
               {editingFileNamePath === path ? (
                 <span

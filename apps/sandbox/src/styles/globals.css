@@ -9,5 +9,9 @@ body,
 }
 
 .nws-modal {
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.nws-modal-overlay {
+  background: rgba(118, 118, 118, 0.5) !important;
 }

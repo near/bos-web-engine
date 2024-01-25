@@ -6,11 +6,14 @@ import {
   Eye,
   BracketsCurly,
   BookOpenText,
+  GitPullRequest,
+  ArrowLeft,
 } from '@phosphor-icons/react';
 
 import { GitHubIconSvg } from './GitHubIconSvg';
 import s from './SidebarActions.module.css';
 import { NEW_COMPONENT_TEMPLATE } from '../constants';
+import { useModifiedFiles } from '../hooks/useModifiedFiles';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { PanelType } from '../types';
 import { returnUniqueFilePath } from '../utils';
@@ -26,11 +29,14 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
   const editor = editors && editors[Math.max(editors.length - 1, 0)];
   const containerElement = useSandboxStore((store) => store.containerElement);
   const files = useSandboxStore((store) => store.files);
+  const mode = useSandboxStore((store) => store.mode);
   const setActiveFile = useSandboxStore((store) => store.setActiveFile);
   const setEditingFileName = useSandboxStore(
     (store) => store.setEditingFileName
   );
   const setFile = useSandboxStore((store) => store.setFile);
+  const setMode = useSandboxStore((store) => store.setMode);
+  const { modifiedFilePaths } = useModifiedFiles();
 
   const addNewComponent = () => {
     const filePath = returnUniqueFilePath(files, 'Untitled', 'tsx');
@@ -55,61 +61,116 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
 
   return (
     <div className={s.wrapper}>
-      <Tooltip
-        content="Create New Component"
-        side="right"
-        sideOffset={10}
-        container={containerElement}
-      >
-        <button className={s.action} type="button" onClick={addNewComponent}>
-          <Plus />
-        </button>
-      </Tooltip>
+      {mode === 'EDIT' && (
+        <>
+          <Tooltip
+            content="Create new component"
+            side="right"
+            sideOffset={10}
+            container={containerElement}
+          >
+            <button
+              className={s.action}
+              type="button"
+              onClick={addNewComponent}
+            >
+              <Plus />
+            </button>
+          </Tooltip>
 
-      <Tooltip
-        content="Format Code"
-        side="right"
-        sideOffset={10}
-        container={containerElement}
-      >
-        <button className={s.action} type="button" onClick={formatCode}>
-          <BracketsCurly />
-        </button>
-      </Tooltip>
+          <Tooltip
+            content="Format code"
+            side="right"
+            sideOffset={10}
+            container={containerElement}
+          >
+            <button className={s.action} type="button" onClick={formatCode}>
+              <BracketsCurly />
+            </button>
+          </Tooltip>
 
-      <Tooltip
-        content="Toggle Editor Panel View"
-        side="right"
-        sideOffset={10}
-        container={containerElement}
-      >
-        <button
-          className={s.action}
-          type="button"
-          onClick={() =>
-            onSelectExpandPanel(expandedPanel === 'EDITOR' ? null : 'EDITOR')
-          }
-        >
-          <Code />
-        </button>
-      </Tooltip>
+          <Tooltip
+            content="Expand editor panel"
+            side="right"
+            sideOffset={10}
+            container={containerElement}
+          >
+            <button
+              className={s.action}
+              type="button"
+              onClick={() =>
+                onSelectExpandPanel(
+                  expandedPanel === 'EDITOR' ? null : 'EDITOR'
+                )
+              }
+            >
+              <Code />
+            </button>
+          </Tooltip>
 
-      <Tooltip
-        content="Toggle Preview Panel View"
-        side="right"
-        sideOffset={10}
-        container={containerElement}
-      >
-        <button
-          className={s.action}
-          type="button"
-          onClick={() =>
-            onSelectExpandPanel(expandedPanel === 'PREVIEW' ? null : 'PREVIEW')
-          }
-        >
-          <Eye />
-        </button>
-      </Tooltip>
+          <Tooltip
+            content="Expand preview panel"
+            side="right"
+            sideOffset={10}
+            container={containerElement}
+          >
+            <button
+              className={s.action}
+              type="button"
+              onClick={() =>
+                onSelectExpandPanel(
+                  expandedPanel === 'PREVIEW' ? null : 'PREVIEW'
+                )
+              }
+            >
+              <Eye />
+            </button>
+          </Tooltip>
+
+          <Tooltip
+            content={
+              modifiedFilePaths.length > 0
+                ? `Review and publish changes: ${modifiedFilePaths.length}`
+                : 'No changes to publish'
+            }
+            side="right"
+            sideOffset={10}
+            container={containerElement}
+          >
+            <button
+              className={s.action}
+              type="button"
+              onClick={() => setMode('PUBLISH')}
+            >
+              {modifiedFilePaths.length > 0 && (
+                <span className={s.actionBadge}>
+                  {modifiedFilePaths.length}
+                </span>
+              )}
+              <GitPullRequest />
+            </button>
+          </Tooltip>
+        </>
+      )}
+
+      {mode === 'PUBLISH' && (
+        <>
+          <Tooltip
+            content="Back to editor"
+            side="right"
+            sideOffset={10}
+            container={containerElement}
+          >
+            <button
+              className={s.action}
+              type="button"
+              onClick={() => setMode('EDIT')}
+            >
+              <ArrowLeft />
+            </button>
+          </Tooltip>
+        </>
+      )}
 
       <Tooltip
         content="Sandbox Docs"
@@ -117,7 +178,12 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         sideOffset={10}
         container={containerElement}
       >
-        <a className={s.action} href="/help" target="_blank">
+        <a
+          className={s.action}
+          style={{ marginTop: 'auto' }}
+          href="/help"
+          target="_blank"
+        >
           <BookOpenText />
         </a>
       </Tooltip>
@@ -131,7 +197,6 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
           className={s.action}
           href="https://github.com/near/bos-web-engine"
           target="_blank"
-          style={{ marginTop: 'auto' }}
           rel="noreferrer"
         >
           <GitHubIconSvg />

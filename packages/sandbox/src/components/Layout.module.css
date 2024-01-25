@@ -7,11 +7,12 @@
     overflow: hidden;
   }
 
-  &[data-expanded-panel='EDITOR'] {
-    grid-template-columns: min-content 14rem 1fr 0px;
-  }
-
   &[data-expanded-panel='PREVIEW'] {
     grid-template-columns: min-content 0px 0px 1fr;
+  }
+
+  &[data-expanded-panel='EDITOR'],
+  &[data-mode='PUBLISH'] {
+    grid-template-columns: min-content 14rem 1fr 0px;
   }
 }

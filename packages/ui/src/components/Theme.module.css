@@ -22,6 +22,11 @@
   --text-3xl: 700 42px/1.3 var(--font-primary);
   --text-hero: 700 72px/1 var(--font-primary);
 
+  --size-max-container-width-xs: 20rem;
+  --size-max-container-width-s: 30rem;
+  --size-max-container-width-m: 50rem;
+  --size-max-container-width-l: 80rem;
+
   font-family: var(--font-primary);
   line-height: 1.5;
   background: var(--color-surface-1);
