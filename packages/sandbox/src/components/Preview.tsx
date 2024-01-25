@@ -64,8 +64,10 @@ export function Preview() {
       const componentName = convertFilePathToComponentName(filePath);
       const path = `${ACCOUNT_ID}/${componentName}`;
 
+      const [component, css] = file.source.split('/*CSS*/');
       editorComponents[path] = {
-        component: file.source,
+        component,
+        css,
       };
     });
 
