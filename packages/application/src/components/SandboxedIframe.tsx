@@ -36,10 +36,7 @@ function buildSandboxedComponent({
           }
         </script>
         <script type="module">
-          import * as Preact from 'preact';
-          import { useCallback, useEffect, useState } from 'preact/hooks';
-
-          const { createElement } = Preact;
+            import * as __Preact from 'preact';
 
 /******** BEGIN BOS SOURCE ********/
 /******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
@@ -65,7 +62,7 @@ ${scriptSrc}
           let props;
 
           // TODO map reference during transpilation
-          const React = { Fragment: Preact.Fragment };
+          const React = { Fragment: __Preact.Fragment };
 
           const {
             commit,
@@ -87,7 +84,7 @@ ${scriptSrc}
               Component,
               componentId: '${id}',
               componentPropsJson: ${componentPropsJson},
-              Fragment: Preact.Fragment,
+              Fragment: __Preact.Fragment,
               parentContainerId: '${parentContainerId}',
               trust: ${JSON.stringify(trust)},
               updateContainerProps: (updateProps) => {
@@ -95,7 +92,7 @@ ${scriptSrc}
                 // if nothing has changed, the same [props] object will be returned
                 props = updateProps(props);
                 if (props !== originalProps) {
-                  Preact.render(createElement(BWEComponent, props), document.body);
+                  __Preact.render(createElement(BWEComponent, props), document.body);
                 }
               },
             },
@@ -104,15 +101,15 @@ ${scriptSrc}
           // intialize props
           props = containerProps;
 
-          const oldCommit = Preact.options.__c;
-          Preact.options.__c = (vnode, commitQueue) => {
+          const oldCommit = __Preact.options.__c;
+          __Preact.options.__c = (vnode, commitQueue) => {
             commit(vnode);
             oldCommit?.(vnode, commitQueue);
           };
 
           window.addEventListener('message', processEvent);
 
-          Preact.render(createElement(BWEComponent, props), document.body);
+          __Preact.render(__Preact.createElement(BWEComponent, props), document.body);
         </script>
       </body>
     </html>
