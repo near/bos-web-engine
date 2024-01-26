@@ -115,7 +115,8 @@ export function useComponents({
         importedModules.set('react-dom', `${preactImportBasePath}/compat`);
 
         for (const moduleName of importedModules.keys()) {
-          if (moduleName.startsWith('preact/') && moduleName.split('/')[1]) {
+          const [lib, subpath] = moduleName.split('/');
+          if (subpath && ['preact', 'react-dom'].includes(lib)) {
             importedModules.delete(moduleName);
           }
         }
