@@ -50,8 +50,11 @@ ${scriptSrc}
 
           let props;
 
-          // TODO map reference during transpilation
-          const React = { Fragment: __Preact.Fragment };
+          // TODO bind/replace React.Fragment during transpilation and remove this shim
+          if (typeof React === 'undefined') {
+            window.React = {};
+          }
+          React.Fragment = __Preact.Fragment ;
 
           const {
             commit,
