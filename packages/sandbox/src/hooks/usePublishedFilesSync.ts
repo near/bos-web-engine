@@ -11,6 +11,7 @@ import { convertComponentNameToFilePath } from '../utils';
 export function usePublishedFilesSync() {
   const { account } = useWallet();
   const { social } = useSocial();
+  const mode = useSandboxStore((store) => store.mode);
   const setPublishedFiles = useSandboxStore((store) => store.setPublishedFiles);
 
   useEffect(() => {
@@ -52,5 +53,5 @@ export function usePublishedFilesSync() {
     };
 
     fetchPublishedFiles();
-  }, [account, setPublishedFiles, social]);
+  }, [account, mode, setPublishedFiles, social]);
 }

@@ -203,10 +203,10 @@ export function FileExplorer() {
                 weight="bold"
                 style={{ textAlign: 'center' }}
               >
-                No changes to publish.
+                All changes published!
               </Text>
               <Text size="xs" style={{ textAlign: 'center' }}>
-                All of your local components match the source code on chain.
+                Your local components match the source code on chain.
               </Text>
             </>
           )}
