@@ -108,11 +108,17 @@ export function useComponents({
 
         // set the Preact import maps
         // TODO find a better place for this
-        importedModules.set('preact', `https://esm.sh/preact@${preactVersion}`);
-        importedModules.set(
-          'preact/',
-          `https://esm.sh/preact@${preactVersion}/`
-        );
+        const preactImportBasePath = `https://esm.sh/preact@${preactVersion}`;
+        importedModules.set('preact', preactImportBasePath);
+        importedModules.set('preact/', `${preactImportBasePath}/`);
+        importedModules.set('react', `${preactImportBasePath}/compat`);
+        importedModules.set('react-dom', `${preactImportBasePath}/compat`);
+
+        for (const moduleName of importedModules.keys()) {
+          if (moduleName.startsWith('preact/') && moduleName.split('/')[1]) {
+            importedModules.delete(moduleName);
+          }
+        }
 
         const component = {
           ...components[componentId],
