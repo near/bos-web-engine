@@ -152,41 +152,42 @@ export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
     new Map<string, ImportExpression[]>()
   );
 
-  const importStatements: string[] = [];
-  importsByModule.forEach((imports, moduleName) => {
-    const { defaultAlias, namespaceAlias } = buildModuleAliases(moduleName);
-    const { defaultImport, destructuredImports, namespaceImport } =
-      aggregateModuleImports(imports);
+  const importStatements: string[] = [...importsByModule.entries()]
+    .map(([moduleName, imports]) => {
+      const { defaultAlias, namespaceAlias } = buildModuleAliases(moduleName);
+      const { defaultImport, destructuredImports, namespaceImport } =
+        aggregateModuleImports(imports);
 
-    const destructuredReferences = [
-      ...new Set(
-        destructuredImports.map(({ alias, reference }) =>
-          alias ? `${reference} as ${alias}` : reference
-        )
-      ),
-    ].join(', ');
+      const destructuredReferences = [
+        ...new Set(
+          destructuredImports.map(({ alias, reference }) =>
+            alias ? `${reference} as ${alias}` : reference
+          )
+        ),
+      ].join(', ');
 
-    // only destructured references, cannot assume the module has a default import
-    if (!defaultImport && !namespaceImport) {
-      importStatements.push(
-        `import { ${destructuredReferences} } from "${moduleName}";`
-      );
-    } else if (defaultImport) {
-      if (namespaceImport) {
-        importStatements.push(
-          `import ${defaultAlias}, * as ${namespaceAlias} from "${moduleName}";`
-        );
-      } else if (destructuredReferences) {
-        importStatements.push(
-          `import ${defaultAlias}, { ${destructuredReferences} } from "${moduleName}";`
-        );
-      } else {
-        importStatements.push(`import ${defaultAlias} from "${moduleName}";`);
+      // only destructured references, cannot assume the module has a default import
+      if (!defaultImport && !namespaceImport) {
+        return `import { ${destructuredReferences} } from "${moduleName}";`;
       }
-    } else if (namespaceImport) {
-      `import * as ${namespaceAlias} from "${moduleName}";`;
-    }
-  });
+
+      if (defaultImport) {
+        if (namespaceImport) {
+          return `import ${defaultAlias}, * as ${namespaceAlias} from "${moduleName}";`;
+        } else if (destructuredReferences) {
+          return `import ${defaultAlias}, { ${destructuredReferences} } from "${moduleName}";`;
+        } else {
+          return `import ${defaultAlias} from "${moduleName}";`;
+        }
+      }
+
+      if (namespaceImport) {
+        return `import * as ${namespaceAlias} from "${moduleName}";`;
+      }
+
+      return '';
+    })
+    .filter((statement) => !!statement);
 
   return [...importStatements, ...sideEffectImports];
 };
