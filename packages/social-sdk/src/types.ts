@@ -6,8 +6,9 @@ type DeepPartial<T> = T extends object
     }
   : T;
 
-export type ProviderFetchOptions = {
-  args: Record<any, any>;
+export type RpcFetchParams = {
+  contractId?: string;
+  data: Record<any, any>;
   methodName: string;
 } & (
   | {

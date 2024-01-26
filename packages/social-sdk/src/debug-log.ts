@@ -11,14 +11,14 @@ export type DebugLogMessage = {
 
 const sourceIcons: Record<DebugLogParams['source'], string> = {
   'RPC View': '📖',
-  'RPC Signed Transaction': '🔏',
+  'RPC Signed Transaction': '📝',
 };
 
 const messageTypeIcons: Record<DebugLogMessage['type'], string> = {
-  ERROR: '🔥',
+  ERROR: '❌',
   INFO: '💡',
-  REQUEST: '📤',
-  RESPONSE: '📨',
+  REQUEST: '💬',
+  RESPONSE: '✅',
 };
 
 export function debugLog({ source, identifier, messages }: DebugLogParams) {

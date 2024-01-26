@@ -23,7 +23,7 @@ import {
 } from './constants';
 import { DebugLogMessage, DebugLogParams, debugLog } from './debug-log';
 import {
-  ProviderFetchOptions,
+  RpcFetchParams,
   SocialGetParams,
   SocialGetResponse,
   SocialSetParams,
@@ -55,7 +55,7 @@ export class SocialSdk {
     });
   }
 
-  private get contractId(): string {
+  private get contractId() {
     return this.networkId === 'mainnet'
       ? MAINNET_SOCIAL_CONTRACT_ID
       : TESTNET_SOCIAL_CONTRACT_ID;
@@ -74,8 +74,8 @@ export class SocialSdk {
    *
    * @example
    * ```
-   * const data = await get<T>({
-   *  key: 'root.near/profile/*',
+   * const response = await get<T>({
+   *  key: 'foobar.near/profile/*',
    * });
    * ```
    *
@@ -104,15 +104,15 @@ export class SocialSdk {
       throw new Error('Must pass either `blockId` or `finality`');
     }
 
-    const data = await this.fetchWithProvider<SocialGetResponse<T>>({
-      args: {
+    const response = await this.rpcFetch<SocialGetResponse<T>>({
+      data: {
         keys: normalizedKeys,
       },
       methodName: 'get',
       ...(blockId ? { blockId } : { finality }),
     });
 
-    return data;
+    return response;
   }
 
   /**
@@ -261,21 +261,21 @@ export class SocialSdk {
     publicKey: string
   ) {
     const [accountStorage, hasWritePermission] = await Promise.all([
-      this.fetchWithProvider<
+      this.rpcFetch<
         | {
             available_bytes: number;
             used_bytes: number;
           }
         | undefined
       >({
-        args: {
+        data: {
           account_id: accountState.accountId,
         },
         methodName: 'get_account_storage',
       }),
 
-      this.fetchWithProvider<boolean>({
-        args: {
+      this.rpcFetch<boolean>({
+        data: {
           public_key: publicKey,
           key: accountState.accountId,
         },
@@ -291,15 +291,23 @@ export class SocialSdk {
     };
   }
 
-  private async fetchWithProvider<T>({
-    args,
+  private log(params: DebugLogParams) {
+    if (this.debug) {
+      debugLog(params);
+    }
+  }
+
+  private async rpcFetch<T>({
     blockId,
+    contractId: customContractId,
+    data,
     finality = 'optimistic',
     methodName,
-  }: ProviderFetchOptions) {
+  }: RpcFetchParams) {
+    const contractId = customContractId ?? this.contractId;
     const request = {
-      account_id: this.contractId,
-      args_base64: encodeJsonRpcArgs(args),
+      account_id: contractId,
+      args_base64: encodeJsonRpcArgs(data),
       block_id: blockId,
       finality: blockId ? undefined : finality,
       method_name: methodName,
@@ -307,20 +315,20 @@ export class SocialSdk {
     };
 
     const debugLogRequestMessage: DebugLogMessage = {
-      data: { args, ...request },
+      data: { data, ...request },
       type: 'REQUEST',
     };
 
     try {
       const response = await this.provider.query<CodeResult>(request);
-      const data = parseJsonRpcResponse(response.result) as T;
+      const responseData = parseJsonRpcResponse(response.result) as T;
 
       this.log({
         source: 'RPC View',
         messages: [
           debugLogRequestMessage,
           {
-            data,
+            data: responseData,
             type: 'RESPONSE',
           },
         ],
@@ -340,12 +348,6 @@ export class SocialSdk {
       });
 
       throw error;
-    }
-  }
-
-  private log(params: DebugLogParams) {
-    if (this.debug) {
-      debugLog(params);
     }
   }
 

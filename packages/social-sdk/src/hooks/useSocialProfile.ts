@@ -17,13 +17,13 @@ export function useSocialProfile(accountId: string | null | undefined) {
 
     const fetchProfile = async () => {
       try {
-        const data = await social.get<{
+        const response = await social.get<{
           profile: SocialProfile;
         }>({
           key: `${accountId}/profile/**`,
         });
 
-        setProfile(data[accountId]?.profile ?? {});
+        setProfile(response[accountId]?.profile ?? {});
       } catch (error) {
         console.error(error);
       }

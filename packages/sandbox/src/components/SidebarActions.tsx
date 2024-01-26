@@ -1,5 +1,4 @@
 import { NearIconSvg, Tooltip } from '@bos-web-engine/ui';
-import { useMonaco } from '@monaco-editor/react';
 import {
   Plus,
   Code,
@@ -14,6 +13,7 @@ import { GitHubIconSvg } from './GitHubIconSvg';
 import s from './SidebarActions.module.css';
 import { NEW_COMPONENT_TEMPLATE } from '../constants';
 import { useModifiedFiles } from '../hooks/useModifiedFiles';
+import { useMonaco } from '../hooks/useMonaco';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { PanelType } from '../types';
 import { returnUniqueFilePath } from '../utils';
@@ -72,7 +72,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
             <button
               className={s.action}
               type="button"
-              onClick={addNewComponent}
+              onClick={() => addNewComponent}
             >
               <Plus />
             </button>
@@ -84,7 +84,11 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
             sideOffset={10}
             container={containerElement}
           >
-            <button className={s.action} type="button" onClick={formatCode}>
+            <button
+              className={s.action}
+              type="button"
+              onClick={() => formatCode}
+            >
               <BracketsCurly />
             </button>
           </Tooltip>

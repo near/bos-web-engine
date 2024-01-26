@@ -12,4 +12,5 @@ export type {
   SocialGetResponse,
   SocialSetParams,
   SocialProfile,
+  RpcFetchParams,
 } from './types';
