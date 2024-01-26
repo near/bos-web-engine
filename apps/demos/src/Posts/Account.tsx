@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 interface Profile {
   description?: string;
   name?: string;

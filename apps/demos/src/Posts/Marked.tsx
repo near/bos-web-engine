@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 export function BWEComponent() {
   const [Markdown, setMarkdown] = useState(null);
   const importMarkdown = async () => {
