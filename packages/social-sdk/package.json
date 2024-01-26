@@ -19,6 +19,7 @@
     "big.js": "^6.2.1"
   },
   "devDependencies": {
+    "@bos-web-engine/common": "workspace:*",
     "@near-js/types": "^0.0.4",
     "@types/big.js": "^6.2.2",
     "@types/node": "^17.0.12",

@@ -1,5 +1,5 @@
 export type DebugLogParams = {
-  source: 'RPC View' | 'RPC Signed Transaction';
+  source: 'RPC Fetch' | 'RPC Signed Transaction';
   identifier?: string;
   messages: DebugLogMessage[];
 };
@@ -11,7 +11,7 @@ export type DebugLogMessage = {
 };
 
 const sourceIcons: Record<DebugLogParams['source'], string> = {
-  'RPC View': '📖',
+  'RPC Fetch': '📖',
   'RPC Signed Transaction': '📝',
 };
 

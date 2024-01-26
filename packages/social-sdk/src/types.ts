@@ -1,11 +1,6 @@
+import type { DeepPartial } from '@bos-web-engine/common';
 import type { BlockId, Finality } from '@near-js/types';
 import type { NetworkId, WalletSelector } from '@near-wallet-selector/core';
-
-type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>;
-    }
-  : T;
 
 export type RpcFetchParams = {
   contractId?: string;

@@ -459,6 +459,9 @@ importers:
         specifier: ^18.0.0
         version: 18.2.0(react@18.2.0)
     devDependencies:
+      '@bos-web-engine/common':
+        specifier: workspace:*
+        version: link:../common
       '@near-js/types':
         specifier: ^0.0.4
         version: 0.0.4

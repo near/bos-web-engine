@@ -111,6 +111,9 @@ export class SocialSdk {
    * @param key - Return data from a single key.
    * @param keys - Return data from multiple keys. This param is ignored if a value is passed for `key`.
    * @param finality - Optionally specify a finality. Defaults to `optimistic`. This param is ignored if a value is passed for `blockId`. {@link https://docs.near.org/api/rpc/block-chunk}
+   *
+   * @throws Promise rejects with an `Error`. Will only throw if RPC fetch fails.
+   * @returns A promise that resolves with `SocialGetResponse<T>`, which returns a recursive `Partial` value of T. If matching data is not found, an empty object will be returned.
    */
   async get<T = Record<string, any>>({
     blockId,
@@ -162,9 +165,8 @@ export class SocialSdk {
    * - `DIFF` The most efficient option for storage cost. Will ignore saving keys that are equal to the value already stored.
    * - `FORCE` Will save all keys that are passed without checking the currently stored value. All keys are still merged with existing data.
    *
-   * @throws `Error`. If the error is caused by a failed transaction, a `FinalExecutionOutcome` object will be attached to the `cause`.
-   *
-   * @returns `FinalExecutionOutcome` if transaction succeeds or `null` if transaction is skipped (due to passed `data` being empty or in sync with what's already stored on chain).
+   * @throws Promise rejects with an `Error`. If the error is caused by a failed transaction, a `FinalExecutionOutcome` object will be attached to the `cause`.
+   * @returns A promise that resolves with `FinalExecutionOutcome` if transaction succeeds or `null` if transaction is skipped (due to passed `data` being empty or in sync with what's already stored on chain).
    */
   async set({ data, strategy = 'DIFF' }: SocialSetParams) {
     const wallet = await this.wallet();
@@ -395,7 +397,7 @@ export class SocialSdk {
       const responseData = parseJsonRpcResponse(response.result) as T;
 
       this.log({
-        source: 'RPC View',
+        source: 'RPC Fetch',
         identifier: debugLogIdentifier,
         messages: [
           debugLogRequestMessage,
@@ -409,18 +411,22 @@ export class SocialSdk {
       return responseData;
     } catch (error) {
       this.log({
-        source: 'RPC View',
+        source: 'RPC Fetch',
         identifier: debugLogIdentifier,
         messages: [
           debugLogRequestMessage,
           {
-            data: error,
+            data: {
+              error,
+            },
             type: 'ERROR',
           },
         ],
       });
 
-      throw error;
+      throw new Error('Failed to fetch data from RPC.', {
+        cause: error,
+      });
     }
   }
 
