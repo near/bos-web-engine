@@ -66,8 +66,3 @@ While functions cannot be provided as arguments directly, references to callback
 BOS Components to invoke functions on `props` with function arguments.
 - Inter-container callbacks are inherently asynchronous, for which a Promise-based interface is provided to abstract away
 the underlying event-based communication.
-
-This inherent asymmetry presents a challenge to BOS Component developers, who must now contend with two different return
-types entirely contingent on how their Component is consumed. To unify this interface, the current implementation provides
-an optional `useComponentCallback` hook returning a higher-order function to be invoked instead of invoking the callback
-directly.

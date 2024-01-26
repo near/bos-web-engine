@@ -48,17 +48,6 @@ ${scriptSrc}
           // placeholder function to bind Component references in BOS Component source
           function Component() {}
 
-          function useComponentCallback(cb, args) {
-            const [value, setValue] = useState(undefined);
-            useEffect(() => {
-              (async () => {
-                setValue(await cb(args));
-              })();
-            }, []);
-        
-            return () => value;
-          }
-
           let props;
 
           // TODO map reference during transpilation
