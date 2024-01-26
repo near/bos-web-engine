@@ -6,6 +6,7 @@ export type DebugLogParams = {
 
 export type DebugLogMessage = {
   data: any;
+  description?: string;
   type: 'ERROR' | 'INFO' | 'REQUEST' | 'RESPONSE';
 };
 
@@ -32,8 +33,11 @@ export function debugLog({ source, identifier, messages }: DebugLogParams) {
 
   messages.forEach((message) => {
     console.log(
-      `${messageTypeIcons[message.type]} ${message.type}`,
-      message.data
+      ...[
+        `${messageTypeIcons[message.type]} ${message.type}`,
+        message.description,
+        message.data,
+      ].filter((messageChunk) => messageChunk)
     );
   });
 

@@ -15,13 +15,17 @@ export function PublishButton({ selectedFilePaths }: Props) {
   // TODO: Pull and push components via social.get() and social.set()
 
   const publish = async () => {
-    await social.set({
-      data: {
-        profile: {
-          name: 'Caleb Jacob',
+    try {
+      await social.set({
+        data: {
+          profile: {
+            name: 'Caleb J',
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   if (!account) {

@@ -1,8 +1,8 @@
 import { JsonRpcProvider } from '@near-js/providers';
-import { CodeResult } from '@near-js/types';
+import { CodeResult, FinalExecutionStatusBasic } from '@near-js/types';
 import type {
   AccountState,
-  Action,
+  FunctionCallAction,
   NetworkId,
   WalletSelector,
 } from '@near-wallet-selector/core';
@@ -52,7 +52,7 @@ export class SocialSdk {
 
   /**
    * Interact with the `social.near` contract (Social DB).
-   * @param debug - Optionally pass as `true` to enable logging. Defaults to `false`.
+   * @param debug - Optionally pass as `true` to enable logging. Defaults to `false`. Logs will come through after each RPC request succeeds or fails.
    * @param networkId - Used to determine which RPC provider will be used internally.
    * @param walletSelector - Optionally pass a `walletSelector` instance. This is only needed if you plan on setting data - eg: `set()`. Defaults to `null`.
    */
@@ -161,6 +161,10 @@ export class SocialSdk {
    * @param strategy - Determines how data is set when compared with existing data. Defaults to `DIFF`.
    * - `DIFF` The most efficient option for storage cost. Will ignore saving keys that are equal to the value already stored.
    * - `FORCE` Will save all keys that are passed without checking the currently stored value. All keys are still merged with existing data.
+   *
+   * @throws `Error`. If the error is caused by a failed transaction, a `FinalExecutionOutcome` object will be attached to the `cause`.
+   *
+   * @returns `FinalExecutionOutcome` if transaction succeeds or `null` if transaction is skipped (due to passed `data` being empty or in sync with what's already stored on chain).
    */
   async set({ data, strategy = 'DIFF' }: SocialSetParams) {
     const wallet = await this.wallet();
@@ -186,7 +190,24 @@ export class SocialSdk {
       currentData = await this.get({
         keys: extractKeys(dataToWrite),
       });
+
       dataToWrite = removeDuplicateData(dataToWrite, currentData);
+    }
+
+    const noDataToWrite = Object.keys(dataToWrite).length === 0;
+    if (noDataToWrite) {
+      this.log({
+        source: 'RPC Signed Transaction',
+        messages: [
+          {
+            data: {},
+            description:
+              'Transaction skipped. Data passed to `set()` matches data already stored on chain.',
+            type: 'INFO',
+          },
+        ],
+      });
+      return null;
     }
 
     const bytes = estimateRequiredBytesForStorage(dataToWrite, currentData);
@@ -205,10 +226,22 @@ export class SocialSdk {
       hasInitializedStorageBalance ? Big(1) : MIN_STORAGE_BALANCE
     );
 
-    const actions: Action[] = [];
+    const actions: FunctionCallAction[] = [
+      {
+        params: {
+          methodName: 'set',
+          args: {
+            data: dataToWrite,
+          },
+          gas: ONE_TGAS.mul(100).toFixed(0),
+          deposit: '0',
+        },
+        type: 'FunctionCall',
+      },
+    ];
 
     if (!hasWritePermission) {
-      actions.push({
+      actions.unshift({
         params: {
           methodName: 'grant_write_permission',
           args: {
@@ -216,25 +249,14 @@ export class SocialSdk {
             keys: [this.accountState.accountId],
           },
           gas: ONE_TGAS.mul(100).toFixed(0),
-          deposit: deposit.toFixed(0),
+          deposit: '0',
         },
         type: 'FunctionCall',
       });
-
-      deposit = Big(0);
     }
 
-    actions.push({
-      params: {
-        methodName: 'set',
-        args: {
-          data: dataToWrite,
-        },
-        gas: ONE_TGAS.mul(100).toFixed(0),
-        deposit: deposit.toFixed(0),
-      },
-      type: 'FunctionCall',
-    });
+    // Attach a single deposit to the first action to cover all combined storage costs:
+    actions[0].params.deposit = deposit.toFixed(0);
 
     const request = {
       receiverId: this.contractId,
@@ -248,6 +270,19 @@ export class SocialSdk {
 
     try {
       const response = await wallet.signAndSendTransaction(request);
+
+      if (!response) {
+        throw new Error('Transaction failed to return any response.');
+      }
+
+      if (
+        response?.status === FinalExecutionStatusBasic.Failure ||
+        (typeof response?.status === 'object' && response.status.Failure)
+      ) {
+        throw new Error('Transaction failed to execute.', {
+          cause: response,
+        });
+      }
 
       this.log({
         source: 'RPC Signed Transaction',
@@ -267,7 +302,9 @@ export class SocialSdk {
         messages: [
           debugLogRequestMessage,
           {
-            data: error,
+            data: {
+              error,
+            },
             type: 'ERROR',
           },
         ],
@@ -278,7 +315,7 @@ export class SocialSdk {
         'Invalid message. Only transactions can be signed'
       ) {
         // This provides a more DX friendly message when cancelling a transaction
-        throw new Error('RPC transaction cancelled by user.');
+        throw new Error('Transaction cancelled by user.');
       }
       throw error;
     }
@@ -347,10 +384,11 @@ export class SocialSdk {
       data: { data, ...request },
       type: 'REQUEST',
     };
-    const debugLogIdentifier =
-      'keys' in data && Array.isArray(data.keys)
-        ? JSON.stringify(data.keys)
-        : undefined;
+    let debugLogIdentifier = methodName;
+
+    if ('keys' in data && Array.isArray(data.keys)) {
+      debugLogIdentifier += ` ${JSON.stringify(data.keys)}`;
+    }
 
     try {
       const response = await this.provider.query<CodeResult>(request);
