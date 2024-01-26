@@ -28,14 +28,14 @@
   gap: 1rem;
   align-items: center;
   color: var(--color-text-1);
-  opacity: 0.3;
+  opacity: 0.5;
   margin-right: auto;
   transition: all 200ms;
   text-decoration: none;
   outline: none;
 
   &:hover {
-    opacity: 0.5;
+    opacity: 0.75;
   }
   &:focus {
     opacity: 1;

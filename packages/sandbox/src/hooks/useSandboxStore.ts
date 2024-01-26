@@ -19,6 +19,7 @@ type SandboxStore = {
   containerElement: HTMLDivElement | undefined;
   editingFileNamePath: string | undefined;
   files: SandboxFiles;
+  isInitializingPublishedFiles: boolean;
   mode: SandboxEditorMode;
   pinnedPreviewFilePath: string | undefined;
   publishedFiles: SandboxFiles;
@@ -41,6 +42,7 @@ export const useSandboxStore = create<SandboxStore>()(
       activeFilePath: Object.keys(DEFAULT_FILES).shift(),
       containerElement: undefined,
       editingFileNamePath: undefined,
+      isInitializingPublishedFiles: true,
       files: DEFAULT_FILES,
       mode: 'EDIT',
       pinnedPreviewFilePath: undefined,
@@ -94,7 +96,8 @@ export const useSandboxStore = create<SandboxStore>()(
 
       setPinnedPreviewFile: (path) => set({ pinnedPreviewFilePath: path }),
 
-      setPublishedFiles: (publishedFiles) => set(() => ({ publishedFiles })),
+      setPublishedFiles: (publishedFiles) =>
+        set(() => ({ isInitializingPublishedFiles: false, publishedFiles })),
 
       updateFilePath: (currentPath, newPath) =>
         set((state) => {

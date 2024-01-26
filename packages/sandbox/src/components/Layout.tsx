@@ -26,8 +26,8 @@ export function Layout() {
 
       <FileExplorer />
 
-      {mode === 'EDIT' && <MonacoEditor />}
-      {mode === 'PUBLISH' && <MonacoDiff />}
+      <MonacoEditor />
+      <MonacoDiff />
 
       <Preview />
     </div>

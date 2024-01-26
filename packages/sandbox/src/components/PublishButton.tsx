@@ -1,40 +1,80 @@
-import { useSocial } from '@bos-web-engine/social-sdk';
-import { Button, HR, Text } from '@bos-web-engine/ui';
+import {
+  SOCIAL_COMPONENT_NAMESPACE,
+  useSocial,
+} from '@bos-web-engine/social-sdk';
+import { Button, Text } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
+import { useState } from 'react';
 
 import s from './PublishButton.module.css';
+import { useSandboxStore } from '../hooks/useSandboxStore';
+import { convertFilePathToComponentName } from '../utils';
 
 type Props = {
   selectedFilePaths: string[];
 };
 
 export function PublishButton({ selectedFilePaths }: Props) {
+  const files = useSandboxStore((store) => store.files);
+  const publishedFiles = useSandboxStore((store) => store.publishedFiles);
+  const setPublishedFiles = useSandboxStore((store) => store.setPublishedFiles);
   const { account, walletSelectorModal } = useWallet();
   const { social } = useSocial();
-
-  // TODO: Pull and push components via social.get() and social.set()
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [error, setError] = useState('');
 
   const publish = async () => {
     try {
+      setError('');
+      setIsPublishing(true);
+
+      const components: {
+        [componentName: string]: {
+          '': string;
+          metadata?: Record<string, any>;
+        };
+      } = {};
+      selectedFilePaths.forEach((filePath) => {
+        const file = files[filePath];
+        if (file) {
+          const componentName = convertFilePathToComponentName(filePath);
+          components[componentName] = {
+            '': file.source,
+            // TODO: Pass along metadata once exposed in UI
+          };
+        }
+      });
+
       await social.set({
         data: {
-          profile: {
-            name: 'Caleb J',
-          },
+          [SOCIAL_COMPONENT_NAMESPACE]: components,
         },
       });
+
+      // Update our published files immediately to match what's been successfully published:
+      const updatedPublishedFiles = {
+        ...publishedFiles,
+      };
+      selectedFilePaths.forEach((filePath) => {
+        const file = files[filePath];
+        updatedPublishedFiles[filePath] = file;
+      });
+      setPublishedFiles(updatedPublishedFiles);
     } catch (error) {
       console.error(error);
+      setError('Failed to publish your changes. Please try again later.');
+    } finally {
+      setIsPublishing(false);
     }
   };
 
   if (!account) {
     return (
       <div className={s.wrapper}>
-        <HR />
         <Text size="xs">
           To publish your components, please sign in with your wallet.
         </Text>
+
         <Button onClick={() => walletSelectorModal?.show()}>Sign In</Button>
       </div>
     );
@@ -42,7 +82,17 @@ export function PublishButton({ selectedFilePaths }: Props) {
 
   return (
     <div className={s.wrapper}>
-      <Button disabled={selectedFilePaths.length < 1} onClick={publish}>
+      {error && (
+        <Text size="xs" color="danger">
+          {error}
+        </Text>
+      )}
+
+      <Button
+        disabled={selectedFilePaths.length < 1}
+        loading={isPublishing}
+        onClick={publish}
+      >
         Publish Selected
       </Button>
     </div>

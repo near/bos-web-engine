@@ -17,4 +17,5 @@ export const MAINNET_SOCIAL_CONTRACT_ID = 'social.near';
 export const TESTNET_RPC_URL = 'https://rpc.testnet.near.org';
 export const MAINNET_RPC_URL = 'https://rpc.mainnet.near.org';
 
+export const SOCIAL_COMPONENT_NAMESPACE = 'widget';
 export const SOCIAL_IPFS_BASE_URL = 'https://ipfs.near.social/ipfs';

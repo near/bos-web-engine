@@ -1,7 +1,9 @@
-import { SocialSdk } from '@bos-web-engine/social-sdk';
+import {
+  SOCIAL_COMPONENT_NAMESPACE,
+  SocialSdk,
+} from '@bos-web-engine/social-sdk';
 
-import type { SocialComponentsByAuthor } from './types';
-import { BOSModuleEntry } from './types';
+import { BOSModuleEntry, ComponentEntry } from './types';
 
 export async function fetchComponentSources(
   social: SocialSdk,
@@ -16,29 +18,35 @@ export async function fetchComponentSources(
     `any` typings.
   */
 
+  type SocialComponentsByAuthor = {
+    [author: string]: {
+      [SOCIAL_COMPONENT_NAMESPACE]: { [name: string]: string | ComponentEntry };
+    };
+  };
+
   const response = (await social.get({
-    keys: componentPaths.map((p) => p.split('/').join('/widget/')),
+    keys: componentPaths.map((p) =>
+      p.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`)
+    ),
   })) as SocialComponentsByAuthor;
 
   return Object.entries(response).reduce(
-    (sources, [author, { widget: component }]) => {
-      Object.entries(component).forEach(
-        ([componentKey, componentSource]) => {
-          if (typeof componentSource === 'string') {
-            sources[`${author}/${componentKey}`] = {
-              component: componentSource,
-            };
-          } else if (componentSource) {
-            const { '': source, css } = componentSource;
-            sources[`${author}/${componentKey}`] = {
-              component: source,
-              css,
-            };
-          } else {
-            console.error(`Invalid component source: ${componentSource}`);
-          }
+    (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: component }]) => {
+      Object.entries(component).forEach(([componentKey, componentSource]) => {
+        if (typeof componentSource === 'string') {
+          sources[`${author}/${componentKey}`] = {
+            component: componentSource,
+          };
+        } else if (componentSource) {
+          const { '': source, css } = componentSource;
+          sources[`${author}/${componentKey}`] = {
+            component: source,
+            css,
+          };
+        } else {
+          console.error(`Invalid component source: ${componentSource}`);
         }
-      );
+      });
       return sources;
     },
     {} as { [key: string]: BOSModuleEntry }

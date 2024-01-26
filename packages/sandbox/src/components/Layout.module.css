@@ -15,4 +15,15 @@
   &[data-mode='PUBLISH'] {
     grid-template-columns: min-content 14rem 1fr 0px;
   }
+
+  &[data-mode='EDIT'] {
+    [data-monaco='diff'] {
+      display: none;
+    }
+  }
+  &[data-mode='PUBLISH'] {
+    [data-monaco='editor'] {
+      display: none;
+    }
+  }
 }

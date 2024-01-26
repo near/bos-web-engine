@@ -91,7 +91,7 @@ export interface BOSModuleEntry {
   css?: string;
 }
 
-interface ComponentEntry {
+export interface ComponentEntry {
   '': string;
   css: string;
 }

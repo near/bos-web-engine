@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   text-align: center;
   text-decoration: none;
   height: 1.75rem;
@@ -19,6 +20,10 @@
   outline: none;
   transition: all 200ms;
 
+  svg {
+    fill: currentColor;
+  }
+
   &:hover {
     background: var(--color-surface-3);
   }
@@ -32,5 +37,36 @@
   &:disabled {
     opacity: 0.35;
     pointer-events: none;
+  }
+
+  &[aria-busy='true'] {
+    pointer-events: none;
+
+    .content {
+      opacity: 0;
+    }
+
+    &::before {
+      content: '';
+      display: block;
+      height: 1rem;
+      width: 1rem;
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      border-radius: 100%;
+      border: 3px solid currentColor;
+      border-color: currentColor transparent currentColor transparent;
+      animation: spin 1.2s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

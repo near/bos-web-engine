@@ -4,10 +4,15 @@ import { useSandboxStore } from './useSandboxStore';
 
 export function useModifiedFiles() {
   const files = useSandboxStore((store) => store.files);
+  const isInitializingPublishedFiles = useSandboxStore(
+    (store) => store.isInitializingPublishedFiles
+  );
   const publishedFiles = useSandboxStore((store) => store.publishedFiles);
 
   const modifiedFilePaths = useMemo(() => {
     const result: string[] = [];
+
+    if (isInitializingPublishedFiles) return result;
 
     Object.entries(files).forEach(([path, file]) => {
       if (!file) return;
@@ -20,7 +25,7 @@ export function useModifiedFiles() {
     });
 
     return result;
-  }, [files, publishedFiles]);
+  }, [files, isInitializingPublishedFiles, publishedFiles]);
 
   return {
     modifiedFilePaths,

@@ -1,6 +1,7 @@
 export {
   MAINNET_SOCIAL_CONTRACT_ID,
   TESTNET_SOCIAL_CONTRACT_ID,
+  SOCIAL_COMPONENT_NAMESPACE,
   SOCIAL_IPFS_BASE_URL,
 } from './constants';
 export { useSocial } from './hooks/useSocial';

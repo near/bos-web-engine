@@ -1,9 +1,10 @@
-import { Checkbox, Dropdown } from '@bos-web-engine/ui';
+import { Checkbox, Dropdown, Text } from '@bos-web-engine/ui';
 import {
   File,
   DotsThreeVertical,
   Trash,
   PencilSimple,
+  CheckCircle,
 } from '@phosphor-icons/react';
 import {
   ChangeEventHandler,
@@ -131,7 +132,18 @@ export function FileExplorer() {
     if (mode === 'PUBLISH') {
       setSelectedFilePaths(modifiedFilePaths);
     }
-  }, [mode, modifiedFilePaths]);
+  }, [activeFilePath, mode, modifiedFilePaths, setActiveFile]);
+
+  useEffect(() => {
+    if (
+      mode === 'PUBLISH' &&
+      (!activeFilePath || !modifiedFilePaths.includes(activeFilePath))
+    ) {
+      setActiveFile(modifiedFilePaths[0]);
+    } else if (mode === 'EDIT' && !activeFilePath) {
+      setActiveFile(Object.keys(files)[0]);
+    }
+  }, [activeFilePath, files, mode, modifiedFilePaths, setActiveFile]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -180,7 +192,24 @@ export function FileExplorer() {
         </ul>
 
         <div className={s.footer}>
-          <PublishButton selectedFilePaths={selectedFilePaths} />
+          {modifiedFilePaths.length > 0 ? (
+            <PublishButton selectedFilePaths={selectedFilePaths} />
+          ) : (
+            <>
+              <CheckCircle fill="var(--color-affirm)" weight="bold" />
+              <Text
+                size="s"
+                color="affirm"
+                weight="bold"
+                style={{ textAlign: 'center' }}
+              >
+                No changes to publish.
+              </Text>
+              <Text size="xs" style={{ textAlign: 'center' }}>
+                All of your local components match the source code on chain.
+              </Text>
+            </>
+          )}
         </div>
       </div>
     );

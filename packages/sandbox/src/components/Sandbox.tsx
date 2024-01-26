@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Layout } from './Layout';
 import s from './Sandbox.module.css';
+import { usePublishedFilesSync } from '../hooks/usePublishedFilesSync';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 
 export function Sandbox() {
@@ -11,6 +12,7 @@ export function Sandbox() {
     (store) => store.setContainerElement
   );
   const [shouldRender, setShouldRender] = useState(false);
+  usePublishedFilesSync();
 
   useEffect(() => {
     /*
