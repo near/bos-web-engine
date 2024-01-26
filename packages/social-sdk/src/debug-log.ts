@@ -25,9 +25,9 @@ export function debugLog({ source, identifier, messages }: DebugLogParams) {
   const date = new Date();
 
   console.groupCollapsed(
-    `${sourceIcons[source]} ${source} ${
-      identifier ? `/ ${identifier} ` : ''
-    }- ${date.toLocaleString()}`
+    `${sourceIcons[source]} ${source} @ ${date.toLocaleString()} ${
+      identifier ? `| ${identifier} ` : ''
+    }`
   );
 
   messages.forEach((message) => {

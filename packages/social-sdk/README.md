@@ -38,15 +38,16 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <WalletSelectorProvider
       contractId={MAINNET_SOCIAL_CONTRACT_ID}
+      onProvision={(selector) => setWalletSelector(selector)}
       params={{
         network: 'mainnet',
         modules: [...],
       }}
-      onProvision={(selector) => setWalletSelector(selector)}
     >
       <SocialProvider
-        walletSelector={walletSelector}
+        networkId='mainnet'
         onProvision={(sdk) => setSocial(sdk)}
+        walletSelector={walletSelector}
       >
         <Theme>
           <header>
@@ -86,5 +87,5 @@ In some cases you might need to initialize and manage an SDK instance yourself:
 
 ```ts
 import { SocialSdk } from '@bos-web-engine/social-sdk';
-const sdk = new SocialSdk(...);
+const sdk = new SocialSdk({ ... });
 ```

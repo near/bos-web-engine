@@ -12,8 +12,10 @@ export function PublishButton({ selectedFilePaths }: Props) {
   const { account, walletSelectorModal } = useWallet();
   const { social } = useSocial();
 
+  // TODO: Pull and push components via social.get() and social.set()
+
   const publish = async () => {
-    await social?.set({
+    await social.set({
       data: {
         profile: {
           name: 'Caleb Jacob',

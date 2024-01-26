@@ -4,9 +4,7 @@ import { ESTIMATED_KEY_VALUE_SIZE, ESTIMATED_NODE_SIZE } from './constants';
 
 export const encodeJsonRpcArgs = (args: Record<any, any>) => {
   const bytes = new TextEncoder().encode(JSON.stringify(args));
-  return window.btoa(
-    Array.from(bytes, (b) => String.fromCodePoint(b)).join('')
-  );
+  return btoa(Array.from(bytes, (b) => String.fromCodePoint(b)).join(''));
 };
 
 export const parseJsonRpcResponse = (bytes: number[]): Record<any, any> => {

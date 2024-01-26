@@ -33,7 +33,7 @@ export default function App({ Component, pageProps }: AppProps) {
       params={MAINNET_WALLET_SELECTOR_PARAMS}
       onProvision={(selector) => setWalletSelector(selector)}
     >
-      <SocialProvider debug walletSelector={walletSelector}>
+      <SocialProvider debug networkId="mainnet" walletSelector={walletSelector}>
         <Theme className={s.wrapper}>
           <header className={s.header}>
             <Link className={s.logo} href="/">

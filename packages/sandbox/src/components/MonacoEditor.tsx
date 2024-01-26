@@ -57,6 +57,10 @@ export function MonacoEditor() {
   const beforeMonacoMount: BeforeMount = (monaco) => {
     emmetJSX(monaco, ['javascript', 'typescript']);
 
+    /*
+      TODO: Figure out why calling setCompilerOptions() triggers "Error: Could not find source file:
+      'inmemory://model/X'." when <MonacoDiff> is shown
+    */
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
     });

@@ -5,9 +5,8 @@ import type {
   Action,
   NetworkId,
   WalletSelector,
-  WalletSelectorState,
 } from '@near-wallet-selector/core';
-import Big from 'big.js';
+import { Big } from 'big.js';
 
 import {
   EXTRA_STORAGE_BALANCE,
@@ -21,11 +20,16 @@ import {
   TESTNET_SOCIAL_CONTRACT_ID,
   WRITE_PERMISSION_STORAGE_BALANCE,
 } from './constants';
-import { DebugLogMessage, DebugLogParams, debugLog } from './debug-log';
 import {
+  type DebugLogMessage,
+  type DebugLogParams,
+  debugLog,
+} from './debug-log';
+import type {
   RpcFetchParams,
   SocialGetParams,
   SocialGetResponse,
+  SocialSdkConstructorParams,
   SocialSetParams,
 } from './types';
 import {
@@ -39,19 +43,38 @@ import {
 } from './utils';
 
 export class SocialSdk {
-  private debug;
-  private networkId: NetworkId;
-  private provider: JsonRpcProvider;
-  private walletSelector: WalletSelector;
+  debug;
+  networkId: NetworkId;
+  walletSelector: WalletSelector | null;
 
-  constructor(walletSelector: WalletSelector, debug = false) {
-    const networkId = walletSelector.options.network.networkId as NetworkId;
+  private testnetProvider: JsonRpcProvider;
+  private mainnetProvider: JsonRpcProvider;
+
+  /**
+   * Interact with the `social.near` contract (Social DB).
+   * @param debug - Optionally pass as `true` to enable logging. Defaults to `false`.
+   * @param networkId - Used to determine which RPC provider will be used internally.
+   * @param walletSelector - Optionally pass a `walletSelector` instance. This is only needed if you plan on setting data - eg: `set()`. Defaults to `null`.
+   */
+  constructor({
+    debug = false,
+    networkId,
+    walletSelector,
+  }: SocialSdkConstructorParams) {
+    if (!networkId) {
+      throw new Error('Must pass `networkId`.');
+    }
 
     this.debug = debug;
     this.networkId = networkId;
-    this.walletSelector = walletSelector;
-    this.provider = new JsonRpcProvider({
-      url: networkId === 'mainnet' ? MAINNET_RPC_URL : TESTNET_RPC_URL,
+    this.walletSelector = walletSelector ?? null;
+
+    this.testnetProvider = new JsonRpcProvider({
+      url: TESTNET_RPC_URL,
+    });
+
+    this.mainnetProvider = new JsonRpcProvider({
+      url: MAINNET_RPC_URL,
     });
   }
 
@@ -61,12 +84,17 @@ export class SocialSdk {
       : TESTNET_SOCIAL_CONTRACT_ID;
   }
 
-  private get accountState(): AccountState | null {
+  private get accountState() {
     return this.walletSelectorState?.accounts[0] ?? null;
   }
 
-  private get walletSelectorState(): WalletSelectorState | null {
-    return this.walletSelector.store.getState();
+  private get provider() {
+    if (this.networkId === 'mainnet') return this.mainnetProvider;
+    return this.testnetProvider;
+  }
+
+  private get walletSelectorState() {
+    return this.walletSelector?.store.getState() ?? null;
   }
 
   /**
@@ -299,14 +327,15 @@ export class SocialSdk {
 
   private async rpcFetch<T>({
     blockId,
-    contractId: customContractId,
+    contractId,
     data,
     finality = 'optimistic',
     methodName,
   }: RpcFetchParams) {
-    const contractId = customContractId ?? this.contractId;
+    // TODO: Should we make this a public method? Would allow end users to easily fetch data from any contract.
+
     const request = {
-      account_id: contractId,
+      account_id: contractId ?? this.contractId,
       args_base64: encodeJsonRpcArgs(data),
       block_id: blockId,
       finality: blockId ? undefined : finality,
@@ -318,6 +347,10 @@ export class SocialSdk {
       data: { data, ...request },
       type: 'REQUEST',
     };
+    const debugLogIdentifier =
+      'keys' in data && Array.isArray(data.keys)
+        ? JSON.stringify(data.keys)
+        : undefined;
 
     try {
       const response = await this.provider.query<CodeResult>(request);
@@ -325,6 +358,7 @@ export class SocialSdk {
 
       this.log({
         source: 'RPC View',
+        identifier: debugLogIdentifier,
         messages: [
           debugLogRequestMessage,
           {
@@ -334,10 +368,11 @@ export class SocialSdk {
         ],
       });
 
-      return data;
+      return responseData;
     } catch (error) {
       this.log({
         source: 'RPC View',
+        identifier: debugLogIdentifier,
         messages: [
           debugLogRequestMessage,
           {
@@ -352,8 +387,15 @@ export class SocialSdk {
   }
 
   private async wallet() {
+    if (!this.walletSelector) {
+      throw new Error(
+        'Social SDK must be configured with `walletSelector` instance to support setting data.'
+      );
+    }
+
     try {
       if (
+        this.walletSelector &&
         this.walletSelectorState &&
         this.walletSelectorState.accounts.length > 0 &&
         this.walletSelectorState.selectedWalletId

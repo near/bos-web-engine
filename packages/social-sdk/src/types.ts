@@ -1,4 +1,5 @@
-import { BlockId, Finality } from '@near-js/types';
+import type { BlockId, Finality } from '@near-js/types';
+import type { NetworkId, WalletSelector } from '@near-wallet-selector/core';
 
 type DeepPartial<T> = T extends object
   ? {
@@ -20,6 +21,12 @@ export type RpcFetchParams = {
       finality?: never;
     }
 );
+
+export type SocialSdkConstructorParams = {
+  debug?: boolean;
+  networkId: NetworkId;
+  walletSelector?: WalletSelector | null;
+};
 
 export type SocialGetParams = (
   | {
