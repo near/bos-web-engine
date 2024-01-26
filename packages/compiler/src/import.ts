@@ -7,6 +7,28 @@ type ImportMixed = ImportModule & {
   reference: string;
 };
 
+const stripLeadingComment = (source: string) => {
+  if (!source) {
+    return source;
+  }
+
+  if (source.startsWith('//')) {
+    return source.slice(source.indexOf('\n') + 1).trim();
+  }
+
+  if (source.startsWith('/*')) {
+    let i = 2;
+    while (i < source.length) {
+      if (source.slice(i, i + 2) === '*/') {
+        return source.slice(i + 2).trim();
+      }
+      i++;
+    }
+  }
+
+  return source;
+};
+
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
   /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
@@ -18,7 +40,7 @@ const SIDE_EFFECT_IMPORT_REGEX =
  * @param source BOS Component source code
  */
 export const extractImportStatements = (source: string) => {
-  let src = source.trim();
+  let src = stripLeadingComment(source.trim());
 
   const imports: ModuleImport[] = [];
   while (src.startsWith('import')) {
@@ -92,6 +114,8 @@ export const extractImportStatements = (source: string) => {
         break;
       }
     }
+
+    src = stripLeadingComment(src.trim());
   }
 
   return {
