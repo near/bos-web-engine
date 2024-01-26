@@ -437,9 +437,6 @@ importers:
 
   packages/social-sdk:
     dependencies:
-      '@bos-web-engine/wallet-selector-control':
-        specifier: workspace:*
-        version: link:../wallet-selector-control
       '@near-js/providers':
         specifier: ^0.0.7
         version: 0.0.7(encoding@0.1.13)
@@ -558,6 +555,9 @@ importers:
 
   packages/wallet-selector-control:
     dependencies:
+      '@bos-web-engine/social-sdk':
+        specifier: workspace:*
+        version: link:../social-sdk
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../ui

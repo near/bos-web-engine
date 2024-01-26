@@ -10,7 +10,6 @@
     "lint:fix": "eslint . --fix"
   },
   "peerDependencies": {
-    "@bos-web-engine/wallet-selector-control": "workspace:*",
     "@near-wallet-selector/core": "^8.9.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"

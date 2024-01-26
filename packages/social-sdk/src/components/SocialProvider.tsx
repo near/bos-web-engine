@@ -1,4 +1,4 @@
-import { useWallet } from '@bos-web-engine/wallet-selector-control';
+import type { WalletSelector } from '@near-wallet-selector/core';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 
 import { SocialSdk } from '../social-sdk';
@@ -13,18 +13,31 @@ export const SocialContext = createContext<SocialContext | undefined>(
 
 type SocialProviderProps = {
   children: ReactNode;
+  debug?: boolean;
+  onProvision?: (social: SocialSdk | null) => void;
+  walletSelector: WalletSelector | null;
 };
 
-export const SocialProvider = ({ children }: SocialProviderProps) => {
-  const { walletSelector } = useWallet();
+export const SocialProvider = ({
+  children,
+  debug,
+  onProvision,
+  walletSelector,
+}: SocialProviderProps) => {
   const [social, setSocial] = useState<SocialSdk | null>(null);
 
   useEffect(() => {
     if (walletSelector) {
-      const sdk = new SocialSdk(walletSelector);
+      const sdk = new SocialSdk(walletSelector, debug);
       setSocial(sdk);
     }
-  }, [walletSelector]);
+  }, [debug, walletSelector]);
+
+  useEffect(() => {
+    if (!onProvision) return;
+    onProvision(social);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [social]);
 
   return (
     <SocialContext.Provider

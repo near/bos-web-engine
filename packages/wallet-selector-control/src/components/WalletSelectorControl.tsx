@@ -1,18 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 
+import { useSocialProfile } from '@bos-web-engine/social-sdk';
 import { Button, Dropdown } from '@bos-web-engine/ui';
 import { X, CaretDown } from '@phosphor-icons/react';
 
 import s from './WalletSelectorControl.module.css';
-import { useSocialProfile } from '../hooks/useSocialProfile';
 import { useWallet } from '../hooks/useWallet';
 
 export function WalletSelectorControl() {
-  const { account, wallet, walletSelector, walletSelectorModal } = useWallet();
-  const { profile, profileImageUrl } = useSocialProfile(
-    account?.accountId,
-    walletSelector?.options.network
-  );
+  const { account, wallet, walletSelectorModal } = useWallet();
+  const { profile, profileImageUrl } = useSocialProfile(account?.accountId);
 
   if (account && profile) {
     return (

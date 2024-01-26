@@ -31,6 +31,7 @@
     "lint:fix": "eslint . --fix"
   },
   "peerDependencies": {
+    "@bos-web-engine/social-sdk": "workspace:*",
     "@bos-web-engine/ui": "workspace:*",
     "@near-wallet-selector/core": "^8.9.2",
     "@near-wallet-selector/modal-ui": "^8.9.2",

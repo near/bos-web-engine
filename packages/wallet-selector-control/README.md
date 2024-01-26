@@ -4,52 +4,12 @@ This package provides a convenient UI to show the currently signed in wallet (or
 
 ## Usage
 
-An example of using `<WalletSelectorProvider />` and `<WalletSelectorControl />` inside your Next JS `_app.tsx` file:
-
-```tsx
-import '@bos-web-engine/ui/reset.css';
-import '@bos-web-engine/ui/styles.css';
-import '@bos-web-engine/wallet-selector-control/styles.css';
-import '@near-wallet-selector/modal-ui/styles.css';
-
-import type { AppProps } from 'next/app';
-import { Theme } from '@bos-web-engine/ui';
-import {
-  useWallet,
-  WalletSelectorProvider,
-  WalletSelectorControl,
-} from '@bos-web-engine/wallet-selector-control';
-
-export default function App({ Component, pageProps }: AppProps) {
-  const { account } = useWallet();
-
-  console.log('Current wallet selector account:' account);
-
-  return (
-    <WalletSelectorProvider
-      contractId="social.near"
-      params={{
-        network: 'mainnet',
-        modules: [...],
-      }}
-    >
-      <Theme>
-        <header>
-          <WalletSelectorControl />
-        </header>
-
-        <main>
-          <Component {...pageProps} />
-        </main>
-      </Theme>
-    </WalletSelectorProvider>
-  );
-}
-```
+Please check out the [Standard Usage](../social-sdk/README.md) section for the Social SDK to see a detailed example.
 
 ## Hooks
 
 This package also includes the following hooks for convenience:
 
-- `useSocialProfile()` for retrieving the Social profile details of any NEAR account.
-- `useWallet()` for easily accessing the wallet selector instance (and state) shared by the provider.
+- `useWallet()` for easily accessing the Wallet Selector instance (and state) shared by the provider.
+
+*NOTE: These hooks aren't accessible in the root of your application due to being outside the context of the providers (they would throw an error). Consider using the `onProvision` prop as shown above or move the consumers of these hooks into a child component of the providers.*

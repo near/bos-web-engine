@@ -13,7 +13,13 @@ export function PublishButton({ selectedFilePaths }: Props) {
   const { social } = useSocial();
 
   const publish = async () => {
-    await social?.test();
+    await social?.set({
+      data: {
+        profile: {
+          name: 'Caleb Jacob',
+        },
+      },
+    });
   };
 
   if (!account) {

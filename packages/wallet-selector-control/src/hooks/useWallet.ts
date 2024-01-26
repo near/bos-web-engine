@@ -5,9 +5,15 @@ import { useContext, useEffect, useState } from 'react';
 import { WalletSelectorContext } from '../components/WalletSelectorProvider';
 
 export const useWallet = () => {
-  const { walletSelector, walletSelectorModal } = useContext(
-    WalletSelectorContext
-  ) ?? { walletSelector: null, walletSelectorModal: null };
+  const context = useContext(WalletSelectorContext);
+
+  if (!context) {
+    throw new Error(
+      'useWallet() must be used inside the context provided by <WalletSelectorProvider>'
+    );
+  }
+
+  let { walletSelector, walletSelectorModal } = context;
   const [wallet, setWallet] = useState<(Wallet & SignMessageMethod) | null>(
     null
   );
@@ -24,7 +30,11 @@ export const useWallet = () => {
       async (value) => {
         setWalletSelectorState(value);
 
-        if (value.accounts.length > 0 && value.selectedWalletId) {
+        if (
+          value.accounts.length > 0 &&
+          value.selectedWalletId &&
+          walletSelector
+        ) {
           const wallet = await walletSelector.wallet();
           setWallet(wallet);
         } else {
