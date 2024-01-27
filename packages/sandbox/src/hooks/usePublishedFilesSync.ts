@@ -9,13 +9,16 @@ import { type SandboxFiles, useSandboxStore } from './useSandboxStore';
 import { convertComponentNameToFilePath } from '../utils';
 
 export function usePublishedFilesSync() {
-  const { account } = useWallet();
+  const { account, hasResolved } = useWallet();
   const { social } = useSocial();
   const mode = useSandboxStore((store) => store.mode);
   const setPublishedFiles = useSandboxStore((store) => store.setPublishedFiles);
 
   useEffect(() => {
-    if (!account) return;
+    if (!account) {
+      if (hasResolved) setPublishedFiles({});
+      return;
+    }
 
     const fetchPublishedFiles = async () => {
       try {
@@ -53,5 +56,5 @@ export function usePublishedFilesSync() {
     };
 
     fetchPublishedFiles();
-  }, [account, mode, setPublishedFiles, social]);
+  }, [account, hasResolved, mode, setPublishedFiles, social]);
 }

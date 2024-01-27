@@ -50,6 +50,7 @@ export const useWallet = () => {
 
   return {
     account,
+    hasResolved: !!walletSelectorState,
     wallet,
     walletSelector,
     walletSelectorModal,

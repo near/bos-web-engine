@@ -2,7 +2,7 @@ import {
   SOCIAL_COMPONENT_NAMESPACE,
   useSocial,
 } from '@bos-web-engine/social-sdk';
-import { Button, Text } from '@bos-web-engine/ui';
+import { Button, HR, Text } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { useState } from 'react';
 
@@ -71,10 +71,8 @@ export function PublishButton({ selectedFilePaths }: Props) {
   if (!account) {
     return (
       <div className={s.wrapper}>
-        <Text size="xs">
-          To publish your components, please sign in with your wallet.
-        </Text>
-
+        <Text size="s">To publish your components, please sign in.</Text>
+        <HR />
         <Button onClick={() => walletSelectorModal?.show()}>Sign In</Button>
       </div>
     );
@@ -83,9 +81,12 @@ export function PublishButton({ selectedFilePaths }: Props) {
   return (
     <div className={s.wrapper}>
       {error && (
-        <Text size="xs" color="danger">
-          {error}
-        </Text>
+        <>
+          <Text size="s" color="danger">
+            {error}
+          </Text>
+          <HR />
+        </>
       )}
 
       <Button
