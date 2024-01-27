@@ -2,6 +2,11 @@ import { Big } from 'big.js';
 
 import { ESTIMATED_KEY_VALUE_SIZE, ESTIMATED_NODE_SIZE } from './constants';
 
+/*
+  TODO: Most of these utils have been copied over from NearSocial/VM and could 
+  probably be refactored as we have time.
+*/
+
 export const encodeJsonRpcArgs = (args: Record<any, any>) => {
   const bytes = new TextEncoder().encode(JSON.stringify(args));
   return btoa(Array.from(bytes, (b) => String.fromCodePoint(b)).join(''));
