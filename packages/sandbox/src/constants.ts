@@ -1,7 +1,7 @@
 import { SandboxFiles } from './hooks/useSandboxStore';
 import { MonacoExternalLibrary } from './types';
 
-export const ACCOUNT_ID = 'bwe-web.near';
+export const DEFAULT_SANDBOX_ACCOUNT_ID = 'bwe-web.near';
 export const PREACT_VERSION = '10.17.1';
 export const VALID_FILE_EXTENSION_REGEX = /\.(tsx)$/;
 export const PREVIEW_UPDATE_DEBOUNCE_DELAY = 750;
@@ -53,10 +53,10 @@ export const DEFAULT_FILES: SandboxFiles = {
   are automatically persisted in local storage. Feel free to add, 
   remove, and rename files.
   
-  For now, you should reference "${ACCOUNT_ID}" in the src prop 
-  when creating a new  component and referencing it via <Component />. 
-  For example: "${ACCOUNT_ID}/MyNewComponent.tsx". We will support 
-  signing in and referencing your own account soon.
+  If you aren't signed in, you should reference "${DEFAULT_SANDBOX_ACCOUNT_ID}" 
+  in the src prop when creating a new component and referencing it via <Component />. 
+  For example: "${DEFAULT_SANDBOX_ACCOUNT_ID}/MyNewComponent.tsx". When you sign 
+  in, these references will be replaced with your account ID.
   
   The following code example demonstrates multi file component editing 
   capabilities. Try opening up Message.tsx from the file explorer, 
@@ -73,7 +73,7 @@ export function BWEComponent() {
       <h1>Welcome!</h1>
 
       <Component
-        src="${ACCOUNT_ID}/Message"
+        src="${DEFAULT_SANDBOX_ACCOUNT_ID}/Message"
         props={{ message: 'Hello world!' }}
         /*
           The props object for <Component /> doesn't support type 

@@ -4,12 +4,13 @@ import {
   useWebEngineSandbox,
 } from '@bos-web-engine/application';
 import { Dropdown } from '@bos-web-engine/ui';
+import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { CaretDown, Eye } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 
 import s from './Preview.module.css';
 import {
-  ACCOUNT_ID,
+  DEFAULT_SANDBOX_ACCOUNT_ID,
   PREACT_VERSION,
   PREVIEW_UPDATE_DEBOUNCE_DELAY,
 } from '../constants';
@@ -18,6 +19,7 @@ import { useSandboxStore } from '../hooks/useSandboxStore';
 import { convertFilePathToComponentName } from '../utils';
 
 export function Preview() {
+  const { account } = useWallet();
   const containerElement = useSandboxStore((store) => store.containerElement);
   const activeFilePath = useSandboxStore((store) => store.activeFilePath);
   const pinnedPreviewFilePath = useSandboxStore(
@@ -35,6 +37,7 @@ export function Preview() {
     useState<WebEngineLocalComponents>();
   const [rootComponentPath, setRootComponentPath] = useState('');
   const previewFilePath = pinnedPreviewFilePath ?? activeFilePath;
+  const accountId = account?.accountId ?? DEFAULT_SANDBOX_ACCOUNT_ID;
 
   const { components, nonce } = useWebEngineSandbox({
     config: {
@@ -47,9 +50,9 @@ export function Preview() {
   useEffect(() => {
     if (!previewFilePath) return;
     const componentName = convertFilePathToComponentName(previewFilePath);
-    const componentPath = `${ACCOUNT_ID}/${componentName}`;
+    const componentPath = `${accountId}/${componentName}`;
     setRootComponentPath(componentPath);
-  }, [previewFilePath]);
+  }, [accountId, previewFilePath]);
 
   useEffect(() => {
     const editorComponents: WebEngineLocalComponents = {};
@@ -62,7 +65,7 @@ export function Preview() {
       if (!['jsx', 'tsx'].includes(fileType)) return;
 
       const componentName = convertFilePathToComponentName(filePath);
-      const path = `${ACCOUNT_ID}/${componentName}`;
+      const path = `${accountId}/${componentName}`;
 
       editorComponents[path] = {
         component: file.source,
@@ -70,7 +73,7 @@ export function Preview() {
     });
 
     setLocalComponents(editorComponents);
-  }, [debouncedFiles]);
+  }, [accountId, debouncedFiles]);
 
   return (
     <div className={s.wrapper}>

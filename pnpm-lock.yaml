@@ -281,9 +281,6 @@ importers:
       '@bos-web-engine/social-sdk':
         specifier: workspace:*
         version: link:../social-sdk
-      '@near-js/providers':
-        specifier: ^0.0.7
-        version: 0.0.7(encoding@0.1.13)
     devDependencies:
       '@near-js/types':
         specifier: ^0.0.4

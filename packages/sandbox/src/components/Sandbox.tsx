@@ -5,6 +5,7 @@ import { Layout } from './Layout';
 import s from './Sandbox.module.css';
 import { usePublishedFilesSync } from '../hooks/usePublishedFilesSync';
 import { useSandboxStore } from '../hooks/useSandboxStore';
+import { useSourceAccountReplace } from '../hooks/useSourceAccountReplace';
 
 export function Sandbox() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -12,7 +13,9 @@ export function Sandbox() {
     (store) => store.setContainerElement
   );
   const [shouldRender, setShouldRender] = useState(false);
+
   usePublishedFilesSync();
+  useSourceAccountReplace();
 
   useEffect(() => {
     /*
