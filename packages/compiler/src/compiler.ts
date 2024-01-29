@@ -15,6 +15,7 @@ import { parseChildComponents, ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
 import type {
+  BOSModuleEntry,
   CompilerExecuteAction,
   CompilerInitAction,
   CompilerSetLocalComponentAction,
@@ -34,7 +35,7 @@ interface BuildComponentSourceParams {
 }
 
 export class ComponentCompiler {
-  private bosSourceCache: Map<string, Promise<string>>;
+  private bosSourceCache: Map<string, Promise<BOSModuleEntry | null>>;
   private compiledSourceCache: Map<string, string | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
   private hasFetchedLocal: boolean = false;
@@ -42,7 +43,7 @@ export class ComponentCompiler {
   private preactVersion?: string;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
-    this.bosSourceCache = new Map<string, Promise<string>>();
+    this.bosSourceCache = new Map<string, Promise<BOSModuleEntry>>();
     this.compiledSourceCache = new Map<string, string>();
     this.sendWorkerMessage = sendMessage;
   }
@@ -128,12 +129,15 @@ export class ComponentCompiler {
           componentPath,
           pathsFetch
             .then((paths) => paths[componentPath])
-            .catch((e) => console.error(e, { componentPath }))
+            .catch((e) => {
+              console.error(e, { componentPath });
+              return null;
+            })
         );
       });
     }
 
-    const componentSources = new Map<string, Promise<string>>();
+    const componentSources = new Map<string, Promise<BOSModuleEntry | null>>();
     componentPaths.forEach((componentPath) => {
       const componentSource = this.bosSourceCache.get(componentPath);
       if (componentSource) {
@@ -212,6 +216,7 @@ export class ComponentCompiler {
   async parseComponentTree({
     componentPath,
     componentSource,
+    componentStyles,
     components,
     isComponentPathTrusted,
     isRoot,
@@ -256,6 +261,7 @@ export class ComponentCompiler {
 
     // add the transformed source to the returned Component tree
     components.set(componentPath, {
+      css: componentStyles,
       imports,
       // replace each child [Component] reference in the target Component source
       // with the generated name of the inlined Component function definition
@@ -277,14 +283,18 @@ export class ComponentCompiler {
     await Promise.all(
       trustedChildComponents.map(async (childComponent) => {
         const { path } = childComponent;
-        const componentSource = (await childComponentSources.get(path))!;
+        const componentModule = (await childComponentSources.get(path))!;
+        if (!componentModule) {
+          return null;
+        }
 
         const childTrustedRoot =
           trustedRoots.get(buildTrustedRootKey(childComponent)) || trustedRoot;
 
         await this.parseComponentTree({
           componentPath: path,
-          componentSource,
+          componentSource: componentModule.component,
+          componentStyles: componentModule.css,
           components,
           trustedRoot: childTrustedRoot,
           isRoot: false,
@@ -319,21 +329,45 @@ export class ComponentCompiler {
     }
 
     const componentPath = componentId.split('##')[0];
-    const source = await this.getComponentSources([componentPath]).get(
+    const moduleEntry = await this.getComponentSources([componentPath]).get(
       componentPath
     );
 
-    if (!source) {
+    if (!moduleEntry) {
       throw new Error(`Component not found at ${componentPath}`);
     }
 
     // recursively parse the Component tree for child Components
     const transformedComponents = await this.parseComponentTree({
       componentPath,
-      componentSource: source,
+      componentSource: moduleEntry.component,
+      componentStyles: moduleEntry.css,
       components: new Map<string, ComponentTreeNode>(),
       isRoot: true,
     });
+
+    const aggregatedStyles = [...transformedComponents.entries()].reduce(
+      (styleSheet, [path, { css }], i) => {
+        if (!css) {
+          return styleSheet;
+        }
+
+        // don't specify a selector the root Component CSS
+        // it will be under the container's id in the aggregated CSS
+        if (i === 0) {
+          return css;
+        }
+
+        return `
+${styleSheet}
+
+[data-component-src="${path}"] {
+  ${css}
+}
+`;
+      },
+      ''
+    );
 
     const containerModuleImports = [...transformedComponents.values()]
       .map(({ imports }) => imports)
@@ -370,10 +404,16 @@ export class ComponentCompiler {
       ),
     ].join('\n\n');
 
+    const containerStyles = `
+#dom-${componentId.replace(/([\/.#])/g, '\\$1')} {
+  ${aggregatedStyles}
+}`;
+
     this.sendWorkerMessage({
       componentId,
       componentSource,
-      rawSource: source,
+      containerStyles,
+      rawSource: moduleEntry.component,
       componentPath,
       importedModules,
     });
@@ -399,15 +439,15 @@ export class ComponentCompiler {
     }
 
     const data = (await res.json()) as {
-      components: Record<string, { code: string }>;
+      components: Record<string, BOSModuleEntry>;
     };
     for (const [componentPath, componentSource] of Object.entries(
       data.components
     )) {
-      this.bosSourceCache.set(
-        componentPath,
-        Promise.resolve(componentSource.code)
-      );
+      // TODO remove once data is being returned in expected shape
+      // @ts-expect-error
+      const { code: component } = componentSource;
+      this.bosSourceCache.set(componentPath, Promise.resolve({ component }));
     }
   }
 
@@ -421,7 +461,7 @@ export class ComponentCompiler {
     this.compiledSourceCache.clear();
 
     Object.entries(components).forEach(([path, component]) => {
-      this.bosSourceCache.set(path, Promise.resolve(component.source));
+      this.bosSourceCache.set(path, Promise.resolve(component));
     });
 
     this.compileComponent({

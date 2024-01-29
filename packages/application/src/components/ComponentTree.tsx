@@ -16,6 +16,7 @@ export default function ComponentTree({
         <div
           id={getAppDomId(rootComponentPath)}
           className="container-child"
+          data-component-src={rootComponentPath}
         ></div>
         <div className="iframes">
           {Object.entries(components)

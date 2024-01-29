@@ -2,6 +2,7 @@ import { JsonRpcProvider } from '@near-js/providers';
 import type { CodeResult } from '@near-js/types';
 
 import type { SocialComponentsByAuthor } from './types';
+import { BOSModuleEntry } from './types';
 
 const encodeComponentKeyArgs = (componentPaths: string[]) => {
   const bytes = new TextEncoder().encode(
@@ -35,12 +36,24 @@ export function fetchComponentSources(
         (sources, [author, { widget: component }]) => {
           Object.entries(component).forEach(
             ([componentKey, componentSource]) => {
-              sources[`${author}/${componentKey}`] = componentSource;
+              if (typeof componentSource === 'string') {
+                sources[`${author}/${componentKey}`] = {
+                  component: componentSource,
+                };
+              } else if (componentSource) {
+                const { '': source, css } = componentSource;
+                sources[`${author}/${componentKey}`] = {
+                  component: source,
+                  css,
+                };
+              } else {
+                console.error(`Invalid component source: ${componentSource}`);
+              }
             }
           );
           return sources;
         },
-        {} as { [key: string]: any }
+        {} as { [key: string]: BOSModuleEntry }
       );
     });
 }
