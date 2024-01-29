@@ -31,16 +31,9 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
   },
   {
     resolutionPath: 'file:///globals.d.ts',
-    source: `import {
-      useCallback as useReactCallback,
-      useState as useReactState,
-      useEffect as useReactEffect
-    } from 'react';
+    source: `import { JSX } from 'react';
     
     declare global {
-      const useCallback: typeof useReactCallback;
-      const useState: typeof useReactState;
-      const useEffect: typeof useReactEffect;
       function Component(props: {
         src: string;
         props?: Record<any, any>;
@@ -70,6 +63,7 @@ export const DEFAULT_FILES: SandboxFiles = {
   make a visible code change, and then come back to HelloWorld.tsx
   to see your changes reflected in the <Component /> reference.
 */
+import { useState } from 'react';
 
 export function BWEComponent() {
   const [count, setCount] = useState(0);

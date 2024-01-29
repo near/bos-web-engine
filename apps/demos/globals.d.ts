@@ -1,9 +1,6 @@
-import { useCallback as useReactCallback, useState as useReactState, useEffect as useReactEffect } from 'react';
+import type { JSX } from 'react';
 
 declare global {
-  const useCallback: typeof useReactCallback;
-  const useState: typeof useReactState;
-  const useEffect: typeof useReactEffect;
   function Component(props: {
     src: string;
     props?: Record<any, any>;

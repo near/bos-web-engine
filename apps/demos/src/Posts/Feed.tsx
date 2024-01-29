@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 export function BWEComponent() {
   const GRAPHQL_ENDPOINT = 'https://near-queryapi.api.pagoda.co';
 

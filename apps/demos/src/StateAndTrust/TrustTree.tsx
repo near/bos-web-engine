@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react';
+
 interface Props {
   title: string;
 }
@@ -135,7 +137,8 @@ export function BWEComponent(props: Props) {
   ];
 
   const getRandomIcon = useCallback(
-    () => icons[Math.floor(Math.random() * icons.length)], []
+    () => icons[Math.floor(Math.random() * icons.length)],
+    []
   );
   const updateCircle = useCallback(() => setCircle(getRandomIcon()), []);
   const updateSquare = useCallback(() => setSquare(getRandomIcon()), []);

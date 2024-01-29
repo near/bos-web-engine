@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 export function BWEComponent() {
   const [showContainerBoundaries, setShowContainerBoundaries] =
     useState<boolean>(true);

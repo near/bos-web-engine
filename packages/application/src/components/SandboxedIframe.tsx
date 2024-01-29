@@ -36,83 +36,67 @@ function buildSandboxedComponent({
           }
         </script>
         <script type="module">
-          import * as Preact from 'preact';
-          import { useCallback, useEffect, useState } from 'preact/hooks';
+            import * as __Preact from 'preact';
 
-          const { createElement } = Preact;
+          // placeholder function to bind Component references in BOS Component source
+          function Component() {}
+
+          // TODO bind/replace React.Fragment during transpilation and remove this shim
+          if (typeof React === 'undefined') {
+            window.React = {};
+          }
+          React.Fragment = __Preact.Fragment ;
 
 /******** BEGIN BOS SOURCE ********/
 /******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
 ${scriptSrc}
 /******** END BOS SOURCE ********/
 
-          const initContainer = ${initContainer.toString()};
-
-          // placeholder function to bind Component references in BOS Component source
-          function Component() {}
-
-          function useComponentCallback(cb, args) {
-            const [value, setValue] = useState(undefined);
-            useEffect(() => {
-              (async () => {
-                setValue(await cb(args));
-              })();
-            }, []);
-        
-            return () => value;
-          }
-
-          let props;
-
-          // TODO map reference during transpilation
-          const React = { Fragment: Preact.Fragment };
-
-          const {
-            commit,
-            processEvent,
-            props: containerProps,
-          } = initContainer({
-            containerMethods: {
-              buildEventHandler: ${buildEventHandler.toString()},
-              buildRequest: ${buildRequest.toString()},
-              buildSafeProxy: ${buildSafeProxy.toString()},
-              composeMessagingMethods: ${composeMessagingMethods.toString()},
-              composeRenderMethods: ${composeRenderMethods.toString()},
-              composeSerializationMethods: ${composeSerializationMethods.toString()},
-              invokeCallback: ${invokeCallback.toString()},
-              invokeComponentCallback: ${invokeComponentCallback.toString()},
-            },
-            context: {
-              BWEComponent,
-              Component,
-              componentId: '${id}',
-              componentPropsJson: ${componentPropsJson},
-              Fragment: Preact.Fragment,
-              parentContainerId: '${parentContainerId}',
-              trust: ${JSON.stringify(trust)},
-              updateContainerProps: (updateProps) => {
-                const originalProps = props;
-                // if nothing has changed, the same [props] object will be returned
-                props = updateProps(props);
-                if (props !== originalProps) {
-                  Preact.render(createElement(BWEComponent, props), document.body);
-                }
+          (function () {
+            const {
+              commit,
+              processEvent,
+              props,
+            } = (${initContainer.toString()})({
+              containerMethods: {
+                buildEventHandler: ${buildEventHandler.toString()},
+                buildRequest: ${buildRequest.toString()},
+                buildSafeProxy: ${buildSafeProxy.toString()},
+                composeMessagingMethods: ${composeMessagingMethods.toString()},
+                composeRenderMethods: ${composeRenderMethods.toString()},
+                composeSerializationMethods: ${composeSerializationMethods.toString()},
+                invokeCallback: ${invokeCallback.toString()},
+                invokeComponentCallback: ${invokeComponentCallback.toString()},
               },
-            },
-          });
+              context: {
+                BWEComponent,
+                Component,
+                componentId: '${id}',
+                componentPropsJson: ${componentPropsJson},
+                Fragment: __Preact.Fragment,
+                parentContainerId: '${parentContainerId}',
+                trust: ${JSON.stringify(trust)},
+                updateContainerProps: (updateProps) => {
+                  const originalProps = props;
+                  // if nothing has changed, the same [props] object will be returned
+                  props = updateProps(props);
+                  if (props !== originalProps) {
+                    __Preact.render(createElement(BWEComponent, props), document.body);
+                  }
+                },
+              },
+            });
 
-          // intialize props
-          props = containerProps;
-
-          const oldCommit = Preact.options.__c;
-          Preact.options.__c = (vnode, commitQueue) => {
-            commit(vnode);
-            oldCommit?.(vnode, commitQueue);
-          };
-
-          window.addEventListener('message', processEvent);
-
-          Preact.render(createElement(BWEComponent, props), document.body);
+            const oldCommit = __Preact.options.__c;
+            __Preact.options.__c = (vnode, commitQueue) => {
+              commit(vnode);
+              oldCommit?.(vnode, commitQueue);
+            };
+  
+            window.addEventListener('message', processEvent);
+  
+            __Preact.render(__Preact.createElement(BWEComponent, props), document.body);
+          }());
         </script>
       </body>
     </html>
