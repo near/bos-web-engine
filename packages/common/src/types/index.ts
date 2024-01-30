@@ -1,3 +1,4 @@
+export * from './compilation';
 export * from './helpers';
 export * from './messaging';
 export * from './render';

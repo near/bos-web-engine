@@ -386,6 +386,9 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3(@types/react@18.2.45)(react@18.2.0)
     devDependencies:
+      '@bos-web-engine/common':
+        specifier: workspace:*
+        version: link:../common
       '@rollup/plugin-commonjs':
         specifier: ^22.0.1
         version: 22.0.2(rollup@2.79.1)

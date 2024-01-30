@@ -1,3 +1,5 @@
+import type { BOSModule } from '@bos-web-engine/common';
+
 export type ComponentCompilerRequest =
   | CompilerExecuteAction
   | CompilerInitAction;
@@ -7,7 +9,7 @@ export interface CompilerExecuteAction {
   componentId: string;
 }
 
-export type LocalComponentMap = { [path: string]: BOSModuleEntry };
+export type LocalComponentMap = { [path: string]: BOSModule };
 
 export interface CompilerInitAction {
   action: 'init';
@@ -78,11 +80,6 @@ export interface ImportExpression {
   isDestructured?: boolean;
   isNamespace?: boolean;
   reference?: string;
-}
-
-export interface BOSModuleEntry {
-  component: string;
-  css?: string;
 }
 
 export interface ComponentEntry {

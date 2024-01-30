@@ -1,4 +1,4 @@
-import { TrustMode } from '@bos-web-engine/common';
+import { BOSModule, TrustMode } from '@bos-web-engine/common';
 import { SocialDb } from '@bos-web-engine/social-db-api';
 
 import {
@@ -16,7 +16,6 @@ import { parseChildComponents, ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
 import type {
-  BOSModuleEntry,
   CompilerExecuteAction,
   CompilerInitAction,
   ComponentCompilerParams,
@@ -35,7 +34,7 @@ interface BuildComponentSourceParams {
 }
 
 export class ComponentCompiler {
-  private bosSourceCache: Map<string, Promise<BOSModuleEntry | null>>;
+  private bosSourceCache: Map<string, Promise<BOSModule | null>>;
   private compiledSourceCache: Map<string, string | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
   private hasFetchedLocal: boolean = false;
@@ -44,7 +43,7 @@ export class ComponentCompiler {
   private social: SocialDb;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
-    this.bosSourceCache = new Map<string, Promise<BOSModuleEntry>>();
+    this.bosSourceCache = new Map<string, Promise<BOSModule>>();
     this.compiledSourceCache = new Map<string, string>();
     this.sendWorkerMessage = sendMessage;
     this.social = new SocialDb({
@@ -146,7 +145,7 @@ export class ComponentCompiler {
       });
     }
 
-    const componentSources = new Map<string, Promise<BOSModuleEntry | null>>();
+    const componentSources = new Map<string, Promise<BOSModule | null>>();
     componentPaths.forEach((componentPath) => {
       const componentSource = this.bosSourceCache.get(componentPath);
       if (componentSource) {
@@ -448,7 +447,7 @@ ${styleSheet}
     }
 
     const data = (await res.json()) as {
-      components: Record<string, BOSModuleEntry>;
+      components: Record<string, BOSModule>;
     };
     for (const [componentPath, componentSource] of Object.entries(
       data.components

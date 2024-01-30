@@ -46,6 +46,7 @@
     "zustand": "^4.4.3"
   },
   "devDependencies": {
+    "@bos-web-engine/common": "workspace:*",
     "@rollup/plugin-commonjs": "^22.0.1",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.4",

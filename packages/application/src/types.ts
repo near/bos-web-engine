@@ -1,4 +1,5 @@
 import type {
+  BOSModule,
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
   ComponentRender,

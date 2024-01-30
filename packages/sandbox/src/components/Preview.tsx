@@ -1,8 +1,8 @@
-import type { WebEngineLocalComponents } from '@bos-web-engine/application';
 import {
   ComponentTree,
   useWebEngineSandbox,
 } from '@bos-web-engine/application';
+import type { BOSModule } from '@bos-web-engine/common';
 import { Dropdown } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { CaretDown, Eye } from '@phosphor-icons/react';
@@ -17,6 +17,8 @@ import {
 import { useDebouncedValue } from '../hooks/useDebounced';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { convertFilePathToComponentName } from '../utils';
+
+type WebEngineLocalComponents = { [path: string]: BOSModule };
 
 export function Preview() {
   const { account } = useWallet();

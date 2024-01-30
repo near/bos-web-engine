@@ -1,9 +1,10 @@
+import type { BOSModule } from '@bos-web-engine/common';
 import {
   SOCIAL_COMPONENT_NAMESPACE,
   SocialDb,
 } from '@bos-web-engine/social-db-api';
 
-import { BOSModuleEntry, ComponentEntry } from './types';
+import { ComponentEntry } from './types';
 
 export async function fetchComponentSources(
   social: SocialDb,
@@ -49,6 +50,6 @@ export async function fetchComponentSources(
       });
       return sources;
     },
-    {} as { [key: string]: BOSModuleEntry }
+    {} as { [key: string]: BOSModule }
   );
 }
