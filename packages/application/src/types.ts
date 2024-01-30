@@ -6,7 +6,7 @@ import type {
   MessagePayload,
 } from '@bos-web-engine/common';
 import type {
-  CompilerSetLocalComponentAction,
+  ComponentCompilerRequest,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
 import type { DOMElement } from 'react';
@@ -95,7 +95,12 @@ export interface CreateChildElementParams {
   parentId: string;
 }
 
+export interface CompilerWorker extends Omit<Worker, 'postMessage'> {
+  postMessage(compilerRequest: ComponentCompilerRequest): void;
+}
+
 export interface UseWebEngineParams {
+  compiler: CompilerWorker | null;
   config: WebEngineConfiguration;
   rootComponentPath?: string;
 }
@@ -103,9 +108,6 @@ export interface UseWebEngineParams {
 export interface UseWebEngineSandboxParams extends UseWebEngineParams {
   localComponents?: WebEngineLocalComponents;
 }
-
-export type WebEngineLocalComponents =
-  CompilerSetLocalComponentAction['components'];
 
 export interface WebEngineDebug {
   showContainerBoundaries?: boolean;

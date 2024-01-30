@@ -19,7 +19,6 @@ import type {
   BOSModuleEntry,
   CompilerExecuteAction,
   CompilerInitAction,
-  CompilerSetLocalComponentAction,
   ComponentCompilerParams,
   ComponentTreeNode,
   ModuleImport,
@@ -54,9 +53,16 @@ export class ComponentCompiler {
     });
   }
 
-  init({ localFetchUrl, preactVersion }: CompilerInitAction) {
+  init({ localComponents, localFetchUrl, preactVersion }: CompilerInitAction) {
     this.localFetchUrl = localFetchUrl;
     this.preactVersion = preactVersion;
+
+    this.bosSourceCache.clear();
+    this.compiledSourceCache.clear();
+
+    Object.entries(localComponents || {}).forEach(([path, component]) => {
+      this.bosSourceCache.set(path, Promise.resolve(component));
+    });
   }
 
   /**
@@ -452,24 +458,5 @@ ${styleSheet}
       const { code: component } = componentSource;
       this.bosSourceCache.set(componentPath, Promise.resolve({ component }));
     }
-  }
-
-  setLocalComponents({
-    components,
-    rootComponentPath,
-  }: CompilerSetLocalComponentAction) {
-    // TODO: Implement separated cache layers
-
-    this.bosSourceCache.clear();
-    this.compiledSourceCache.clear();
-
-    Object.entries(components).forEach(([path, component]) => {
-      this.bosSourceCache.set(path, Promise.resolve(component));
-    });
-
-    this.compileComponent({
-      action: 'execute',
-      componentId: rootComponentPath,
-    });
   }
 }

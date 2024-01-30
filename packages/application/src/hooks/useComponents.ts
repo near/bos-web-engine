@@ -1,14 +1,7 @@
-import type {
-  ComponentCompilerRequest,
-  ComponentCompilerResponse,
-} from '@bos-web-engine/compiler';
+import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import { useCallback, useEffect, useState } from 'react';
 
 import type { UseWebEngineParams } from '../types';
-
-interface CompilerWorker extends Omit<Worker, 'postMessage'> {
-  postMessage(compilerRequest: ComponentCompilerRequest): void;
-}
 
 /**
  * Provides an interface for managing containers
@@ -16,12 +9,11 @@ interface CompilerWorker extends Omit<Worker, 'postMessage'> {
  * @param rootComponentPath Component path for the root Component
  */
 export function useComponents({
+  compiler,
   config,
   rootComponentPath,
 }: UseWebEngineParams) {
-  const [compiler, setCompiler] = useState<CompilerWorker | null>(null);
   const [components, setComponents] = useState<{ [key: string]: any }>({});
-  const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
   const [isValidRootComponentPath, setIsValidRootComponentPath] =
     useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,20 +67,7 @@ export function useComponents({
       return;
     }
 
-    if (!compiler) {
-      const worker = new Worker(
-        new URL('../workers/compiler.js', import.meta.url)
-      );
-      const initPayload: ComponentCompilerRequest = {
-        action: 'init',
-        localFetchUrl: flags?.bosLoaderUrl,
-        preactVersion,
-      };
-      worker.postMessage(initPayload);
-      setCompiler(worker);
-    } else if (!isCompilerInitialized) {
-      setIsCompilerInitialized(true);
-
+    if (compiler) {
       compiler.onmessage = ({
         data,
       }: MessageEvent<ComponentCompilerResponse>) => {
@@ -157,7 +136,6 @@ export function useComponents({
     compiler,
     addComponent,
     components,
-    isCompilerInitialized,
     error,
     isValidRootComponentPath,
     flags?.bosLoaderUrl,
@@ -167,7 +145,6 @@ export function useComponents({
 
   return {
     addComponent,
-    compiler,
     components,
     error,
     hooks,
