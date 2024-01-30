@@ -53,7 +53,7 @@ ${scriptSrc}
 /******** END BOS SOURCE ********/
 
           (function () {
-            const {
+            let {
               commit,
               processEvent,
               props,
@@ -81,7 +81,7 @@ ${scriptSrc}
                   // if nothing has changed, the same [props] object will be returned
                   props = updateProps(props);
                   if (props !== originalProps) {
-                    __Preact.render(createElement(BWEComponent, props), document.body);
+                    __Preact.render(__Preact.createElement(BWEComponent, props), document.body);
                   }
                 },
               },
