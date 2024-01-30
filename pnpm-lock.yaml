@@ -44,9 +44,9 @@ importers:
       '@bos-web-engine/sandbox':
         specifier: workspace:*
         version: link:../../packages/sandbox
-      '@bos-web-engine/social-sdk':
+      '@bos-web-engine/social-db-api':
         specifier: workspace:*
-        version: link:../../packages/social-sdk
+        version: link:../../packages/social-db-api
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -114,9 +114,9 @@ importers:
       '@bos-web-engine/sandbox':
         specifier: workspace:*
         version: link:../../packages/sandbox
-      '@bos-web-engine/social-sdk':
+      '@bos-web-engine/social-db-api':
         specifier: workspace:*
-        version: link:../../packages/social-sdk
+        version: link:../../packages/social-db-api
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -278,9 +278,9 @@ importers:
       '@bos-web-engine/common':
         specifier: workspace:*
         version: link:../common
-      '@bos-web-engine/social-sdk':
+      '@bos-web-engine/social-db-api':
         specifier: workspace:*
-        version: link:../social-sdk
+        version: link:../social-db-api
     devDependencies:
       '@near-js/types':
         specifier: ^0.0.4
@@ -355,9 +355,9 @@ importers:
       '@bos-web-engine/application':
         specifier: workspace:*
         version: link:../application
-      '@bos-web-engine/social-sdk':
+      '@bos-web-engine/social-db-api':
         specifier: workspace:*
-        version: link:../social-sdk
+        version: link:../social-db-api
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../ui
@@ -438,7 +438,7 @@ importers:
         specifier: ^4.7.4
         version: 4.9.5
 
-  packages/social-sdk:
+  packages/social-db-api:
     dependencies:
       '@near-js/providers':
         specifier: ^0.0.7
@@ -561,9 +561,9 @@ importers:
 
   packages/wallet-selector-control:
     dependencies:
-      '@bos-web-engine/social-sdk':
+      '@bos-web-engine/social-db-api':
         specifier: workspace:*
-        version: link:../social-sdk
+        version: link:../social-db-api
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../ui

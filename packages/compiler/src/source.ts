@@ -1,12 +1,12 @@
 import {
   SOCIAL_COMPONENT_NAMESPACE,
-  SocialSdk,
-} from '@bos-web-engine/social-sdk';
+  SocialDb,
+} from '@bos-web-engine/social-db-api';
 
 import { BOSModuleEntry, ComponentEntry } from './types';
 
 export async function fetchComponentSources(
-  social: SocialSdk,
+  social: SocialDb,
   componentPaths: string[]
 ) {
   /*

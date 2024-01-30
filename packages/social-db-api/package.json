@@ -1,5 +1,5 @@
 {
-  "name": "@bos-web-engine/social-sdk",
+  "name": "@bos-web-engine/social-db-api",
   "version": "0.1.0",
   "description": "",
   "main": "lib/index.js",

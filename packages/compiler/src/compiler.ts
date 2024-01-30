@@ -1,5 +1,5 @@
 import { TrustMode } from '@bos-web-engine/common';
-import { SocialSdk } from '@bos-web-engine/social-sdk';
+import { SocialDb } from '@bos-web-engine/social-db-api';
 
 import {
   buildComponentFunction,
@@ -42,13 +42,13 @@ export class ComponentCompiler {
   private hasFetchedLocal: boolean = false;
   private localFetchUrl?: string;
   private preactVersion?: string;
-  private social: SocialSdk;
+  private social: SocialDb;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<BOSModuleEntry>>();
     this.compiledSourceCache = new Map<string, string>();
     this.sendWorkerMessage = sendMessage;
-    this.social = new SocialSdk({
+    this.social = new SocialDb({
       debug: true, // TODO: Conditionally enable "debug" option
       networkId: 'mainnet', // TODO: Handle dynamically pass testnet vs mainnet
     });

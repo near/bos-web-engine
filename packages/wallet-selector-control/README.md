@@ -4,7 +4,7 @@ This package provides a convenient UI to show the currently signed in wallet (or
 
 ## Usage
 
-Please check out the [Standard Usage](../social-sdk/README.md) section for the Social SDK to see a detailed example.
+Please check out the [Standard Usage](../social-db-api/README.md) section for the Social SDK to see a detailed example.
 
 ## Hooks
 

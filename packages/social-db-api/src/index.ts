@@ -7,7 +7,7 @@ export {
 export { useSocial } from './hooks/useSocial';
 export { useSocialProfile } from './hooks/useSocialProfile';
 export { SocialContext, SocialProvider } from './components/SocialProvider';
-export { SocialSdk } from './social-sdk';
+export { SocialDb } from './social-db';
 export type {
   SocialGetParams,
   SocialGetResponse,

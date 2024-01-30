@@ -42,7 +42,7 @@ import {
   removeDuplicateData,
 } from './utils';
 
-export class SocialSdk {
+export class SocialDb {
   debug;
   networkId: NetworkId;
   walletSelector: WalletSelector | null;

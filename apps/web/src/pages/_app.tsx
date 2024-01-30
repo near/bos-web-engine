@@ -6,7 +6,7 @@ import '@bos-web-engine/wallet-selector-control/styles.css';
 import '@near-wallet-selector/modal-ui/styles.css';
 import '@/styles/globals.css';
 
-import { SocialProvider } from '@bos-web-engine/social-sdk';
+import { SocialProvider } from '@bos-web-engine/social-db-api';
 import { NearIconSvg, Theme } from '@bos-web-engine/ui';
 import {
   WalletSelectorControl,
