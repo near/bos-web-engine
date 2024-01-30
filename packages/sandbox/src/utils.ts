@@ -1,5 +1,14 @@
 import { SandboxFiles } from './hooks/useSandboxStore';
 
+export function convertComponentNameToFilePath(componentName: string) {
+  // Input: "MyNamespace.MyFile"
+  // Output: "MyNamespace/MyFile.tsx"
+
+  const filePath = componentName.replace(/\./g, '/'); // Replace all "." with "/"
+
+  return `${filePath}.tsx`;
+}
+
 export function convertFilePathToComponentName(filePath: string) {
   // Input: "MyFolder/MyFile.tsx"
   // Output: "MyFolder.MyFile"

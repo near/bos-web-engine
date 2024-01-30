@@ -1,0 +1,19 @@
+.wrapper {
+  flex: 1 0 auto;
+  min-width: 0;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  background: var(--color-surface-2);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 1.5rem;
+  background: var(--color-surface-2);
+}
+
+.headerSection {
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+}

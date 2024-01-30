@@ -1,0 +1,50 @@
+.text {
+  &[data-uppercase='true'] {
+    text-transform: uppercase;
+  }
+
+  &[data-color='text-1'] {
+    color: var(--color-text-1);
+  }
+  &[data-color='text-2'] {
+    color: var(--color-text-2);
+  }
+  &[data-color='danger'] {
+    color: var(--color-danger);
+  }
+  &[data-color='affirm'] {
+    color: var(--color-affirm);
+  }
+
+  &[data-size='xs'] {
+    font: var(--text-xs);
+  }
+  &[data-size='s'] {
+    font: var(--text-s);
+  }
+  &[data-size='base'] {
+    font: var(--text-base);
+  }
+  &[data-size='l'] {
+    font: var(--text-l);
+  }
+  &[data-size='xl'] {
+    font: var(--text-xl);
+  }
+  &[data-size='2xl'] {
+    font: var(--text-2xl);
+  }
+  &[data-size='3xl'] {
+    font: var(--text-3xl);
+  }
+  &[data-size='hero'] {
+    font: var(--text-hero);
+  }
+
+  &[data-weight='regular'] {
+    font-weight: 400;
+  }
+  &[data-weight='bold'] {
+    font-weight: 700;
+  }
+}

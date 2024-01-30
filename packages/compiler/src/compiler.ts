@@ -1,4 +1,5 @@
 import { TrustMode } from '@bos-web-engine/common';
+import { SocialSdk } from '@bos-web-engine/social-sdk';
 
 import {
   buildComponentFunction,
@@ -41,11 +42,16 @@ export class ComponentCompiler {
   private hasFetchedLocal: boolean = false;
   private localFetchUrl?: string;
   private preactVersion?: string;
+  private social: SocialSdk;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<BOSModuleEntry>>();
     this.compiledSourceCache = new Map<string, string>();
     this.sendWorkerMessage = sendMessage;
+    this.social = new SocialSdk({
+      debug: true, // TODO: Conditionally enable "debug" option
+      networkId: 'mainnet', // TODO: Handle dynamically pass testnet vs mainnet
+    });
   }
 
   init({ localFetchUrl, preactVersion }: CompilerInitAction) {
@@ -120,10 +126,7 @@ export class ComponentCompiler {
       (componentPath) => !this.bosSourceCache.has(componentPath)
     );
     if (unfetchedPaths.length > 0) {
-      const pathsFetch = fetchComponentSources(
-        'https://rpc.near.org',
-        unfetchedPaths
-      );
+      const pathsFetch = fetchComponentSources(this.social, unfetchedPaths);
       unfetchedPaths.forEach((componentPath) => {
         this.bosSourceCache.set(
           componentPath,

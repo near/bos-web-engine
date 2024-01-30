@@ -20,14 +20,19 @@ export const WalletSelectorContext = createContext<
 >(undefined);
 
 type WalletSelectorProviderProps = {
-  children: ReactNode;
+  children?: ReactNode;
   contractId: string;
+  onProvision?: (
+    walletSelector: WalletSelector | null,
+    walletSelectorModal: WalletSelectorModal | null
+  ) => void;
   params: WalletSelectorParams;
 };
 
 export const WalletSelectorProvider = ({
   children,
   contractId,
+  onProvision,
   params,
 }: WalletSelectorProviderProps) => {
   const walletSelectorSetupPromise = useRef<Promise<WalletSelector> | null>(
@@ -58,6 +63,12 @@ export const WalletSelectorProvider = ({
 
     initialize();
   }, [contractId, params]);
+
+  useEffect(() => {
+    if (!onProvision) return;
+    onProvision(walletSelector, walletSelectorModal);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletSelector, walletSelectorModal]);
 
   return (
     <WalletSelectorContext.Provider

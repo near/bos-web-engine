@@ -62,5 +62,6 @@ export function MyComponent() {
 
 ## Further Details
 
+- The `<Dialog>` component is an abstraction built with this Radix UI primitive: https://www.radix-ui.com/primitives/docs/components/dialog
 - The `<Dropdown>` component styles and re-exports this Radix UI primitive: https://www.radix-ui.com/primitives/docs/components/dropdown-menu
 - The `<Tooltip>` component is an abstraction built with this Radix UI primitive: https://www.radix-ui.com/primitives/docs/components/tooltip

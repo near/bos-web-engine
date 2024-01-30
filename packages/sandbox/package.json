@@ -32,6 +32,7 @@
   },
   "peerDependencies": {
     "@bos-web-engine/application": "workspace:*",
+    "@bos-web-engine/social-sdk": "workspace:*",
     "@bos-web-engine/ui": "workspace:*",
     "@bos-web-engine/wallet-selector-control": "workspace:*",
     "react": "^18.0.0",
