@@ -101,13 +101,16 @@ export interface CompilerWorker extends Omit<Worker, 'postMessage'> {
 }
 
 export interface UseWebEngineParams {
-  compiler: CompilerWorker | null;
   config: WebEngineConfiguration;
   rootComponentPath?: string;
 }
 
+export interface UseComponentsParams extends UseWebEngineParams {
+  compiler: CompilerWorker | null;
+}
+
 export interface UseWebEngineSandboxParams extends UseWebEngineParams {
-  localComponents?: WebEngineLocalComponents;
+  localComponents?: { [path: string]: BOSModule };
 }
 
 export interface WebEngineDebug {
