@@ -55,7 +55,7 @@ export function parseChildComponents(
         if (!propsMatch?.index) {
           const referencedExpression = expression.replace(
             /Component,\s+\{/,
-            `${componentName}, { __bweMeta: { parentMeta: props.__bweMeta, `
+            `${componentName}, { __bweMeta: { parentMeta: typeof props === 'undefined' ? null : props?.__bweMeta, `
           );
 
           return componentSource.replaceAll(
@@ -92,7 +92,7 @@ export function parseChildComponents(
 
         return componentSource.replaceAll(
           expression,
-          `createElement(${componentName}, { __bweMeta: { parentMeta: props.__bweMeta, ${bosComponentPropsString} }, ${propsString} })`
+          `createElement(${componentName}, { __bweMeta: { parentMeta: typeof props === 'undefined' ? null : props?.__bweMeta, ${bosComponentPropsString} }, ${propsString} })`
         );
       },
     };
