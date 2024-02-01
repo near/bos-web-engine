@@ -102,7 +102,7 @@ export function buildComponentSource({
   }
 
   const packageImports = imports
-    .filter((moduleImport) => !moduleImport.isRelative)
+    .filter((moduleImport) => !moduleImport.isBweModule)
     .map((moduleImport) => buildComponentImportStatements(moduleImport))
     .flat()
     .filter((statement) => !!statement) as string[];
@@ -118,9 +118,9 @@ export function buildComponentSource({
 
   // enumerate the set of Components imported by the current Component
   const childComponents = parseChildComponents({
+    bweModuleImports: imports.filter(({ isBweModule }) => isBweModule),
     componentPath,
     transpiledComponent: source,
-    componentImports: imports.filter(({ isRelative }) => isRelative),
   });
 
   const importedComponentDefinitions = childComponents
@@ -138,7 +138,7 @@ export function buildComponentSource({
 
   return {
     childComponents,
-    packageImports: imports.filter(({ isRelative }) => !isRelative),
+    packageImports: imports.filter(({ isBweModule }) => !isBweModule),
     source: source.replace(
       COMPONENT_IMPORT_PLACEHOLDER,
       importedComponentDefinitions

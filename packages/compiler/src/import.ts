@@ -29,6 +29,19 @@ const stripLeadingComment = (source: string) => {
   return source;
 };
 
+const isBweModuleImportPath = (moduleImportPath: string) => {
+  const [author, component] = moduleImportPath.split('/');
+  if (!component) {
+    return false;
+  }
+
+  if (['near', 'testnet'].includes(author.split('.').slice(-1)[0])) {
+    return true;
+  }
+
+  return /^[0-9a-f]{64}$/gi.test(author);
+};
+
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
   /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'`](?<modulePath>[\w@\/.:?&=-]+)["'`];?\s*/gi;
@@ -53,6 +66,7 @@ export const extractImportStatements = (source: string) => {
       const isRelative = !!modulePath?.match(
         /^\.?\.\/(\.\.\/)*[a-z_$][\w\/]*$/gi
       );
+      const isBweModule = isRelative || isBweModuleImportPath(modulePath);
 
       if (destructured) {
         const destructuredReferences = destructured
@@ -79,6 +93,7 @@ export const extractImportStatements = (source: string) => {
             ...(reference ? [{ isDefault: true, reference }] : []),
             ...destructuredReferences,
           ],
+          isBweModule,
           isRelative,
         });
       } else if (namespace) {
@@ -89,6 +104,7 @@ export const extractImportStatements = (source: string) => {
             ...(reference ? [{ isDefault: true, reference }] : []),
             { isNamespace: true, alias: namespace },
           ],
+          isBweModule,
           isRelative,
         });
       } else {
@@ -96,6 +112,7 @@ export const extractImportStatements = (source: string) => {
           moduleName,
           modulePath,
           imports: [{ isDefault: true, reference }],
+          isBweModule,
           isRelative,
         });
       }

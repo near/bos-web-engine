@@ -85,19 +85,27 @@ function matchImportedComponents(
     ),
   ].map((match) => ({
     ...parseComponentRenderMatch(match, transpiledComponent),
-    componentPath: deriveComponentPath(componentPath, moduleImport),
+    componentPath: moduleImport.isRelative
+      ? deriveComponentPath(componentPath, moduleImport)
+      : moduleImport.modulePath,
     moduleImport,
   }));
 }
 
-function parseComponentRenders(
-  componentPath: string,
-  transpiledComponent: string,
-  moduleImports: ModuleImport[]
-) {
+interface ParseComponentRendersParams {
+  bweModuleImports: ModuleImport[];
+  componentPath: string;
+  transpiledComponent: string;
+}
+
+function parseComponentRenders({
+  bweModuleImports,
+  componentPath,
+  transpiledComponent,
+}: ParseComponentRendersParams) {
   return [
     ...matchDynamicComponents(transpiledComponent),
-    ...moduleImports
+    ...bweModuleImports
       .map((moduleImport) =>
         matchImportedComponents(
           componentPath,
@@ -118,21 +126,21 @@ export interface ParsedChildComponent {
 }
 
 interface ChildComponents {
+  bweModuleImports: ModuleImport[];
   componentPath: string;
   transpiledComponent: string;
-  componentImports: ModuleImport[];
 }
 
 export function parseChildComponents({
+  bweModuleImports,
   componentPath,
   transpiledComponent,
-  componentImports,
 }: ChildComponents): ParsedChildComponent[] {
-  const componentRenders = parseComponentRenders(
+  const componentRenders = parseComponentRenders({
     componentPath,
     transpiledComponent,
-    componentImports
-  );
+    bweModuleImports,
+  });
 
   componentRenders.sort((a, b) => a.index - b.index);
   return componentRenders.map(
