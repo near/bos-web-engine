@@ -1,22 +1,17 @@
-import type {
-  PostMessageEvent,
-  ProcessEventParams,
-  SerializedArgs,
-} from './types';
+import type { PostMessageEvent, SerializedArgs } from '@bos-web-engine/common';
+
+import type { ProcessEventParams } from './types';
 
 /**
  * Return an event handler function to be registered under `window.addEventHandler('message', fn(event))`
  * @param buildRequest Function to build an inter-Component asynchronous callback request
  * @param callbacks The set of callbacks defined on the target Component
- * @param componentId ID of the target Component on which the
+ * @param containerId ID of the container handling messages
  * @param deserializeProps Function to deserialize props passed on the event
  * @param invokeCallback Function to execute the specified function in the current context
  * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
- * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
- * @param renderDom Callback for rendering DOM within the component
- * @param renderComponent Callback for rendering the Component
  * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  * @param serializeNode Function to serialize Preact DOM trees passed to window.postMessage
@@ -25,14 +20,13 @@ import type {
 export function buildEventHandler({
   buildRequest,
   callbacks,
-  componentId,
+  containerId,
+  deserializeArgs,
   deserializeProps,
   invokeCallback,
   invokeComponentCallback,
-  parentContainerId,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
-  renderDom,
   requests,
   serializeArgs,
   serializeNode,
@@ -49,22 +43,17 @@ export function buildEventHandler({
       args: SerializedArgs;
       method: string;
     }) {
-      if (!parentContainerId) {
-        console.error(`no parent container for ${componentId}`);
-        return;
-      }
-
+      const deserializedArgs = deserializeArgs({ args, containerId });
       return invokeComponentCallback({
-        args,
+        args: deserializedArgs,
         buildRequest,
         callbacks,
-        componentId,
+        containerId,
         invokeCallback,
         method,
         postCallbackInvocationMessage,
         requests,
         serializeArgs,
-        targetId: parentContainerId,
       });
     }
 
@@ -113,7 +102,7 @@ export function buildEventHandler({
         result = applyRecursivelyToComponents(result, (n: any) =>
           serializeNode({
             node: n,
-            parentId: method,
+            parentId: method.split('::')[0],
             childComponents: [],
           })
         );
@@ -122,7 +111,7 @@ export function buildEventHandler({
           if (requestId) {
             postCallbackResponseMessage({
               error,
-              componentId,
+              containerId,
               requestId,
               result: value,
               targetId: originator,
@@ -173,7 +162,7 @@ export function buildEventHandler({
           return;
         }
 
-        resolver(applyRecursivelyToComponents(value, renderDom));
+        resolver(value);
         break;
       }
       case 'component.domCallback': {
@@ -193,7 +182,7 @@ export function buildEventHandler({
       case 'component.update': {
         updateProps(
           deserializeProps({
-            componentId,
+            containerId,
             props: event.data.props,
           })
         );

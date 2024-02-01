@@ -1,38 +1,25 @@
-import type { VNode } from 'preact';
+import type { Props } from '@bos-web-engine/common';
 
-import {
-  CallbackRequest,
-  InitContainerParams,
-  Node,
-  Props,
-  RenderComponentCallback,
-} from './types';
+import type { CallbackRequest, InitContainerParams } from './types';
 
 export function initContainer({
   containerMethods: {
     buildEventHandler,
     buildRequest,
     buildSafeProxy,
-    buildUseComponentCallback,
     composeMessagingMethods,
+    composeRenderMethods,
     composeSerializationMethods,
-    dispatchRenderEvent,
     invokeCallback,
     invokeComponentCallback,
-    isMatchingProps,
-    preactify,
-    renderContainerComponent,
   },
   context: {
+    BWEComponent,
     Component,
     componentId,
     componentPropsJson,
-    ContainerComponent,
-    createElement,
+    Fragment,
     parentContainerId,
-    preactHooksDiffed,
-    preactRootComponentName,
-    render,
     trust,
     updateContainerProps,
   },
@@ -46,63 +33,47 @@ export function initContainer({
     postComponentRenderMessage,
   } = composeMessagingMethods();
 
-  const { deserializeProps, serializeArgs, serializeNode, serializeProps } =
+  const { deserializeArgs, deserializeProps, serializeArgs, serializeNode } =
     composeSerializationMethods({
       buildRequest,
       callbacks,
+      isComponent: (c) => c === Component,
       parentContainerId,
       postCallbackInvocationMessage,
-      preactRootComponentName,
       requests,
     });
 
-  const renderComponent: RenderComponentCallback = () =>
-    renderContainerComponent({
-      ContainerComponent,
-      componentId,
-      render,
-      createElement,
-    });
+  const { commit } = composeRenderMethods({
+    componentId,
+    isComponent: (c) => c === Component,
+    isFragment: (c) => c === Fragment,
+    isRootComponent: (c) => c === BWEComponent,
+    postComponentRenderMessage,
+    serializeNode,
+    trust,
+  });
 
-  // cache previous renders
-  const nodeRenders = new Map<string, string>();
+  const isMatchingProps = (props: Props, compareProps: Props) => {
+    const getComparable = (p: Props) =>
+      Object.entries(p)
+        .sort(([aKey], [bKey]) => (aKey === bKey ? 0 : aKey > bKey ? 1 : -1))
+        .filter(([k]) => k !== '__bweMeta')
+        .map(([key, value]) => `${key}::${value?.toString()}`)
+        .join(',');
 
-  const diffComponent = (vnode: VNode) => {
-    // TODO this handler will fire for every descendant node rendered,
-    //  could be a good way to optimize renders within a container without
-    //  re-rendering the entire thing
-    const [containerComponent] = (vnode.props?.children as any[]) || [];
-    const isRootComponent =
-      typeof vnode.type === 'function' &&
-      vnode.type?.name === preactRootComponentName;
-
-    if (containerComponent && isRootComponent) {
-      dispatchRenderEvent({
-        callbacks,
-        componentId,
-        node: containerComponent(),
-        nodeRenders,
-        postComponentRenderMessage,
-        preactRootComponentName,
-        serializeNode,
-        serializeProps,
-        trust,
-      });
-    }
-    preactHooksDiffed?.(vnode);
+    return getComparable(props) === getComparable(compareProps);
   };
 
   const processEvent = buildEventHandler({
     buildRequest,
     callbacks,
-    componentId,
+    containerId: componentId,
+    deserializeArgs,
     deserializeProps,
     invokeCallback,
     invokeComponentCallback,
-    parentContainerId,
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
-    renderDom: (node: Node) => preactify({ node, createElement, Component }),
     requests,
     serializeArgs,
     serializeNode,
@@ -126,16 +97,14 @@ export function initContainer({
   const props = buildSafeProxy({
     componentId,
     props: deserializeProps({
-      componentId,
+      containerId: componentId,
       props: componentPropsJson,
     }),
   });
 
   return {
-    diffComponent,
+    commit,
     processEvent,
     props,
-    renderComponent,
-    useComponentCallback: buildUseComponentCallback(renderComponent),
   };
 }

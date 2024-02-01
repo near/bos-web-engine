@@ -1,9 +1,11 @@
+import type { Props } from '@bos-web-engine/common';
+
 import type {
   DeserializePropsCallback,
-  Props,
   SerializePropsCallback,
   SerializeArgsCallback,
   SerializeNodeCallback,
+  DeserializeArgsCallback,
 } from './types';
 import { ComposeSerializationMethodsCallback } from './types';
 
@@ -18,34 +20,114 @@ interface SerializeChildComponentParams {
   props: Props;
 }
 
+interface SerializedPropsCallback {
+  containerId: string;
+  callbackIdentifier: string;
+}
+
+interface DeepTransformParams {
+  value: any;
+  onString?: (s: string) => string;
+  onFunction?: (f: Function, path: string) => any;
+  onSerializedCallback?: (cb: SerializedPropsCallback) => Function;
+}
+
+interface BuildContainerMethodIdentifierParams {
+  callback: Function;
+  callbackName: string;
+  componentId?: string;
+  containerId: string;
+}
+
 /**
  * Compose the set of serialization methods for the given container context
  * @param buildRequest Method for building callback requests
  * @param builtinComponents Set of builtin BOS Web Engine Components
  * @param callbacks Component container's callbacks
- * @param parentContainerId ID of the parent container
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
- * @param preactRootComponentName The name of the root/Fragment Preact function
  * @param requests Set of current callback requests
  */
 export const composeSerializationMethods: ComposeSerializationMethodsCallback =
   ({
     buildRequest,
     callbacks,
-    parentContainerId,
+    isComponent,
     postCallbackInvocationMessage,
-    preactRootComponentName,
     requests,
   }) => {
+    const isSerializedCallback = (o: any) =>
+      !!o &&
+      typeof o === 'object' &&
+      Object.keys(o).length === 2 &&
+      'callbackIdentifier' in o &&
+      'containerId' in o;
+
+    const deepTransform = ({
+      value,
+      onString,
+      onFunction,
+      onSerializedCallback,
+    }: DeepTransformParams) => {
+      const transform = (v: any, path: string): any => {
+        if (!v) {
+          return v;
+        }
+
+        if (
+          isSerializedCallback(v) &&
+          typeof onSerializedCallback === 'function'
+        ) {
+          return onSerializedCallback(v);
+        }
+
+        const isCollection = Array.isArray(v); // TODO handle other collections
+        if (isCollection) {
+          return v.map((i: any, idx: number) =>
+            transform(i, `${path}[${idx}]`)
+          );
+        }
+
+        if (typeof v === 'object') {
+          return Object.fromEntries(
+            Object.entries(v).map(([k, w]) => [k, transform(w, `${path}.${k}`)])
+          );
+        }
+
+        if (typeof v === 'string' && typeof onString === 'function') {
+          return onString(v);
+        }
+
+        if (typeof v === 'function' && typeof onFunction === 'function') {
+          return onFunction(v, path);
+        }
+
+        return v;
+      };
+
+      return transform(value, '');
+    };
+
+    const buildContainerMethodIdentifier = ({
+      callback,
+      callbackName,
+      componentId,
+      containerId,
+    }: BuildContainerMethodIdentifierParams) =>
+      [
+        containerId,
+        callback.toString().replace(/\s+/g, ''),
+        callbackName,
+        componentId,
+      ].join('::');
+
     /**
      * Serialize props of a child Component to be rendered in the outer application
-     * @param componentId The target Component ID
-     * @param parentId Component's parent container
+     * @param containerId Component's parent container
      * @param props The props for this container's Component
      */
     const serializeProps: SerializePropsCallback = ({
       componentId,
-      parentId,
+      containerId,
       props,
     }) => {
       return Object.entries(props).reduce(
@@ -56,53 +138,46 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
             typeof value === 'object' &&
             '__' in value &&
             '__k' in value;
-          const isFunction = typeof value === 'function';
           const isProxy = value?.__bweMeta?.isProxy || false;
 
-          if (!isFunction) {
+          const serializeCallback = (
+            callbackName: string,
+            callback: Function
+          ) => {
+            const fnKey = buildContainerMethodIdentifier({
+              callback,
+              callbackName,
+              componentId,
+              containerId,
+            });
+
+            callbacks[fnKey] = callback;
+
+            return {
+              callbackIdentifier: fnKey,
+              containerId,
+            };
+          };
+
+          if (typeof value === 'function') {
+            newProps[key] = serializeCallback(key, value);
+          } else {
             let serializedValue = value;
             if (isComponent) {
-              serializedValue = serializeNode({
+              newProps[key] = serializeNode({
                 childComponents: [],
                 node: value,
-                parentId,
+                parentId: containerId,
               });
             } else if (isProxy) {
-              serializedValue = { ...serializedValue };
+              newProps[key] = { ...serializedValue };
+            } else {
+              newProps[key] = deepTransform({
+                value: serializedValue,
+                onFunction: (fn: Function, path: string) =>
+                  serializeCallback(`${key}${path}`, fn),
+              });
             }
-
-            newProps[key] = serializedValue;
-            return newProps;
-          }
-
-          // [componentId] only applies to props on components, use method
-          // body to distinguish between non-component callbacks
-          const fnKey = [
-            key,
-            componentId || value.toString().replace(/\\n/g, ''),
-            parentId,
-          ].join('::');
-
-          // @ts-ignore-error
-          callbacks[fnKey] = value;
-
-          if (componentId) {
-            if (!newProps.__componentcallbacks) {
-              newProps.__componentcallbacks = {};
-            }
-
-            newProps.__componentcallbacks[key] = {
-              __componentMethod: fnKey,
-              parentId,
-            };
-          } else {
-            if (!newProps.__domcallbacks) {
-              newProps.__domcallbacks = {};
-            }
-
-            newProps.__domcallbacks[key] = {
-              __componentMethod: fnKey,
-            };
           }
 
           return newProps;
@@ -111,10 +186,25 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       );
     };
 
+    const deserializeArgs: DeserializeArgsCallback = ({
+      args,
+      containerId,
+    }) => {
+      return deepTransform({
+        value: args,
+        onSerializedCallback: (cb) => {
+          return deserializePropsCallback({
+            containerId,
+            callbackIdentifier: cb.callbackIdentifier,
+          });
+        },
+      });
+    };
+
     const serializeArgs: SerializeArgsCallback = ({
       args,
       callbacks,
-      componentId,
+      containerId,
     }) => {
       return (args || []).map((arg) => {
         if (!arg) {
@@ -122,7 +212,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         }
 
         if (Array.isArray(arg)) {
-          return serializeArgs({ args: arg, callbacks, componentId });
+          return serializeArgs({ args: arg, callbacks, containerId });
         }
 
         if (typeof arg === 'object') {
@@ -131,7 +221,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
             serializeArgs({
               args: Object.values(arg),
               callbacks,
-              componentId,
+              containerId,
             }).map((value, i) => [argKeys[i], value])
           );
         }
@@ -140,62 +230,61 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           return arg;
         }
 
-        const callbackBody = arg.toString().replace(/\\n/g, '');
-        const fnKey = callbackBody + '::' + componentId;
+        const fnKey = buildContainerMethodIdentifier({
+          callback: arg,
+          callbackName: arg?.name, // FIXME
+          containerId,
+        });
+
         callbacks[fnKey] = arg;
         return {
-          __componentMethod: fnKey,
+          callbackIdentifier: fnKey,
+          containerId,
         };
       });
     };
 
+    const deserializePropsCallback = ({
+      containerId,
+      callbackIdentifier,
+    }: SerializedPropsCallback) => {
+      return (...args: any) => {
+        const requestId = window.crypto.randomUUID();
+        requests[requestId] = buildRequest();
+
+        // any function arguments are closures in this child component scope
+        // and must be cached in the component iframe
+        postCallbackInvocationMessage({
+          args,
+          callbacks,
+          containerId,
+          method: callbackIdentifier,
+          requestId,
+          serializeArgs,
+          targetId: callbackIdentifier.split('::')[0],
+        });
+
+        return requests[requestId].promise;
+      };
+    };
+
     const deserializeProps: DeserializePropsCallback = ({
-      componentId,
+      containerId,
       props,
     }) => {
-      const { __componentcallbacks } = props;
-      const componentProps = { ...props };
-      delete componentProps.__componentcallbacks;
+      if (!props || Array.isArray(props) || typeof props !== 'object') {
+        return props;
+      }
 
-      return {
-        ...componentProps,
-        ...Object.entries(__componentcallbacks || {}).reduce(
-          (componentCallbacks, [methodName, { __componentMethod }]) => {
-            if (props[methodName]) {
-              throw new Error(
-                `'duplicate props key ${methodName} on ${componentId}'`
-              );
-            }
-
-            componentCallbacks[methodName] = (...args: any) => {
-              if (!parentContainerId) {
-                console.error('Root Component cannot invoke method on parent');
-                return;
-              }
-
-              const requestId = window.crypto.randomUUID();
-              requests[requestId] = buildRequest();
-
-              // any function arguments are closures in this child component scope
-              // and must be cached in the component iframe
-              postCallbackInvocationMessage({
-                args,
-                callbacks,
-                componentId,
-                method: __componentMethod, // the key on the props object passed to this Component
-                requestId,
-                serializeArgs,
-                targetId: parentContainerId,
-              });
-
-              return requests[requestId].promise;
-            };
-
-            return componentCallbacks;
-          },
-          {} as { [key: string]: any }
-        ),
-      };
+      return deepTransform({
+        value: props,
+        onSerializedCallback: (cb) => {
+          return deserializePropsCallback({
+            containerId,
+            callbackIdentifier: cb.callbackIdentifier,
+          });
+        },
+      });
     };
 
     function buildComponentId({
@@ -203,16 +292,16 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       componentPath,
       parentComponentId,
     }: BuildComponentIdParams) {
-      // TODO warn on missing instanceId (<Widget>'s id prop) here?
+      // TODO warn on missing instanceId (<Component>'s id prop) here?
       return [componentPath, instanceId?.toString(), parentComponentId].join(
         '##'
       );
     }
 
     /**
-     * Serialize a sandboxed <Widget /> component
+     * Serialize a sandboxed <Component /> component
      * @param parentId ID of the parent Component
-     * @param props Props passed to the <Widget /> component
+     * @param props Props passed to the <Component /> component
      */
     const serializeChildComponent = ({
       parentId,
@@ -231,9 +320,9 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           trust,
           props: componentProps
             ? serializeProps({
-                props: componentProps,
-                parentId,
                 componentId,
+                containerId: parentId,
+                props: componentProps,
               })
             : {},
           source: src,
@@ -253,9 +342,10 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           props: {
             id: 'dom-' + componentId,
             __bweMeta: {
-              componentId: componentId,
+              componentId,
             },
             className: 'container-child',
+            'data-component-src': src,
           },
         },
       };
@@ -295,56 +385,29 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           );
         });
 
-      if (!type) {
-        serializedElementType = 'div';
-      }
-
       if (typeof type === 'function') {
-        const { name: component } = type;
-
-        if (component === preactRootComponentName) {
-          serializedElementType = 'div';
-        } else if (component === 'Widget') {
-          const { child, placeholder } = serializeChildComponent({
-            parentId,
-            props,
-          });
-
-          if (child) {
-            childComponents.push(child);
-          }
-
-          return placeholder;
-        } else {
-          const componentId = buildComponentId({
-            instanceId: props?.id,
-            componentPath: props.src,
-            parentComponentId: parentId,
-          });
-
-          // `type` is a Preact component function for a child Component
-          // invoke it with the passed props to render the component and serialize its DOM tree
-          return serializeNode({
-            node: type({
-              ...props,
-              __bweMeta: {
-                ...props?.__bweMeta,
-                componentId,
-              },
-              id: 'dom-' + componentId,
-            }),
-            parentId: componentId,
-            childComponents,
-          });
+        if (!isComponent(type)) {
+          throw new Error(`unrecognized Component function ${type.name}`);
         }
+
+        const { child, placeholder } = serializeChildComponent({
+          parentId,
+          props,
+        });
+
+        if (child) {
+          childComponents.push(child);
+        }
+
+        return placeholder;
       }
 
       return {
         type: serializedElementType,
         props: {
           ...serializeProps({
+            containerId: parentId,
             props,
-            parentId,
           }),
           children: unifiedChildren.flat().map((c) =>
             c?.props
@@ -361,9 +424,9 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     };
 
     return {
+      deserializeArgs,
       deserializeProps,
       serializeArgs,
       serializeNode,
-      serializeProps,
     };
   };

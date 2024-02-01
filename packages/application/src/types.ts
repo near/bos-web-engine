@@ -1,10 +1,14 @@
-import { ComponentTrust } from '@bos-web-engine/common';
 import type {
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
   ComponentRender,
+  ComponentTrust,
   MessagePayload,
-} from '@bos-web-engine/container';
+} from '@bos-web-engine/common';
+import type {
+  CompilerSetLocalComponentAction,
+  ComponentCompilerResponse,
+} from '@bos-web-engine/compiler';
 import type { DOMElement } from 'react';
 
 export interface CallbackInvocationHandlerParams {
@@ -29,13 +33,11 @@ export interface ComponentInstance {
 export interface ComponentMetrics {
   componentsLoaded: string[];
   messages: SendMessageParams[];
-  missingComponents: string[];
 }
 
 export interface RenderHandlerParams {
   data: ComponentRender;
-  isDebug?: boolean;
-  getComponentRenderCount: (componentId: string) => number;
+  debug?: WebEngineDebug;
   mountElement: ({
     componentId,
     element,
@@ -45,8 +47,8 @@ export interface RenderHandlerParams {
   }) => void;
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;
+  getContainerRenderCount(containerId: string): number;
   onMessageSent: OnMessageSentCallback;
-  debugConfig: DebugConfig;
 }
 
 export interface IframePostMessageParams {
@@ -93,7 +95,35 @@ export interface CreateChildElementParams {
   parentId: string;
 }
 
-export interface DebugConfig {
-  isDebug: boolean;
-  showMonitor: boolean;
+export interface UseWebEngineParams {
+  config: WebEngineConfiguration;
+  rootComponentPath?: string;
+}
+
+export interface UseWebEngineSandboxParams extends UseWebEngineParams {
+  localComponents?: WebEngineLocalComponents;
+}
+
+export type WebEngineLocalComponents =
+  CompilerSetLocalComponentAction['components'];
+
+export interface WebEngineDebug {
+  showContainerBoundaries?: boolean;
+}
+
+export interface WebEngineHooks {
+  componentRendered?: (componentId: string) => void;
+  containerSourceCompiled?: (response: ComponentCompilerResponse) => void;
+  messageReceived?: (message: BWEMessage) => void;
+}
+
+export interface WebEngineConfiguration {
+  debug?: WebEngineDebug;
+  flags?: WebEngineFlags;
+  hooks?: WebEngineHooks;
+  preactVersion: string;
+}
+
+export interface WebEngineFlags {
+  bosLoaderUrl?: string;
 }

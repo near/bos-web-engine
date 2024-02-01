@@ -40,11 +40,11 @@ export function onCallbackResponse({
     a component has executed a callback invoked from another component
     return the value of the callback execution to the calling component
   */
-  const { requestId, result, targetId, componentId } = data;
+  const { requestId, result, targetId, containerId } = data;
   sendMessage({
     componentId: targetId,
     message: {
-      componentId,
+      containerId,
       result,
       requestId,
       targetId,
@@ -63,12 +63,12 @@ interface ChildComponent {
 
 export function onRender({
   data,
-  getComponentRenderCount,
+  debug,
   mountElement,
   isComponentLoaded,
   loadComponent,
+  getContainerRenderCount,
   onMessageSent,
-  debugConfig,
 }: RenderHandlerParams) {
   /* a component has been rendered and is ready to be updated in the outer window */
   const { componentId, childComponents, node } = data;
@@ -80,28 +80,18 @@ export function onRender({
     parentId: componentId,
     onMessageSent,
   });
-  const [componentPath] = componentId.split('##');
-  const { isDebug, showMonitor } = debugConfig;
   const element = createElement({
     children: [
-      ...(isDebug
+      ...(debug?.showContainerBoundaries
         ? [
             React.createElement('div', { className: 'dom-label' }, [
-              '[',
-              React.createElement(
-                'a',
-                {
-                  href: `/${componentPath}?isDebug=${isDebug}&showMonitor=${showMonitor}`,
-                },
-                componentPath.split('/')[2]
-              ),
-              `(${getComponentRenderCount(componentId)})]`,
+              `[${
+                componentId.split('##')[0].split('/')[1]
+              } (${getContainerRenderCount(componentId)})]`,
             ]),
           ]
         : []),
-      ...(Array.isArray(componentChildren)
-        ? componentChildren
-        : [componentChildren]),
+      ...[componentChildren].flat(),
     ],
     id: componentId,
     props,

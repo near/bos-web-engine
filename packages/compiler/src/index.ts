@@ -1,6 +1,7 @@
 export type {
   ComponentCompilerRequest,
   ComponentCompilerResponse,
-} from './compiler';
+  CompilerSetLocalComponentAction,
+} from './types';
 
 export { ComponentCompiler } from './compiler';

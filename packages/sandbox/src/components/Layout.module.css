@@ -1,0 +1,29 @@
+.wrapper {
+  display: grid;
+  grid-template-columns: min-content 14rem 1fr 1fr;
+  width: 100%;
+
+  > * {
+    overflow: hidden;
+  }
+
+  &[data-expanded-panel='PREVIEW'] {
+    grid-template-columns: min-content 0px 0px 1fr;
+  }
+
+  &[data-expanded-panel='EDITOR'],
+  &[data-mode='PUBLISH'] {
+    grid-template-columns: min-content 14rem 1fr 0px;
+  }
+
+  &[data-mode='EDIT'] {
+    [data-monaco='diff'] {
+      display: none;
+    }
+  }
+  &[data-mode='PUBLISH'] {
+    [data-monaco='editor'] {
+      display: none;
+    }
+  }
+}

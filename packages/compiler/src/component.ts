@@ -12,32 +12,30 @@ export function buildComponentFunctionName(componentPath?: string) {
 }
 
 interface BuildComponentFunctionParams {
+  componentImports: string[];
   componentPath: string;
   componentSource: string;
+  exportedReference: string | null;
   isRoot: boolean;
 }
 
 export function buildComponentFunction({
+  componentImports,
   componentPath,
   componentSource,
+  exportedReference,
   isRoot,
 }: BuildComponentFunctionParams) {
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
-
-  if (isRoot) {
-    return `
-      function ${functionName}() {
-        ${componentSource}
-      }
-    `;
-  }
+  const importAssignments = componentImports.join('\n');
+  const commentHeader = `${componentPath} ${isRoot ? '(root)' : ''}`;
 
   return `
-    /************************* ${componentPath} *************************/
-    function ${functionName}(__bweInlineComponentProps) {
-      const { __bweMeta, props: __componentProps } = __bweInlineComponentProps;
-      const props = Object.assign({ __bweMeta }, __componentProps); 
+    /************************* ${commentHeader} *************************/
+    const ${functionName} = (() => {
+      ${importAssignments}
       ${componentSource}
-    }
+      return ${exportedReference ? exportedReference : 'BWEComponent'};
+    })();
   `;
 }

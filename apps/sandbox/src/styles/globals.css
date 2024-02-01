@@ -1,0 +1,17 @@
+html,
+body,
+#next {
+  min-height: 100vh;
+}
+
+.nws-modal-wrapper {
+  z-index: 5000 !important;
+}
+
+.nws-modal {
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.nws-modal-overlay {
+  background: rgba(118, 118, 118, 0.5) !important;
+}

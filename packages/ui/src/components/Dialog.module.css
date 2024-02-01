@@ -1,0 +1,80 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  padding: var(--gap-m);
+  display: flex;
+  overflow: auto;
+  scroll-behavior: smooth;
+  animation: contentShow 200ms;
+  background: rgba(118, 118, 118, 0.5);
+}
+
+.content {
+  position: relative;
+  margin: auto;
+  background: var(--color-surface-1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 2rem 0.2rem rgba(0, 0, 0, 0.3);
+  width: 100%;
+  padding: 2rem;
+
+  &[data-size='xs'] {
+    max-width: var(--size-max-container-width-xs);
+  }
+  &[data-size='s'] {
+    max-width: var(--size-max-container-width-s);
+  }
+  &[data-size='m'] {
+    max-width: var(--size-max-container-width-m);
+  }
+  &[data-size='l'] {
+    max-width: var(--size-max-container-width-l);
+  }
+}
+
+.closeButton {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 100%;
+  background: var(--color-surface-3);
+  color: var(--color-text-2);
+  cursor: pointer;
+  box-shadow: 0 0 0 0px var(--color-focus-outline);
+  outline: none;
+  transition: all 200ms;
+
+  &:hover {
+    background: var(--color-surface-4);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 3px var(--color-focus-outline);
+  }
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

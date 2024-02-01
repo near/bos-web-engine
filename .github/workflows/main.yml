@@ -1,0 +1,20 @@
+on:
+  schedule:
+    # Runs "at 05:00, only on Saturday" 
+    - cron: '0 5 * * 6'
+
+jobs:
+  move-to-next-iteration:
+    name: Move to next iteration
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: blombard/move-to-next-iteration@master
+      with:
+        owner: near
+        number: 129
+        token: ${{ secrets.MP_PROJECT_WORKFLOW_SECRET }}
+        iteration-field: sprint
+        iteration: current
+        new-iteration: next
+        statuses: None,Selected,Blocked,In Progress,In Review,Todo,Ready for Development

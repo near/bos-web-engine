@@ -1,0 +1,16 @@
+{
+  "name": "@bos-web-engine/demos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "bos-loader -w -c"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^18.2.34"
+  }
+}

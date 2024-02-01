@@ -1,0 +1,62 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  height: 3rem;
+  flex-shrink: 0;
+  padding: 0 1rem;
+  z-index: 2000;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.15);
+  background: var(--color-surface-1);
+
+  [aria-haspopup='menu'] {
+    margin-right: -0.6rem;
+  }
+}
+
+.logo {
+  display: inline-flex;
+  gap: 1rem;
+  align-items: center;
+  color: var(--color-text-1);
+  opacity: 0.5;
+  margin-right: auto;
+  transition: all 200ms;
+  text-decoration: none;
+  outline: none;
+
+  &:hover {
+    opacity: 0.75;
+  }
+  &:focus {
+    opacity: 1;
+  }
+
+  svg {
+    display: block;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  h1 {
+    font-family: sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+}
+
+.main {
+  display: flex;
+  flex-grow: 1;
+  width: 100%;
+}
