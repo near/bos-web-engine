@@ -19,19 +19,29 @@ export function useCompiler({
 
   useEffect(() => {
     if (!compiler) {
-      const worker = new Worker(
-        new URL('../workers/compiler.js', import.meta.url)
+      setCompiler(
+        new Worker(new URL('../workers/compiler.js', import.meta.url))
       );
-
-      worker.postMessage({
-        action: 'init',
-        localComponents,
-        localFetchUrl: config.flags?.bosLoaderUrl,
-        preactVersion: config.preactVersion,
-      });
-      setCompiler(worker);
     }
-  }, [config.flags?.bosLoaderUrl, config.preactVersion, localComponents]);
+  }, [compiler]);
+
+  useEffect(() => {
+    if (!compiler) {
+      return;
+    }
+
+    compiler.postMessage({
+      action: 'init',
+      localComponents,
+      localFetchUrl: config.flags?.bosLoaderUrl,
+      preactVersion: config.preactVersion,
+    });
+  }, [
+    compiler,
+    config.flags?.bosLoaderUrl,
+    config.preactVersion,
+    localComponents,
+  ]);
 
   return compiler;
 }
