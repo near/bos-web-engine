@@ -1,4 +1,5 @@
 import type {
+  BOSModule,
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
   ComponentRender,
@@ -6,7 +7,7 @@ import type {
   MessagePayload,
 } from '@bos-web-engine/common';
 import type {
-  CompilerSetLocalComponentAction,
+  ComponentCompilerRequest,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
 import type { DOMElement } from 'react';
@@ -95,17 +96,22 @@ export interface CreateChildElementParams {
   parentId: string;
 }
 
+export interface CompilerWorker extends Omit<Worker, 'postMessage'> {
+  postMessage(compilerRequest: ComponentCompilerRequest): void;
+}
+
 export interface UseWebEngineParams {
   config: WebEngineConfiguration;
   rootComponentPath?: string;
 }
 
-export interface UseWebEngineSandboxParams extends UseWebEngineParams {
-  localComponents?: WebEngineLocalComponents;
+export interface UseComponentsParams extends UseWebEngineParams {
+  compiler: CompilerWorker | null;
 }
 
-export type WebEngineLocalComponents =
-  CompilerSetLocalComponentAction['components'];
+export interface UseWebEngineSandboxParams extends UseWebEngineParams {
+  localComponents?: { [path: string]: BOSModule };
+}
 
 export interface WebEngineDebug {
   showContainerBoundaries?: boolean;

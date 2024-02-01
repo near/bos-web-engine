@@ -23,9 +23,6 @@ self.onmessage = ({
         self.postMessage({ error: e });
       });
       break;
-    case 'set-local-components':
-      compiler.setLocalComponents(compileRequest);
-      break;
     default:
       break;
   }

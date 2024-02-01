@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useCompiler } from './useCompiler';
 import { useComponents } from './useComponents';
 import { useComponentTree } from './useComponentTree';
 import type { UseWebEngineSandboxParams } from '../types';
@@ -10,15 +11,17 @@ export function useWebEngineSandbox({
   rootComponentPath,
 }: UseWebEngineSandboxParams) {
   const [nonce, setNonce] = useState('');
+
+  const compiler = useCompiler({ config, localComponents });
   const {
     addComponent,
-    compiler,
     components,
     error,
     getComponentRenderCount,
     hooks,
     setComponents,
   } = useComponents({
+    compiler,
     config,
     rootComponentPath,
   });
@@ -39,11 +42,16 @@ export function useWebEngineSandbox({
     setNonce(`${rootComponentPath}:${Date.now().toString()}`);
 
     compiler?.postMessage({
-      action: 'set-local-components',
-      components: localComponents,
-      rootComponentPath,
+      action: 'init',
+      localComponents,
+      preactVersion: config.preactVersion,
     });
-  }, [compiler, localComponents, rootComponentPath]);
+
+    compiler?.postMessage({
+      action: 'execute',
+      componentId: rootComponentPath,
+    });
+  }, [compiler, domRoots, localComponents, rootComponentPath]);
 
   return {
     components,

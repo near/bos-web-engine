@@ -1,14 +1,7 @@
-import type {
-  ComponentCompilerRequest,
-  ComponentCompilerResponse,
-} from '@bos-web-engine/compiler';
+import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
 import { useCallback, useEffect, useState } from 'react';
 
-import type { UseWebEngineParams } from '../types';
-
-interface CompilerWorker extends Omit<Worker, 'postMessage'> {
-  postMessage(compilerRequest: ComponentCompilerRequest): void;
-}
+import { UseComponentsParams } from '../types';
 
 /**
  * Provides an interface for managing containers
@@ -16,12 +9,11 @@ interface CompilerWorker extends Omit<Worker, 'postMessage'> {
  * @param rootComponentPath Component path for the root Component
  */
 export function useComponents({
+  compiler,
   config,
   rootComponentPath,
-}: UseWebEngineParams) {
-  const [compiler, setCompiler] = useState<CompilerWorker | null>(null);
+}: UseComponentsParams) {
   const [components, setComponents] = useState<{ [key: string]: any }>({});
-  const [isCompilerInitialized, setIsCompilerInitialized] = useState(false);
   const [isValidRootComponentPath, setIsValidRootComponentPath] =
     useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,103 +63,83 @@ export function useComponents({
   };
 
   useEffect(() => {
-    if (!rootComponentPath || !isValidRootComponentPath) {
+    if (!rootComponentPath || !isValidRootComponentPath || !compiler) {
       return;
     }
 
-    if (!compiler) {
-      const worker = new Worker(
-        new URL('../workers/compiler.js', import.meta.url)
-      );
-      const initPayload: ComponentCompilerRequest = {
-        action: 'init',
-        localFetchUrl: flags?.bosLoaderUrl,
-        preactVersion,
-      };
-      worker.postMessage(initPayload);
-      setCompiler(worker);
-    } else if (!isCompilerInitialized) {
-      setIsCompilerInitialized(true);
+    compiler.onmessage = ({
+      data,
+    }: MessageEvent<ComponentCompilerResponse>) => {
+      const {
+        componentId,
+        componentSource,
+        containerStyles,
+        error: loadError,
+        importedModules,
+      } = data;
 
-      compiler.onmessage = ({
-        data,
-      }: MessageEvent<ComponentCompilerResponse>) => {
-        const {
-          componentId,
-          componentSource,
-          containerStyles,
-          error: loadError,
-          importedModules,
-        } = data;
+      if (loadError) {
+        setError(loadError.message);
+        return;
+      }
 
-        if (loadError) {
-          setError(loadError.message);
-          return;
+      if (containerStyles) {
+        const targetStylesheet = document.styleSheets[1];
+        const css = new CSSStyleSheet();
+        css.replaceSync(containerStyles);
+
+        for (let i = 0; i < css.cssRules.length; i++) {
+          targetStylesheet.insertRule(css.cssRules[i].cssText);
         }
+      }
 
-        if (containerStyles) {
-          const targetStylesheet = document.styleSheets[1];
-          const css = new CSSStyleSheet();
-          css.replaceSync(containerStyles);
+      hooks?.containerSourceCompiled?.(data);
 
-          for (let i = 0; i < css.cssRules.length; i++) {
-            targetStylesheet.insertRule(css.cssRules[i].cssText);
-          }
+      // set the Preact import maps
+      // TODO find a better place for this
+      const preactImportBasePath = `https://esm.sh/preact@${preactVersion}`;
+      importedModules.set('preact', preactImportBasePath);
+      importedModules.set('preact/', `${preactImportBasePath}/`);
+      importedModules.set('react', `${preactImportBasePath}/compat`);
+      importedModules.set('react-dom', `${preactImportBasePath}/compat`);
+
+      for (const moduleName of importedModules.keys()) {
+        const [lib, subpath] = moduleName.split('/');
+        if (subpath && ['preact', 'react-dom'].includes(lib)) {
+          importedModules.delete(moduleName);
         }
+      }
 
-        hooks?.containerSourceCompiled?.(data);
-
-        // set the Preact import maps
-        // TODO find a better place for this
-        const preactImportBasePath = `https://esm.sh/preact@${preactVersion}`;
-        importedModules.set('preact', preactImportBasePath);
-        importedModules.set('preact/', `${preactImportBasePath}/`);
-        importedModules.set('react', `${preactImportBasePath}/compat`);
-        importedModules.set('react-dom', `${preactImportBasePath}/compat`);
-
-        for (const moduleName of importedModules.keys()) {
-          const [lib, subpath] = moduleName.split('/');
-          if (subpath && ['preact', 'react-dom'].includes(lib)) {
-            importedModules.delete(moduleName);
-          }
-        }
-
-        const component = {
-          ...components[componentId],
-          componentId,
-          componentSource,
-          moduleImports: importedModules,
-        };
-
-        if (!rootComponentSource && componentId === rootComponentPath) {
-          setRootComponentSource(componentId);
-        }
-
-        addComponent(componentId, component);
+      const component = {
+        ...components[componentId],
+        componentId,
+        componentSource,
+        moduleImports: importedModules,
       };
 
-      compiler.postMessage({
-        action: 'execute',
-        componentId: rootComponentPath,
-      });
-    }
+      if (!rootComponentSource && componentId === rootComponentPath) {
+        setRootComponentSource(componentId);
+      }
+
+      addComponent(componentId, component);
+    };
+
+    compiler.postMessage({
+      action: 'execute',
+      componentId: rootComponentPath,
+    });
   }, [
+    compiler,
     rootComponentPath,
     rootComponentSource,
-    compiler,
-    addComponent,
-    components,
-    isCompilerInitialized,
     error,
     isValidRootComponentPath,
     flags?.bosLoaderUrl,
     preactVersion,
-    hooks,
   ]);
 
   return {
     addComponent,
-    compiler,
     components,
     error,
     hooks,
