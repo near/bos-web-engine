@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { useSocialProfile } from '@bos-web-engine/social-sdk';
+import { useSocialProfile } from '@bos-web-engine/social-db-api';
 import { Button, Dropdown } from '@bos-web-engine/ui';
 import { X, CaretDown } from '@phosphor-icons/react';
 

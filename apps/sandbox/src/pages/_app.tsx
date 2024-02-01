@@ -8,7 +8,7 @@ import '@/styles/globals.css';
 import {
   MAINNET_SOCIAL_CONTRACT_ID,
   SocialProvider,
-} from '@bos-web-engine/social-sdk';
+} from '@bos-web-engine/social-db-api';
 import { NearIconSvg, Theme } from '@bos-web-engine/ui';
 import {
   WalletSelectorControl,

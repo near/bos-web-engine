@@ -1,7 +1,7 @@
 import {
   SOCIAL_COMPONENT_NAMESPACE,
   useSocial,
-} from '@bos-web-engine/social-sdk';
+} from '@bos-web-engine/social-db-api';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { useEffect } from 'react';
 

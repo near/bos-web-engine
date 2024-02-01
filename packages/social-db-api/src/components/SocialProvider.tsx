@@ -1,10 +1,10 @@
 import type { NetworkId, WalletSelector } from '@near-wallet-selector/core';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 
-import { SocialSdk } from '../social-sdk';
+import { SocialDb } from '../social-db';
 
 type SocialContext = {
-  social: SocialSdk;
+  social: SocialDb;
 };
 
 export const SocialContext = createContext<SocialContext | undefined>(
@@ -15,7 +15,7 @@ type SocialProviderProps = {
   children: ReactNode;
   debug?: boolean;
   networkId: NetworkId;
-  onProvision?: (social: SocialSdk) => void;
+  onProvision?: (social: SocialDb) => void;
   walletSelector: WalletSelector | null;
 };
 
@@ -26,7 +26,7 @@ export const SocialProvider = ({
   onProvision,
   walletSelector,
 }: SocialProviderProps) => {
-  const [social] = useState<SocialSdk>(new SocialSdk({ debug, networkId }));
+  const [social] = useState<SocialDb>(new SocialDb({ debug, networkId }));
 
   useEffect(() => {
     social.debug = debug ?? false;

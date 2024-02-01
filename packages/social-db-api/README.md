@@ -1,4 +1,4 @@
-# BWE Social DB SDK
+# BWE Social DB API
 
 This package allows you to easily interact with the `social.near` contract (Social DB).
 
@@ -16,8 +16,8 @@ import '@/styles/globals.css';
 import {
   MAINNET_SOCIAL_CONTRACT_ID,
   SocialProvider,
-  SocialSdk,
-} from '@bos-web-engine/social-sdk';
+  SocialDb,
+} from '@bos-web-engine/social-db-api';
 import { Theme } from '@bos-web-engine/ui';
 import {
   WalletSelectorControl,
@@ -31,7 +31,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [walletSelector, setWalletSelector] = useState<WalletSelector | null>(
     null
   );
-  const [social, setSocial] = useState<SocialSdk | null>(null);
+  const [social, setSocial] = useState<SocialDb | null>(null);
 
   console.log('Access these APIs in your root!', walletSelector, social);
 
@@ -46,7 +46,7 @@ export default function App({ Component, pageProps }: AppProps) {
     >
       <SocialProvider
         networkId='mainnet'
-        onProvision={(sdk) => setSocial(sdk)}
+        onProvision={(db) => setSocial(db)}
         walletSelector={walletSelector}
       >
         <Theme>
@@ -86,6 +86,6 @@ This package also includes the following hooks for convenience:
 In some cases you might need to initialize and manage an SDK instance yourself:
 
 ```ts
-import { SocialSdk } from '@bos-web-engine/social-sdk';
-const sdk = new SocialSdk({ ... });
+import { SocialDb } from '@bos-web-engine/social-db-api';
+const db = new SocialDb({ ... });
 ```
