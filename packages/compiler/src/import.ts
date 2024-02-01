@@ -31,7 +31,7 @@ const stripLeadingComment = (source: string) => {
 
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
-  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
+  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'`](?<modulePath>[\w@\/.:?&=-]+)["'`];?\s*/gi;
 const SIDE_EFFECT_IMPORT_REGEX =
   /^import\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
 
@@ -50,6 +50,9 @@ export const extractImportStatements = (source: string) => {
         mixedMatch.groups as ImportMixed;
 
       const moduleName = extractModuleName(modulePath);
+      const isRelative = !!modulePath?.match(
+        /^\.?\.\/(\.\.\/)*[a-z_$][\w\/]*$/gi
+      );
 
       if (destructured) {
         const destructuredReferences = destructured
@@ -76,6 +79,7 @@ export const extractImportStatements = (source: string) => {
             ...(reference ? [{ isDefault: true, reference }] : []),
             ...destructuredReferences,
           ],
+          isRelative,
         });
       } else if (namespace) {
         imports.push({
@@ -85,12 +89,14 @@ export const extractImportStatements = (source: string) => {
             ...(reference ? [{ isDefault: true, reference }] : []),
             { isNamespace: true, alias: namespace },
           ],
+          isRelative,
         });
       } else {
         imports.push({
           moduleName,
           modulePath,
           imports: [{ isDefault: true, reference }],
+          isRelative,
         });
       }
 

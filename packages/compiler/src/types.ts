@@ -68,6 +68,7 @@ export interface TrustedRoot {
 // structured representation of import statement
 export interface ModuleImport {
   imports: ImportExpression[];
+  isRelative?: boolean;
   isSideEffect?: boolean;
   moduleName: string;
   modulePath: string;
