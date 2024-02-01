@@ -6,7 +6,7 @@ interface Props {
   onClick: () => {};
 }
 
-export function BWEComponent(props: Props) {
+export default function BWEComponent(props: Props) {
   const lengthPx = `${props.length}px`;
   return (
     <div

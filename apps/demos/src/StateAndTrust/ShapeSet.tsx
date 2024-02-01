@@ -1,3 +1,7 @@
+import Circle from './Shape/Circle';
+import Square from './Shape/Square';
+import Triangle from './Shape/Triangle';
+
 interface Props {
   circle: string;
   square: string;
@@ -7,13 +11,12 @@ interface Props {
   updateTriangle: () => {};
 }
 
-export function BWEComponent(props: Props) {
+export default function BWEComponent(props: Props) {
   return (
     <div className="row" style={{ padding: '8px 4px' }}>
       <div className="col">
-        <Component
+        <Circle
           id="circle"
-          src="bwe-demos.near/StateAndTrust.Shape.Circle"
           props={{
             color: '#C1200B',
             iconColor: 'white',
@@ -24,9 +27,8 @@ export function BWEComponent(props: Props) {
         />
       </div>
       <div className="col">
-        <Component
+        <Square
           id="square"
-          src="bwe-demos.near/StateAndTrust.Shape.Square"
           props={{
             color: '#4A825A',
             iconColor: 'white',
@@ -37,8 +39,8 @@ export function BWEComponent(props: Props) {
         />
       </div>
       <div className="col">
-        <Component
-          src="bwe-demos.near/StateAndTrust.Shape.Triangle"
+        <Triangle
+          id="triangle"
           props={{
             color: '#0A81D1',
             iconColor: 'white',

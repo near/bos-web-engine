@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 
+import SetParent from './SetParent';
+import ShapeSet from './ShapeSet';
+
 interface Props {
   title: string;
 }
 
-export function BWEComponent(props: Props) {
+export default function BWEComponent(props: Props) {
   const [circle, setCircle] = useState('circle');
   const [triangle, setTriangle] = useState('triangle');
   const [square, setSquare] = useState('square');
@@ -150,9 +153,8 @@ export function BWEComponent(props: Props) {
         <p>{props.title}</p>
       </div>
       <div className="col">
-        <Component
+        <ShapeSet
           id="root-shapes"
-          src="bwe-demos.near/StateAndTrust.ShapeSet"
           props={{
             circle,
             square,
@@ -162,9 +164,8 @@ export function BWEComponent(props: Props) {
             updateTriangle,
           }}
         />
-        <Component
+        <SetParent
           id="parent-shapes"
-          src="bwe-demos.near/StateAndTrust.SetParent"
           props={{
             id: 'parent-shapes',
             circle,

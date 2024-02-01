@@ -6,7 +6,7 @@ interface Props {
   radius: number;
 }
 
-export function BWEComponent(props: Props) {
+export default function BWEComponent(props: Props) {
   const diameterPx = `${props.radius * 2}px`;
   return (
     <div
