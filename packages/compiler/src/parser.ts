@@ -83,7 +83,7 @@ export function parseChildComponents(
           .trim();
 
         const expressionWithoutProps =
-          expression.slice(0, propsMatch.index) +
+          expression.slice(0, propsMatch.index - 1) +
           expression.slice(closePropsBracketIndex);
 
         const bosComponentPropsString = expressionWithoutProps
