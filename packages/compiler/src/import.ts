@@ -7,6 +7,8 @@ type ImportMixed = ImportModule & {
   reference: string;
 };
 
+const BWE_MODULE_URL_PREFIX = 'near://';
+
 const stripLeadingComment = (source: string) => {
   if (!source) {
     return source;
@@ -30,16 +32,7 @@ const stripLeadingComment = (source: string) => {
 };
 
 const isBweModuleImportPath = (moduleImportPath: string) => {
-  const [author, component] = moduleImportPath.split('/');
-  if (!component) {
-    return false;
-  }
-
-  if (['near', 'testnet'].includes(author.split('.').slice(-1)[0])) {
-    return true;
-  }
-
-  return /^[0-9a-f]{64}$/gi.test(author);
+  return moduleImportPath.startsWith(BWE_MODULE_URL_PREFIX);
 };
 
 // valid combinations of default, namespace, and destructured imports
@@ -59,14 +52,22 @@ export const extractImportStatements = (source: string) => {
   while (src.startsWith('import')) {
     const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
     if (mixedMatch) {
-      const { reference, namespace, destructured, modulePath } =
+      let { reference, namespace, destructured, modulePath } =
         mixedMatch.groups as ImportMixed;
 
-      const moduleName = extractModuleName(modulePath);
+      let moduleName = extractModuleName(modulePath);
       const isRelative = !!modulePath?.match(
         /^\.?\.\/(\.\.\/)*[a-z_$][\w\/]*$/gi
       );
-      const isBweModule = isRelative || isBweModuleImportPath(modulePath);
+
+      const isComponentImport = isBweModuleImportPath(modulePath);
+      if (isComponentImport) {
+        moduleName = moduleName.replace(BWE_MODULE_URL_PREFIX, '');
+        modulePath = modulePath.replace(BWE_MODULE_URL_PREFIX, '');
+      }
+
+      // TODO determine whether to prefix relative imports
+      const isBweModule = isRelative || isComponentImport;
 
       if (destructured) {
         const destructuredReferences = destructured
