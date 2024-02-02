@@ -2,17 +2,12 @@ import { BOSModule, TrustMode } from '@bos-web-engine/common';
 import { SocialDb } from '@bos-web-engine/social-db-api';
 
 import {
-  buildComponentFunction,
+  buildComponentSource,
   buildComponentFunctionName,
+  isChildComponentTrusted,
 } from './component';
-import { extractExport } from './export';
-import {
-  buildComponentImportStatements,
-  buildModuleImports,
-  buildModulePackageUrl,
-  extractImportStatements,
-} from './import';
-import { parseChildComponents, ParsedChildComponent } from './parser';
+import { buildModuleImports, buildModulePackageUrl } from './import';
+import { ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
 import type {
@@ -20,18 +15,11 @@ import type {
   CompilerInitAction,
   ComponentCompilerParams,
   ComponentTreeNode,
-  ModuleImport,
   ParseComponentTreeParams,
   SendMessageCallback,
   TranspiledComponentLookupParams,
-  TrustedRoot,
 } from './types';
-
-interface BuildComponentSourceParams {
-  componentPath: string;
-  componentSource: string;
-  isRoot: boolean;
-}
+import { TrustedRoot } from './types';
 
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<BOSModule | null>>;
@@ -65,68 +53,13 @@ export class ComponentCompiler {
   }
 
   /**
-   * Build the transpiled source of a BOS Component along with its imports
-   * @param componentPath path to the BOS Component
-   * @param componentSource source code of the BOS Component
-   * @param isRoot flag indicating whether this is the root Component of a container
-   */
-  buildComponentSource({
-    componentPath,
-    componentSource,
-    isRoot,
-  }: BuildComponentSourceParams): { imports: ModuleImport[]; source: string } {
-    // transpile and cache the Component
-    const transpiledComponentSource = this.getTranspiledComponentSource({
-      componentPath,
-      componentSource: componentSource,
-      isRoot,
-    });
-
-    // separate out import statements from Component source
-    const { imports, source: importlessSource } = extractImportStatements(
-      transpiledComponentSource
-    );
-
-    // get the exported reference's name and remove the export keyword(s) from Component source
-    // TODO halt parsing of the current Component if no export is found
-    const {
-      exportedReference,
-      hasExport,
-      source: cleanComponentSource,
-    } = extractExport(importlessSource);
-
-    if (!hasExport) {
-      throw new Error(
-        `Could not parse Component ${componentPath}: missing valid Component export`
-      );
-    }
-
-    const componentImports = imports
-      .map((moduleImport) => buildComponentImportStatements(moduleImport))
-      .flat()
-      .filter((statement) => !!statement) as string[];
-
-    // assign a known alias to the exported Component
-    const source = buildComponentFunction({
-      componentPath,
-      componentSource: cleanComponentSource,
-      componentImports,
-      exportedReference,
-      isRoot,
-    });
-
-    return {
-      imports,
-      source,
-    };
-  }
-
-  /**
    * Fetch and cache sources for an array of Component paths
    * If a requested path has not been cached, initialize a Promise to resolve the source
    * @param componentPaths set of Component paths to fetch source for
    */
-  getComponentSources(componentPaths: string[]) {
+  getComponentSources(
+    componentPaths: string[]
+  ): Map<string, Promise<BOSModule | null>> {
     const unfetchedPaths = componentPaths.filter(
       (componentPath) => !this.bosSourceCache.has(componentPath)
     );
@@ -181,38 +114,6 @@ export class ComponentCompiler {
   }
 
   /**
-   * Determine whether a child Component is trusted and can be inlined within the current container
-   * @param trustMode explicit trust mode provided for this child render
-   * @param path child Component's path
-   * @param isComponentPathTrusted flag indicating whether the child is implicitly trusted by virtue of being under a trusted root
-   */
-  static isChildComponentTrusted(
-    { trustMode, path }: ParsedChildComponent,
-    isComponentPathTrusted?: (p: string) => boolean
-  ) {
-    // child is explicitly trusted by parent or constitutes a new trusted root
-    if (
-      trustMode === TrustMode.Trusted ||
-      trustMode === TrustMode.TrustAuthor
-    ) {
-      return true;
-    }
-
-    // child is explicitly sandboxed
-    if (trustMode === TrustMode.Sandboxed) {
-      return false;
-    }
-
-    // if the Component is not explicitly trusted or sandboxed, use the parent's
-    // predicate to determine whether the Component should be trusted
-    if (isComponentPathTrusted) {
-      return isComponentPathTrusted(path);
-    }
-
-    return false;
-  }
-
-  /**
    * Traverse the Component tree, building the set of Components to be included within the container
    * @param componentPath the path to the root Component of the current tree
    * @param transpiledComponent transpiled JSX source code
@@ -230,15 +131,27 @@ export class ComponentCompiler {
     isRoot,
     trustedRoot,
   }: ParseComponentTreeParams) {
-    const { imports, source: componentFunctionSource } =
-      this.buildComponentSource({
-        componentPath,
-        componentSource,
-        isRoot,
-      });
+    // transpile and cache the Component
+    const transpiledComponentSource = this.getTranspiledComponentSource({
+      componentPath,
+      componentSource,
+      isRoot,
+    });
 
-    // enumerate the set of Components referenced in the target Component
-    const childComponents = parseChildComponents(componentFunctionSource);
+    const {
+      childComponents,
+      packageImports,
+      source: componentFunctionSource,
+    } = buildComponentSource({
+      componentPath,
+      isRoot,
+      transpiledComponentSource,
+    });
+
+    // get the set of trusted child Components to be inlined in the container
+    const trustedChildComponents = childComponents.filter((child) =>
+      isChildComponentTrusted(child, isComponentPathTrusted)
+    );
 
     // each child Component being rendered as a new trusted root (i.e. trust mode `trusted-author`)
     // will track inclusion criteria when evaluating trust for their children in turn
@@ -262,15 +175,10 @@ export class ComponentCompiler {
       return trusted;
     }, new Map<string, TrustedRoot>());
 
-    // get the set of trusted child Components to be inlined in the container
-    const trustedChildComponents = childComponents.filter((child) =>
-      ComponentCompiler.isChildComponentTrusted(child, isComponentPathTrusted)
-    );
-
     // add the transformed source to the returned Component tree
     components.set(componentPath, {
       css: componentStyles,
-      imports,
+      imports: packageImports,
       // replace each child [Component] reference in the target Component source
       // with the generated name of the inlined Component function definition
       transpiled: trustedChildComponents.reduce(

@@ -1,4 +1,6 @@
-export function BWEComponent() {
+import TrustTree from './TrustTree';
+
+export default function BWEComponent() {
   return (
     <>
       <div className="row">
@@ -10,17 +12,15 @@ export function BWEComponent() {
       </div>
       <div className="row">
         <div className="col">
-          <Component
+          <TrustTree
             id="trusted"
-            src="bwe-demos.near/StateAndTrust.TrustTree"
             trust={{ mode: 'trusted-author' }}
             props={{ title: 'State across Trusted Components' }}
           />
         </div>
         <div className="col">
-          <Component
+          <TrustTree
             id="sandboxed"
-            src="bwe-demos.near/StateAndTrust.TrustTree"
             props={{ title: 'State within Sandboxed Components' }}
           />
         </div>

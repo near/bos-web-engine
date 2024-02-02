@@ -1,3 +1,5 @@
+import ShapeSet from './ShapeSet';
+
 interface Props {
   circle: string;
   id: string;
@@ -8,7 +10,7 @@ interface Props {
   updateTriangle: () => {};
 }
 
-export function BWEComponent(props: Props) {
+export default function BWEComponent(props: Props) {
   const {
     circle,
     square,
@@ -21,9 +23,8 @@ export function BWEComponent(props: Props) {
 
   return (
     <div>
-      <Component
+      <ShapeSet
         id={id}
-        src="bwe-demos.near/StateAndTrust.ShapeSet"
         props={{
           circle,
           square,

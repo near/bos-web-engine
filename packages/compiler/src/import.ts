@@ -7,6 +7,8 @@ type ImportMixed = ImportModule & {
   reference: string;
 };
 
+const BWE_MODULE_URL_PREFIX = 'near://';
+
 const stripLeadingComment = (source: string) => {
   if (!source) {
     return source;
@@ -29,9 +31,13 @@ const stripLeadingComment = (source: string) => {
   return source;
 };
 
+const isBweModuleImportPath = (moduleImportPath: string) => {
+  return moduleImportPath.startsWith(BWE_MODULE_URL_PREFIX);
+};
+
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
-  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
+  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'`](?<modulePath>[\w@\/.:?&=-]+)["'`];?\s*/gi;
 const SIDE_EFFECT_IMPORT_REGEX =
   /^import\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
 
@@ -46,10 +52,22 @@ export const extractImportStatements = (source: string) => {
   while (src.startsWith('import')) {
     const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
     if (mixedMatch) {
-      const { reference, namespace, destructured, modulePath } =
+      let { reference, namespace, destructured, modulePath } =
         mixedMatch.groups as ImportMixed;
 
-      const moduleName = extractModuleName(modulePath);
+      let moduleName = extractModuleName(modulePath);
+      const isRelative = !!modulePath?.match(
+        /^\.?\.\/(\.\.\/)*[a-z_$][\w\/]*$/gi
+      );
+
+      const isComponentImport = isBweModuleImportPath(modulePath);
+      if (isComponentImport) {
+        moduleName = moduleName.replace(BWE_MODULE_URL_PREFIX, '');
+        modulePath = modulePath.replace(BWE_MODULE_URL_PREFIX, '');
+      }
+
+      // TODO determine whether to prefix relative imports
+      const isBweModule = isRelative || isComponentImport;
 
       if (destructured) {
         const destructuredReferences = destructured
@@ -76,6 +94,8 @@ export const extractImportStatements = (source: string) => {
             ...(reference ? [{ isDefault: true, reference }] : []),
             ...destructuredReferences,
           ],
+          isBweModule,
+          isRelative,
         });
       } else if (namespace) {
         imports.push({
@@ -85,12 +105,16 @@ export const extractImportStatements = (source: string) => {
             ...(reference ? [{ isDefault: true, reference }] : []),
             { isNamespace: true, alias: namespace },
           ],
+          isBweModule,
+          isRelative,
         });
       } else {
         imports.push({
           moduleName,
           modulePath,
           imports: [{ isDefault: true, reference }],
+          isBweModule,
+          isRelative,
         });
       }
 
