@@ -140,11 +140,32 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           },
           fragmentChildren[0].__k
         );
-      }
+      } else {
+        // Handling for nested fragments or fragments with multiple children
 
-      return renderedChildren.map((child) =>
-        parseRenderedTree(child)
-      ) as VNode[];
+        // Check if all children are valid nodes (e.g., they have a type)
+        const hasValidChildren = fragmentChildren.every(child => child.type !== null);
+
+        if (hasValidChildren) {
+          // If all children are valid, directly return them without additional wrapping
+          // This preserves fragment behavior by not adding unnecessary DOM elements
+          return fragmentChildren.map(
+            child => parseRenderedTree(child, child.__k)
+          ) as VNode[];
+        } else {
+          // If there are invalid children, wrap them in a div for proper rendering
+          // This handles cases where fragments may contain text nodes or other non-component content
+          return parseRenderedTree(
+            {
+              type: 'div',
+              key: `nested-fragment-${childIndex}`,
+              props: null,
+            },
+            fragmentChildren,
+            childIndex
+          );
+        }
+      }
     }
 
     const props =
