@@ -72,7 +72,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
             <button
               className={s.action}
               type="button"
-              onClick={() => addNewComponent}
+              onClick={addNewComponent}
             >
               <Plus />
             </button>
@@ -84,11 +84,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
             sideOffset={10}
             container={containerElement}
           >
-            <button
-              className={s.action}
-              type="button"
-              onClick={() => formatCode}
-            >
+            <button className={s.action} type="button" onClick={formatCode}>
               <BracketsCurly />
             </button>
           </Tooltip>
