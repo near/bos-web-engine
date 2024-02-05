@@ -40,7 +40,7 @@ export function invokeComponentCallback({
   args,
   buildRequest,
   callbacks,
-  componentId,
+  containerId,
   invokeCallback,
   method,
   postCallbackInvocationMessage,
@@ -49,7 +49,7 @@ export function invokeComponentCallback({
 }: InvokeComponentCallbackParams): any {
   // unknown method
   if (!callbacks[method]) {
-    console.error(`No method ${method} on component ${componentId}`);
+    console.error(`No method ${method} on container ${containerId}`);
     return null;
   }
 
@@ -57,11 +57,11 @@ export function invokeComponentCallback({
   // these must be replaced with wrappers invoking Component methods
   if (
     typeof args?.some === 'function' &&
-    args.some((arg: any) => arg.__componentMethod)
+    args.some((arg: any) => arg?.callbackIdentifier)
   ) {
     args = args.map((arg: any) => {
-      const { __componentMethod: componentMethod } = arg;
-      if (!componentMethod) {
+      const { callbackIdentifier } = arg;
+      if (!callbackIdentifier) {
         return arg;
       }
 
@@ -72,12 +72,11 @@ export function invokeComponentCallback({
         postCallbackInvocationMessage({
           args: childArgs,
           callbacks,
-          componentId,
-          method: componentMethod,
+          containerId,
+          method: callbackIdentifier,
           requestId,
-          // TODO must specify a real value here
           serializeArgs,
-          targetId: componentMethod.split('::').slice(1).join('::'),
+          targetId: callbackIdentifier.split('::').slice(1).join('::'),
         });
       };
     });

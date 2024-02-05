@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run build --filter=@bos-web-engine/* && turbo run dev",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -24,9 +24,9 @@
     "husky": "^8.0.0"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.17.0"
   },
-  "packageManager": "pnpm@7.26.0",
+  "packageManager": "pnpm@8.14.0",
   "pnpm": {
     "overrides": {
       "@babel/traverse": "7.23.2"

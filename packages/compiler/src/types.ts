@@ -1,3 +1,5 @@
+import type { BOSModule } from '@bos-web-engine/common';
+
 export type ComponentCompilerRequest =
   | CompilerExecuteAction
   | CompilerInitAction;
@@ -7,8 +9,11 @@ export interface CompilerExecuteAction {
   componentId: string;
 }
 
+export type LocalComponentMap = { [path: string]: BOSModule };
+
 export interface CompilerInitAction {
   action: 'init';
+  localComponents?: LocalComponentMap;
   localFetchUrl?: string;
   preactVersion: string;
 }
@@ -16,6 +21,7 @@ export interface CompilerInitAction {
 export interface ComponentCompilerResponse {
   componentId: string;
   componentSource: string;
+  containerStyles: string;
   rawSource: string;
   componentPath: string;
   error?: Error;
@@ -37,6 +43,7 @@ export interface TranspiledComponentLookupParams {
 export type ComponentMap = Map<string, ComponentTreeNode>;
 
 export interface ComponentTreeNode {
+  css?: string;
   imports: ModuleImport[];
   transpiled: string;
 }
@@ -44,6 +51,7 @@ export interface ComponentTreeNode {
 export interface ParseComponentTreeParams {
   components: ComponentMap;
   componentSource: string;
+  componentStyles?: string;
   componentPath: string;
   isComponentPathTrusted?: (path: string) => boolean;
   isRoot: boolean;
@@ -60,6 +68,8 @@ export interface TrustedRoot {
 // structured representation of import statement
 export interface ModuleImport {
   imports: ImportExpression[];
+  isBweModule?: boolean;
+  isRelative?: boolean;
   isSideEffect?: boolean;
   moduleName: string;
   modulePath: string;
@@ -74,8 +84,13 @@ export interface ImportExpression {
   reference?: string;
 }
 
+export interface ComponentEntry {
+  '': string;
+  css: string;
+}
+
 interface SocialComponent {
-  widget: { [name: string]: string };
+  widget: { [name: string]: string | ComponentEntry };
 }
 
 export type SocialComponentsByAuthor = { [author: string]: SocialComponent };

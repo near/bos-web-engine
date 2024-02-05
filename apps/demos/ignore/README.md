@@ -1,0 +1,1 @@
+This directory is a scratch pad for components which you do not want to commit. All files in this directory will be ignored by git, but will be served by bos-loader according to the config in [../.bos-loader.toml](../.bos-loader.toml)

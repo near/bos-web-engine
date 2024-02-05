@@ -7,9 +7,37 @@ type ImportMixed = ImportModule & {
   reference: string;
 };
 
+const BWE_MODULE_URL_PREFIX = 'near://';
+
+const stripLeadingComment = (source: string) => {
+  if (!source) {
+    return source;
+  }
+
+  if (source.startsWith('//')) {
+    return source.slice(source.indexOf('\n') + 1).trim();
+  }
+
+  if (source.startsWith('/*')) {
+    let i = 2;
+    while (i < source.length) {
+      if (source.slice(i, i + 2) === '*/') {
+        return source.slice(i + 2).trim();
+      }
+      i++;
+    }
+  }
+
+  return source;
+};
+
+const isBweModuleImportPath = (moduleImportPath: string) => {
+  return moduleImportPath.startsWith(BWE_MODULE_URL_PREFIX);
+};
+
 // valid combinations of default, namespace, and destructured imports
 const MIXED_IMPORT_REGEX =
-  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
+  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'`](?<modulePath>[\w@\/.:?&=-]+)["'`];?\s*/gi;
 const SIDE_EFFECT_IMPORT_REGEX =
   /^import\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
 
@@ -18,16 +46,28 @@ const SIDE_EFFECT_IMPORT_REGEX =
  * @param source BOS Component source code
  */
 export const extractImportStatements = (source: string) => {
-  let src = source.trim();
+  let src = stripLeadingComment(source.trim());
 
   const imports: ModuleImport[] = [];
   while (src.startsWith('import')) {
     const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
     if (mixedMatch) {
-      const { reference, namespace, destructured, modulePath } =
+      let { reference, namespace, destructured, modulePath } =
         mixedMatch.groups as ImportMixed;
 
-      const moduleName = extractModuleName(modulePath);
+      let moduleName = extractModuleName(modulePath);
+      const isRelative = !!modulePath?.match(
+        /^\.?\.\/(\.\.\/)*[a-z_$][\w\/]*$/gi
+      );
+
+      const isComponentImport = isBweModuleImportPath(modulePath);
+      if (isComponentImport) {
+        moduleName = moduleName.replace(BWE_MODULE_URL_PREFIX, '');
+        modulePath = modulePath.replace(BWE_MODULE_URL_PREFIX, '');
+      }
+
+      // TODO determine whether to prefix relative imports
+      const isBweModule = isRelative || isComponentImport;
 
       if (destructured) {
         const destructuredReferences = destructured
@@ -54,6 +94,8 @@ export const extractImportStatements = (source: string) => {
             ...(reference ? [{ isDefault: true, reference }] : []),
             ...destructuredReferences,
           ],
+          isBweModule,
+          isRelative,
         });
       } else if (namespace) {
         imports.push({
@@ -63,12 +105,16 @@ export const extractImportStatements = (source: string) => {
             ...(reference ? [{ isDefault: true, reference }] : []),
             { isNamespace: true, alias: namespace },
           ],
+          isBweModule,
+          isRelative,
         });
       } else {
         imports.push({
           moduleName,
           modulePath,
           imports: [{ isDefault: true, reference }],
+          isBweModule,
+          isRelative,
         });
       }
 
@@ -92,6 +138,8 @@ export const extractImportStatements = (source: string) => {
         break;
       }
     }
+
+    src = stripLeadingComment(src.trim());
   }
 
   return {
@@ -152,41 +200,42 @@ export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
     new Map<string, ImportExpression[]>()
   );
 
-  const importStatements: string[] = [];
-  importsByModule.forEach((imports, moduleName) => {
-    const { defaultAlias, namespaceAlias } = buildModuleAliases(moduleName);
-    const { defaultImport, destructuredImports, namespaceImport } =
-      aggregateModuleImports(imports);
+  const importStatements: string[] = [...importsByModule.entries()]
+    .map(([moduleName, imports]) => {
+      const { defaultAlias, namespaceAlias } = buildModuleAliases(moduleName);
+      const { defaultImport, destructuredImports, namespaceImport } =
+        aggregateModuleImports(imports);
 
-    const destructuredReferences = [
-      ...new Set(
-        destructuredImports.map(({ alias, reference }) =>
-          alias ? `${reference} as ${alias}` : reference
-        )
-      ),
-    ].join(', ');
+      const destructuredReferences = [
+        ...new Set(
+          destructuredImports.map(({ alias, reference }) =>
+            alias ? `${reference} as ${alias}` : reference
+          )
+        ),
+      ].join(', ');
 
-    // only destructured references, cannot assume the module has a default import
-    if (!defaultImport && !namespaceImport) {
-      importStatements.push(
-        `import { ${destructuredReferences} } from "${moduleName}";`
-      );
-    } else if (defaultImport) {
-      if (namespaceImport) {
-        importStatements.push(
-          `import ${defaultAlias}, * as ${namespaceAlias} from "${moduleName}";`
-        );
-      } else if (destructuredReferences) {
-        importStatements.push(
-          `import ${defaultAlias}, { ${destructuredReferences} } from "${moduleName}";`
-        );
-      } else {
-        importStatements.push(`import ${defaultAlias} from "${moduleName}";`);
+      // only destructured references, cannot assume the module has a default import
+      if (!defaultImport && !namespaceImport) {
+        return `import { ${destructuredReferences} } from "${moduleName}";`;
       }
-    } else if (namespaceImport) {
-      `import * as ${namespaceAlias} from "${moduleName}";`;
-    }
-  });
+
+      if (defaultImport) {
+        if (namespaceImport) {
+          return `import ${defaultAlias}, * as ${namespaceAlias} from "${moduleName}";`;
+        } else if (destructuredReferences) {
+          return `import ${defaultAlias}, { ${destructuredReferences} } from "${moduleName}";`;
+        } else {
+          return `import ${defaultAlias} from "${moduleName}";`;
+        }
+      }
+
+      if (namespaceImport) {
+        return `import * as ${namespaceAlias} from "${moduleName}";`;
+      }
+
+      return '';
+    })
+    .filter((statement) => !!statement);
 
   return [...importStatements, ...sideEffectImports];
 };

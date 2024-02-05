@@ -1,4 +1,6 @@
-import type { CallbackRequest, InitContainerParams, Props } from './types';
+import type { Props } from '@bos-web-engine/common';
+
+import type { CallbackRequest, InitContainerParams } from './types';
 
 export function initContainer({
   containerMethods: {
@@ -20,7 +22,6 @@ export function initContainer({
     parentContainerId,
     trust,
     updateContainerProps,
-    Widget, // TODO remove when <Widget /> no longer supported
   },
 }: InitContainerParams) {
   const callbacks: { [key: string]: Function } = {};
@@ -32,12 +33,11 @@ export function initContainer({
     postComponentRenderMessage,
   } = composeMessagingMethods();
 
-  const { deserializeProps, serializeArgs, serializeNode } =
+  const { deserializeArgs, deserializeProps, serializeArgs, serializeNode } =
     composeSerializationMethods({
       buildRequest,
       callbacks,
       isComponent: (c) => c === Component,
-      isWidget: (c) => c === Widget, // TODO remove when <Widget /> no longer supported
       parentContainerId,
       postCallbackInvocationMessage,
       requests,
@@ -48,7 +48,6 @@ export function initContainer({
     isComponent: (c) => c === Component,
     isFragment: (c) => c === Fragment,
     isRootComponent: (c) => c === BWEComponent,
-    isWidget: (c) => c === Widget, // TODO remove when <Widget /> no longer supported
     postComponentRenderMessage,
     serializeNode,
     trust,
@@ -68,11 +67,11 @@ export function initContainer({
   const processEvent = buildEventHandler({
     buildRequest,
     callbacks,
-    componentId,
+    containerId: componentId,
+    deserializeArgs,
     deserializeProps,
     invokeCallback,
     invokeComponentCallback,
-    parentContainerId,
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     requests,
@@ -98,7 +97,7 @@ export function initContainer({
   const props = buildSafeProxy({
     componentId,
     props: deserializeProps({
-      componentId,
+      containerId: componentId,
       props: componentPropsJson,
     }),
   });

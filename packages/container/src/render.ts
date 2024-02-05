@@ -1,10 +1,14 @@
+import type {
+  ComponentTrust,
+  Props,
+  WebEngineMeta,
+} from '@bos-web-engine/common';
 import type { ComponentChildren, ComponentType, VNode } from 'preact';
 
 import type {
   BuildSafeProxyCallback,
   ComposeRenderMethodsCallback,
   Node,
-  WebEngineMeta,
 } from './types';
 
 export const buildSafeProxy: BuildSafeProxyCallback = ({
@@ -25,11 +29,13 @@ export const buildSafeProxy: BuildSafeProxyCallback = ({
   );
 };
 
-interface BOSComponentProps {
-  id: string;
-  src: string;
-  __bweMeta: WebEngineMeta;
-}
+type BOSComponentProps = Props & {
+  __bweMeta: WebEngineMeta & {
+    id: string;
+    src: string;
+    trust?: ComponentTrust;
+  };
+};
 
 type BWEComponentNode = VNode<BOSComponentProps>;
 
@@ -54,7 +60,6 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
   isRootComponent,
   isComponent,
   isFragment,
-  isWidget, // TODO remove when <Widget /> no longer supported
   postComponentRenderMessage,
   serializeNode,
   trust,
@@ -92,10 +97,8 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     node: BWEComponentNode,
     children: ComponentChildren
   ): PlaceholderNode => {
-    const { id, src, __bweMeta } = node.props;
-    const childComponentId = [src, id, __bweMeta?.parentMeta?.componentId].join(
-      '##'
-    );
+    const { id, src, parentMeta } = node.props.__bweMeta;
+    const childComponentId = [src, id, parentMeta?.componentId].join('##');
 
     return {
       type: 'div',
@@ -151,11 +154,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           )
         : node.props;
 
-    if (
-      typeof node.type === 'function' &&
-      !isComponent(node.type) &&
-      !isWidget(node.type)
-    ) {
+    if (typeof node.type === 'function' && !isComponent(node.type)) {
       if (isBWEComponent(node) && !isRootComponent(node.type)) {
         const componentNode = buildBWEComponentNode(
           node as BWEComponentNode,

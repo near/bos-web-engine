@@ -12,7 +12,7 @@ export function transpileSource(source: string): {
     plugins: [
       [
         Babel.availablePlugins['transform-react-jsx'],
-        { pragma: 'createElement' },
+        { pragma: '__Preact.createElement' },
       ],
     ],
     filename: 'component.tsx', // name is not important, just the extension

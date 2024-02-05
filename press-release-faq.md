@@ -66,7 +66,7 @@ See [migrating.md](migrating.md)(placeholder) for guidance on migrating an exist
 
 > TBD
 
-#### Are browser APIs like Canves supported?
+#### Are browser APIs like Canvas supported?
 
 Yes, but there may be some caveats since access to browser APIs must be proxied— with isolation in mind— from sandbox code to the outer window. See [components.md](components.md#browser-apis) for more details.
 
@@ -111,6 +111,10 @@ You can directly call out to external services with the browser-native [Fetch AP
 
 #### What happens when I set an `onClick` function and it gets called?
 
+When a DOM event handler (e.g. `onClick`, `onChange`) is fired, the outer application sends a message to the container to which the DOM element belongs. This is related to how container callbacks are invoked, but DOM callbacks are unique in that:
+- the invocation originates in the outer application rather than from another container
+- the callback is always invoked with the `event` object, for which only a subset of the fields are sent since `event` is not serializable
+
 ### Architecture
 
 #### Why is isolation important? What are the attack vectors?
@@ -118,7 +122,7 @@ You can directly call out to external services with the browser-native [Fetch AP
 To achieve the high level of composability that is a central goal of BOS, developers must be able to embed components from other authors without the burden of personally auditing the code for malicious behavior. This is especially true if components are embedded dynamically and it is impossible for the dapp developer to know in advance which components will be loaded (e.g. a social post feed which can render components inline).
 
 **Example attack**
-Bob develops a defi dapp which has a button to initiate a transaction to transfer some value (e.g. fungible tokens). He then embeds a seemingly innocent BOS component from another author in his dapp— perhaps it is a UI component to render a nice accordion element. In that accordion element is code which directly modifies the DOM of the previously mentioned button, and causes it to present users with a transaction to transfer value to the malicious component author instead of wherever it was supposed to go. A user goes to Bob's defi dapp and clicks the transfer button, but doesnt realize the transaction they are confirming has been tampered with.
+Bob develops a defi dapp which has a button to initiate a transaction to transfer some value (e.g. fungible tokens). He then embeds a seemingly innocent BOS component from another author in his dapp— perhaps it is a UI component to render a nice accordion element. In that accordion element is code which directly modifies the DOM of the previously mentioned button, and causes it to present users with a transaction to transfer value to the malicious component author instead of wherever it was supposed to go. A user goes to Bob's defi dapp and clicks the transfer button, but doesn't realize the transaction they are confirming has been tampered with.
 
 #### How are off-chain dependencies decentralized?
 
@@ -134,7 +138,9 @@ In keeping with our goal to be minimally different from vanilla (p)react, we hav
 
 #### How do cross-components function calls work?
 
-> @andy (very high-level summary then link to architecture doc)
+Containers maintain a set of callbacks, defined within the container, which are available to be "invoked" across container boundaries. This includes functions passed via `props` and function arguments passed to `props` functions. When an external container needs to invoke one of these callbacks, the external container requests the outer application to send a message to the target container identifying the method and arguments.
+
+See [architecture.md](architecture.md#component-callbacks) for more details.
 
 #### What are the downsides of using iframes?
 
