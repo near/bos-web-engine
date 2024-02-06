@@ -51,6 +51,7 @@ interface PlaceholderNode {
 
 interface RenderedVNode extends VNode<any> {
   __k?: RenderedVNode[];
+  __e?: Node;
 }
 
 type DispatchRenderCallback = (vnode: VNode) => void;
@@ -141,30 +142,19 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           fragmentChildren[0].__k
         );
       } else {
-        // Handling for nested fragments or fragments with multiple children
+        // Handling for nested or non-root fragments. This will flatten non-root fragments
 
-        // Check if all children are valid nodes (e.g., they have a type)
-        const hasValidChildren = fragmentChildren.every(child => child.type !== null);
+        return renderedChildren.map((child) => {
 
-        if (hasValidChildren) {
-          // If all children are valid, directly return them without additional wrapping
-          // This preserves fragment behavior by not adding unnecessary DOM elements
-          return fragmentChildren.map(
-            child => parseRenderedTree(child, child.__k)
-          ) as VNode[];
-        } else {
-          // If there are invalid children, wrap them in a div for proper rendering
-          // This handles cases where fragments may contain text nodes or other non-component content
-          return parseRenderedTree(
-            {
-              type: 'div',
-              key: `nested-fragment-${childIndex}`,
-              props: null,
-            },
-            fragmentChildren,
-            childIndex
-          );
-        }
+          // Return the text content directly if it's a text node
+          if (child.__e instanceof Text) {
+            return child.props
+          }
+
+          // For non-text nodes, parse the tree recursively
+          return parseRenderedTree(child, child.__k);
+        }) as VNode[];
+
       }
     }
 
