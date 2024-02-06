@@ -49,7 +49,7 @@ export default function Root() {
   }, [router, router.isReady, query.root]);
 
   return (
-    <div className={`App ${showContainerBoundaries ? 'bwe-debug' : ''}`}>
+    <div className={`bwe-app ${showContainerBoundaries ? 'bwe-debug' : ''}`}>
       {rootComponentPath && (
         <>
           {error && <div className="error">{error}</div>}
