@@ -64,10 +64,11 @@ export const DEFAULT_FILES: SandboxFiles = {
   are automatically persisted in local storage. Feel free to add, 
   remove, and rename files.
   
-  If you aren't signed in, you should reference "${DEFAULT_SANDBOX_ACCOUNT_ID}" 
-  in the src prop when creating a new component and referencing it via <Component />. 
-  For example: "${DEFAULT_SANDBOX_ACCOUNT_ID}/MyNewComponent.tsx". When you sign 
-  in, these references will be replaced with your account ID.
+  If you aren't signed in, you should reference "bwe-web.near" 
+  in the src prop when creating a new component and referencing it 
+  via <Component />. For example: "bwe-web.near/MyComponent.tsx". 
+  When you sign in, these references will be replaced with your 
+  account ID.
   
   The following code example demonstrates multi file component editing 
   capabilities. Try opening up Message.tsx from the file explorer, 
@@ -85,14 +86,14 @@ export function BWEComponent() {
       <h1>Welcome!</h1>
 
       <Component
-        src="${DEFAULT_SANDBOX_ACCOUNT_ID}/Message"
+        src="bwe-web.near/Message"
         props={{ message: 'Hello world!' }}
-        /*
-          The props object for <Component /> doesn't support type 
-          safety at the moment due to the dynamic complexities 
-          involved. Implementing type safety for props is a long 
-          term goal.
-        */
+      /*
+        The props object for <Component /> doesn't support type 
+        safety at the moment due to the dynamic complexities 
+        involved. Implementing type safety for props is a long 
+        term goal.
+      */
       />
 
       <button type="button" onClick={() => setCount((value) => value + 1)}>
@@ -100,7 +101,7 @@ export function BWEComponent() {
       </button>
     </div>
   );
-}
+}  
 `,
   },
   'Message.tsx': {
