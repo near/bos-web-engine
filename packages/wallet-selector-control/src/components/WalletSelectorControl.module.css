@@ -19,7 +19,11 @@
 
   &:hover,
   &[data-state='open'] {
-    background: var(--color-surface-2);
+    background: var(--color-surface-3);
+
+    .icon {
+      fill: var(--violet8);
+    }
   }
 
   &:focus {
@@ -61,5 +65,6 @@
 }
 
 .icon {
+  transition: all 200ms;
   flex-shrink: 0;
 }

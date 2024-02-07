@@ -1,11 +1,11 @@
 .content {
-  color: var(--color-text-1);
   border-radius: 0.25rem;
   padding: 0.3rem 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--color-surface-primary);
+  color: var(--sand1);
+  background-color: var(--sand11);
   z-index: 1000;
   max-width: 20rem;
   font-size: 0.8rem;
@@ -16,5 +16,5 @@
 }
 
 .arrow {
-  fill: var(--color-surface-primary);
+  fill: var(--sand11);
 }

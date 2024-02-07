@@ -209,7 +209,11 @@ export function FileExplorer() {
             <PublishButton selectedFilePaths={selectedFilePaths} />
           ) : (
             <>
-              <CheckCircle fill="var(--color-affirm)" weight="bold" />
+              <CheckCircle
+                fill="var(--color-affirm)"
+                weight="duotone"
+                style={{ width: '2rem', height: '2rem' }}
+              />
               <Text
                 size="s"
                 color="affirm"
@@ -252,7 +256,7 @@ export function FileExplorer() {
                   editFileName(path);
                 }}
               >
-                <File className={s.fileIcon} weight="duotone" />
+                <File className={s.fileIcon} weight="bold" />
 
                 {editingFileNamePath === path ? (
                   <span
@@ -282,12 +286,12 @@ export function FileExplorer() {
                 <Dropdown.Portal container={containerElement}>
                   <Dropdown.Content sideOffset={2}>
                     <Dropdown.Item onSelect={() => editFileName(path)}>
-                      <PencilSimple />
+                      <PencilSimple weight="bold" />
                       Rename
                     </Dropdown.Item>
 
                     <Dropdown.Item onSelect={() => removeFile(path)}>
-                      <Trash color="var(--color-danger)" />
+                      <Trash fill="var(--color-danger)" weight="bold" />
                       Delete
                     </Dropdown.Item>
                   </Dropdown.Content>

@@ -96,7 +96,7 @@ export function MonacoEditor() {
       {libraries && activeFilePath && (
         <Editor
           className={s.monaco}
-          theme="vs-dark"
+          theme="vs-light"
           language={modifiedFile.language}
           value={modifiedFile.value}
           path={modifiedFile.path}

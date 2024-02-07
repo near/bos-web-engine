@@ -34,7 +34,7 @@ export function MonacoDiff() {
       </div>
 
       <DiffEditor
-        theme="vs-dark"
+        theme="vs-light"
         language={modifiedFile.language}
         original={originalFile.value}
         originalModelPath={

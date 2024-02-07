@@ -34,7 +34,7 @@ export function Sandbox() {
   if (!shouldRender) return null;
 
   return (
-    <Theme includeDefaultStyles className={s.wrapper}>
+    <Theme className={s.wrapper}>
       <div ref={containerRef}>
         <Layout />
       </div>
