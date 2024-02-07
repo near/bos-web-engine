@@ -20,6 +20,7 @@ export function useWebEngineSandbox({
     error,
     getComponentRenderCount,
     hooks,
+    resetContainerStylesheet,
     setComponents,
   } = useComponents({
     compiler,
@@ -40,6 +41,7 @@ export function useWebEngineSandbox({
 
     domRoots.current = {};
     setComponents({});
+    resetContainerStylesheet();
     setNonce(`${rootComponentPath}:${Date.now().toString()}`);
 
     compiler?.postMessage({

@@ -42,6 +42,13 @@ export function useComponents({
     }
   }, []);
 
+  const resetContainerStylesheet = useCallback(() => {
+    const rulesCount = containerStylesheet.current!.cssRules.length;
+    for (let i = rulesCount - 1; i >= 0; i--) {
+      containerStylesheet.current!.deleteRule(i);
+    }
+  }, [containerStylesheet]);
+
   const addComponent = useCallback((componentId: string, component: any) => {
     setComponents((currentComponents) => ({
       ...currentComponents,
@@ -159,6 +166,7 @@ export function useComponents({
     error,
     hooks,
     getComponentRenderCount,
+    resetContainerStylesheet,
     setComponents,
   };
 }
