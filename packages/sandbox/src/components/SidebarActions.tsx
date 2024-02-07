@@ -18,7 +18,6 @@ import { useSandboxStore } from '../hooks/useSandboxStore';
 export function SidebarActions() {
   const monaco = useMonaco();
   const editors = monaco?.editor.getEditors();
-  const editor = editors && editors[Math.max(editors.length - 1, 0)];
   const containerElement = useSandboxStore((store) => store.containerElement);
   const mode = useSandboxStore((store) => store.mode);
   const addNewFile = useSandboxStore((store) => store.addNewFile);
@@ -35,14 +34,17 @@ export function SidebarActions() {
 
   const formatCode = () => {
     const actionName = 'editor.action.formatDocument';
-    const action = editor?.getAction(actionName);
 
-    if (!action) {
-      console.warn(`Action not found ${actionName}`);
-      return;
-    }
+    editors?.forEach((editor) => {
+      const action = editor?.getAction(actionName);
 
-    action.run();
+      if (!action) {
+        console.warn(`Action not found ${actionName}`);
+        return;
+      }
+
+      action.run();
+    });
   };
 
   return (
