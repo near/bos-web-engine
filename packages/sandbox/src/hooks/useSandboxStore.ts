@@ -31,6 +31,7 @@ type SandboxStore = {
 
   addNewFile: () => void;
   removeFile: (path: string) => void;
+  resetAllFiles: () => void;
   setActiveFile: (
     path: string,
     childSourceType?: SandboxFileChildSourceType
@@ -90,6 +91,15 @@ export const useSandboxStore = create<SandboxStore>()(
             files,
             pinnedPreviewFilePath,
           };
+        }),
+
+      resetAllFiles: () =>
+        set({
+          activeFilePath: Object.keys(DEFAULT_FILES).shift(),
+          activeFileChildSourceType: undefined,
+          editingFileNamePath: undefined,
+          files: DEFAULT_FILES,
+          pinnedPreviewFilePath: undefined,
         }),
 
       setActiveFile: (activeFilePath, activeFileChildSourceType) =>

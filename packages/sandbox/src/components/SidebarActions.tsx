@@ -7,6 +7,7 @@ import {
   BookOpenText,
   GitPullRequest,
   ArrowLeft,
+  FileX,
 } from '@phosphor-icons/react';
 
 import { GitHubIconSvg } from './GitHubIconSvg';
@@ -23,6 +24,7 @@ export function SidebarActions() {
   const addNewFile = useSandboxStore((store) => store.addNewFile);
   const setMode = useSandboxStore((store) => store.setMode);
   const expandedEditPanel = useSandboxStore((store) => store.expandedEditPanel);
+  const resetAllFiles = useSandboxStore((store) => store.resetAllFiles);
   const setExpandedEditPanel = useSandboxStore(
     (store) => store.setExpandedEditPanel
   );
@@ -180,6 +182,7 @@ export function SidebarActions() {
         content="View this project on GitHub"
         side="right"
         sideOffset={10}
+        container={containerElement}
       >
         <a
           className={s.action}
@@ -189,6 +192,17 @@ export function SidebarActions() {
         >
           <GitHubIconSvg />
         </a>
+      </Tooltip>
+
+      <Tooltip
+        content="Delete all local components and reinitialize examples"
+        side="right"
+        sideOffset={10}
+        container={containerElement}
+      >
+        <button className={s.action} type="button" onClick={resetAllFiles}>
+          <FileX />
+        </button>
       </Tooltip>
 
       <Tooltip
