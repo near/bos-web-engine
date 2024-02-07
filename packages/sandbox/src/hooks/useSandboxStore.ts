@@ -49,7 +49,7 @@ type SandboxStore = {
 export const useSandboxStore = create<SandboxStore>()(
   persist(
     (set, get) => ({
-      activeFileChildSourceType: 'CSS',
+      activeFileChildSourceType: undefined,
       activeFilePath: Object.keys(DEFAULT_FILES).shift(),
       containerElement: undefined,
       editingFileNamePath: undefined,
@@ -152,12 +152,14 @@ export const useSandboxStore = create<SandboxStore>()(
       storage: createJSONStorage(() => localStorage),
       partialize({
         activeFilePath,
+        activeFileChildSourceType,
         expandedEditPanel,
         files,
         pinnedPreviewFilePath,
       }) {
         return {
           activeFilePath,
+          activeFileChildSourceType,
           expandedEditPanel,
           files,
           pinnedPreviewFilePath,
