@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-import { DEFAULT_FILES } from '../constants';
-import { sortFiles } from '../utils';
+import { DEFAULT_FILES, NEW_COMPONENT_TEMPLATE } from '../constants';
+import { returnUniqueFilePath, sortFiles } from '../utils';
 
 export type SandboxFile = {
+  css?: string;
   source: string;
 };
 
@@ -12,25 +13,34 @@ export type SandboxFiles = {
   [path: string]: SandboxFile | undefined;
 };
 
-type SandboxEditorMode = 'EDIT' | 'PUBLISH';
+type SandboxMode = 'EDIT' | 'PUBLISH';
+type SandboxModeEditPanelType = 'SOURCE' | 'PREVIEW';
+export type SandboxFileChildSourceType = 'CSS';
 
 type SandboxStore = {
+  activeFileChildSourceType: SandboxFileChildSourceType | undefined;
   activeFilePath: string | undefined;
   containerElement: HTMLDivElement | undefined;
   editingFileNamePath: string | undefined;
+  expandedEditPanel: SandboxModeEditPanelType | undefined;
   files: SandboxFiles;
   isInitializingPublishedFiles: boolean;
-  mode: SandboxEditorMode;
+  mode: SandboxMode;
   pinnedPreviewFilePath: string | undefined;
   publishedFiles: SandboxFiles;
 
+  addNewFile: () => void;
   removeFile: (path: string) => void;
-  setActiveFile: (path: string) => void;
+  setActiveFile: (
+    path: string,
+    childSourceType?: SandboxFileChildSourceType
+  ) => void;
   setContainerElement: (element: HTMLDivElement | undefined) => void;
   setEditingFileName: (path: string | undefined) => void;
-  setFile: (path: string, file: SandboxFile) => void;
+  setExpandedEditPanel: (panel: SandboxModeEditPanelType | undefined) => void;
+  setFile: (path: string, partialFile: Partial<SandboxFile>) => void;
   setFiles: (files: SandboxFiles) => void;
-  setMode: (mode: SandboxEditorMode) => void;
+  setMode: (mode: SandboxMode) => void;
   setPinnedPreviewFile: (path: string | undefined) => void;
   setPublishedFiles: (files: SandboxFiles) => void;
   updateFilePath: (currentPath: string, newPath: string) => void;
@@ -38,15 +48,25 @@ type SandboxStore = {
 
 export const useSandboxStore = create<SandboxStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
+      activeFileChildSourceType: 'CSS',
       activeFilePath: Object.keys(DEFAULT_FILES).shift(),
       containerElement: undefined,
       editingFileNamePath: undefined,
+      expandedEditPanel: undefined,
       isInitializingPublishedFiles: true,
       files: DEFAULT_FILES,
       mode: 'EDIT',
       pinnedPreviewFilePath: undefined,
       publishedFiles: {},
+
+      addNewFile: () => {
+        const state = get();
+        const path = returnUniqueFilePath(state.files, 'Untitled', 'tsx');
+        state.setFile(path, NEW_COMPONENT_TEMPLATE);
+        state.setActiveFile(path);
+        state.setEditingFileName(path);
+      },
 
       removeFile: (path) =>
         set((state) => {
@@ -72,17 +92,29 @@ export const useSandboxStore = create<SandboxStore>()(
           };
         }),
 
-      setActiveFile: (activeFilePath) => set({ activeFilePath }),
+      setActiveFile: (activeFilePath, activeFileChildSourceType) =>
+        set({ activeFilePath, activeFileChildSourceType }),
 
-      setContainerElement: (element) => set({ containerElement: element }),
+      setContainerElement: (containerElement) => set({ containerElement }),
 
-      setEditingFileName: (path) => set({ editingFileNamePath: path }),
+      setEditingFileName: (editingFileNamePath) => set({ editingFileNamePath }),
 
-      setFile: (path, file) =>
+      setExpandedEditPanel: (expandedEditPanel) => set({ expandedEditPanel }),
+
+      setFile: (path, partialFile) =>
         set((state) => {
+          const existingFile = state.files[path];
+          const updatedFile = {
+            ...existingFile,
+            ...partialFile,
+          };
+
           const files = {
             ...state.files,
-            [path]: { ...file },
+            [path]: {
+              css: updatedFile.css,
+              source: updatedFile.source ?? '',
+            },
           };
 
           return {
@@ -94,7 +126,8 @@ export const useSandboxStore = create<SandboxStore>()(
 
       setMode: (mode) => set({ mode }),
 
-      setPinnedPreviewFile: (path) => set({ pinnedPreviewFilePath: path }),
+      setPinnedPreviewFile: (pinnedPreviewFilePath) =>
+        set({ pinnedPreviewFilePath }),
 
       setPublishedFiles: (publishedFiles) =>
         set(() => ({ isInitializingPublishedFiles: false, publishedFiles })),
@@ -117,9 +150,15 @@ export const useSandboxStore = create<SandboxStore>()(
     {
       name: 'bwe-sandbox-ide-store',
       storage: createJSONStorage(() => localStorage),
-      partialize({ activeFilePath, files, pinnedPreviewFilePath }) {
+      partialize({
+        activeFilePath,
+        expandedEditPanel,
+        files,
+        pinnedPreviewFilePath,
+      }) {
         return {
           activeFilePath,
+          expandedEditPanel,
           files,
           pinnedPreviewFilePath,
         };

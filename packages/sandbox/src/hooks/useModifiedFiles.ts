@@ -19,7 +19,11 @@ export function useModifiedFiles() {
 
       const publishedFile = publishedFiles[path];
 
-      if (!publishedFile || publishedFile.source !== file.source) {
+      if (
+        !publishedFile ||
+        publishedFile.source !== file.source ||
+        publishedFile.css !== file.css
+      ) {
         result.push(path);
       }
     });

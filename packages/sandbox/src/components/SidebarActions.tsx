@@ -11,40 +11,26 @@ import {
 
 import { GitHubIconSvg } from './GitHubIconSvg';
 import s from './SidebarActions.module.css';
-import { NEW_COMPONENT_TEMPLATE } from '../constants';
 import { useModifiedFiles } from '../hooks/useModifiedFiles';
 import { useMonaco } from '../hooks/useMonaco';
 import { useSandboxStore } from '../hooks/useSandboxStore';
-import { PanelType } from '../types';
-import { returnUniqueFilePath } from '../utils';
 
-type Props = {
-  expandedPanel: PanelType | null;
-  onSelectExpandPanel: (panel: PanelType | null) => void;
-};
-
-export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
+export function SidebarActions() {
   const monaco = useMonaco();
   const editors = monaco?.editor.getEditors();
   const editor = editors && editors[Math.max(editors.length - 1, 0)];
   const containerElement = useSandboxStore((store) => store.containerElement);
-  const files = useSandboxStore((store) => store.files);
   const mode = useSandboxStore((store) => store.mode);
-  const setActiveFile = useSandboxStore((store) => store.setActiveFile);
-  const setEditingFileName = useSandboxStore(
-    (store) => store.setEditingFileName
-  );
-  const setFile = useSandboxStore((store) => store.setFile);
+  const addNewFile = useSandboxStore((store) => store.addNewFile);
   const setMode = useSandboxStore((store) => store.setMode);
+  const expandedEditPanel = useSandboxStore((store) => store.expandedEditPanel);
+  const setExpandedEditPanel = useSandboxStore(
+    (store) => store.setExpandedEditPanel
+  );
   const { modifiedFilePaths } = useModifiedFiles();
 
   const addNewComponent = () => {
-    const filePath = returnUniqueFilePath(files, 'Untitled', 'tsx');
-    setFile(filePath, {
-      source: NEW_COMPONENT_TEMPLATE.source,
-    });
-    setActiveFile(filePath);
-    setEditingFileName(filePath);
+    addNewFile();
   };
 
   const formatCode = () => {
@@ -99,8 +85,8 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
               className={s.action}
               type="button"
               onClick={() =>
-                onSelectExpandPanel(
-                  expandedPanel === 'EDITOR' ? null : 'EDITOR'
+                setExpandedEditPanel(
+                  expandedEditPanel === 'SOURCE' ? undefined : 'SOURCE'
                 )
               }
             >
@@ -118,8 +104,8 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
               className={s.action}
               type="button"
               onClick={() =>
-                onSelectExpandPanel(
-                  expandedPanel === 'PREVIEW' ? null : 'PREVIEW'
+                setExpandedEditPanel(
+                  expandedEditPanel === 'PREVIEW' ? undefined : 'PREVIEW'
                 )
               }
             >

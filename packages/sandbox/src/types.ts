@@ -3,5 +3,3 @@ export type MonacoExternalLibrary = {
   source?: string;
   url?: string;
 };
-
-export type PanelType = 'EDITOR' | 'PREVIEW';

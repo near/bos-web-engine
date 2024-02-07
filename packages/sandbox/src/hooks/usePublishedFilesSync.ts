@@ -26,6 +26,7 @@ export function usePublishedFilesSync() {
           [SOCIAL_COMPONENT_NAMESPACE]: {
             [componentName: string]: {
               '': string;
+              css: string;
             };
           };
         }>({
@@ -39,8 +40,13 @@ export function usePublishedFilesSync() {
 
         Object.entries(componentsData).forEach(([componentName, component]) => {
           if (component) {
-            const filePath = convertComponentNameToFilePath(componentName);
-            publishedFiles[filePath] = {
+            const filePathTsx = convertComponentNameToFilePath(
+              componentName,
+              'tsx'
+            );
+
+            publishedFiles[filePathTsx] = {
+              css: component.css ?? '',
               source: component[''] ?? '',
             };
           }

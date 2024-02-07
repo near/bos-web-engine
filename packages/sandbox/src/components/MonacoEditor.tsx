@@ -5,13 +5,20 @@ import { useEffect, useState } from 'react';
 import { Loading } from './Loading';
 import s from './MonacoEditor.module.css';
 import { MONACO_EXTERNAL_LIBRARIES } from '../constants';
-import { useActiveFile } from '../hooks/useActiveFile';
+import { useModifiedFileWithMonaco } from '../hooks/useFileWithMonaco';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { autoCloseHtmlTags } from '../monaco/auto-close-html-tags';
 import type { MonacoExternalLibrary } from '../types';
 
 export function MonacoEditor() {
-  const { activeFile, activeFilePath } = useActiveFile();
+  const activeFilePath = useSandboxStore((store) => store.activeFilePath);
+  const activeFileChildSourceType = useSandboxStore(
+    (store) => store.activeFileChildSourceType
+  );
+  const modifiedFile = useModifiedFileWithMonaco(
+    activeFilePath,
+    activeFileChildSourceType
+  );
   const setFile = useSandboxStore((store) => store.setFile);
   const [libraries, setLibraries] = useState<MonacoExternalLibrary[]>();
   const [mounted, setMounted] = useState(false);
@@ -57,10 +64,6 @@ export function MonacoEditor() {
   const beforeMonacoMount: BeforeMount = (monaco) => {
     emmetJSX(monaco, ['javascript', 'typescript']);
 
-    /*
-      TODO: Figure out why calling setCompilerOptions() triggers "Error: Could not find source file:
-      'inmemory://model/X'." when <MonacoDiff> is shown
-    */
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
     });
@@ -90,21 +93,27 @@ export function MonacoEditor() {
     <div className={s.wrapper} data-loading={isLoading} data-monaco="editor">
       {isLoading && <Loading message="Loading IDE environment..." />}
 
-      {libraries && activeFilePath && activeFile && (
+      {libraries && activeFilePath && (
         <Editor
-          className="monaco-editor"
+          className={s.monaco}
           theme="vs-dark"
-          language="typescript"
-          path={activeFilePath}
-          value={activeFile.source}
+          language={modifiedFile.language}
+          value={modifiedFile.value}
+          path={modifiedFile.path}
           beforeMount={beforeMonacoMount}
           options={{
             minimap: { enabled: false },
           }}
           onChange={(source) => {
-            setFile(activeFilePath, {
-              source: source ?? '',
-            });
+            if (activeFileChildSourceType === 'CSS') {
+              setFile(activeFilePath, {
+                css: source,
+              });
+            } else {
+              setFile(activeFilePath, {
+                source,
+              });
+            }
           }}
           onMount={onMonacoMount}
         />

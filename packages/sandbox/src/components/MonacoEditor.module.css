@@ -5,7 +5,7 @@
   background: var(--color-surface-2);
 
   &[data-loading='true'] {
-    .monaco-editor {
+    .monaco {
       position: absolute;
       opacity: 0;
     }

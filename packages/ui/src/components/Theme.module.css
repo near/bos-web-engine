@@ -1,3 +1,8 @@
+/*
+  TODO: Implement full color scheme for near.org
+  TODO: Support light vs dark mode
+*/
+
 .theme {
   --color-border-1: #4a4a4a;
   --color-text-1: #fff;
@@ -27,6 +32,7 @@
   --size-max-container-width-m: 50rem;
   --size-max-container-width-l: 80rem;
 
+  color-scheme: dark;
   font-family: var(--font-primary);
   line-height: 1.5;
   background: var(--color-surface-1);

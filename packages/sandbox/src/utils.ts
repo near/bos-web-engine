@@ -1,40 +1,78 @@
+import {
+  FileExtension,
+  FILE_EXTENSION_REGEX,
+  FILE_EXTENSIONS,
+} from './constants';
 import { SandboxFiles } from './hooks/useSandboxStore';
 
-export function convertComponentNameToFilePath(componentName: string) {
+export function convertComponentNameToFilePath(
+  componentName: string,
+  fileExtension: FileExtension
+) {
   // Input: "MyNamespace.MyFile"
   // Output: "MyNamespace/MyFile.tsx"
 
-  const filePath = componentName.replace(/\./g, '/'); // Replace all "." with "/"
+  const filePath = componentName.replace(/\./g, '/');
 
-  return `${filePath}.tsx`;
+  return `${filePath}.${fileExtension}`;
 }
 
 export function convertFilePathToComponentName(filePath: string) {
   // Input: "MyFolder/MyFile.tsx"
   // Output: "MyFolder.MyFile"
 
+  // Input: "MyFolder/MyFile.module.css"
+  // Output: "MyFolder.MyFile"
+
   const componentName = filePath
-    .split('.')
-    .slice(0, -1)
-    .join('') // Remove file extension
-    .replace(/\//g, '.'); // Replace all other "/" with "."
+    .replace(FILE_EXTENSION_REGEX, '')
+    .replace(/\//g, '.');
 
   return componentName;
 }
 
+export function filePathIsComponent(filePath: string) {
+  const fileExtension = filePath.split('.').pop() ?? '';
+  return ['tsx'].includes(fileExtension);
+}
+
+export function normalizeFilePathAndExtension(filePath: string) {
+  const filePathWithoutExtension = filePath.replace(FILE_EXTENSION_REGEX, '');
+  let fileExtension = filePath
+    .replace(filePathWithoutExtension, '')
+    .replace(/^\./, '') as FileExtension;
+
+  if (!FILE_EXTENSIONS.includes(fileExtension)) {
+    fileExtension = 'tsx';
+  }
+
+  return {
+    fileExtension,
+    filePathWithoutExtension,
+  };
+}
+
 export function returnUniqueFilePath(
   files: SandboxFiles,
-  desiredPath: string,
+  filePathWithoutExtension: string,
   fileExtension: string,
   _index = 0
 ): string {
-  const uniquePath = _index > 0 ? `${desiredPath}${_index + 1}` : desiredPath;
+  const uniquePath =
+    _index > 0
+      ? `${filePathWithoutExtension}${_index + 1}`
+      : filePathWithoutExtension;
   const paths = Object.keys(files);
   const isUnique = !paths.includes(`${uniquePath}.${fileExtension}`);
 
   if (isUnique) return `${uniquePath}.${fileExtension}`;
 
-  return returnUniqueFilePath(files, desiredPath, fileExtension, _index + 1);
+  return returnUniqueFilePath(
+    files,
+    filePathWithoutExtension,
+    fileExtension,
+    _index + 1
+  );
 }
 
 export function sortFiles(files: SandboxFiles) {
