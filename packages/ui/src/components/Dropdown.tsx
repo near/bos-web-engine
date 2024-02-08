@@ -22,7 +22,8 @@ export const Content = forwardRef<
       {...props}
     >
       {children}
-      <Primitive.Arrow className={s.arrow} />
+      <Primitive.Arrow className={s.arrowBorder} />
+      <Primitive.Arrow className={s.arrowFill} />
     </Primitive.Content>
   );
 });

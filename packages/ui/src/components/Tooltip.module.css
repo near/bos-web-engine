@@ -4,17 +4,32 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--sand1);
-  background-color: var(--sand11);
+  color: var(--color-text-1);
+  background-color: var(--color-surface-1);
   z-index: 1000;
   max-width: 20rem;
   font-size: 0.8rem;
   line-height: 1.5;
   word-break: break-word;
   font-family: sans-serif;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.325);
+  box-shadow:
+    0 0 0 1px var(--color-border-1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
-.arrow {
-  fill: var(--sand11);
+.arrowBorder {
+  fill: var(--color-border-1);
+  stroke: var(--color-border-1);
+  stroke-width: 2px;
+  margin-top: 1px;
+  margin-right: 1px;
+
+  [data-side='bottom'] &,
+  [data-side='left'] & {
+    margin-right: -1px;
+  }
+}
+
+.arrowFill {
+  fill: var(--color-surface-1);
 }

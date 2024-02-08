@@ -37,7 +37,8 @@ export function Tooltip({
             className={`${s.content} ${className}`}
           >
             {content}
-            <Primitive.Arrow className={s.arrow} offset={6} />
+            <Primitive.Arrow className={s.arrowBorder} />
+            <Primitive.Arrow className={s.arrowFill} />
           </Primitive.Content>
         </Primitive.Portal>
       </Primitive.Root>
