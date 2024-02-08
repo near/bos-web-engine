@@ -11,6 +11,7 @@ export function useWebEngineSandbox({
   rootComponentPath,
 }: UseWebEngineSandboxParams) {
   const [nonce, setNonce] = useState('');
+  const preactVersion = config.preactVersion;
 
   const compiler = useCompiler({ config, localComponents });
   const {
@@ -44,14 +45,21 @@ export function useWebEngineSandbox({
     compiler?.postMessage({
       action: 'init',
       localComponents,
-      preactVersion: config.preactVersion,
+      preactVersion,
     });
 
     compiler?.postMessage({
       action: 'execute',
       componentId: rootComponentPath,
     });
-  }, [compiler, domRoots, localComponents, rootComponentPath]);
+  }, [
+    compiler,
+    domRoots,
+    localComponents,
+    preactVersion,
+    rootComponentPath,
+    setComponents,
+  ]);
 
   return {
     components,

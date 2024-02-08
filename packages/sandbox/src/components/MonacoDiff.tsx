@@ -2,15 +2,25 @@ import { Text } from '@bos-web-engine/ui';
 import { DiffEditor } from '@monaco-editor/react';
 
 import s from './MonacoDiff.module.css';
-import { useActiveFile } from '../hooks/useActiveFile';
+import {
+  useModifiedFileWithMonaco,
+  useOriginalFileWithMonaco,
+} from '../hooks/useFileWithMonaco';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 
 export function MonacoDiff() {
-  const { activeFile, activeFilePath } = useActiveFile();
-  const publishedFiles = useSandboxStore((store) => store.publishedFiles);
-  const publishedFile = activeFilePath
-    ? publishedFiles[activeFilePath]
-    : undefined;
+  const activeFilePath = useSandboxStore((store) => store.activeFilePath);
+  const activeFileChildSourceType = useSandboxStore(
+    (store) => store.activeFileChildSourceType
+  );
+  const originalFile = useOriginalFileWithMonaco(
+    activeFilePath,
+    activeFileChildSourceType
+  );
+  const modifiedFile = useModifiedFileWithMonaco(
+    activeFilePath,
+    activeFileChildSourceType
+  );
 
   return (
     <div className={s.wrapper} data-monaco="diff">
@@ -24,13 +34,20 @@ export function MonacoDiff() {
       </div>
 
       <DiffEditor
-        className="monaco-editor"
         theme="vs-dark"
-        language="typescript"
-        original={publishedFile?.source}
-        originalModelPath="diff-original.tsx"
-        modified={activeFile?.source}
-        modifiedModelPath="diff-modified.tsx"
+        language={modifiedFile.language}
+        original={originalFile.value}
+        originalModelPath={
+          originalFile.path
+            ? `diff-original-${originalFile.path}`
+            : 'diff-original.tsx'
+        }
+        modified={modifiedFile.value}
+        modifiedModelPath={
+          modifiedFile.path
+            ? `diff-modified-${modifiedFile.path}`
+            : 'diff-modified.tsx'
+        }
         options={{
           readOnly: true,
         }}

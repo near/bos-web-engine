@@ -1,9 +1,14 @@
-import { SandboxFiles } from './hooks/useSandboxStore';
+import { SandboxFile, SandboxFiles } from './hooks/useSandboxStore';
 import { MonacoExternalLibrary } from './types';
+
+export const FILE_EXTENSIONS = ['tsx', 'module.css'] as const;
+export type FileExtension = (typeof FILE_EXTENSIONS)[number];
 
 export const DEFAULT_SANDBOX_ACCOUNT_ID = 'bwe-web.near';
 export const PREACT_VERSION = '10.17.1';
-export const VALID_FILE_EXTENSION_REGEX = /\.(tsx)$/;
+export const FILE_EXTENSION_REGEX = new RegExp(
+  `\\.(${FILE_EXTENSIONS.join('|')})$`
+);
 export const PREVIEW_UPDATE_DEBOUNCE_DELAY = 750;
 
 export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
@@ -46,6 +51,12 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
 
 export const DEFAULT_FILES: SandboxFiles = {
   'HelloWorld.tsx': {
+    css: `.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}`,
     source: `/*
   Welcome to the BOS Web Engine Sandbox!
 
@@ -53,34 +64,36 @@ export const DEFAULT_FILES: SandboxFiles = {
   are automatically persisted in local storage. Feel free to add, 
   remove, and rename files.
   
-  If you aren't signed in, you should reference "${DEFAULT_SANDBOX_ACCOUNT_ID}" 
-  in the src prop when creating a new component and referencing it via <Component />. 
-  For example: "${DEFAULT_SANDBOX_ACCOUNT_ID}/MyNewComponent.tsx". When you sign 
-  in, these references will be replaced with your account ID.
+  If you aren't signed in, you should reference "bwe-web.near" 
+  in the src prop when creating a new component and referencing it 
+  via <Component />. For example: "bwe-web.near/MyComponent.tsx". 
+  When you sign in, these references will be replaced with your 
+  account ID.
   
   The following code example demonstrates multi file component editing 
   capabilities. Try opening up Message.tsx from the file explorer, 
   make a visible code change, and then come back to HelloWorld.tsx
   to see your changes reflected in the <Component /> reference.
 */
+
 import { useState } from 'react';
 
 export function BWEComponent() {
   const [count, setCount] = useState(0);
 
   return (
-    <div>
+    <div className="wrapper">
       <h1>Welcome!</h1>
 
       <Component
-        src="${DEFAULT_SANDBOX_ACCOUNT_ID}/Message"
+        src="bwe-web.near/Message"
         props={{ message: 'Hello world!' }}
-        /*
-          The props object for <Component /> doesn't support type 
-          safety at the moment due to the dynamic complexities 
-          involved. Implementing type safety for props is a long 
-          term goal.
-        */
+      /*
+        The props object for <Component /> doesn't support type 
+        safety at the moment due to the dynamic complexities 
+        involved. Implementing type safety for props is a long 
+        term goal.
+      */
       />
 
       <button type="button" onClick={() => setCount((value) => value + 1)}>
@@ -88,17 +101,25 @@ export function BWEComponent() {
       </button>
     </div>
   );
-}
+}  
 `,
   },
   'Message.tsx': {
+    css: `.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--color-surface-2);
+  border-radius: 0.5rem;
+}`,
     source: `interface Props {
   message: string;
 }
 
 export function BWEComponent(props: Props) {
   return (
-    <div>
+    <div className="wrapper">
       <h2>BOS Says:</h2>
       <p>{props.message}</p>
     </div>
@@ -107,14 +128,20 @@ export function BWEComponent(props: Props) {
   },
 };
 
-export const NEW_COMPONENT_TEMPLATE = {
+export const NEW_COMPONENT_TEMPLATE: SandboxFile = {
+  css: `.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+`,
   source: `interface Props {
   message?: string;
 }
 
 export function BWEComponent({ message = "Hello"}: Props) {
   return (
-    <div>
+    <div className="wrapper">
       <p>{message}</p>
     </div>
   );

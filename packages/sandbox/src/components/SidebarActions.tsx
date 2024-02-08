@@ -7,56 +7,46 @@ import {
   BookOpenText,
   GitPullRequest,
   ArrowLeft,
+  FileX,
 } from '@phosphor-icons/react';
 
 import { GitHubIconSvg } from './GitHubIconSvg';
 import s from './SidebarActions.module.css';
-import { NEW_COMPONENT_TEMPLATE } from '../constants';
 import { useModifiedFiles } from '../hooks/useModifiedFiles';
 import { useMonaco } from '../hooks/useMonaco';
 import { useSandboxStore } from '../hooks/useSandboxStore';
-import { PanelType } from '../types';
-import { returnUniqueFilePath } from '../utils';
 
-type Props = {
-  expandedPanel: PanelType | null;
-  onSelectExpandPanel: (panel: PanelType | null) => void;
-};
-
-export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
+export function SidebarActions() {
   const monaco = useMonaco();
   const editors = monaco?.editor.getEditors();
-  const editor = editors && editors[Math.max(editors.length - 1, 0)];
   const containerElement = useSandboxStore((store) => store.containerElement);
-  const files = useSandboxStore((store) => store.files);
   const mode = useSandboxStore((store) => store.mode);
-  const setActiveFile = useSandboxStore((store) => store.setActiveFile);
-  const setEditingFileName = useSandboxStore(
-    (store) => store.setEditingFileName
-  );
-  const setFile = useSandboxStore((store) => store.setFile);
+  const addNewFile = useSandboxStore((store) => store.addNewFile);
   const setMode = useSandboxStore((store) => store.setMode);
+  const expandedEditPanel = useSandboxStore((store) => store.expandedEditPanel);
+  const resetAllFiles = useSandboxStore((store) => store.resetAllFiles);
+  const setExpandedEditPanel = useSandboxStore(
+    (store) => store.setExpandedEditPanel
+  );
   const { modifiedFilePaths } = useModifiedFiles();
 
   const addNewComponent = () => {
-    const filePath = returnUniqueFilePath(files, 'Untitled', 'tsx');
-    setFile(filePath, {
-      source: NEW_COMPONENT_TEMPLATE.source,
-    });
-    setActiveFile(filePath);
-    setEditingFileName(filePath);
+    addNewFile();
   };
 
   const formatCode = () => {
     const actionName = 'editor.action.formatDocument';
-    const action = editor?.getAction(actionName);
 
-    if (!action) {
-      console.warn(`Action not found ${actionName}`);
-      return;
-    }
+    editors?.forEach((editor) => {
+      const action = editor?.getAction(actionName);
 
-    action.run();
+      if (!action) {
+        console.warn(`Action not found ${actionName}`);
+        return;
+      }
+
+      action.run();
+    });
   };
 
   return (
@@ -99,8 +89,8 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
               className={s.action}
               type="button"
               onClick={() =>
-                onSelectExpandPanel(
-                  expandedPanel === 'EDITOR' ? null : 'EDITOR'
+                setExpandedEditPanel(
+                  expandedEditPanel === 'SOURCE' ? undefined : 'SOURCE'
                 )
               }
             >
@@ -118,8 +108,8 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
               className={s.action}
               type="button"
               onClick={() =>
-                onSelectExpandPanel(
-                  expandedPanel === 'PREVIEW' ? null : 'PREVIEW'
+                setExpandedEditPanel(
+                  expandedEditPanel === 'PREVIEW' ? undefined : 'PREVIEW'
                 )
               }
             >
@@ -192,6 +182,7 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         content="View this project on GitHub"
         side="right"
         sideOffset={10}
+        container={containerElement}
       >
         <a
           className={s.action}
@@ -201,6 +192,17 @@ export function SidebarActions({ expandedPanel, onSelectExpandPanel }: Props) {
         >
           <GitHubIconSvg />
         </a>
+      </Tooltip>
+
+      <Tooltip
+        content="Delete all local components and reinitialize examples"
+        side="right"
+        sideOffset={10}
+        container={containerElement}
+      >
+        <button className={s.action} type="button" onClick={resetAllFiles}>
+          <FileX />
+        </button>
       </Tooltip>
 
       <Tooltip

@@ -35,23 +35,13 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    /* 
-      TODO: We should remove the hardcoded white/black background/text color to inherit our 
-      actual theme colors. This would allow us to properly support light/dark mode by extending
-      the <Theme> component (it's currently just set up with a hardcoded, dark color scheme).
-    */
-
     <WalletSelectorProvider
       contractId="social.near"
       params={MAINNET_WALLET_SELECTOR_PARAMS}
       onProvision={(selector) => setWalletSelector(selector)}
     >
       <SocialProvider debug networkId="mainnet" walletSelector={walletSelector}>
-        <Theme
-          className={s.wrapper}
-          includeDefaultStyles
-          style={{ background: '#fff', color: '#000' }}
-        >
+        <Theme className={s.wrapper} includeDefaultStyles>
           <header className={s.header}>
             <Link className={s.logo} href="/">
               <NearIconSvg />

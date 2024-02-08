@@ -1,3 +1,8 @@
+/*
+  TODO: This component should probably be refactored and cleaned up once we 
+  start implementing proper folder structure UX.
+*/
+
 import { Checkbox, Dropdown, Text } from '@bos-web-engine/ui';
 import {
   File,
@@ -17,17 +22,16 @@ import {
 
 import s from './FileExplorer.module.css';
 import { PublishButton } from './PublishButton';
-import {
-  NEW_COMPONENT_TEMPLATE,
-  VALID_FILE_EXTENSION_REGEX,
-} from '../constants';
 import { useModifiedFiles } from '../hooks/useModifiedFiles';
 import { useSandboxStore } from '../hooks/useSandboxStore';
-import { returnUniqueFilePath } from '../utils';
+import { returnUniqueFilePath, normalizeFilePathAndExtension } from '../utils';
 
 export function FileExplorer() {
   const containerElement = useSandboxStore((store) => store.containerElement);
   const activeFilePath = useSandboxStore((store) => store.activeFilePath);
+  const activeFileChildSourceType = useSandboxStore(
+    (store) => store.activeFileChildSourceType
+  );
   const editingFileNamePath = useSandboxStore(
     (store) => store.editingFileNamePath
   );
@@ -37,7 +41,7 @@ export function FileExplorer() {
   const setEditingFileName = useSandboxStore(
     (store) => store.setEditingFileName
   );
-  const setFile = useSandboxStore((store) => store.setFile);
+  const addNewFile = useSandboxStore((store) => store.addNewFile);
   const updateFilePath = useSandboxStore((store) => store.updateFilePath);
   const mode = useSandboxStore((store) => store.mode);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -54,12 +58,7 @@ export function FileExplorer() {
     removeFileFromStore(path);
 
     if (isLastFile) {
-      const filePath = returnUniqueFilePath(files, 'Untitled', 'tsx');
-      setFile(filePath, {
-        source: NEW_COMPONENT_TEMPLATE.source,
-      });
-      setActiveFile(filePath);
-      setEditingFileName(filePath);
+      addNewFile();
     }
   };
 
@@ -93,35 +92,29 @@ export function FileExplorer() {
   const onFileNameInputBlur: FocusEventHandler<HTMLSpanElement> = (event) => {
     if (!editingFileNamePath) return;
 
-    let newPath = event.target.innerText.trim();
+    let newFilePath = event.target.innerText.trim();
     const isEditingFileNameForActiveFile =
       editingFileNamePath === activeFilePath;
 
-    if (newPath) {
-      const hasValidExtension = !!newPath.match(VALID_FILE_EXTENSION_REGEX);
-      if (!hasValidExtension) {
-        newPath += '.tsx';
-      }
-
-      const newPathSegments = newPath.split('.');
-      const newPathExtension = newPathSegments.pop()!;
-      const newPathWithoutExtension = newPathSegments.join('.');
-
+    if (newFilePath) {
       const otherFiles = {
         ...files,
       };
       delete otherFiles[editingFileNamePath];
 
-      newPath = returnUniqueFilePath(
+      const { fileExtension, filePathWithoutExtension } =
+        normalizeFilePathAndExtension(newFilePath);
+
+      newFilePath = returnUniqueFilePath(
         otherFiles,
-        newPathWithoutExtension,
-        newPathExtension
+        filePathWithoutExtension,
+        fileExtension
       );
 
-      updateFilePath(editingFileNamePath, newPath);
+      updateFilePath(editingFileNamePath, newFilePath);
 
       if (isEditingFileNameForActiveFile) {
-        setActiveFile(newPath);
+        setActiveFile(newFilePath);
       }
     }
 
@@ -166,27 +159,47 @@ export function FileExplorer() {
           {Object.keys(files)
             .filter((path) => modifiedFilePaths.includes(path))
             .map((path) => (
-              <li
-                className={s.fileListItem}
-                key={path}
-                data-active={activeFilePath === path}
-              >
-                <Checkbox
-                  aria-label={`Include ${path}?`}
-                  checked={selectedFilePaths.includes(path)}
-                  name={`file-included-${path}`}
-                  value={path}
-                  onChange={onFileCheckboxChange}
-                />
-
-                <button
-                  className={s.fileButton}
-                  type="button"
-                  title={path}
-                  onClick={() => setActiveFile(path)}
+              <li className={s.fileListItem} key={path}>
+                <div
+                  className={s.fileRow}
+                  data-active={
+                    activeFilePath === path && !activeFileChildSourceType
+                  }
                 >
-                  <span className={s.fileName}>{path}</span>
-                </button>
+                  <Checkbox
+                    aria-label={`Include ${path}?`}
+                    checked={selectedFilePaths.includes(path)}
+                    name={`file-included-${path}`}
+                    value={path}
+                    onChange={onFileCheckboxChange}
+                  />
+
+                  <button
+                    className={s.fileButton}
+                    type="button"
+                    title={path}
+                    onClick={() => setActiveFile(path)}
+                  >
+                    <span className={s.fileName}>{path}</span>
+                  </button>
+                </div>
+
+                <div
+                  className={s.fileRow}
+                  data-child="true"
+                  data-active={
+                    activeFilePath === path &&
+                    activeFileChildSourceType === 'CSS'
+                  }
+                >
+                  <button
+                    className={s.fileButton}
+                    type="button"
+                    onClick={() => setActiveFile(path, 'CSS')}
+                  >
+                    <span className={s.fileName}>styles.css</span>
+                  </button>
+                </div>
               </li>
             ))}
         </ul>
@@ -222,59 +235,81 @@ export function FileExplorer() {
           <li
             className={s.fileListItem}
             key={path}
-            data-active={activeFilePath === path}
             data-modified={modifiedFilePaths.includes(path)}
           >
-            <button
-              className={s.fileButton}
-              type="button"
-              title={path}
-              onClick={() => setActiveFile(path)}
-              onDoubleClick={() => {
-                editFileName(path);
-              }}
+            <div
+              className={s.fileRow}
+              data-active={
+                activeFilePath === path && !activeFileChildSourceType
+              }
             >
-              <File className={s.fileIcon} />
+              <button
+                className={s.fileButton}
+                type="button"
+                title={path}
+                onClick={() => setActiveFile(path)}
+                onDoubleClick={() => {
+                  editFileName(path);
+                }}
+              >
+                <File className={s.fileIcon} weight="duotone" />
 
-              {editingFileNamePath === path ? (
-                <span
-                  className={s.fileName}
-                  contentEditable="plaintext-only"
-                  data-file-name-input={path}
-                  spellCheck="false"
-                  onBlur={onFileNameInputBlur}
-                  onKeyDown={onFileNameInputKeyDown}
-                />
-              ) : (
-                <span className={s.fileName}>{path}</span>
-              )}
-            </button>
+                {editingFileNamePath === path ? (
+                  <span
+                    className={s.fileName}
+                    contentEditable="plaintext-only"
+                    data-file-name-input={path}
+                    spellCheck="false"
+                    onBlur={onFileNameInputBlur}
+                    onKeyDown={onFileNameInputKeyDown}
+                  />
+                ) : (
+                  <span className={s.fileName}>{path}</span>
+                )}
+              </button>
 
-            <Dropdown.Root>
-              <Dropdown.Trigger asChild>
-                <button
-                  className={s.fileDropdownButton}
-                  type="button"
-                  tabIndex={-1}
-                >
-                  <DotsThreeVertical weight="bold" />
-                </button>
-              </Dropdown.Trigger>
+              <Dropdown.Root>
+                <Dropdown.Trigger asChild>
+                  <button
+                    className={s.fileDropdownButton}
+                    type="button"
+                    tabIndex={-1}
+                  >
+                    <DotsThreeVertical weight="bold" />
+                  </button>
+                </Dropdown.Trigger>
 
-              <Dropdown.Portal container={containerElement}>
-                <Dropdown.Content sideOffset={2}>
-                  <Dropdown.Item onSelect={() => editFileName(path)}>
-                    <PencilSimple />
-                    Rename File
-                  </Dropdown.Item>
+                <Dropdown.Portal container={containerElement}>
+                  <Dropdown.Content sideOffset={2}>
+                    <Dropdown.Item onSelect={() => editFileName(path)}>
+                      <PencilSimple />
+                      Rename
+                    </Dropdown.Item>
 
-                  <Dropdown.Item onSelect={() => removeFile(path)}>
-                    <Trash color="var(--color-danger)" />
-                    Delete File
-                  </Dropdown.Item>
-                </Dropdown.Content>
-              </Dropdown.Portal>
-            </Dropdown.Root>
+                    <Dropdown.Item onSelect={() => removeFile(path)}>
+                      <Trash color="var(--color-danger)" />
+                      Delete
+                    </Dropdown.Item>
+                  </Dropdown.Content>
+                </Dropdown.Portal>
+              </Dropdown.Root>
+            </div>
+
+            <div
+              className={s.fileRow}
+              data-child="true"
+              data-active={
+                activeFilePath === path && activeFileChildSourceType === 'CSS'
+              }
+            >
+              <button
+                className={s.fileButton}
+                type="button"
+                onClick={() => setActiveFile(path, 'CSS')}
+              >
+                <span className={s.fileName}>styles.css</span>
+              </button>
+            </div>
           </li>
         ))}
       </ul>

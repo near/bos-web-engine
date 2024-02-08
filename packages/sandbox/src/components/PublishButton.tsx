@@ -31,15 +31,18 @@ export function PublishButton({ selectedFilePaths }: Props) {
       const components: {
         [componentName: string]: {
           '': string;
+          css?: string;
           metadata?: Record<string, any>;
         };
       } = {};
+
       selectedFilePaths.forEach((filePath) => {
         const file = files[filePath];
         if (file) {
           const componentName = convertFilePathToComponentName(filePath);
           components[componentName] = {
             '': file.source,
+            css: file.css ?? '',
             // TODO: Pass along metadata once exposed in UI
           };
         }
@@ -52,6 +55,7 @@ export function PublishButton({ selectedFilePaths }: Props) {
       });
 
       // Update our published files immediately to match what's been successfully published:
+
       const updatedPublishedFiles = {
         ...publishedFiles,
       };

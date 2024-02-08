@@ -21,31 +21,29 @@ export async function fetchComponentSources(
 
   type SocialComponentsByAuthor = {
     [author: string]: {
-      [SOCIAL_COMPONENT_NAMESPACE]: { [name: string]: string | ComponentEntry };
+      [SOCIAL_COMPONENT_NAMESPACE]: { [name: string]: ComponentEntry };
     };
   };
 
+  const keys = componentPaths.map(
+    (p) => p.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`) + '/*'
+  );
+
   const response = (await social.get({
-    keys: componentPaths.map((p) =>
-      p.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`)
-    ),
+    keys,
   })) as SocialComponentsByAuthor;
 
   return Object.entries(response).reduce(
-    (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: component }]) => {
-      Object.entries(component).forEach(([componentKey, componentSource]) => {
-        if (typeof componentSource === 'string') {
-          sources[`${author}/${componentKey}`] = {
-            component: componentSource,
-          };
-        } else if (componentSource) {
-          const { '': source, css } = componentSource;
-          sources[`${author}/${componentKey}`] = {
+    (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
+      Object.entries(componentEntry).forEach(([componentName, component]) => {
+        if (component) {
+          const { '': source, css } = component;
+          sources[`${author}/${componentName}`] = {
             component: source,
             css,
           };
         } else {
-          console.error(`Invalid component source: ${componentSource}`);
+          console.error(`Invalid component source: ${component}`);
         }
       });
       return sources;

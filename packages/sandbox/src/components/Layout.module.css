@@ -11,7 +11,7 @@
     grid-template-columns: min-content 0px 0px 1fr;
   }
 
-  &[data-expanded-panel='EDITOR'],
+  &[data-expanded-panel='SOURCE'],
   &[data-mode='PUBLISH'] {
     grid-template-columns: min-content 14rem 1fr 0px;
   }

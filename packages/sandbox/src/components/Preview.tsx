@@ -3,7 +3,7 @@ import {
   useWebEngineSandbox,
 } from '@bos-web-engine/application';
 import type { BOSModule } from '@bos-web-engine/common';
-import { Dropdown } from '@bos-web-engine/ui';
+import { Dropdown, Theme } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { CaretDown, Eye } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ import {
 } from '../constants';
 import { useDebouncedValue } from '../hooks/useDebounced';
 import { useSandboxStore } from '../hooks/useSandboxStore';
-import { convertFilePathToComponentName } from '../utils';
+import { convertFilePathToComponentName, filePathIsComponent } from '../utils';
 
 type WebEngineLocalComponents = { [path: string]: BOSModule };
 
@@ -62,14 +62,14 @@ export function Preview() {
     Object.entries(debouncedFiles).forEach(([filePath, file]) => {
       if (!file) return;
 
-      const fileType = filePath.split('.').pop() ?? '';
-
-      if (!['jsx', 'tsx'].includes(fileType)) return;
+      const isComponent = filePathIsComponent(filePath);
+      if (!isComponent) return;
 
       const componentName = convertFilePathToComponentName(filePath);
       const path = `${accountId}/${componentName}`;
 
       editorComponents[path] = {
+        css: file.css,
         component: file.source,
       };
     });
@@ -118,13 +118,13 @@ export function Preview() {
         </Dropdown.Root>
       </div>
 
-      <div className={s.scroll}>
+      <Theme className={s.scroll} includeDefaultStyles>
         <ComponentTree
           key={nonce}
           components={components}
           rootComponentPath={rootComponentPath}
         />
-      </div>
+      </Theme>
     </div>
   );
 }
