@@ -28,6 +28,8 @@ export function useComponents({
     style.id = `bwe-styles-${Date.now()}`;
     style.appendChild(document.createTextNode(''));
     document.head.appendChild(style);
+
+    // @ts-expect-error StyleSheetList can be inlined despite TS complaints about [Symbol.iterator]()
     containerStylesheet.current = [...document.styleSheets].find(
       ({ ownerNode }) => ownerNode === style
     );
@@ -37,6 +39,7 @@ export function useComponents({
     const css = new CSSStyleSheet();
     css.replaceSync(containerStyles);
 
+    // @ts-expect-error StyleSheetList can be inlined despite TS complaints about [Symbol.iterator]()
     for (let { cssText } of css.cssRules) {
       containerStylesheet.current!.insertRule(cssText);
     }
