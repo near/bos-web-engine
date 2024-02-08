@@ -1,5 +1,6 @@
 import { TrustMode } from '@bos-web-engine/common';
 
+import { parseCssModule } from './css';
 import { extractExport } from './export';
 import {
   buildComponentImportStatements,
@@ -62,6 +63,7 @@ interface BuildComponentFunctionParams {
 
 interface BuildComponentSourceParams {
   componentPath: string;
+  componentStyles?: string;
   isRoot: boolean;
   transpiledComponentSource: string;
 }
@@ -69,16 +71,18 @@ interface BuildComponentSourceParams {
 /**
  * Build the transpiled source of a BOS Component along with its imports
  * @param componentPath path to the BOS Component
- * @param componentSource source code of the BOS Component
+ * @param componentStyles CSS module for the BOS Component
+ * @param transpiledComponentSource transpiled source code of the BOS Component
  * @param isRoot flag indicating whether this is the root Component of a container
  */
 export function buildComponentSource({
   componentPath,
+  componentStyles,
   isRoot,
   transpiledComponentSource,
 }: BuildComponentSourceParams): {
-  // componentImports: ModuleImport[];
   childComponents: ParsedChildComponent[];
+  css?: string;
   packageImports: ModuleImport[];
   source: string;
 } {
@@ -107,10 +111,26 @@ export function buildComponentSource({
     .flat()
     .filter((statement) => !!statement) as string[];
 
+  let transformedSource = cleanComponentSource;
+  const parsedCss = componentStyles ? parseCssModule(componentStyles) : null;
+  if (parsedCss) {
+    parsedCss.classMap.forEach((modifiedClassName, className) => {
+      const classRegex = new RegExp(
+        `className:\\s*(['"\`][^'"\`]*)${className}([^'"\`]*['"\`])`,
+        'g'
+      );
+
+      transformedSource = transformedSource.replace(
+        classRegex,
+        `className: $1${modifiedClassName}$2`
+      );
+    });
+  }
+
   // assign a known alias to the exported Component
   const source = buildComponentFunction({
     componentPath,
-    componentSource: cleanComponentSource,
+    componentSource: transformedSource,
     packageImports,
     exportedReference,
     isRoot,
@@ -138,6 +158,7 @@ export function buildComponentSource({
 
   return {
     childComponents,
+    css: parsedCss?.stylesheet,
     packageImports: imports.filter(({ isBweModule }) => !isBweModule),
     source: source.replace(
       COMPONENT_IMPORT_PLACEHOLDER,

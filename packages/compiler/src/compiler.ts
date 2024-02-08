@@ -139,11 +139,13 @@ export class ComponentCompiler {
     });
 
     const {
+      css: componentCss,
       childComponents,
       packageImports,
       source: componentFunctionSource,
     } = buildComponentSource({
       componentPath,
+      componentStyles,
       isRoot,
       transpiledComponentSource,
     });
@@ -177,7 +179,7 @@ export class ComponentCompiler {
 
     // add the transformed source to the returned Component tree
     components.set(componentPath, {
-      css: componentStyles,
+      css: componentCss,
       imports: packageImports,
       // replace each child [Component] reference in the target Component source
       // with the generated name of the inlined Component function definition
