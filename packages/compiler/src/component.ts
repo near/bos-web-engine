@@ -106,7 +106,7 @@ export function buildComponentSource({
   }
 
   const packageImports = imports
-    .filter((moduleImport) => !moduleImport.isBweModule)
+    .filter((moduleImport) => moduleImport.isPackageImport)
     .map((moduleImport) => buildComponentImportStatements(moduleImport))
     .flat()
     .filter((statement) => !!statement) as string[];
