@@ -5,7 +5,7 @@
  *  - export const BWEComponent...
  */
 const EXPORT_REGEX =
-  /^export(?<defaultExport>\s+default)?\s+(const|function)\s+(?<identifier>[\w$_]+)?/gm;
+  /^export\s+(?<defaultExport>default\s+)?(const|function\s+)?(?<identifier>[\w$_]+)?/gm;
 
 /**
  * Extract the name of the exported reference and strip the export keyword(s) from the source
