@@ -34,8 +34,8 @@
   }
 
   &:hover {
-    color: var(--color-text-1);
-    background: var(--color-surface-1);
+    color: var(--white);
+    background: var(--violet8);
   }
 
   &:focus {
