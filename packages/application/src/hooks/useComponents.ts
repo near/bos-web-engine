@@ -1,5 +1,5 @@
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { UseComponentsParams } from '../types';
 
@@ -20,6 +20,37 @@ export function useComponents({
   const [rootComponentSource, setRootComponentSource] = useState<string | null>(
     null
   );
+
+  const containerStylesheet = useRef<CSSStyleSheet | null>(null);
+
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = `bwe-styles-${Date.now()}`;
+    style.appendChild(document.createTextNode(''));
+    document.head.appendChild(style);
+
+    // @ts-expect-error StyleSheetList can be inlined despite TS complaints about [Symbol.iterator]()
+    containerStylesheet.current = [...document.styleSheets].find(
+      ({ ownerNode }) => ownerNode === style
+    );
+  }, []);
+
+  const appendStylesheet = useCallback((containerStyles: string) => {
+    const css = new CSSStyleSheet();
+    css.replaceSync(containerStyles);
+
+    // @ts-expect-error StyleSheetList can be inlined despite TS complaints about [Symbol.iterator]()
+    for (let { cssText } of css.cssRules) {
+      containerStylesheet.current!.insertRule(cssText);
+    }
+  }, []);
+
+  const resetContainerStylesheet = useCallback(() => {
+    const rulesCount = containerStylesheet.current!.cssRules.length;
+    for (let i = rulesCount - 1; i >= 0; i--) {
+      containerStylesheet.current!.deleteRule(i);
+    }
+  }, [containerStylesheet]);
 
   const addComponent = useCallback((componentId: string, component: any) => {
     setComponents((currentComponents) => ({
@@ -84,13 +115,7 @@ export function useComponents({
       }
 
       if (containerStyles) {
-        const targetStylesheet = document.styleSheets[1];
-        const css = new CSSStyleSheet();
-        css.replaceSync(containerStyles);
-
-        for (let i = 0; i < css.cssRules.length; i++) {
-          targetStylesheet.insertRule(css.cssRules[i].cssText);
-        }
+        appendStylesheet(containerStyles);
       }
 
       hooks?.containerSourceCompiled?.(data);
@@ -144,6 +169,7 @@ export function useComponents({
     error,
     hooks,
     getComponentRenderCount,
+    resetContainerStylesheet,
     setComponents,
   };
 }
