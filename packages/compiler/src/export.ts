@@ -3,9 +3,10 @@
  *  - export default X;
  *  - export function BWEComponent...
  *  - export const BWEComponent...
+ *  - const X = ...; ... export { X as BWEComponent };
  */
 const EXPORT_REGEX =
-  /^export(?<defaultExport>\s+default)?\s+(const|function)\s+(?<identifier>[\w$_]+)?/gm;
+  /^export\s+(?<defaultExport>default\s+)?(?:(const|function)\s+)?({\s+(?<aliasedIdentifier>[\w$_])\s+as\s+)?(?<identifier>[\w$_]+)?(;|\s+};?)?/gm;
 
 /**
  * Extract the name of the exported reference and strip the export keyword(s) from the source
@@ -15,10 +16,12 @@ export const extractExport = (source: string) => {
   return [...source.matchAll(EXPORT_REGEX)].reduce(
     (exported, match) => {
       if (!exported.hasExport) {
-        const { defaultExport, identifier } = match.groups as {
-          defaultExport: string;
-          identifier: string;
-        };
+        const { aliasedIdentifier, defaultExport, identifier } =
+          match.groups as {
+            aliasedIdentifier: string;
+            defaultExport: string;
+            identifier: string;
+          };
 
         if (defaultExport) {
           if (!identifier) {
@@ -33,12 +36,19 @@ export const extractExport = (source: string) => {
           }
           exported.hasExport = true;
         } else if (identifier === 'BWEComponent') {
+          if (aliasedIdentifier) {
+            exported.exportedReference = aliasedIdentifier;
+            exported.source = exported.source.replace(match[0], '');
+          } else {
+            exported.exportedReference = identifier;
+          }
           exported.hasExport = true;
         }
       }
 
       return {
-        ...exported,
+        exportedReference: exported.exportedReference,
+        hasExport: exported.hasExport,
         source: exported.source.replace(
           match[0],
           match[0]
