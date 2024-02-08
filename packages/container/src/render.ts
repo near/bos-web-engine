@@ -51,7 +51,6 @@ interface PlaceholderNode {
 
 interface RenderedVNode extends VNode<any> {
   __k?: RenderedVNode[];
-  __e?: Node;
 }
 
 type DispatchRenderCallback = (vnode: VNode) => void;
@@ -147,8 +146,8 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
         return renderedChildren.map((child) => {
 
           // Return the text content directly if it's a text node
-          if (child.__e instanceof Text) {
-            return child.props
+          if (typeof child.props === 'string') {
+            return child.props;
           }
 
           // For non-text nodes, parse the tree recursively
