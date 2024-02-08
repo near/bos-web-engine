@@ -140,11 +140,21 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           },
           fragmentChildren[0].__k
         );
-      }
+      } else {
+        // Handling for nested or non-root fragments. This will flatten non-root fragments
 
-      return renderedChildren.map((child) =>
-        parseRenderedTree(child)
-      ) as VNode[];
+        return renderedChildren.map((child) => {
+
+          // Return the text content directly if it's a text node
+          if (typeof child.props === 'string') {
+            return child.props;
+          }
+
+          // For non-text nodes, parse the tree recursively
+          return parseRenderedTree(child, child.__k);
+        }) as VNode[];
+
+      }
     }
 
     const props =
