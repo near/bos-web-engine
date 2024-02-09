@@ -1,7 +1,7 @@
 .wrapper {
   height: 100%;
   position: relative;
-  background: linear-gradient(-45deg, #6861bd, #72cbdb);
+  background: linear-gradient(-45deg, var(--violet5), var(--cyan7));
   box-sizing: border-box;
 }
 
@@ -12,6 +12,8 @@
   height: 2.5rem;
   box-sizing: border-box;
   padding: 1rem 1rem 0;
+  position: relative;
+  z-index: 10;
 }
 
 .pinnedComponentSelector {
@@ -26,13 +28,14 @@
   font-family: var(--font-primary);
   font-size: 0.8rem;
   font-weight: 400;
-  color: var(--color-text-1);
-  background: rgba(0, 0, 0, 0.5);
   padding: 0 0.75rem;
   box-sizing: border-box;
   cursor: pointer;
   transition: all 200ms;
-  mix-blend-mode: overlay;
+  background: var(--color-surface-1);
+  color: var(--color-text-2);
+  box-shadow: 0 0 0 0px var(--color-focus-outline);
+  border-radius: 0.3rem;
 
   span {
     min-width: 0;
@@ -43,17 +46,26 @@
 
   svg {
     flex-shrink: 0;
+    transition: all 200ms;
   }
 
-  &:hover,
-  &:focus {
-    background: rgba(0, 0, 0, 0.75);
+  &:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-focus-outline);
+  }
+
+  &:hover {
+    color: var(--color-text-1);
+
+    svg {
+      color: var(--violet8);
+    }
   }
 }
 
 .scroll {
   position: absolute;
   inset: 2.5rem 1rem 1rem;
+  margin-top: 1rem;
   overflow: auto;
   scroll-behavior: smooth;
 }

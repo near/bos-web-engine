@@ -35,6 +35,11 @@ select {
   font: inherit;
 }
 
+#root,
+#next {
+  isolation: isolate;
+}
+
 p,
 h1,
 h2,
@@ -45,7 +50,24 @@ h6 {
   overflow-wrap: break-word;
 }
 
-#root,
-#next {
-  isolation: isolate;
+h1 {
+  font: var(--text-2xl);
+}
+h2 {
+  font: var(--text-xl);
+}
+h3 {
+  font: var(--text-l);
+}
+h4 {
+  font: var(--text-base);
+}
+h5 {
+  font: var(--text-s);
+}
+h6 {
+  font: var(--text-xs);
+}
+p {
+  font: var(--text-base);
 }

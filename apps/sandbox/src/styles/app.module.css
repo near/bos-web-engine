@@ -15,7 +15,7 @@
   flex-shrink: 0;
   padding: 0 1rem;
   z-index: 2000;
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 0 var(--blackA6);
   background: var(--color-surface-1);
 
   [aria-haspopup='menu'] {
@@ -27,18 +27,15 @@
   display: inline-flex;
   gap: 1rem;
   align-items: center;
-  color: var(--color-text-1);
-  opacity: 0.5;
+  color: var(--color-text-2);
   margin-right: auto;
   transition: all 200ms;
   text-decoration: none;
   outline: none;
 
-  &:hover {
-    opacity: 0.75;
-  }
+  &:hover,
   &:focus {
-    opacity: 1;
+    color: var(--color-text-1);
   }
 
   svg {

@@ -9,8 +9,8 @@
   flex-shrink: 0;
   box-sizing: border-box;
   padding: 0.5rem 0;
-  box-shadow: 3px 0 3px rgba(0, 0, 0, 0.15);
-  background: var(--color-surface-2);
+  border-right: 1px solid var(--color-border-1);
+  background: var(--color-surface-4);
 }
 
 .action {
@@ -22,7 +22,7 @@
   width: 2rem;
   height: 2rem;
   border-radius: 0.25rem;
-  color: var(--color-text-1);
+  color: var(--color-text-2);
   cursor: pointer;
   box-shadow: 0 0 0 0px var(--color-focus-outline);
   transition: all 200ms;
@@ -34,7 +34,8 @@
   }
 
   &:hover {
-    background: var(--color-surface-4);
+    color: var(--white);
+    background: var(--violet8);
   }
 
   &:focus {
@@ -51,7 +52,7 @@
   font-size: 0.5rem;
   font-weight: 700;
   background: var(--color-affirm);
-  color: #000;
+  color: var(--white);
   position: absolute;
   top: -0.325rem;
   right: -0.325rem;

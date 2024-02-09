@@ -41,7 +41,7 @@ export default function App({ Component, pageProps }: AppProps) {
       onProvision={(selector) => setWalletSelector(selector)}
     >
       <SocialProvider debug networkId="mainnet" walletSelector={walletSelector}>
-        <Theme className={s.wrapper} includeDefaultStyles>
+        <Theme className={s.wrapper}>
           <header className={s.header}>
             <Link className={s.logo} href="/">
               <NearIconSvg />

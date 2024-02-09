@@ -43,7 +43,7 @@ export function WalletSelectorControl() {
           </button>
         </Dropdown.Trigger>
 
-        <Dropdown.Content sideOffset={8}>
+        <Dropdown.Content sideOffset={5}>
           <Dropdown.Item onSelect={() => wallet?.signOut()}>
             <X weight="bold" fill="var(--color-danger)" />
             Sign Out

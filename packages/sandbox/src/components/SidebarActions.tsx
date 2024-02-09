@@ -56,7 +56,6 @@ export function SidebarActions() {
           <Tooltip
             content="Create new component"
             side="right"
-            sideOffset={10}
             container={containerElement}
           >
             <button
@@ -71,7 +70,6 @@ export function SidebarActions() {
           <Tooltip
             content="Format code"
             side="right"
-            sideOffset={10}
             container={containerElement}
           >
             <button className={s.action} type="button" onClick={formatCode}>
@@ -82,7 +80,6 @@ export function SidebarActions() {
           <Tooltip
             content="Expand editor panel"
             side="right"
-            sideOffset={10}
             container={containerElement}
           >
             <button
@@ -101,7 +98,6 @@ export function SidebarActions() {
           <Tooltip
             content="Expand preview panel"
             side="right"
-            sideOffset={10}
             container={containerElement}
           >
             <button
@@ -124,7 +120,6 @@ export function SidebarActions() {
                 : 'No changes to publish'
             }
             side="right"
-            sideOffset={10}
             container={containerElement}
           >
             <button
@@ -148,7 +143,6 @@ export function SidebarActions() {
           <Tooltip
             content="Back to editor"
             side="right"
-            sideOffset={10}
             container={containerElement}
           >
             <button
@@ -162,12 +156,7 @@ export function SidebarActions() {
         </>
       )}
 
-      <Tooltip
-        content="Sandbox Docs"
-        side="right"
-        sideOffset={10}
-        container={containerElement}
-      >
+      <Tooltip content="Sandbox Docs" side="right" container={containerElement}>
         <a
           className={s.action}
           style={{ marginTop: 'auto' }}
@@ -181,7 +170,6 @@ export function SidebarActions() {
       <Tooltip
         content="View this project on GitHub"
         side="right"
-        sideOffset={10}
         container={containerElement}
       >
         <a
@@ -197,7 +185,6 @@ export function SidebarActions() {
       <Tooltip
         content="Delete all local components and reinitialize examples"
         side="right"
-        sideOffset={10}
         container={containerElement}
       >
         <button className={s.action} type="button" onClick={resetAllFiles}>
@@ -208,7 +195,6 @@ export function SidebarActions() {
       <Tooltip
         content="Powered by NEAR"
         side="right"
-        sideOffset={10}
         container={containerElement}
       >
         <a

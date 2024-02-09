@@ -118,7 +118,7 @@ export function Preview() {
         </Dropdown.Root>
       </div>
 
-      <Theme className={s.scroll} includeDefaultStyles>
+      <Theme className={s.scroll}>
         <ComponentTree
           key={nonce}
           components={components}

@@ -110,7 +110,7 @@ export function BWEComponent() {
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem;
-  background: var(--color-surface-2);
+  background: var(--color-surface-3);
   border-radius: 0.5rem;
 }`,
     source: `interface Props {
