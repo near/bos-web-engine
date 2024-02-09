@@ -57,8 +57,8 @@ interface BuildComponentFunctionParams {
   componentPath: string;
   componentSource: string;
   exportedReference: string | null;
+  importAssignments: string[];
   isRoot: boolean;
-  packageImports: string[];
 }
 
 interface BuildComponentSourceParams {
@@ -105,7 +105,7 @@ export function buildComponentSource({
     );
   }
 
-  const packageImports = imports
+  const importAssignments = imports
     .filter((moduleImport) => moduleImport.isPackageImport)
     .map((moduleImport) => buildComponentImportStatements(moduleImport))
     .flat()
@@ -114,7 +114,10 @@ export function buildComponentSource({
   let transformedSource = cleanComponentSource;
   const parsedCss = componentStyles ? parseCssModule(componentStyles) : null;
   if (parsedCss) {
+    const stylesObject: { [className: string]: string } = {};
+
     parsedCss.classMap.forEach((modifiedClassName, className) => {
+      stylesObject[className] = modifiedClassName;
       const classRegex = new RegExp(
         `className:\\s*(['"\`][^'"\`]*)${className}([^'"\`]*['"\`])`,
         'g'
@@ -125,14 +128,22 @@ export function buildComponentSource({
         `className: $1${modifiedClassName}$2`
       );
     });
+
+    const cssModuleReference = imports.find(({ isCssModule }) => isCssModule)
+      ?.imports[0].reference;
+    if (cssModuleReference) {
+      importAssignments.push(
+        `const ${cssModuleReference} = ${JSON.stringify(stylesObject)};`
+      );
+    }
   }
 
   // assign a known alias to the exported Component
   const source = buildComponentFunction({
     componentPath,
     componentSource: transformedSource,
-    packageImports,
     exportedReference,
+    importAssignments,
     isRoot,
   });
 
@@ -159,7 +170,7 @@ export function buildComponentSource({
   return {
     childComponents,
     css: parsedCss?.stylesheet,
-    packageImports: imports.filter(({ isBweModule }) => !isBweModule),
+    packageImports: imports.filter(({ isPackageImport }) => isPackageImport),
     source: source.replace(
       COMPONENT_IMPORT_PLACEHOLDER,
       importedComponentDefinitions
@@ -171,17 +182,16 @@ function buildComponentFunction({
   componentPath,
   componentSource,
   exportedReference,
+  importAssignments,
   isRoot,
-  packageImports,
 }: BuildComponentFunctionParams) {
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
-  const importAssignments = packageImports.join('\n');
   const commentHeader = `${componentPath} ${isRoot ? '(root)' : ''}`;
 
   return `
     /************************* ${commentHeader} *************************/
     const ${functionName} = (() => {
-      ${importAssignments}
+      ${importAssignments.join('\n')}
       ${COMPONENT_IMPORT_PLACEHOLDER}
       ${componentSource}
       return ${exportedReference ? exportedReference : 'BWEComponent'};
