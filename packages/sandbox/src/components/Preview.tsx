@@ -3,7 +3,7 @@ import {
   useWebEngineSandbox,
 } from '@bos-web-engine/application';
 import type { BOSModule } from '@bos-web-engine/common';
-import { Dropdown, Theme } from '@bos-web-engine/ui';
+import { Dropdown, ThemeProvider } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { CaretDown, Eye } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
@@ -118,13 +118,13 @@ export function Preview() {
         </Dropdown.Root>
       </div>
 
-      <Theme className={s.scroll}>
+      <ThemeProvider defaultTheme="light" className={s.scroll}>
         <ComponentTree
           key={nonce}
           components={components}
           rootComponentPath={rootComponentPath}
         />
-      </Theme>
+      </ThemeProvider>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { NearIconSvg, Tooltip } from '@bos-web-engine/ui';
+import { NearIconSvg, Tooltip, useTheme } from '@bos-web-engine/ui';
 import {
   Plus,
   Code,
@@ -8,6 +8,8 @@ import {
   GitPullRequest,
   ArrowLeft,
   FileX,
+  Sun,
+  Moon,
 } from '@phosphor-icons/react';
 
 import { GitHubIconSvg } from './GitHubIconSvg';
@@ -29,6 +31,7 @@ export function SidebarActions() {
     (store) => store.setExpandedEditPanel
   );
   const { modifiedFilePaths } = useModifiedFiles();
+  const { theme, setTheme } = useTheme();
 
   const addNewComponent = () => {
     addNewFile();
@@ -191,6 +194,36 @@ export function SidebarActions() {
           <FileX />
         </button>
       </Tooltip>
+
+      {theme === 'dark' ? (
+        <Tooltip
+          content="Change to light theme"
+          side="right"
+          container={containerElement}
+        >
+          <button
+            className={s.action}
+            type="button"
+            onClick={() => setTheme('light')}
+          >
+            <Moon />
+          </button>
+        </Tooltip>
+      ) : (
+        <Tooltip
+          content="Change to dark theme"
+          side="right"
+          container={containerElement}
+        >
+          <button
+            className={s.action}
+            type="button"
+            onClick={() => setTheme('dark')}
+          >
+            <Sun />
+          </button>
+        </Tooltip>
+      )}
 
       <Tooltip
         content="Powered by NEAR"

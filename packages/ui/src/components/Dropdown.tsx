@@ -70,8 +70,8 @@ CheckboxItem.displayName = 'CheckboxItem';
 export function CheckedIndicator() {
   return (
     <div className={s.checkboxIndicator}>
-      <Circle data-indicator="unchecked" weight="bold" />
-      <CheckCircle data-indicator="checked" weight="bold" />
+      <Circle data-indicator="unchecked" weight="duotone" />
+      <CheckCircle data-indicator="checked" weight="duotone" />
     </div>
   );
 }

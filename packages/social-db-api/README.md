@@ -18,7 +18,7 @@ import {
   SocialProvider,
   SocialDb,
 } from '@bos-web-engine/social-db-api';
-import { Theme } from '@bos-web-engine/ui';
+import { ThemeProvider } from '@bos-web-engine/ui';
 import {
   WalletSelectorControl,
   WalletSelectorProvider,
@@ -49,7 +49,7 @@ export default function App({ Component, pageProps }: AppProps) {
         onProvision={(db) => setSocial(db)}
         walletSelector={walletSelector}
       >
-        <Theme>
+        <ThemeProvider defaultTheme="light">
           <header>
             <WalletSelectorControl />
           </header>
@@ -57,7 +57,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <main>
             <Component {...pageProps} />
           </main>
-        </Theme>
+        </ThemeProvider>
       </SocialProvider>
     </WalletSelectorProvider>
   );

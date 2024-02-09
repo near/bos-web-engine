@@ -1,4 +1,3 @@
-import { Theme } from '@bos-web-engine/ui';
 import { useEffect, useRef, useState } from 'react';
 
 import { Layout } from './Layout';
@@ -34,10 +33,10 @@ export function Sandbox() {
   if (!shouldRender) return null;
 
   return (
-    <Theme className={s.wrapper}>
+    <div className={s.wrapper}>
       <div ref={containerRef}>
         <Layout />
       </div>
-    </Theme>
+    </div>
   );
 }

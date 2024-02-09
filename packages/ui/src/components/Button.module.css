@@ -13,7 +13,7 @@
   line-height: 1;
   cursor: pointer;
   border-radius: 10rem;
-  color: var(--violet8);
+  color: var(--color-affirm);
   background: var(--color-surface-1);
   border: 1px solid var(--color-border-1);
   box-shadow: 0 0 0 0px var(--color-focus-outline);
@@ -25,18 +25,18 @@
   }
 
   &:hover {
-    border-color: var(--violet6);
+    border-color: var(--violet-6);
   }
 
   &:focus {
-    border-color: var(--violet9);
+    border-color: var(--color-primary-action);
     box-shadow: 0 0 0 3px var(--color-focus-outline);
   }
 
   &:active {
     transition: none;
-    border-color: var(--violet7);
-    background-color: var(--violet2);
+    border-color: var(--violet-7);
+    background-color: var(--violet-2);
   }
 
   &:disabled {

@@ -1,3 +1,4 @@
+import { initializeSsrTheme } from '@bos-web-engine/ui';
 import { Html, Head, Main, NextScript } from 'next/document';
 
 export default function Document() {
@@ -11,6 +12,9 @@ export default function Document() {
         />
       </Head>
       <body>
+        <script
+          dangerouslySetInnerHTML={{ __html: initializeSsrTheme('dark') }}
+        />
         <Main />
         <NextScript />
       </body>

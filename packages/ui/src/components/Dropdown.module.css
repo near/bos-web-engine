@@ -67,12 +67,12 @@
   }
 
   svg[fill='currentColor'] {
-    fill: var(--sand10);
+    fill: var(--sand-10);
   }
 
   &:hover {
     svg {
-      fill: var(--violet8);
+      fill: var(--color-primary-action);
     }
   }
 }
@@ -101,11 +101,9 @@
 
   [data-indicator='unchecked'] {
     display: block;
-    opacity: 0.5;
   }
 
   [data-indicator='checked'] {
-    opacity: 1;
     fill: var(--color-affirm) !important;
   }
 

@@ -10,7 +10,7 @@
   box-sizing: border-box;
   padding: 0.5rem 0;
   border-right: 1px solid var(--color-border-1);
-  background: var(--color-surface-4);
+  background: var(--color-surface-1);
 }
 
 .action {
@@ -34,8 +34,8 @@
   }
 
   &:hover {
-    color: var(--white);
-    background: var(--violet8);
+    color: var(--white-a12);
+    background: var(--color-primary-action);
   }
 
   &:focus {
@@ -52,7 +52,7 @@
   font-size: 0.5rem;
   font-weight: 700;
   background: var(--color-affirm);
-  color: var(--white);
+  color: var(--green-1);
   position: absolute;
   top: -0.325rem;
   right: -0.325rem;

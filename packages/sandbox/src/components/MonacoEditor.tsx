@@ -6,6 +6,7 @@ import { Loading } from './Loading';
 import s from './MonacoEditor.module.css';
 import { MONACO_EXTERNAL_LIBRARIES } from '../constants';
 import { useModifiedFileWithMonaco } from '../hooks/useFileWithMonaco';
+import { useMonacoTheme } from '../hooks/useMonacoTheme';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { autoCloseHtmlTags } from '../monaco/auto-close-html-tags';
 import type { MonacoExternalLibrary } from '../types';
@@ -25,6 +26,7 @@ export function MonacoEditor() {
   const [mounted, setMounted] = useState(false);
   const [monacoInstance, setMonacoInstance] =
     useState<Parameters<BeforeMount>[0]>();
+  const monacoTheme = useMonacoTheme();
   const isLoading = !mounted || !libraries;
 
   useEffect(() => {
@@ -143,7 +145,7 @@ export function MonacoEditor() {
             minimap: { enabled: false },
           }}
           path={modifiedFile.path}
-          theme="vs-light"
+          theme={monacoTheme}
           /*
             NOTE: We need to pass in `language` and `value` props to automatically manage  
             models for non-typescript file types (like CSS):
