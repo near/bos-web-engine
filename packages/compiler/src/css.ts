@@ -18,9 +18,11 @@ export function parseCssModule(css: string): ParsedCssModule {
         throw new Error('Invalid source CSS');
       }
 
-      const modifiedClassName = `${className}_${
-        crypto.randomUUID().split('-')[0]
-      }`;
+      const modifiedClassName = `${className}_${crypto
+        .randomUUID()
+        .split('-')
+        .slice(0, 2)
+        .join('')}`;
       classMap.set(className, modifiedClassName);
 
       const cssBody = css.slice(index, cssBodyClosingIndex);
