@@ -206,7 +206,7 @@ export function SidebarActions() {
             type="button"
             onClick={() => setTheme('light')}
           >
-            <Moon weight="bold" />
+            <Moon />
           </button>
         </Tooltip>
       ) : (
@@ -220,7 +220,7 @@ export function SidebarActions() {
             type="button"
             onClick={() => setTheme('dark')}
           >
-            <Sun weight="bold" />
+            <Sun />
           </button>
         </Tooltip>
       )}
