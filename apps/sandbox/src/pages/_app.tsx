@@ -9,7 +9,7 @@ import {
   MAINNET_SOCIAL_CONTRACT_ID,
   SocialProvider,
 } from '@bos-web-engine/social-db-api';
-import { NearIconSvg, Theme } from '@bos-web-engine/ui';
+import { NearIconSvg, ThemeProvider } from '@bos-web-engine/ui';
 import {
   WalletSelectorControl,
   WalletSelectorProvider,
@@ -34,7 +34,11 @@ export default function App({ Component, pageProps }: AppProps) {
       onProvision={(selector) => setWalletSelector(selector)}
     >
       <SocialProvider debug networkId="mainnet" walletSelector={walletSelector}>
-        <Theme className={s.wrapper}>
+        <ThemeProvider
+          allowThemeChange
+          defaultTheme="dark"
+          className={s.wrapper}
+        >
           <header className={s.header}>
             <Link className={s.logo} href="/">
               <NearIconSvg />
@@ -47,7 +51,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <main className={s.main}>
             <Component {...pageProps} />
           </main>
-        </Theme>
+        </ThemeProvider>
       </SocialProvider>
     </WalletSelectorProvider>
   );

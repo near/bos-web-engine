@@ -6,6 +6,7 @@ import {
   useModifiedFileWithMonaco,
   useOriginalFileWithMonaco,
 } from '../hooks/useFileWithMonaco';
+import { useMonacoTheme } from '../hooks/useMonacoTheme';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 
 export function MonacoDiff() {
@@ -21,6 +22,7 @@ export function MonacoDiff() {
     activeFilePath,
     activeFileChildSourceType
   );
+  const monacoTheme = useMonacoTheme();
 
   return (
     <div className={s.wrapper} data-monaco="diff">
@@ -50,7 +52,7 @@ export function MonacoDiff() {
             ? `diff-modified-${modifiedFile.path}`
             : 'diff-modified.tsx'
         }
-        theme="vs-light"
+        theme={monacoTheme}
       />
     </div>
   );

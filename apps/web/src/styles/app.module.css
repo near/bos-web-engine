@@ -15,7 +15,7 @@
   flex-shrink: 0;
   padding: 0 1rem;
   z-index: 2000;
-  box-shadow: 0 1px 0 var(--blackA6);
+  box-shadow: 0 1px 0 var(--black-a2);
   background: var(--color-surface-1);
 
   [aria-haspopup='menu'] {

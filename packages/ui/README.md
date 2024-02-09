@@ -4,37 +4,35 @@ This package provides basic UI components to provide a consistent look and feel 
 
 ## Usage
 
-When using any of the UI components provided by this library, make sure they are wrapped by the `<Theme>` component. If they aren't wrapped, they won't have access to the correct CSS theme variables to render correctly.
+When using any of the UI components provided by this library, make sure they are wrapped by the `<ThemeProvider>` component. If they aren't wrapped, they won't have access to the correct CSS theme variables to render correctly.
 
-## Usage
-
-First, include the package's styles and `<Theme />` wrapper inside the root of your application. For Next JS, this would be your `_app.tsx` file:
+First, include the package's styles and `<ThemeProvider />` wrapper inside the root of your application. For Next JS, this would be your `_app.tsx` file:
 
 ```tsx
 import '@bos-web-engine/ui/reset.css';
 import '@bos-web-engine/ui/styles.css';
 
 import type { AppProps } from 'next/app';
-import { Theme } from '@bos-web-engine/ui';
+import { ThemeProvider } from '@bos-web-engine/ui';
 
 export default function App({ Component, pageProps }: AppProps) {
   const { walletSelector, walletSelectorModal } = useWallet();
 
   return (
-    <Theme>
+    <ThemeProvider defaultTheme="light">
       <header>...</header>
 
       <main>
         <Component {...pageProps} />
       </main>
-    </Theme>
+    </ThemeProvider>
   );
 }
 ```
 
 The global `reset.css` import makes sure we have a consistent baseline for all of our styles. For example, the reset makes sure all elements use `box-sizing: border-box;` and removes all default margins.
 
-Now that we have `<Theme>` wrapping our entire app, you can feel free to use any of the components provided by this package:
+Now that we have `<ThemeProvider>` wrapping our entire app, you can feel free to use any of the components provided by this package:
 
 ```tsx
 import { Button, Dropdown, Tooltip } from '@bos-web-engine/ui';
@@ -60,8 +58,38 @@ export function MyComponent() {
 }
 ```
 
-## Further Details
+## Other Components
 
 - The `<Dialog>` component is an abstraction built with this Radix UI primitive: https://www.radix-ui.com/primitives/docs/components/dialog
 - The `<Dropdown>` component styles and re-exports this Radix UI primitive: https://www.radix-ui.com/primitives/docs/components/dropdown-menu
 - The `<Tooltip>` component is an abstraction built with this Radix UI primitive: https://www.radix-ui.com/primitives/docs/components/tooltip
+
+## Hooks
+
+- `useTheme()` for reading and setting the current theme value (`light` or `dark`)
+
+## SSR Theme Color Flash
+
+To avoid flashing when rendering light vs dark mode, include the following in your Next JS `_document.tsx`:
+
+```tsx
+import { initializeSsrTheme } from '@bos-web-engine/ui';
+import { Html, Head, Main, NextScript } from 'next/document';
+
+export default function Document() {
+  return (
+    <Html lang="en">
+      <Head>...</Head>
+      <body>
+        <script
+          dangerouslySetInnerHTML={{ __html: initializeSsrTheme() }}
+        />
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  );
+}
+```
+
+If you choose `dark` as your default theme choice, you should initialize with: `initializeSsrTheme('dark')`.

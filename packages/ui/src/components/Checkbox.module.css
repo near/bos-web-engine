@@ -15,7 +15,7 @@
   transition: all 200ms;
 
   &:focus-within {
-    border-color: var(--violet8);
+    border-color: var(--color-primary-action);
     box-shadow: 0 0 0 2px var(--color-focus-outline);
   }
 
@@ -24,11 +24,11 @@
   }
 
   &:has(input:checked) {
-    background: var(--violet9);
-    border-color: var(--violet8);
+    background: var(--color-primary-action);
+    border-color: var(--violet-11);
 
     &:hover {
-      background: var(--violet8);
+      background: var(--violet-10);
     }
   }
 
@@ -49,7 +49,7 @@
 
   svg {
     display: none;
-    fill: var(--white);
+    fill: var(--white-a12);
     width: 0.8rem;
     height: 0.8rem;
   }
