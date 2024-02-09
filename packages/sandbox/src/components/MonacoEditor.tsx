@@ -87,9 +87,6 @@ export function MonacoEditor() {
         model.dispose();
       }
     });
-
-    // TODO: Collect all markers (errors) between all models and show error status to user next to each file
-    // TODO: Thorough testing of sandbox after model changes
   }, [activeFilePath, files, monacoInstance]);
 
   const beforeMonacoMount: BeforeMount = (monaco) => {
