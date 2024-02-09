@@ -1,13 +1,14 @@
-import type { Props } from '@bos-web-engine/common';
+import type { Props, SerializedNode } from '@bos-web-engine/common';
 
 import type {
+  ComposeSerializationMethodsCallback,
   DeserializePropsCallback,
   SerializePropsCallback,
   SerializeArgsCallback,
   SerializeNodeCallback,
   DeserializeArgsCallback,
+  Node,
 } from './types';
-import { ComposeSerializationMethodsCallback } from './types';
 
 export interface BuildComponentIdParams {
   instanceId: string | undefined;
@@ -29,6 +30,7 @@ interface DeepTransformParams {
   value: any;
   onString?: (s: string) => string;
   onFunction?: (f: Function, path: string) => any;
+  onNode?: (n: Node) => SerializedNode;
   onSerializedCallback?: (cb: SerializedPropsCallback) => Function;
 }
 
@@ -62,10 +64,18 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       'callbackIdentifier' in o &&
       'containerId' in o;
 
+    // TODO better preact component check
+    const isPreactNode = (value: any) =>
+      !!value?.props &&
+      typeof value === 'object' &&
+      '__' in value &&
+      '__k' in value;
+
     const deepTransform = ({
       value,
       onString,
       onFunction,
+      onNode,
       onSerializedCallback,
     }: DeepTransformParams) => {
       const transform = (v: any, path: string): any => {
@@ -85,6 +95,15 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           return v.map((i: any, idx: number) =>
             transform(i, `${path}[${idx}]`)
           );
+        }
+
+        if (isPreactNode(v)) {
+          if (typeof onNode !== 'function') {
+            // Preact nodes have self-referencing properties, return here to stop traversing
+            return v;
+          }
+
+          return onNode(v);
         }
 
         if (typeof v === 'object') {
@@ -132,12 +151,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     }) => {
       return Object.entries(props).reduce(
         (newProps, [key, value]: [string, any]) => {
-          // TODO better preact component check
-          const isComponent =
-            value?.props &&
-            typeof value === 'object' &&
-            '__' in value &&
-            '__k' in value;
           const isProxy = value?.__bweMeta?.isProxy || false;
 
           const serializeCallback = (
@@ -163,7 +176,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
             newProps[key] = serializeCallback(key, value);
           } else {
             let serializedValue = value;
-            if (isComponent) {
+            if (isPreactNode(value)) {
               newProps[key] = serializeNode({
                 childComponents: [],
                 node: value,
@@ -176,6 +189,12 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
                 value: serializedValue,
                 onFunction: (fn: Function, path: string) =>
                   serializeCallback(`${key}${path}`, fn),
+                onNode: (node) =>
+                  serializeNode({
+                    node,
+                    childComponents: [],
+                    parentId: containerId,
+                  }),
               });
             }
           }
