@@ -117,10 +117,10 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     false;
 
   function parseRenderedTree(
-    node: RenderedVNode,
-    renderedChildren?: RenderedVNode[],
+    node: RenderedVNode | null,
+    renderedChildren?: Array<RenderedVNode | null>,
     childIndex?: number
-  ): VNode | VNode[] {
+  ): VNode | null | Array<VNode | null> {
     if (!node || !renderedChildren) {
       return node;
     }
@@ -138,7 +138,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
             key: 'bwe-container-component',
             props: null,
           },
-          fragmentChildren[0].__k
+          fragmentChildren[0]?.__k
         );
       } else {
         // Handling for nested or non-root fragments. This will flatten non-root fragments
@@ -204,11 +204,11 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           .flat()
           .filter((c) => !!c)
           .map((child, i) => {
-            if (child.type) {
-              return parseRenderedTree(child, child.__k, i);
+            if (child?.type) {
+              return parseRenderedTree(child, child?.__k, i);
             }
 
-            return child.props;
+            return child?.props;
           }),
       },
     };
