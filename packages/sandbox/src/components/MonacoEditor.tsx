@@ -19,9 +19,12 @@ export function MonacoEditor() {
     activeFilePath,
     activeFileChildSourceType
   );
+  const files = useSandboxStore((store) => store.files);
   const setFile = useSandboxStore((store) => store.setFile);
   const [libraries, setLibraries] = useState<MonacoExternalLibrary[]>();
   const [mounted, setMounted] = useState(false);
+  const [monacoInstance, setMonacoInstance] =
+    useState<Parameters<BeforeMount>[0]>();
   const isLoading = !mounted || !libraries;
 
   useEffect(() => {
@@ -61,6 +64,34 @@ export function MonacoEditor() {
     loadAllLibraries();
   }, []);
 
+  useEffect(() => {
+    const monaco = monacoInstance;
+    if (!monaco) return;
+
+    Object.entries(files).forEach(([filePath, file]) => {
+      const model = monaco.editor.getModel(monaco.Uri.parse(filePath));
+
+      if (file) {
+        if (model) {
+          if (activeFilePath !== filePath || model.getValue() !== file.source) {
+            model.setValue(file.source);
+          }
+        } else {
+          monaco.editor.createModel(
+            file.source,
+            'typescript',
+            monaco.Uri.parse(filePath)
+          );
+        }
+      } else if (model && !model.isDisposed) {
+        model.dispose();
+      }
+    });
+
+    // TODO: Collect all markers (errors) between all models and show error status to user next to each file
+    // TODO: Thorough testing of sandbox after model changes
+  }, [activeFilePath, files, monacoInstance]);
+
   const beforeMonacoMount: BeforeMount = (monaco) => {
     emmetJSX(monaco, ['javascript', 'typescript']);
 
@@ -82,6 +113,8 @@ export function MonacoEditor() {
         library.resolutionPath
       );
     });
+
+    setMonacoInstance(monaco);
   };
 
   const onMonacoMount: OnMount = (editor, monaco) => {
@@ -96,14 +129,7 @@ export function MonacoEditor() {
       {libraries && activeFilePath && (
         <Editor
           className={s.monaco}
-          theme="vs-light"
-          language={modifiedFile.language}
-          value={modifiedFile.value}
-          path={modifiedFile.path}
           beforeMount={beforeMonacoMount}
-          options={{
-            minimap: { enabled: false },
-          }}
           onChange={(source) => {
             if (activeFileChildSourceType === 'CSS') {
               setFile(activeFilePath, {
@@ -116,6 +142,17 @@ export function MonacoEditor() {
             }
           }}
           onMount={onMonacoMount}
+          options={{
+            minimap: { enabled: false },
+          }}
+          path={modifiedFile.path}
+          theme="vs-light"
+          /*
+            NOTE: We need to pass in `language` and `value` props to automatically manage  
+            models for non-typescript file types (like CSS):
+          */
+          language={modifiedFile.language}
+          value={modifiedFile.value}
         />
       )}
     </div>
