@@ -34,7 +34,6 @@ export function MonacoDiff() {
       </div>
 
       <DiffEditor
-        theme="vs-light"
         language={modifiedFile.language}
         original={originalFile.value}
         originalModelPath={
@@ -42,15 +41,16 @@ export function MonacoDiff() {
             ? `diff-original-${originalFile.path}`
             : 'diff-original.tsx'
         }
+        options={{
+          readOnly: true,
+        }}
         modified={modifiedFile.value}
         modifiedModelPath={
           modifiedFile.path
             ? `diff-modified-${modifiedFile.path}`
             : 'diff-modified.tsx'
         }
-        options={{
-          readOnly: true,
-        }}
+        theme="vs-light"
       />
     </div>
   );

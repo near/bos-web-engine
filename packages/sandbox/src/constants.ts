@@ -39,6 +39,12 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
     source: `import { JSX } from 'react';
     
     declare global {
+      type BWEComponent<TProps = {}> = (props: {
+        id?: string;
+        props?: TProps;
+        trust?: { mode: string };
+      }) => JSX.Element;
+
       function Component(props: {
         src: string;
         props?: Record<any, any>;
@@ -64,44 +70,32 @@ export const DEFAULT_FILES: SandboxFiles = {
   are automatically persisted in local storage. Feel free to add, 
   remove, and rename files.
   
-  If you aren't signed in, you should reference "bwe-web.near" 
-  in the src prop when creating a new component and referencing it 
-  via <Component />. For example: "bwe-web.near/MyComponent.tsx". 
-  When you sign in, these references will be replaced with your 
-  account ID.
-  
   The following code example demonstrates multi file component editing 
   capabilities. Try opening up Message.tsx from the file explorer, 
   make a visible code change, and then come back to HelloWorld.tsx
-  to see your changes reflected in the <Component /> reference.
+  to see your changes reflected in the imported component.
 */
 
 import { useState } from 'react';
+import Message from './Message';
 
-export function BWEComponent() {
+function HelloWorld() {
   const [count, setCount] = useState(0);
 
   return (
     <div className="wrapper">
       <h1>Welcome!</h1>
 
-      <Component
-        src="bwe-web.near/Message"
-        props={{ message: 'Hello world!' }}
-      /*
-        The props object for <Component /> doesn't support type 
-        safety at the moment due to the dynamic complexities 
-        involved. Implementing type safety for props is a long 
-        term goal.
-      */
-      />
+      <Message props={{ message: 'Hello world!' }} />
 
       <button type="button" onClick={() => setCount((value) => value + 1)}>
         Increase Count: {count}
       </button>
     </div>
   );
-}  
+}
+
+export default HelloWorld as BWEComponent;
 `,
   },
   'Message.tsx': {
@@ -113,18 +107,21 @@ export function BWEComponent() {
   background: var(--color-surface-3);
   border-radius: 0.5rem;
 }`,
-    source: `interface Props {
+    source: `type Props = {
   message: string;
-}
+};
 
-export function BWEComponent(props: Props) {
+function Message({ message }: Props) {
   return (
     <div className="wrapper">
       <h2>BOS Says:</h2>
-      <p>{props.message}</p>
+      <p>{message}</p>
     </div>
   );
-}`,
+}
+
+export default Message as BWEComponent<Props>;
+`,
   },
 };
 
@@ -135,15 +132,18 @@ export const NEW_COMPONENT_TEMPLATE: SandboxFile = {
   gap: 1rem;
 }
 `,
-  source: `interface Props {
+  source: `type Props = {
   message?: string;
-}
+};
 
-export function BWEComponent({ message = "Hello"}: Props) {
+function MyComponent({ message = "Hello!" }: Props) {
   return (
     <div className="wrapper">
       <p>{message}</p>
     </div>
   );
-}`,
+}
+
+export default MyComponent as BWEComponent<Props>;
+`,
 };

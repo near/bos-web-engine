@@ -119,6 +119,11 @@ export const useSandboxStore = create<SandboxStore>()(
             ...partialFile,
           };
 
+          if (JSON.stringify(existingFile) === JSON.stringify(updatedFile)) {
+            // If the file hasn't changed, don't update the files object
+            return {};
+          }
+
           const files = {
             ...state.files,
             [path]: {
