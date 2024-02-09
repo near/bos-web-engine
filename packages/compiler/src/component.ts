@@ -1,5 +1,6 @@
 import { TrustMode } from '@bos-web-engine/common';
 
+import { parseCssModule } from './css';
 import { extractExport } from './export';
 import {
   buildComponentImportStatements,
@@ -56,12 +57,13 @@ interface BuildComponentFunctionParams {
   componentPath: string;
   componentSource: string;
   exportedReference: string | null;
+  importAssignments: string[];
   isRoot: boolean;
-  packageImports: string[];
 }
 
 interface BuildComponentSourceParams {
   componentPath: string;
+  componentStyles?: string;
   isRoot: boolean;
   transpiledComponentSource: string;
 }
@@ -69,16 +71,18 @@ interface BuildComponentSourceParams {
 /**
  * Build the transpiled source of a BOS Component along with its imports
  * @param componentPath path to the BOS Component
- * @param componentSource source code of the BOS Component
+ * @param componentStyles CSS module for the BOS Component
+ * @param transpiledComponentSource transpiled source code of the BOS Component
  * @param isRoot flag indicating whether this is the root Component of a container
  */
 export function buildComponentSource({
   componentPath,
+  componentStyles,
   isRoot,
   transpiledComponentSource,
 }: BuildComponentSourceParams): {
-  // componentImports: ModuleImport[];
   childComponents: ParsedChildComponent[];
+  css?: string;
   packageImports: ModuleImport[];
   source: string;
 } {
@@ -101,18 +105,45 @@ export function buildComponentSource({
     );
   }
 
-  const packageImports = imports
-    .filter((moduleImport) => !moduleImport.isBweModule)
+  const importAssignments = imports
+    .filter((moduleImport) => moduleImport.isPackageImport)
     .map((moduleImport) => buildComponentImportStatements(moduleImport))
     .flat()
     .filter((statement) => !!statement) as string[];
 
+  let transformedSource = cleanComponentSource;
+  const parsedCss = componentStyles ? parseCssModule(componentStyles) : null;
+  if (parsedCss) {
+    const stylesObject: { [className: string]: string } = {};
+
+    parsedCss.classMap.forEach((modifiedClassName, className) => {
+      stylesObject[className] = modifiedClassName;
+      const classRegex = new RegExp(
+        `className:\\s*(['"\`][^'"\`]*)${className}([^'"\`]*['"\`])`,
+        'g'
+      );
+
+      transformedSource = transformedSource.replace(
+        classRegex,
+        `className: $1${modifiedClassName}$2`
+      );
+    });
+
+    const cssModuleReference = imports.find(({ isCssModule }) => isCssModule)
+      ?.imports[0].reference;
+    if (cssModuleReference) {
+      importAssignments.push(
+        `const ${cssModuleReference} = ${JSON.stringify(stylesObject)};`
+      );
+    }
+  }
+
   // assign a known alias to the exported Component
   const source = buildComponentFunction({
     componentPath,
-    componentSource: cleanComponentSource,
-    packageImports,
+    componentSource: transformedSource,
     exportedReference,
+    importAssignments,
     isRoot,
   });
 
@@ -138,7 +169,8 @@ export function buildComponentSource({
 
   return {
     childComponents,
-    packageImports: imports.filter(({ isBweModule }) => !isBweModule),
+    css: parsedCss?.stylesheet,
+    packageImports: imports.filter(({ isPackageImport }) => isPackageImport),
     source: source.replace(
       COMPONENT_IMPORT_PLACEHOLDER,
       importedComponentDefinitions
@@ -150,17 +182,16 @@ function buildComponentFunction({
   componentPath,
   componentSource,
   exportedReference,
+  importAssignments,
   isRoot,
-  packageImports,
 }: BuildComponentFunctionParams) {
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
-  const importAssignments = packageImports.join('\n');
   const commentHeader = `${componentPath} ${isRoot ? '(root)' : ''}`;
 
   return `
     /************************* ${commentHeader} *************************/
     const ${functionName} = (() => {
-      ${importAssignments}
+      ${importAssignments.join('\n')}
       ${COMPONENT_IMPORT_PLACEHOLDER}
       ${componentSource}
       return ${exportedReference ? exportedReference : 'BWEComponent'};

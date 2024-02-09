@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useCompiler } from './useCompiler';
 import { useComponents } from './useComponents';
 import { useComponentTree } from './useComponentTree';
+import { useCss } from './useCss';
 import type { UseWebEngineSandboxParams } from '../types';
 
 export function useWebEngineSandbox({
@@ -13,6 +14,7 @@ export function useWebEngineSandbox({
   const [nonce, setNonce] = useState('');
   const preactVersion = config.preactVersion;
 
+  const { appendStylesheet, resetContainerStylesheet } = useCss();
   const compiler = useCompiler({ config, localComponents });
   const {
     addComponent,
@@ -20,9 +22,9 @@ export function useWebEngineSandbox({
     error,
     getComponentRenderCount,
     hooks,
-    resetContainerStylesheet,
     setComponents,
   } = useComponents({
+    appendStylesheet,
     compiler,
     config,
     rootComponentPath,

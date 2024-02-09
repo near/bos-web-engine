@@ -60,14 +60,25 @@ export const extractImportStatements = (source: string) => {
         /^\.?\.\/(\.\.\/)*[a-z_$][\w\/]*$/gi
       );
 
+      // TODO check against Component name
+      const isCssModule =
+        modulePath.startsWith('./') && modulePath.endsWith('.module.css');
+
       const isComponentImport = isBweModuleImportPath(modulePath);
       if (isComponentImport) {
         moduleName = moduleName.replace(BWE_MODULE_URL_PREFIX, '');
         modulePath = modulePath.replace(BWE_MODULE_URL_PREFIX, '');
       }
 
-      // TODO determine whether to prefix relative imports
-      const isBweModule = isRelative || isComponentImport;
+      const isBweModule = (isRelative && !isCssModule) || isComponentImport;
+      const importMeta = {
+        isBweModule,
+        isCssModule,
+        isPackageImport: !isBweModule && !isCssModule,
+        isRelative,
+        moduleName,
+        modulePath,
+      };
 
       if (destructured) {
         const destructuredReferences = destructured
@@ -88,33 +99,24 @@ export const extractImportStatements = (source: string) => {
           });
 
         imports.push({
-          moduleName,
-          modulePath,
+          ...importMeta,
           imports: [
             ...(reference ? [{ isDefault: true, reference }] : []),
             ...destructuredReferences,
           ],
-          isBweModule,
-          isRelative,
         });
       } else if (namespace) {
         imports.push({
-          moduleName,
-          modulePath,
+          ...importMeta,
           imports: [
             ...(reference ? [{ isDefault: true, reference }] : []),
             { isNamespace: true, alias: namespace },
           ],
-          isBweModule,
-          isRelative,
         });
       } else {
         imports.push({
-          moduleName,
-          modulePath,
+          ...importMeta,
           imports: [{ isDefault: true, reference }],
-          isBweModule,
-          isRelative,
         });
       }
 
@@ -125,7 +127,9 @@ export const extractImportStatements = (source: string) => {
         const { modulePath } = sideEffectMatch.groups as ImportModule;
         imports.push({
           imports: [],
+          isCssModule: false,
           isSideEffect: true,
+          isPackageImport: true,
           moduleName: extractModuleName(modulePath),
           modulePath,
         });
@@ -300,7 +304,7 @@ export const buildComponentImportStatements = (
       statements.push(`const ${namespaceImport.alias} = ${namespaceAlias};`);
     }
   } else if (namespaceImport) {
-    statements.push(`const ${namespaceImport.alias} = ${namespaceAlias}`);
+    statements.push(`const ${namespaceImport.alias} = ${namespaceAlias};`);
   } else if (destructuredStatements) {
     // import { x, y } from 'x'
     // if the import only uses destructured references, it's possible that the module

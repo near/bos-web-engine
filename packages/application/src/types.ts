@@ -106,6 +106,7 @@ export interface UseWebEngineParams {
 }
 
 export interface UseComponentsParams extends UseWebEngineParams {
+  appendStylesheet: (stylesheet: string) => void;
   compiler: CompilerWorker | null;
 }
 

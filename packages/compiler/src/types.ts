@@ -42,6 +42,11 @@ export interface TranspiledComponentLookupParams {
 
 export type ComponentMap = Map<string, ComponentTreeNode>;
 
+export interface ParsedCssModule {
+  classMap: Map<string, string>;
+  stylesheet: string;
+}
+
 export interface ComponentTreeNode {
   css?: string;
   imports: ModuleImport[];
@@ -69,6 +74,8 @@ export interface TrustedRoot {
 export interface ModuleImport {
   imports: ImportExpression[];
   isBweModule?: boolean;
+  isCssModule: boolean;
+  isPackageImport: boolean;
   isRelative?: boolean;
   isSideEffect?: boolean;
   moduleName: string;
