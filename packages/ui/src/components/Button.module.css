@@ -25,11 +25,11 @@
   }
 
   &:hover {
-    border-color: var(--violet-6);
+    border-color: var(--color-action-primary);
   }
 
   &:focus {
-    border-color: var(--color-primary-action);
+    border-color: var(--violet-12);
     box-shadow: 0 0 0 3px var(--color-focus-outline);
   }
 

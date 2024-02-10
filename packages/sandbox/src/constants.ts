@@ -39,6 +39,11 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
     source: `import { JSX } from 'react';
     
     declare global {
+      declare module '*.module.css' {
+        const classes: { [key: string]: string };
+        export default classes;
+      }
+
       type BWEComponent<TProps = {}> = (props: {
         id?: string;
         props?: TProps;
@@ -62,7 +67,8 @@ export const DEFAULT_FILES: SandboxFiles = {
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-}`,
+}    
+  `,
     source: `/*
   Welcome to the BOS Web Engine Sandbox!
 
@@ -78,12 +84,13 @@ export const DEFAULT_FILES: SandboxFiles = {
 
 import { useState } from 'react';
 import Message from './Message';
+import s from './styles.module.css';
 
 function HelloWorld() {
   const [count, setCount] = useState(0);
 
   return (
-    <div className="wrapper">
+    <div className={s.wrapper}>
       <h1>Welcome!</h1>
 
       <Message props={{ message: 'Hello world!' }} />
@@ -104,18 +111,30 @@ export default HelloWorld as BWEComponent;
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem;
-  background: var(--color-surface-3);
+  background: var(--green-4);
+  color: var(green-1);
   border-radius: 0.5rem;
-}`,
-    source: `type Props = {
-  message: string;
+}
+
+.title {
+  color: var(--green-10);
+}
+
+.message {
+  color: var(--green-10);
+}
+`,
+    source: `import s from './styles.module.css';
+
+type Props = {
+  message?: string;
 };
 
-function Message({ message }: Props) {
+function Message({ message = 'Default message...' }: Props) {
   return (
-    <div className="wrapper">
-      <h2>BOS Says:</h2>
-      <p>{message}</p>
+    <div className={s.wrapper}>
+      <h2 className={s.title}>BOS Says:</h2>
+      <p className={s.message}>{message}</p>
     </div>
   );
 }
@@ -132,13 +151,15 @@ export const NEW_COMPONENT_TEMPLATE: SandboxFile = {
   gap: 1rem;
 }
 `,
-  source: `type Props = {
+  source: `import s from './styles.module.css';
+
+type Props = {
   message?: string;
 };
 
 function MyComponent({ message = "Hello!" }: Props) {
   return (
-    <div className="wrapper">
+    <div className={s.wrapper}>
       <p>{message}</p>
     </div>
   );
