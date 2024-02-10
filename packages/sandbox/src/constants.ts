@@ -149,7 +149,6 @@ export const NEW_COMPONENT_TEMPLATE: SandboxFile = {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: red;
 }
 `,
   source: `import s from './styles.module.css';
