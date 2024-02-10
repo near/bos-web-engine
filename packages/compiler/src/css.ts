@@ -2,35 +2,45 @@ import { getClosingCharIndex } from './text';
 import type { ParsedCssModule } from './types';
 
 export function parseCssModule(css: string): ParsedCssModule {
-  return [...css.matchAll(/^\.(\w\S+)\s*{\s*$/gim)].reduce(
+  return [...css.matchAll(/^(\.-?[_a-zA-Z]+[_a-zA-Z0-9-, ]*)+/gim)].reduce(
     ({ classMap, stylesheet }, classSelectorMatch) => {
-      const [classSelector, className] = classSelectorMatch;
       const { index } = classSelectorMatch;
+      const bodyOpenIndex = css.indexOf('{', index);
 
       const cssBodyClosingIndex = getClosingCharIndex({
         source: css,
         openChar: '{',
         closeChar: '}',
-        startIndex: index! + classSelector.length - 1,
+        startIndex: bodyOpenIndex,
       });
 
       if (cssBodyClosingIndex === null) {
         throw new Error('Invalid source CSS');
       }
 
-      const modifiedClassName = `${className}_${crypto
-        .randomUUID()
-        .split('-')
-        .slice(0, 2)
-        .join('')}`;
-      classMap.set(className, modifiedClassName);
+      const classes = css
+        .slice(index, bodyOpenIndex)
+        .split(',')
+        .map((c) => c.trim().substring(1))
+        .filter((c) => !!c);
 
-      const cssBody = css.slice(index, cssBodyClosingIndex);
+      let cssBody = css.slice(index, cssBodyClosingIndex);
+      classes.forEach((className) => {
+        const modifiedClassName = `${className}_${crypto
+          .randomUUID()
+          .split('-')
+          .slice(0, 2)
+          .join('')}`;
+
+        classMap.set(className, modifiedClassName);
+        cssBody = cssBody.replace(className, modifiedClassName);
+      });
+
       return {
         classMap,
         stylesheet: `
           ${stylesheet}
-          ${cssBody.replace(className, modifiedClassName)}
+          ${cssBody}
         `,
       };
     },
