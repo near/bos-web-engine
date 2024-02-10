@@ -114,11 +114,14 @@ export default HelloWorld as BWEComponent;
   background: var(--green-4);
   color: var(green-1);
   border-radius: 0.5rem;
+}
 
-  h2,
-  p {
-    color: var(--green-10);
-  }
+.title {
+  color: var(--green-10);
+}
+
+.message {
+  color: var(--green-10);
 }
 `,
     source: `import s from './styles.module.css';
