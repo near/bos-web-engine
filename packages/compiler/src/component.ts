@@ -114,26 +114,14 @@ export function buildComponentSource({
   let transformedSource = cleanComponentSource;
   const parsedCss = componentStyles ? parseCssModule(componentStyles) : null;
   if (parsedCss) {
-    const stylesObject: { [className: string]: string } = {};
-
-    parsedCss.classMap.forEach((modifiedClassName, className) => {
-      stylesObject[className] = modifiedClassName;
-      const classRegex = new RegExp(
-        `className:\\s*(['"\`][^'"\`]*)${className}([^'"\`]*['"\`])`,
-        'g'
-      );
-
-      transformedSource = transformedSource.replace(
-        classRegex,
-        `className: $1${modifiedClassName}$2`
-      );
-    });
-
     const cssModuleReference = imports.find(({ isCssModule }) => isCssModule)
       ?.imports[0].reference;
+
     if (cssModuleReference) {
       importAssignments.push(
-        `const ${cssModuleReference} = ${JSON.stringify(stylesObject)};`
+        `const ${cssModuleReference} = ${JSON.stringify(
+          Object.fromEntries([...parsedCss.classMap.entries()])
+        )};`
       );
     }
   }
