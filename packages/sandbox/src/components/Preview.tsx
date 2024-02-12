@@ -78,7 +78,7 @@ export function Preview() {
   }, [accountId, debouncedFiles]);
 
   return (
-    <div className={`${s.wrapper}`}>
+    <div className={s.wrapper}>
       <div className={s.header}>
         <Dropdown.Root>
           <Dropdown.Trigger asChild>
