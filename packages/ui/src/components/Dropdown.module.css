@@ -71,7 +71,7 @@
   }
 
   &:hover {
-    svg {
+    svg[fill='currentColor'] {
       fill: var(--color-primary-action);
     }
   }

@@ -12,16 +12,18 @@ import {
   Moon,
   MagnifyingGlass,
 } from '@phosphor-icons/react';
-import { useState } from 'react';
 
-import { FileOpener } from './FileOpener';
 import { GitHubIconSvg } from './GitHubIconSvg';
 import s from './SidebarActions.module.css';
 import { useModifiedFiles } from '../hooks/useModifiedFiles';
 import { useMonaco } from '../hooks/useMonaco';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 
-export function SidebarActions() {
+type Props = {
+  showFileOpener: () => void;
+};
+
+export function SidebarActions({ showFileOpener }: Props) {
   const monaco = useMonaco();
   const editors = monaco?.editor.getEditors();
   const containerElement = useSandboxStore((store) => store.containerElement);
@@ -35,7 +37,6 @@ export function SidebarActions() {
   );
   const { modifiedFilePaths } = useModifiedFiles();
   const { theme, setTheme } = useTheme();
-  const [fileOpenerIsOpen, setFileOpenerIsOpen] = useState(false);
 
   const addNewComponent = () => {
     addNewFile();
@@ -58,8 +59,6 @@ export function SidebarActions() {
 
   return (
     <>
-      <FileOpener isOpen={fileOpenerIsOpen} setIsOpen={setFileOpenerIsOpen} />
-
       <div className={s.wrapper}>
         {mode === 'EDIT' && (
           <>
@@ -85,7 +84,7 @@ export function SidebarActions() {
               <button
                 className={s.action}
                 type="button"
-                onClick={() => setFileOpenerIsOpen(true)}
+                onClick={showFileOpener}
               >
                 <MagnifyingGlass />
               </button>

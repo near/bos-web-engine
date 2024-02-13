@@ -7,9 +7,9 @@ import { Checkbox, Dropdown, Text } from '@bos-web-engine/ui';
 import {
   File,
   DotsThreeVertical,
-  Trash,
   PencilSimple,
   CheckCircle,
+  X,
 } from '@phosphor-icons/react';
 import {
   ChangeEventHandler,
@@ -290,10 +290,17 @@ export function FileExplorer() {
                       Rename
                     </Dropdown.Item>
 
-                    <Dropdown.Item onSelect={() => removeFile(path)}>
-                      <Trash fill="var(--color-danger)" weight="bold" />
-                      Delete
-                    </Dropdown.Item>
+                    {modifiedFilePaths.includes(path) ? (
+                      <Dropdown.Item onSelect={() => removeFile(path)}>
+                        <X fill="var(--color-danger)" weight="bold" />
+                        Close & Discard Changes
+                      </Dropdown.Item>
+                    ) : (
+                      <Dropdown.Item onSelect={() => removeFile(path)}>
+                        <X weight="bold" />
+                        Close
+                      </Dropdown.Item>
+                    )}
                   </Dropdown.Content>
                 </Dropdown.Portal>
               </Dropdown.Root>

@@ -1,4 +1,7 @@
+import { useState } from 'react';
+
 import { FileExplorer } from './FileExplorer';
+import { FileOpener } from './FileOpener';
 import s from './Layout.module.css';
 import { MonacoDiff } from './MonacoDiff';
 import { MonacoEditor } from './MonacoEditor';
@@ -9,21 +12,28 @@ import { useSandboxStore } from '../hooks/useSandboxStore';
 export function Layout() {
   const expandedEditPanel = useSandboxStore((store) => store.expandedEditPanel);
   const mode = useSandboxStore((store) => store.mode);
+  const [fileOpenerIsOpen, setFileOpenerIsOpen] = useState(false);
 
   return (
-    <div
-      className={s.wrapper}
-      data-expanded-panel={expandedEditPanel}
-      data-mode={mode}
-    >
-      <SidebarActions />
+    <>
+      {mode === 'EDIT' && (
+        <FileOpener isOpen={fileOpenerIsOpen} setIsOpen={setFileOpenerIsOpen} />
+      )}
 
-      <FileExplorer />
+      <div
+        className={s.wrapper}
+        data-expanded-panel={expandedEditPanel}
+        data-mode={mode}
+      >
+        <SidebarActions showFileOpener={() => setFileOpenerIsOpen(true)} />
 
-      <MonacoEditor />
-      <MonacoDiff />
+        <FileExplorer />
 
-      <Preview />
-    </div>
+        <MonacoEditor />
+        <MonacoDiff />
+
+        <Preview />
+      </div>
+    </>
   );
 }
