@@ -3,6 +3,8 @@ export { Checkbox } from './components/Checkbox';
 export * as Dialog from './components/Dialog';
 export * as Dropdown from './components/Dropdown';
 export { HR } from './components/HR';
+export { Input } from './components/Input';
+export { Spinner } from './components/Spinner';
 export { ThemeProvider, initializeSsrTheme } from './components/ThemeProvider';
 export { Text } from './components/Text';
 export { Tooltip } from './components/Tooltip';

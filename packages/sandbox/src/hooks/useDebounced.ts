@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 export function useDebouncedFunction(
   callback: () => void,
   delay: number
-): () => void {
+): ReturnType<typeof debounce> {
   const ref = useRef<() => void>();
 
   useEffect(() => {

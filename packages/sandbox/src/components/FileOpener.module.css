@@ -1,0 +1,62 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: -1rem;
+}
+
+.fileList {
+  all: unset;
+  display: block;
+}
+
+.fileListItem {
+  all: unset;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.3rem 0.75rem;
+  font-family: var(--font-primary);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  font-weight: 400;
+  color: var(--color-text-1);
+  border-radius: 0.2rem;
+  user-select: none;
+  outline: none;
+  cursor: pointer;
+  transition: all 200ms;
+
+  &:hover {
+    background: var(--color-surface-2);
+  }
+
+  &[aria-selected='true'],
+  &:focus {
+    background: var(--color-surface-4);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.fileName {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  text-overflow: ellipsis;
+  padding: 0.25rem;
+  box-sizing: border-box;
+  min-width: 0;
+  outline: none;
+}
+
+.examplesList {
+  margin: 0;
+}

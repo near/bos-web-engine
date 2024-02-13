@@ -1,15 +1,16 @@
+import { Spinner } from '@bos-web-engine/ui';
+
 import s from './Loading.module.css';
 
 type Props = {
   message?: string;
 };
 
-export function Loading({ message }: Props) {
+export function Loading({ message = 'Loading...' }: Props) {
   return (
     <div className={s.wrapper}>
-      <div className={s.spinner} />
-
-      <p>{message ?? 'Loading...'}</p>
+      <Spinner size="3rem" />
+      <p>{message}</p>
     </div>
   );
 }

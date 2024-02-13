@@ -10,8 +10,11 @@ import {
   FileX,
   Sun,
   Moon,
+  MagnifyingGlass,
 } from '@phosphor-icons/react';
+import { useState } from 'react';
 
+import { FileOpener } from './FileOpener';
 import { GitHubIconSvg } from './GitHubIconSvg';
 import s from './SidebarActions.module.css';
 import { useModifiedFiles } from '../hooks/useModifiedFiles';
@@ -32,6 +35,7 @@ export function SidebarActions() {
   );
   const { modifiedFilePaths } = useModifiedFiles();
   const { theme, setTheme } = useTheme();
+  const [fileOpenerIsOpen, setFileOpenerIsOpen] = useState(false);
 
   const addNewComponent = () => {
     addNewFile();
@@ -53,192 +57,214 @@ export function SidebarActions() {
   };
 
   return (
-    <div className={s.wrapper}>
-      {mode === 'EDIT' && (
-        <>
-          <Tooltip
-            content="Create new component"
-            side="right"
-            container={containerElement}
-          >
-            <button
-              className={s.action}
-              type="button"
-              onClick={addNewComponent}
+    <>
+      <FileOpener isOpen={fileOpenerIsOpen} setIsOpen={setFileOpenerIsOpen} />
+
+      <div className={s.wrapper}>
+        {mode === 'EDIT' && (
+          <>
+            <Tooltip
+              content="Create new component"
+              side="right"
+              container={containerElement}
             >
-              <Plus />
-            </button>
-          </Tooltip>
+              <button
+                className={s.action}
+                type="button"
+                onClick={addNewComponent}
+              >
+                <Plus />
+              </button>
+            </Tooltip>
 
-          <Tooltip
-            content="Format code"
-            side="right"
-            container={containerElement}
-          >
-            <button className={s.action} type="button" onClick={formatCode}>
-              <BracketsCurly />
-            </button>
-          </Tooltip>
+            <Tooltip
+              content="Open an existing component"
+              side="right"
+              container={containerElement}
+            >
+              <button
+                className={s.action}
+                type="button"
+                onClick={() => setFileOpenerIsOpen(true)}
+              >
+                <MagnifyingGlass />
+              </button>
+            </Tooltip>
 
-          <Tooltip
-            content="Expand editor panel"
-            side="right"
-            container={containerElement}
-          >
-            <button
-              className={s.action}
-              type="button"
-              onClick={() =>
-                setExpandedEditPanel(
-                  expandedEditPanel === 'SOURCE' ? undefined : 'SOURCE'
-                )
+            <Tooltip
+              content="Format code"
+              side="right"
+              container={containerElement}
+            >
+              <button className={s.action} type="button" onClick={formatCode}>
+                <BracketsCurly />
+              </button>
+            </Tooltip>
+
+            <Tooltip
+              content="Expand editor panel"
+              side="right"
+              container={containerElement}
+            >
+              <button
+                className={s.action}
+                type="button"
+                onClick={() =>
+                  setExpandedEditPanel(
+                    expandedEditPanel === 'SOURCE' ? undefined : 'SOURCE'
+                  )
+                }
+              >
+                <Code />
+              </button>
+            </Tooltip>
+
+            <Tooltip
+              content="Expand preview panel"
+              side="right"
+              container={containerElement}
+            >
+              <button
+                className={s.action}
+                type="button"
+                onClick={() =>
+                  setExpandedEditPanel(
+                    expandedEditPanel === 'PREVIEW' ? undefined : 'PREVIEW'
+                  )
+                }
+              >
+                <Eye />
+              </button>
+            </Tooltip>
+
+            <Tooltip
+              content={
+                modifiedFilePaths.length > 0
+                  ? `Review and publish changes: ${modifiedFilePaths.length}`
+                  : 'No changes to publish'
               }
+              side="right"
+              container={containerElement}
             >
-              <Code />
-            </button>
-          </Tooltip>
+              <button
+                className={s.action}
+                type="button"
+                onClick={() => setMode('PUBLISH')}
+              >
+                {modifiedFilePaths.length > 0 && (
+                  <span className={s.actionBadge}>
+                    {modifiedFilePaths.length}
+                  </span>
+                )}
+                <GitPullRequest />
+              </button>
+            </Tooltip>
+          </>
+        )}
 
-          <Tooltip
-            content="Expand preview panel"
-            side="right"
-            container={containerElement}
-          >
-            <button
-              className={s.action}
-              type="button"
-              onClick={() =>
-                setExpandedEditPanel(
-                  expandedEditPanel === 'PREVIEW' ? undefined : 'PREVIEW'
-                )
-              }
+        {mode === 'PUBLISH' && (
+          <>
+            <Tooltip
+              content="Back to editor"
+              side="right"
+              container={containerElement}
             >
-              <Eye />
-            </button>
-          </Tooltip>
+              <button
+                className={s.action}
+                type="button"
+                onClick={() => setMode('EDIT')}
+              >
+                <ArrowLeft />
+              </button>
+            </Tooltip>
+          </>
+        )}
 
-          <Tooltip
-            content={
-              modifiedFilePaths.length > 0
-                ? `Review and publish changes: ${modifiedFilePaths.length}`
-                : 'No changes to publish'
-            }
-            side="right"
-            container={containerElement}
-          >
-            <button
-              className={s.action}
-              type="button"
-              onClick={() => setMode('PUBLISH')}
-            >
-              {modifiedFilePaths.length > 0 && (
-                <span className={s.actionBadge}>
-                  {modifiedFilePaths.length}
-                </span>
-              )}
-              <GitPullRequest />
-            </button>
-          </Tooltip>
-        </>
-      )}
-
-      {mode === 'PUBLISH' && (
-        <>
-          <Tooltip
-            content="Back to editor"
-            side="right"
-            container={containerElement}
-          >
-            <button
-              className={s.action}
-              type="button"
-              onClick={() => setMode('EDIT')}
-            >
-              <ArrowLeft />
-            </button>
-          </Tooltip>
-        </>
-      )}
-
-      <Tooltip content="Sandbox Docs" side="right" container={containerElement}>
-        <a
-          className={s.action}
-          style={{ marginTop: 'auto' }}
-          href="/help"
-          target="_blank"
-        >
-          <BookOpenText />
-        </a>
-      </Tooltip>
-
-      <Tooltip
-        content="View this project on GitHub"
-        side="right"
-        container={containerElement}
-      >
-        <a
-          className={s.action}
-          href="https://github.com/near/bos-web-engine"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <GitHubIconSvg />
-        </a>
-      </Tooltip>
-
-      <Tooltip
-        content="Delete all local components and reinitialize examples"
-        side="right"
-        container={containerElement}
-      >
-        <button className={s.action} type="button" onClick={resetAllFiles}>
-          <FileX />
-        </button>
-      </Tooltip>
-
-      {theme === 'dark' ? (
         <Tooltip
-          content="Change to light theme"
+          content="Sandbox Docs"
           side="right"
           container={containerElement}
         >
-          <button
+          <a
             className={s.action}
-            type="button"
-            onClick={() => setTheme('light')}
+            style={{ marginTop: 'auto' }}
+            href="/help"
+            target="_blank"
           >
-            <Moon />
-          </button>
+            <BookOpenText />
+          </a>
         </Tooltip>
-      ) : (
+
         <Tooltip
-          content="Change to dark theme"
+          content="View this project on GitHub"
           side="right"
           container={containerElement}
         >
-          <button
+          <a
             className={s.action}
-            type="button"
-            onClick={() => setTheme('dark')}
+            href="https://github.com/near/bos-web-engine"
+            target="_blank"
+            rel="noreferrer"
           >
-            <Sun />
+            <GitHubIconSvg />
+          </a>
+        </Tooltip>
+
+        <Tooltip
+          content="Delete all local components and reinitialize examples"
+          side="right"
+          container={containerElement}
+        >
+          <button className={s.action} type="button" onClick={resetAllFiles}>
+            <FileX />
           </button>
         </Tooltip>
-      )}
 
-      <Tooltip
-        content="Powered by NEAR"
-        side="right"
-        container={containerElement}
-      >
-        <a
-          className={s.action}
-          href="https://near.org"
-          target="_blank"
-          rel="noreferrer"
+        {theme === 'dark' ? (
+          <Tooltip
+            content="Change to light theme"
+            side="right"
+            container={containerElement}
+          >
+            <button
+              className={s.action}
+              type="button"
+              onClick={() => setTheme('light')}
+            >
+              <Moon />
+            </button>
+          </Tooltip>
+        ) : (
+          <Tooltip
+            content="Change to dark theme"
+            side="right"
+            container={containerElement}
+          >
+            <button
+              className={s.action}
+              type="button"
+              onClick={() => setTheme('dark')}
+            >
+              <Sun />
+            </button>
+          </Tooltip>
+        )}
+
+        <Tooltip
+          content="Powered by NEAR"
+          side="right"
+          container={containerElement}
         >
-          <NearIconSvg />
-        </a>
-      </Tooltip>
-    </div>
+          <a
+            className={s.action}
+            href="https://near.org"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <NearIconSvg />
+          </a>
+        </Tooltip>
+      </div>
+    </>
   );
 }
