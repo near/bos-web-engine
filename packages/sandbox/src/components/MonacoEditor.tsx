@@ -143,6 +143,9 @@ export function MonacoEditor() {
           onMount={onMonacoMount}
           options={{
             minimap: { enabled: false },
+            padding: {
+              top: 16,
+            },
           }}
           path={modifiedFile.path}
           theme={monacoTheme}
