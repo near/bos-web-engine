@@ -153,6 +153,12 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         (newProps, [key, value]: [string, any]) => {
           const isProxy = value?.__bweMeta?.isProxy || false;
 
+          // TODO remove invalid props keys at the source
+          //  (probably JSX transpilation)
+          if (key === 'class' || key.includes('-')) {
+            return newProps;
+          }
+
           const serializeCallback = (
             callbackName: string,
             callback: Function
