@@ -1,8 +1,8 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
 import {
   buildEventHandler,
-  invokeCallback,
-  invokeComponentCallback,
+  invokeExternalContainerCallback,
+  invokeInternalCallback,
   buildRequest,
   composeMessagingMethods,
   initContainer,
@@ -65,8 +65,8 @@ ${scriptSrc}
                 composeMessagingMethods: ${composeMessagingMethods.toString()},
                 composeRenderMethods: ${composeRenderMethods.toString()},
                 composeSerializationMethods: ${composeSerializationMethods.toString()},
-                invokeCallback: ${invokeCallback.toString()},
-                invokeComponentCallback: ${invokeComponentCallback.toString()},
+                invokeExternalContainerCallback: ${invokeExternalContainerCallback.toString()},
+                invokeInternalCallback: ${invokeInternalCallback.toString()},
               },
               context: {
                 BWEComponent,

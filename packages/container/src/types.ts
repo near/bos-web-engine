@@ -32,17 +32,17 @@ export interface DeserializePropsParams {
 
 export type EventArgs = { event: any };
 
-export interface InvokeCallbackParams {
+export interface InvokeInternalCallbackParams {
   args: SerializedArgs | EventArgs;
   callback: Function;
 }
 
-export interface InvokeComponentCallbackParams {
+export interface InvokeExternalContainerCallbackParams {
   args: SerializedArgs;
   buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   containerId: string;
-  invokeCallback: (args: InvokeCallbackParams) => any;
+  invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
   method: string;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   requests: { [key: string]: CallbackRequest };
@@ -132,8 +132,10 @@ export interface ProcessEventParams {
   containerId: string;
   deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
-  invokeCallback: (args: InvokeCallbackParams) => any;
-  invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
+  invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
+  invokeExternalContainerCallback: (
+    args: InvokeExternalContainerCallbackParams
+  ) => any;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   requests: RequestMap;
@@ -151,8 +153,10 @@ export interface InitContainerParams {
     composeRenderMethods: ComposeRenderMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
-    invokeCallback: (args: InvokeCallbackParams) => any;
-    invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
+    invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
+    invokeExternalContainerCallback: (
+      args: InvokeExternalContainerCallbackParams
+    ) => any;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
     postComponentRenderMessage: (p: any) => void;
