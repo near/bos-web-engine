@@ -205,7 +205,7 @@ function Root({ setIsOpen }: Props) {
         }
       } else {
         selected.scrollIntoView({
-          behavior: 'instant',
+          behavior: 'instant' as any, // Rollup TS complains this isn't a valid value even though it is...
           block: 'center',
         });
       }
