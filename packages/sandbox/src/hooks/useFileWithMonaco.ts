@@ -14,8 +14,8 @@ function useFileWithMonaco(
   let value = file?.source;
 
   if (childSourceType === 'CSS') {
-    language = 'css';
-    path += '.css';
+    language = 'scss';
+    path += '.scss';
     value = file?.css;
   }
 
