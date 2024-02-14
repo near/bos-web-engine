@@ -6,7 +6,11 @@ import { usePublishedFilesSync } from '../hooks/usePublishedFilesSync';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { useSourceAccountReplace } from '../hooks/useSourceAccountReplace';
 
-export function Sandbox() {
+type Props = {
+  height: string;
+};
+
+export function Sandbox({ height }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const setContainerElement = useSandboxStore(
     (store) => store.setContainerElement
@@ -33,7 +37,7 @@ export function Sandbox() {
   if (!shouldRender) return null;
 
   return (
-    <div className={s.wrapper}>
+    <div className={s.wrapper} style={{ height }}>
       <div ref={containerRef}>
         <Layout />
       </div>

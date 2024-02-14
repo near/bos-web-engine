@@ -3,13 +3,15 @@
   start implementing proper folder structure UX.
 */
 
-import { Checkbox, Dropdown, Text } from '@bos-web-engine/ui';
+import { Button, Checkbox, Dropdown, HR, Text } from '@bos-web-engine/ui';
 import {
   File,
   DotsThreeVertical,
   PencilSimple,
   CheckCircle,
   X,
+  MagnifyingGlass,
+  Plus,
 } from '@phosphor-icons/react';
 import {
   ChangeEventHandler,
@@ -26,7 +28,11 @@ import { useModifiedFiles } from '../hooks/useModifiedFiles';
 import { useSandboxStore } from '../hooks/useSandboxStore';
 import { returnUniqueFilePath, normalizeFilePathAndExtension } from '../utils';
 
-export function FileExplorer() {
+type Props = {
+  showFileOpener: () => void;
+};
+
+export function FileExplorer({ showFileOpener }: Props) {
   const containerElement = useSandboxStore((store) => store.containerElement);
   const activeFilePath = useSandboxStore((store) => store.activeFilePath);
   const activeFileChildSourceType = useSandboxStore(
@@ -36,12 +42,12 @@ export function FileExplorer() {
     (store) => store.editingFileNamePath
   );
   const files = useSandboxStore((store) => store.files);
-  const removeFileFromStore = useSandboxStore((store) => store.removeFile);
+  const addNewFile = useSandboxStore((store) => store.addNewFile);
+  const removeFile = useSandboxStore((store) => store.removeFile);
   const setActiveFile = useSandboxStore((store) => store.setActiveFile);
   const setEditingFileName = useSandboxStore(
     (store) => store.setEditingFileName
   );
-  const addNewFile = useSandboxStore((store) => store.addNewFile);
   const updateFilePath = useSandboxStore((store) => store.updateFilePath);
   const mode = useSandboxStore((store) => store.mode);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -50,16 +56,6 @@ export function FileExplorer() {
 
   const editFileName = (path: string) => {
     setEditingFileName(path);
-  };
-
-  const removeFile = (path: string) => {
-    const isLastFile = Object.keys(files).length < 2;
-
-    removeFileFromStore(path);
-
-    if (isLastFile) {
-      addNewFile();
-    }
   };
 
   const onFileNameInputKeyDown: KeyboardEventHandler<HTMLSpanElement> = (
@@ -155,78 +151,80 @@ export function FileExplorer() {
   if (mode === 'PUBLISH') {
     return (
       <div className={s.wrapper} ref={wrapperRef}>
-        <ul className={s.fileList}>
-          {Object.keys(files)
-            .filter((path) => modifiedFilePaths.includes(path))
-            .map((path) => (
-              <li className={s.fileListItem} key={path}>
-                <div
-                  className={s.fileRow}
-                  data-active={
-                    activeFilePath === path && !activeFileChildSourceType
-                  }
-                >
-                  <Checkbox
-                    aria-label={`Include ${path}?`}
-                    checked={selectedFilePaths.includes(path)}
-                    name={`file-included-${path}`}
-                    value={path}
-                    onChange={onFileCheckboxChange}
-                  />
-
-                  <button
-                    className={s.fileButton}
-                    type="button"
-                    title={path}
-                    onClick={() => setActiveFile(path)}
+        <div className={s.scroll}>
+          <ul className={s.fileList}>
+            {Object.keys(files)
+              .filter((path) => modifiedFilePaths.includes(path))
+              .map((path) => (
+                <li className={s.fileListItem} key={path}>
+                  <div
+                    className={s.fileRow}
+                    data-active={
+                      activeFilePath === path && !activeFileChildSourceType
+                    }
                   >
-                    <span className={s.fileName}>{path}</span>
-                  </button>
-                </div>
+                    <Checkbox
+                      aria-label={`Include ${path}?`}
+                      checked={selectedFilePaths.includes(path)}
+                      name={`file-included-${path}`}
+                      value={path}
+                      onChange={onFileCheckboxChange}
+                    />
 
-                <div
-                  className={s.fileRow}
-                  data-child="true"
-                  data-active={
-                    activeFilePath === path &&
-                    activeFileChildSourceType === 'CSS'
-                  }
-                >
-                  <button
-                    className={s.fileButton}
-                    type="button"
-                    onClick={() => setActiveFile(path, 'CSS')}
+                    <button
+                      className={s.fileButton}
+                      type="button"
+                      title={path}
+                      onClick={() => setActiveFile(path)}
+                    >
+                      <span className={s.fileName}>{path}</span>
+                    </button>
+                  </div>
+
+                  <div
+                    className={s.fileRow}
+                    data-child="true"
+                    data-active={
+                      activeFilePath === path &&
+                      activeFileChildSourceType === 'CSS'
+                    }
                   >
-                    <span className={s.fileName}>styles.css</span>
-                  </button>
-                </div>
-              </li>
-            ))}
-        </ul>
+                    <button
+                      className={s.fileButton}
+                      type="button"
+                      onClick={() => setActiveFile(path, 'CSS')}
+                    >
+                      <span className={s.fileName}>styles.css</span>
+                    </button>
+                  </div>
+                </li>
+              ))}
+          </ul>
 
-        <div className={s.footer}>
-          {modifiedFilePaths.length > 0 ? (
-            <PublishButton selectedFilePaths={selectedFilePaths} />
-          ) : (
-            <>
-              <CheckCircle
-                fill="var(--color-affirm)"
-                weight="duotone"
-                style={{ width: '2rem', height: '2rem' }}
-              />
-              <Text
-                size="s"
-                color="affirm"
-                weight="bold"
-                style={{ textAlign: 'center' }}
-              >
-                All changes published!
-              </Text>
-              <Text size="xs" style={{ textAlign: 'center' }}>
-                Your local components match the source code on chain.
-              </Text>
-            </>
-          )}
+          <div className={s.footer}>
+            {modifiedFilePaths.length > 0 ? (
+              <PublishButton selectedFilePaths={selectedFilePaths} />
+            ) : (
+              <>
+                <CheckCircle
+                  fill="var(--color-affirm)"
+                  weight="duotone"
+                  style={{ width: '2rem', height: '2rem' }}
+                />
+                <Text
+                  size="s"
+                  color="affirm"
+                  weight="bold"
+                  style={{ textAlign: 'center' }}
+                >
+                  All changes published!
+                </Text>
+                <Text size="xs" style={{ textAlign: 'center' }}>
+                  Your local components match the source code on chain.
+                </Text>
+              </>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -234,96 +232,120 @@ export function FileExplorer() {
 
   return (
     <div className={s.wrapper} ref={wrapperRef}>
-      <ul className={s.fileList}>
-        {Object.keys(files).map((path) => (
-          <li
-            className={s.fileListItem}
-            key={path}
-            data-modified={modifiedFilePaths.includes(path)}
-          >
-            <div
-              className={s.fileRow}
-              data-active={
-                activeFilePath === path && !activeFileChildSourceType
-              }
+      <div className={s.scroll}>
+        <ul className={s.fileList}>
+          {Object.keys(files).map((path) => (
+            <li
+              className={s.fileListItem}
+              key={path}
+              data-modified={modifiedFilePaths.includes(path)}
             >
-              <button
-                className={s.fileButton}
-                type="button"
-                title={path}
-                onClick={() => setActiveFile(path)}
-                onDoubleClick={() => {
-                  editFileName(path);
-                }}
+              <div
+                className={s.fileRow}
+                data-active={
+                  activeFilePath === path && !activeFileChildSourceType
+                }
               >
-                <File className={s.fileIcon} weight="bold" />
+                <button
+                  className={s.fileButton}
+                  type="button"
+                  title={path}
+                  onClick={() => setActiveFile(path)}
+                  onDoubleClick={() => {
+                    editFileName(path);
+                  }}
+                >
+                  <File className={s.fileIcon} weight="bold" />
 
-                {editingFileNamePath === path ? (
-                  <span
-                    className={s.fileName}
-                    contentEditable="plaintext-only"
-                    data-file-name-input={path}
-                    spellCheck="false"
-                    onBlur={onFileNameInputBlur}
-                    onKeyDown={onFileNameInputKeyDown}
-                  />
-                ) : (
-                  <span className={s.fileName}>{path}</span>
-                )}
-              </button>
+                  {editingFileNamePath === path ? (
+                    <span
+                      className={s.fileName}
+                      contentEditable="plaintext-only"
+                      data-file-name-input={path}
+                      spellCheck="false"
+                      onBlur={onFileNameInputBlur}
+                      onKeyDown={onFileNameInputKeyDown}
+                    />
+                  ) : (
+                    <span className={s.fileName}>{path}</span>
+                  )}
+                </button>
 
-              <Dropdown.Root>
-                <Dropdown.Trigger asChild>
-                  <button
-                    className={s.fileDropdownButton}
-                    type="button"
-                    tabIndex={-1}
-                  >
-                    <DotsThreeVertical weight="bold" />
-                  </button>
-                </Dropdown.Trigger>
+                <Dropdown.Root>
+                  <Dropdown.Trigger asChild>
+                    <button
+                      className={s.fileDropdownButton}
+                      type="button"
+                      tabIndex={-1}
+                    >
+                      <DotsThreeVertical weight="bold" />
+                    </button>
+                  </Dropdown.Trigger>
 
-                <Dropdown.Portal container={containerElement}>
-                  <Dropdown.Content sideOffset={2}>
-                    <Dropdown.Item onSelect={() => editFileName(path)}>
-                      <PencilSimple weight="bold" />
-                      Rename
-                    </Dropdown.Item>
-
-                    {modifiedFilePaths.includes(path) ? (
-                      <Dropdown.Item onSelect={() => removeFile(path)}>
-                        <X fill="var(--color-danger)" weight="bold" />
-                        Close & Discard Changes
+                  <Dropdown.Portal container={containerElement}>
+                    <Dropdown.Content sideOffset={2}>
+                      <Dropdown.Item onSelect={() => editFileName(path)}>
+                        <PencilSimple weight="bold" />
+                        Rename
                       </Dropdown.Item>
-                    ) : (
-                      <Dropdown.Item onSelect={() => removeFile(path)}>
-                        <X weight="bold" />
-                        Close
-                      </Dropdown.Item>
-                    )}
-                  </Dropdown.Content>
-                </Dropdown.Portal>
-              </Dropdown.Root>
-            </div>
 
-            <div
-              className={s.fileRow}
-              data-child="true"
-              data-active={
-                activeFilePath === path && activeFileChildSourceType === 'CSS'
-              }
-            >
-              <button
-                className={s.fileButton}
-                type="button"
-                onClick={() => setActiveFile(path, 'CSS')}
+                      {modifiedFilePaths.includes(path) ? (
+                        <Dropdown.Item onSelect={() => removeFile(path)}>
+                          <X fill="var(--color-danger)" weight="bold" />
+                          Close & Discard Changes
+                        </Dropdown.Item>
+                      ) : (
+                        <Dropdown.Item onSelect={() => removeFile(path)}>
+                          <X weight="bold" />
+                          Close
+                        </Dropdown.Item>
+                      )}
+                    </Dropdown.Content>
+                  </Dropdown.Portal>
+                </Dropdown.Root>
+              </div>
+
+              <div
+                className={s.fileRow}
+                data-child="true"
+                data-active={
+                  activeFilePath === path && activeFileChildSourceType === 'CSS'
+                }
               >
-                <span className={s.fileName}>styles.css</span>
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+                <button
+                  className={s.fileButton}
+                  type="button"
+                  onClick={() => setActiveFile(path, 'CSS')}
+                >
+                  <span className={s.fileName}>styles.css</span>
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {Object.keys(files).length === 0 && (
+          <div className={s.footer}>
+            <Text size="s" weight="bold">
+              No open files.
+            </Text>
+
+            <Text size="xs">
+              You can start typing in the editor to create a new component.
+            </Text>
+
+            <HR />
+
+            <Button onClick={() => addNewFile()}>
+              <Plus weight="bold" /> New Component
+            </Button>
+
+            <Button onClick={() => showFileOpener()}>
+              <MagnifyingGlass weight="bold" /> Open Component
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

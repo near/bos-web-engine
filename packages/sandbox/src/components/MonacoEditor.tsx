@@ -22,6 +22,7 @@ export function MonacoEditor() {
   );
   const files = useSandboxStore((store) => store.files);
   const setFile = useSandboxStore((store) => store.setFile);
+  const addNewFile = useSandboxStore((store) => store.addNewFile);
   const [libraries, setLibraries] = useState<MonacoExternalLibrary[]>();
   const [mounted, setMounted] = useState(false);
   const [monacoInstance, setMonacoInstance] =
@@ -125,12 +126,20 @@ export function MonacoEditor() {
     <div className={s.wrapper} data-loading={isLoading} data-monaco="editor">
       {isLoading && <Loading message="Loading IDE environment..." />}
 
-      {libraries && activeFilePath && (
+      {libraries && (
         <Editor
           className={s.monaco}
           beforeMount={beforeMonacoMount}
           onChange={(source) => {
-            if (activeFileChildSourceType === 'CSS') {
+            if (!activeFilePath) {
+              addNewFile({
+                file: {
+                  css: undefined,
+                  source,
+                },
+                shouldFocusRenameInput: false,
+              });
+            } else if (activeFileChildSourceType === 'CSS') {
               setFile(activeFilePath, {
                 css: source,
               });

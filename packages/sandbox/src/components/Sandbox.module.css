@@ -1,14 +1,11 @@
 .wrapper {
-  display: flex;
-  align-items: stretch;
   width: 100%;
+  overflow: hidden;
   font-family: var(--font-primary);
   color: var(--color-text-1);
-  background: var(--color-surface-1);
 
   > div {
-    display: flex;
-    align-items: stretch;
+    height: 100%;
     width: 100%;
   }
 }

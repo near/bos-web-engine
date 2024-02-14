@@ -26,12 +26,9 @@ export function Layout() {
         data-mode={mode}
       >
         <SidebarActions showFileOpener={() => setFileOpenerIsOpen(true)} />
-
-        <FileExplorer />
-
+        <FileExplorer showFileOpener={() => setFileOpenerIsOpen(true)} />
         <MonacoEditor />
         <MonacoDiff />
-
         <Preview />
       </div>
     </>

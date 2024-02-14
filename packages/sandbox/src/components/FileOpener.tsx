@@ -19,17 +19,17 @@ export function FileOpener(props: Props) {
   const containerElement = useSandboxStore((store) => store.containerElement);
 
   useEffect(() => {
-    function openDialog(event: KeyboardEvent) {
+    function onKeyPress(event: KeyboardEvent) {
       if (event.key === 'p' && event.metaKey) {
         event.preventDefault();
         props.setIsOpen(true);
       }
     }
 
-    window.addEventListener('keydown', openDialog);
+    window.addEventListener('keydown', onKeyPress);
 
     return () => {
-      window.removeEventListener('keydown', openDialog);
+      window.removeEventListener('keydown', onKeyPress);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

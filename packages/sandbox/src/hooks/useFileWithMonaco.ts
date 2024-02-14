@@ -10,7 +10,7 @@ function useFileWithMonaco(
   childSourceType?: SandboxFileChildSourceType
 ) {
   let language = 'typescript';
-  let path = filePath;
+  let path = filePath ?? 'undefined.tsx';
   let value = file?.source;
 
   if (childSourceType === 'CSS') {

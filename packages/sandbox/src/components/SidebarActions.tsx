@@ -38,10 +38,6 @@ export function SidebarActions({ showFileOpener }: Props) {
   const { modifiedFilePaths } = useModifiedFiles();
   const { theme, setTheme } = useTheme();
 
-  const addNewComponent = () => {
-    addNewFile();
-  };
-
   const formatCode = () => {
     const actionName = 'editor.action.formatDocument';
 
@@ -70,7 +66,7 @@ export function SidebarActions({ showFileOpener }: Props) {
               <button
                 className={s.action}
                 type="button"
-                onClick={addNewComponent}
+                onClick={() => addNewFile()}
               >
                 <Plus />
               </button>
