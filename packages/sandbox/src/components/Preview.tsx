@@ -50,7 +50,11 @@ export function Preview() {
   });
 
   useEffect(() => {
-    if (!previewFilePath) return;
+    if (!previewFilePath) {
+      setRootComponentPath('');
+      return;
+    }
+
     const componentName = convertFilePathToComponentName(previewFilePath);
     const componentPath = `${accountId}/${componentName}`;
     setRootComponentPath(componentPath);
@@ -119,11 +123,13 @@ export function Preview() {
       </div>
 
       <ThemeProvider defaultTheme="light" className={s.scroll}>
-        <ComponentTree
-          key={nonce}
-          components={components}
-          rootComponentPath={rootComponentPath}
-        />
+        {rootComponentPath && (
+          <ComponentTree
+            key={nonce}
+            components={components}
+            rootComponentPath={rootComponentPath}
+          />
+        )}
       </ThemeProvider>
     </div>
   );

@@ -44,6 +44,9 @@ export function MonacoDiff() {
             : 'diff-original.tsx'
         }
         options={{
+          padding: {
+            top: 16,
+          },
           readOnly: true,
         }}
         modified={modifiedFile.value}

@@ -2,22 +2,31 @@
   position: fixed;
   inset: 0;
   z-index: 10000;
-  padding: var(--gap-m);
+  padding: 1rem;
   display: flex;
-  overflow: auto;
-  scroll-behavior: smooth;
   animation: contentShow 200ms;
   background: rgba(118, 118, 118, 0.5);
 }
 
 .content {
+  --dialog-content-padding: 2rem;
   position: relative;
-  margin: auto;
   background: var(--color-surface-1);
-  border-radius: 0.5rem;
   box-shadow: 0 0 2rem 0.2rem rgba(0, 0, 0, 0.3);
   width: 100%;
-  padding: 2rem;
+  max-height: 100%;
+  overflow: auto;
+  scroll-behavior: smooth;
+  padding: var(--dialog-content-padding);
+  border-radius: 0.5rem;
+  outline: none;
+
+  &[data-anchor='center'] {
+    margin: auto;
+  }
+  &[data-anchor='top'] {
+    margin: 0 auto auto;
+  }
 
   &[data-size='xs'] {
     max-width: var(--size-max-container-width-xs);
@@ -39,9 +48,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 100%;
@@ -58,6 +64,12 @@
 
   &:focus {
     box-shadow: 0 0 0 3px var(--color-focus-outline);
+  }
+
+  &[data-absolute='true'] {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
   }
 }
 
@@ -77,4 +89,21 @@
   to {
     opacity: 1;
   }
+}
+
+.stickyHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: sticky;
+  top: calc(var(--dialog-content-padding) * -1);
+  z-index: 10;
+  background: var(--color-surface-2);
+  margin: calc(var(--dialog-content-padding) * -1);
+  margin-bottom: var(--dialog-content-padding);
+  padding: 1rem;
+  box-shadow:
+    0 1px 0 var(--color-border-1),
+    0px 4px 8px 0px rgba(0, 0, 0, 0.06),
+    0px 0px 0px 1px rgba(0, 0, 0, 0.06);
 }

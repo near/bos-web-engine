@@ -1,12 +1,9 @@
-import {
-  SOCIAL_COMPONENT_NAMESPACE,
-  useSocial,
-} from '@bos-web-engine/social-db-api';
+import { useSocial } from '@bos-web-engine/social-db-api';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { useEffect } from 'react';
 
-import { type SandboxFiles, useSandboxStore } from './useSandboxStore';
-import { convertComponentNameToFilePath } from '../utils';
+import { useSandboxStore } from './useSandboxStore';
+import { fetchPublishedFiles } from '../helpers/fetch-published-files';
 
 export function usePublishedFilesSync() {
   const { account, hasResolved } = useWallet();
@@ -20,39 +17,10 @@ export function usePublishedFilesSync() {
       return;
     }
 
-    const fetchPublishedFiles = async () => {
+    const fetchFilesForCurrentAccount = async () => {
       try {
-        const response = await social.get<{
-          [SOCIAL_COMPONENT_NAMESPACE]: {
-            [componentName: string]: {
-              '': string;
-              css: string;
-            };
-          };
-        }>({
-          key: `${account.accountId}/${SOCIAL_COMPONENT_NAMESPACE}/**`,
-        });
-
-        const publishedFiles: SandboxFiles = {};
-        const accountData = response[account.accountId];
-        const componentsData =
-          (accountData ?? {})[SOCIAL_COMPONENT_NAMESPACE] ?? {};
-
-        Object.entries(componentsData).forEach(([componentName, component]) => {
-          if (component) {
-            const filePathTsx = convertComponentNameToFilePath(
-              componentName,
-              'tsx'
-            );
-
-            publishedFiles[filePathTsx] = {
-              css: component.css ?? '',
-              source: component[''] ?? '',
-            };
-          }
-        });
-
-        setPublishedFiles(publishedFiles);
+        const files = await fetchPublishedFiles(social, account.accountId);
+        setPublishedFiles(files);
       } catch (error) {
         console.error(
           'Failed to fetch published components for current account',
@@ -61,6 +29,6 @@ export function usePublishedFilesSync() {
       }
     };
 
-    fetchPublishedFiles();
+    fetchFilesForCurrentAccount();
   }, [account, hasResolved, mode, setPublishedFiles, social]);
 }

@@ -29,7 +29,12 @@ type SandboxStore = {
   pinnedPreviewFilePath: string | undefined;
   publishedFiles: SandboxFiles;
 
-  addNewFile: () => void;
+  addNewFile: (
+    options?: Partial<{
+      file: Partial<SandboxFile>;
+      shouldFocusRenameInput: boolean;
+    }>
+  ) => void;
   removeFile: (path: string) => void;
   resetAllFiles: () => void;
   setActiveFile: (
@@ -51,7 +56,7 @@ export const useSandboxStore = create<SandboxStore>()(
   persist(
     (set, get) => ({
       activeFileChildSourceType: undefined,
-      activeFilePath: Object.keys(DEFAULT_FILES).shift(),
+      activeFilePath: undefined,
       containerElement: undefined,
       editingFileNamePath: undefined,
       expandedEditPanel: undefined,
@@ -61,12 +66,15 @@ export const useSandboxStore = create<SandboxStore>()(
       pinnedPreviewFilePath: undefined,
       publishedFiles: {},
 
-      addNewFile: () => {
+      addNewFile: ({ file, shouldFocusRenameInput = true } = {}) => {
         const state = get();
         const path = returnUniqueFilePath(state.files, 'Untitled', 'tsx');
-        state.setFile(path, NEW_COMPONENT_TEMPLATE);
+        state.setFile(path, { ...NEW_COMPONENT_TEMPLATE, ...file });
         state.setActiveFile(path);
-        state.setEditingFileName(path);
+
+        if (shouldFocusRenameInput) {
+          state.setEditingFileName(path);
+        }
       },
 
       removeFile: (path) =>
@@ -74,12 +82,8 @@ export const useSandboxStore = create<SandboxStore>()(
           const files = { ...state.files };
           delete files[path];
 
-          const firstFilePath = Object.keys(files)[0];
-
           const activeFilePath =
-            state.activeFilePath === path
-              ? firstFilePath
-              : state.activeFilePath;
+            state.activeFilePath === path ? undefined : state.activeFilePath;
 
           const pinnedPreviewFilePath =
             state.pinnedPreviewFilePath === path

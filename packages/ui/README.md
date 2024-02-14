@@ -4,7 +4,7 @@ This package provides basic UI components to provide a consistent look and feel 
 
 ## Usage
 
-When using any of the UI components provided by this library, make sure they are wrapped by the `<ThemeProvider>` component. If they aren't wrapped, they won't have access to the correct CSS theme variables to render correctly.
+When using any of the UI components provided by this library (or rendering BOS components as a gateway), make sure they are wrapped by the `<ThemeProvider>` component. If they aren't wrapped, they won't have access to the correct CSS theme variables to render correctly.
 
 First, include the package's styles and `<ThemeProvider />` wrapper inside the root of your application. For Next JS, this would be your `_app.tsx` file:
 
@@ -16,8 +16,6 @@ import type { AppProps } from 'next/app';
 import { ThemeProvider } from '@bos-web-engine/ui';
 
 export default function App({ Component, pageProps }: AppProps) {
-  const { walletSelector, walletSelectorModal } = useWallet();
-
   return (
     <ThemeProvider defaultTheme="light">
       <header>...</header>

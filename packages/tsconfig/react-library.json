@@ -4,9 +4,9 @@
   "extends": "./base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": ["DOM", "ESNext"],
+    "lib": ["DOM", "ES2022"],
     "module": "ESNext",
-    "target": "es6"
+    "target": "ES2022"
   },
   "watchOptions": {
     "watchFile": "useFsEvents",
