@@ -232,7 +232,7 @@ function Root({ setIsOpen }: Props) {
           role="combobox"
           aria-controls="file-opener-list"
           loading={isLoading}
-          placeholder="Search published components by path..."
+          placeholder="Search components by path..."
           value={searchPath}
           autoComplete="off"
           autoCorrect="off"

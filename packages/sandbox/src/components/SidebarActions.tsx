@@ -59,7 +59,7 @@ export function SidebarActions({ showFileOpener }: Props) {
         {mode === 'EDIT' && (
           <>
             <Tooltip
-              content="Create new component"
+              content="Create a new component"
               side="right"
               container={containerElement}
             >
