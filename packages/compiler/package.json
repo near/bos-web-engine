@@ -12,7 +12,8 @@
   "dependencies": {
     "@babel/standalone": "^7.22.14",
     "@bos-web-engine/common": "workspace:*",
-    "@bos-web-engine/social-db-api": "workspace:*"
+    "@bos-web-engine/social-db-api": "workspace:*",
+    "idb": "^8.0.0"
   },
   "devDependencies": {
     "@near-js/types": "^0.0.4",

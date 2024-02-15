@@ -8,6 +8,7 @@ export const MAINNET_RPC_URL = 'https://rpc.mainnet.near.org';
 
 export const SOCIAL_COMPONENT_NAMESPACE = 'widget';
 export const SOCIAL_IPFS_BASE_URL = 'https://ipfs.near.social/ipfs';
+export const BLOCK_HEIGHT_KEY = ':block';
 
 // The following gas, storage, and size values were copied from NearSocial/VM:
 export const ONE_TGAS = Big(10).pow(12);

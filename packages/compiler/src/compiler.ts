@@ -2,10 +2,11 @@ import { BOSModule, TrustMode } from '@bos-web-engine/common';
 import { SocialDb } from '@bos-web-engine/social-db-api';
 
 import {
-  buildComponentSource,
   buildComponentFunctionName,
+  buildComponentSource,
   isChildComponentTrusted,
 } from './component';
+import { addComponentToCache, initializeDB, retrieveComponentFromCache } from './idb';
 import { buildModuleImports, buildModulePackageUrl } from './import';
 import { ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
@@ -64,7 +65,7 @@ export class ComponentCompiler {
       (componentPath) => !this.bosSourceCache.has(componentPath)
     );
     if (unfetchedPaths.length > 0) {
-      const pathsFetch = fetchComponentSources(this.social, unfetchedPaths);
+      const pathsFetch = fetchComponentSources(this.social, unfetchedPaths, { withBlockHeight: true });
       unfetchedPaths.forEach((componentPath) => {
         this.bosSourceCache.set(
           componentPath,
@@ -220,11 +221,11 @@ export class ComponentCompiler {
             trustedRoot?.trustMode === TrustMode.Sandboxed
               ? undefined
               : () => {
-                  if (childTrustedRoot?.trustMode === TrustMode.TrustAuthor) {
-                    return !!childTrustedRoot?.matchesRootAuthor(path);
-                  }
-                  return false;
-                },
+                if (childTrustedRoot?.trustMode === TrustMode.TrustAuthor) {
+                  return !!childTrustedRoot?.matchesRootAuthor(path);
+                }
+                return false;
+              },
         });
       })
     );
@@ -255,86 +256,103 @@ export class ComponentCompiler {
       throw new Error(`Component not found at ${componentPath}`);
     }
 
-    // recursively parse the Component tree for child Components
-    const transformedComponents = await this.parseComponentTree({
-      componentPath,
-      componentSource: moduleEntry.component,
-      componentStyles: moduleEntry.css,
-      components: new Map<string, ComponentTreeNode>(),
-      isRoot: true,
-    });
+    const componentCacheKey = `${componentPath}@${moduleEntry?.blockHeight}`;
+    const db = await initializeDB();
+    const retrievedData = await retrieveComponentFromCache(db, componentCacheKey);
+    if (retrievedData) {
+      this.sendWorkerMessage({
+        componentId,
+        componentSource: retrievedData.componentSource,
+        containerStyles: retrievedData.containerStyles,
+        rawSource: moduleEntry.component,
+        componentPath,
+        importedModules: retrievedData.importedModules,
+      });
+    } else {
+      // recursively parse the Component tree for child Components
+      const transformedComponents = await this.parseComponentTree({
+        componentPath,
+        componentSource: moduleEntry.component,
+        componentStyles: moduleEntry.css,
+        components: new Map<string, ComponentTreeNode>(),
+        isRoot: true,
+      });
 
-    const aggregatedStyles = [...transformedComponents.entries()].reduce(
-      (styleSheet, [path, { css }], i) => {
-        if (!css) {
-          return styleSheet;
-        }
+      const aggregatedStyles = [...transformedComponents.entries()].reduce(
+        (styleSheet, [path, { css }], i) => {
+          if (!css) {
+            return styleSheet;
+          }
 
-        // don't specify a selector the root Component CSS
-        // it will be under the container's id in the aggregated CSS
-        if (i === 0) {
-          return css;
-        }
+          // don't specify a selector the root Component CSS
+          // it will be under the container's id in the aggregated CSS
+          if (i === 0) {
+            return css;
+          }
 
-        return `
+          return `
 ${styleSheet}
 
 [data-component-src="${path}"] {
   ${css}
 }
 `;
-      },
-      ''
-    );
+        },
+        ''
+      );
 
-    const containerModuleImports = [...transformedComponents.values()]
-      .map(({ imports }) => imports)
-      .flat();
+      const containerModuleImports = [...transformedComponents.values()]
+        .map(({ imports }) => imports)
+        .flat();
 
-    // build the import map used by the container
-    const importedModules = containerModuleImports.reduce(
-      (importMap, { moduleName, modulePath }) => {
-        const importMapEntries = buildModulePackageUrl(
-          moduleName,
-          modulePath,
-          this.preactVersion!
-        );
+      // build the import map used by the container
+      const importedModules = containerModuleImports.reduce(
+        (importMap, { moduleName, modulePath }) => {
+          const importMapEntries = buildModulePackageUrl(
+            moduleName,
+            modulePath,
+            this.preactVersion!
+          );
 
-        if (!importMapEntries) {
+          if (!importMapEntries) {
+            return importMap;
+          }
+
+          const moduleEntry = importMap.get(moduleName);
+          if (moduleEntry) {
+            return importMap;
+          }
+
+          importMap.set(importMapEntries.moduleName, importMapEntries.url);
           return importMap;
-        }
+        },
+        new Map<string, string>()
+      );
 
-        const moduleEntry = importMap.get(moduleName);
-        if (moduleEntry) {
-          return importMap;
-        }
+      const componentSource = [
+        ...buildModuleImports(containerModuleImports),
+        ...[...transformedComponents.values()].map(
+          ({ transpiled }) => transpiled
+        ),
+      ].join('\n\n');
 
-        importMap.set(importMapEntries.moduleName, importMapEntries.url);
-        return importMap;
-      },
-      new Map<string, string>()
-    );
-
-    const componentSource = [
-      ...buildModuleImports(containerModuleImports),
-      ...[...transformedComponents.values()].map(
-        ({ transpiled }) => transpiled
-      ),
-    ].join('\n\n');
-
-    const containerStyles = `
+      const containerStyles = `
 #dom-${componentId.replace(/([\/.#])/g, '\\$1')} {
   ${aggregatedStyles}
 }`;
 
-    this.sendWorkerMessage({
-      componentId,
-      componentSource,
-      containerStyles,
-      rawSource: moduleEntry.component,
-      componentPath,
-      importedModules,
-    });
+      await addComponentToCache(db, { key: componentCacheKey, componentSource, containerStyles, importedModules });
+
+
+      this.sendWorkerMessage({
+        componentId,
+        componentSource,
+        containerStyles,
+        rawSource: moduleEntry.component,
+        componentPath,
+        importedModules,
+      });
+    }
   }
 
   /**

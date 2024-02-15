@@ -318,6 +318,9 @@ importers:
       '@bos-web-engine/social-db-api':
         specifier: workspace:*
         version: link:../social-db-api
+      idb:
+        specifier: ^8.0.0
+        version: 8.0.0
     devDependencies:
       '@near-js/types':
         specifier: ^0.0.4
@@ -3624,7 +3627,7 @@ packages:
     dependencies:
       bn.js: 5.2.1
       borsh: 0.7.0
-      near-api-js: 2.1.4
+      near-api-js: 2.1.4(encoding@0.1.13)
       sha1: 1.1.1
       uuid4: 2.0.3
     dev: false
@@ -3766,7 +3769,7 @@ packages:
     dependencies:
       borsh: 0.7.0
       nanoid: 3.3.6
-      near-api-js: 2.1.4
+      near-api-js: 2.1.4(encoding@0.1.13)
       query-string: 7.1.3
     dev: false
 
@@ -3792,11 +3795,11 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@near-js/accounts@0.1.4:
+  /@near-js/accounts@0.1.4(encoding@0.1.13):
     resolution: {integrity: sha512-zHFmL4OUZ4qHXOE+dDBkYgTNHLWC5RmYUVp9LiuGciO5zFPp7WlxmowJL0QjgXqV1w+dNXq3mgmkfAgYVS8Xjw==}
     dependencies:
       '@near-js/crypto': 0.0.5
-      '@near-js/providers': 0.0.7
+      '@near-js/providers': 0.0.7(encoding@0.1.13)
       '@near-js/signers': 0.0.5
       '@near-js/transactions': 0.2.1
       '@near-js/types': 0.0.4
@@ -3839,21 +3842,6 @@ packages:
     dependencies:
       '@near-js/crypto': 0.0.5
       '@near-js/types': 0.0.4
-    dev: false
-
-  /@near-js/providers@0.0.7:
-    resolution: {integrity: sha512-qj16Ey+vSw7lHE85xW+ykYJoLPr4A6Q/TsfpwhJLS6zBInSC6sKVqPO1L8bK4VA/yB7V7JJPor9UVCWgRXdNEA==}
-    dependencies:
-      '@near-js/transactions': 0.2.1
-      '@near-js/types': 0.0.4
-      '@near-js/utils': 0.0.4
-      bn.js: 5.2.1
-      borsh: 0.7.0
-      http-errors: 1.8.1
-    optionalDependencies:
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - encoding
     dev: false
 
   /@near-js/providers@0.0.7(encoding@0.1.13):
@@ -3905,10 +3893,10 @@ packages:
       mustache: 4.2.0
     dev: false
 
-  /@near-js/wallet-account@0.0.7:
+  /@near-js/wallet-account@0.0.7(encoding@0.1.13):
     resolution: {integrity: sha512-tmRyieG/wHmuNkg/WGFyKD6iH6atHPbY0rZ5OjOIiteuhZEPgp+z8OBpiQ4qumTa63q46aj/QVSQL0J3+JmBfw==}
     dependencies:
-      '@near-js/accounts': 0.1.4
+      '@near-js/accounts': 0.1.4(encoding@0.1.13)
       '@near-js/crypto': 0.0.5
       '@near-js/keystores': 0.0.5
       '@near-js/signers': 0.0.5
@@ -3929,7 +3917,7 @@ packages:
       borsh: 0.7.0
       events: 3.3.0
       js-sha256: 0.9.0
-      near-api-js: 2.1.4
+      near-api-js: 2.1.4(encoding@0.1.13)
       rxjs: 7.8.1
     dev: false
 
@@ -3941,7 +3929,7 @@ packages:
       '@here-wallet/core': 1.5.1(bn.js@5.2.1)(borsh@0.7.0)(near-api-js@2.1.4)
       '@near-wallet-selector/core': 8.9.2(near-api-js@2.1.4)
       bn.js: 5.2.1
-      near-api-js: 2.1.4
+      near-api-js: 2.1.4(encoding@0.1.13)
     transitivePeerDependencies:
       - borsh
     dev: false
@@ -3953,7 +3941,7 @@ packages:
     dependencies:
       '@meteorwallet/sdk': 1.0.9(near-api-js@2.1.4)
       '@near-wallet-selector/core': 8.9.2(near-api-js@2.1.4)
-      near-api-js: 2.1.4
+      near-api-js: 2.1.4(encoding@0.1.13)
     dev: false
 
   /@near-wallet-selector/modal-ui@8.9.2(near-api-js@2.1.4):
@@ -3976,7 +3964,7 @@ packages:
       '@near-wallet-selector/core': 8.9.2(near-api-js@2.1.4)
       '@near-wallet-selector/wallet-utils': 8.9.2(near-api-js@2.1.4)
       is-mobile: 4.0.0
-      near-api-js: 2.1.4
+      near-api-js: 2.1.4(encoding@0.1.13)
     dev: false
 
   /@near-wallet-selector/sender@8.9.2(near-api-js@2.1.4):
@@ -3986,7 +3974,7 @@ packages:
     dependencies:
       '@near-wallet-selector/core': 8.9.2(near-api-js@2.1.4)
       is-mobile: 4.0.0
-      near-api-js: 2.1.4
+      near-api-js: 2.1.4(encoding@0.1.13)
     dev: false
 
   /@near-wallet-selector/wallet-utils@8.9.2(near-api-js@2.1.4):
@@ -3996,7 +3984,7 @@ packages:
     dependencies:
       '@near-wallet-selector/core': 8.9.2(near-api-js@2.1.4)
       bn.js: 5.2.1
-      near-api-js: 2.1.4
+      near-api-js: 2.1.4(encoding@0.1.13)
     dev: false
 
   /@next/env@13.5.6:
@@ -9095,6 +9083,10 @@ packages:
       postcss: 8.4.33
     dev: false
 
+  /idb@8.0.0:
+    resolution: {integrity: sha512-l//qvlAKGmQO31Qn7xdzagVPPaHTxXx199MhrAFuVBTPqydcPYBWjkrbv4Y0ktB+GmWOiwHl237UUOrLmQxLvw==}
+    dev: false
+
   /ignore@4.0.6:
     resolution: {integrity: sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==}
     engines: {node: '>= 4'}
@@ -10609,20 +10601,20 @@ packages:
       '@types/json-schema': 7.0.15
     dev: false
 
-  /near-api-js@2.1.4:
+  /near-api-js@2.1.4(encoding@0.1.13):
     resolution: {integrity: sha512-e1XicyvJvQMtu7qrG8oWyAdjHJJCoy+cvbW6h2Dky4yj7vC85omQz/x7IgKl71VhzDj2/TGUwjTVESp6NSe75A==}
     dependencies:
-      '@near-js/accounts': 0.1.4
+      '@near-js/accounts': 0.1.4(encoding@0.1.13)
       '@near-js/crypto': 0.0.5
       '@near-js/keystores': 0.0.5
       '@near-js/keystores-browser': 0.0.5
       '@near-js/keystores-node': 0.0.5
-      '@near-js/providers': 0.0.7
+      '@near-js/providers': 0.0.7(encoding@0.1.13)
       '@near-js/signers': 0.0.5
       '@near-js/transactions': 0.2.1
       '@near-js/types': 0.0.4
       '@near-js/utils': 0.0.4
-      '@near-js/wallet-account': 0.0.7
+      '@near-js/wallet-account': 0.0.7(encoding@0.1.13)
       ajv: 8.12.0
       ajv-formats: 2.1.1(ajv@8.12.0)
       bn.js: 5.2.1
@@ -10631,7 +10623,7 @@ packages:
       error-polyfill: 0.1.3
       http-errors: 1.8.1
       near-abi: 0.1.1
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       tweetnacl: 1.0.3
     transitivePeerDependencies:
       - encoding
@@ -10740,18 +10732,6 @@ packages:
       skin-tone: 2.0.0
     dev: false
 
-  /node-fetch@2.7.0:
-    resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-    dependencies:
-      whatwg-url: 5.0.0
-    dev: false
-
   /node-fetch@2.7.0(encoding@0.1.13):
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
     engines: {node: 4.x || >=6.0.0}
@@ -10765,7 +10745,6 @@ packages:
       encoding: 0.1.13
       whatwg-url: 5.0.0
     dev: false
-    optional: true
 
   /node-forge@1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
