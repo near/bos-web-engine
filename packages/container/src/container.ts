@@ -27,6 +27,12 @@ export function initContainer({
   const callbacks: { [key: string]: Function } = {};
   const requests: { [key: string]: CallbackRequest } = {};
 
+  const initExternalCallbackInvocation = () => {
+    const invocationId = window.crypto.randomUUID();
+    requests[invocationId] = buildRequest();
+    return { invocationId, invocation: requests[invocationId].promise };
+  };
+
   const {
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
@@ -35,12 +41,11 @@ export function initContainer({
 
   const { deserializeArgs, deserializeProps, serializeArgs, serializeNode } =
     composeSerializationMethods({
-      buildRequest,
       callbacks,
+      initExternalCallbackInvocation,
       isComponent: (c) => c === Component,
       parentContainerId,
       postCallbackInvocationMessage,
-      requests,
     });
 
   const { commit } = composeRenderMethods({
@@ -65,11 +70,11 @@ export function initContainer({
   };
 
   const processEvent = buildEventHandler({
-    buildRequest,
     callbacks,
     containerId: componentId,
     deserializeArgs,
     deserializeProps,
+    initExternalCallbackInvocation,
     invokeExternalContainerCallback,
     invokeInternalCallback,
     postCallbackInvocationMessage,

@@ -18,11 +18,11 @@ import type { ProcessEventParams } from './types';
  * @param updateProps Callback for setting the Component's props
  */
 export function buildEventHandler({
-  buildRequest,
   callbacks,
   containerId,
   deserializeArgs,
   deserializeProps,
+  initExternalCallbackInvocation,
   invokeExternalContainerCallback,
   invokeInternalCallback,
   postCallbackInvocationMessage,
@@ -46,13 +46,12 @@ export function buildEventHandler({
       const deserializedArgs = deserializeArgs({ args, containerId });
       return invokeExternalContainerCallback({
         args: deserializedArgs,
-        buildRequest,
         callbacks,
         containerId,
+        initExternalCallbackInvocation,
         invokeInternalCallback,
         method,
         postCallbackInvocationMessage,
-        requests,
         serializeArgs,
       });
     }

@@ -32,20 +32,29 @@ export interface DeserializePropsParams {
 
 export type EventArgs = { event: any };
 
+export interface InvokeApplicationCallbackParams {
+  args: SerializedArgs;
+  method: string;
+}
+
 export interface InvokeInternalCallbackParams {
   args: SerializedArgs | EventArgs;
   callback: Function;
 }
 
+export interface ExternalCallbackInvocation {
+  invocationId: string;
+  invocation: Promise<any>;
+}
+
 export interface InvokeExternalContainerCallbackParams {
   args: SerializedArgs;
-  buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   containerId: string;
+  initExternalCallbackInvocation: () => ExternalCallbackInvocation;
   invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
   method: string;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
-  requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
 }
 
@@ -101,12 +110,11 @@ export type ComposeRenderMethodsCallback = (
 };
 
 export interface ComposeSerializationMethodsParams {
-  buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
+  initExternalCallbackInvocation: () => ExternalCallbackInvocation;
   isComponent: (component: Function) => boolean;
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
-  requests: RequestMap;
 }
 
 export type ComposeSerializationMethodsCallback = (
@@ -127,11 +135,11 @@ export type ComposeMessagingMethodsCallback = () => {
 export type UpdateContainerPropsCallback = (props: Props) => void;
 
 export interface ProcessEventParams {
-  buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   containerId: string;
   deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
+  initExternalCallbackInvocation: () => ExternalCallbackInvocation;
   invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
   invokeExternalContainerCallback: (
     args: InvokeExternalContainerCallbackParams

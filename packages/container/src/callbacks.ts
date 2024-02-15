@@ -30,24 +30,22 @@ export function invokeInternalCallback({
 /**
  * Invoke a callback declared within a Component
  * @param args The arguments to the invoked callback
- * @param buildRequest Function to build an inter-Component asynchronous callback request
  * @param callbacks The set of callbacks defined on the target Component
- * @param componentId ID of the Component invoking the method
+ * @param containerId ID of the container invoking the method
+ * @param initExternalCallbackInvocation Function to initialize a callback invocation request
  * @param invokeInternalCallback Function to execute the specified function in the current Component's context
  * @param method The name of the callback to be invoked
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
- * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  */
 export function invokeExternalContainerCallback({
   args,
-  buildRequest,
   callbacks,
   containerId,
+  initExternalCallbackInvocation,
   invokeInternalCallback,
   method,
   postCallbackInvocationMessage,
-  requests,
   serializeArgs,
 }: InvokeExternalContainerCallbackParams): any {
   // unknown method
@@ -69,15 +67,14 @@ export function invokeExternalContainerCallback({
       }
 
       return (...childArgs: any[]) => {
-        const requestId = window.crypto.randomUUID();
-        requests[requestId] = buildRequest();
+        const { invocationId } = initExternalCallbackInvocation();
 
         postCallbackInvocationMessage({
           args: childArgs,
           callbacks,
           containerId,
           method: callbackIdentifier,
-          requestId,
+          requestId: invocationId,
           serializeArgs,
           targetId: callbackIdentifier.split('::').slice(1).join('::'),
         });
