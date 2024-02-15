@@ -16,8 +16,12 @@ export default function ComponentTree({
         id={getAppDomId(rootComponentPath)}
         className="container-child"
         data-component-src={rootComponentPath}
-      ></div>
-      <div className="iframes">
+      />
+
+      <div
+        className="iframes"
+        style={{ position: 'absolute', visibility: 'hidden' }}
+      >
         {Object.entries(components)
           .filter(([, component]) => !!component?.componentSource)
           .map(
