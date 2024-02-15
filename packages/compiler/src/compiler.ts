@@ -256,7 +256,7 @@ export class ComponentCompiler {
       throw new Error(`Component not found at ${componentPath}`);
     }
 
-    const componentCacheKey = `${componentPath}@${moduleEntry?.blockHeight}`;
+    const componentCacheKey = `${componentPath}@${moduleEntry.blockHeight}`;
     const db = await initializeDB();
     const retrievedData = await retrieveComponentFromCache(db, componentCacheKey);
     if (retrievedData) {
