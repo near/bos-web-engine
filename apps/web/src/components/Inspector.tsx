@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
@@ -12,7 +13,20 @@ export function Inspector() {
   // its own visibility
   const [show, setShow] = useState(false);
 
+  // accept query param to expand the inspector by default
+  const router = useRouter();
+  const { query } = router;
+  useEffect(() => {
+    if (router.isReady && query.showCode === 'true') {
+      setShow(true);
+    }
+  }, [router, router.isReady, query.showCode]);
+
   const componentSources = useComponentSourcesStore((state) => state.sources);
+  const sortedSources = useMemo(
+    () => Object.keys(componentSources).sort(),
+    [componentSources]
+  );
 
   // path of selected component, will need to be modified once we support version locking
   // since it will be possible to have multiple versions of the same component
@@ -24,6 +38,12 @@ export function Inspector() {
       HTMLPreElement
     >
   ) => <pre {...preProps} ref={preRef} />;
+
+  useEffect(() => {
+    if (!selectedComponent && sortedSources.length > 0) {
+      setSelectedComponent(sortedSources[0]);
+    }
+  }, [sortedSources, selectedComponent]);
 
   if (!show) {
     return (
@@ -42,23 +62,21 @@ export function Inspector() {
   return (
     <div className={s.panel}>
       <div className={s.componentList}>
-        {Object.keys(componentSources)
-          .sort()
-          .map((path) => {
-            return (
-              <button
-                type="button"
-                className={s.button}
-                key={path}
-                onClick={() => {
-                  setSelectedComponent(path);
-                }}
-                data-selected={selectedComponent === path}
-              >
-                {path}
-              </button>
-            );
-          })}
+        {sortedSources.map((path) => {
+          return (
+            <button
+              type="button"
+              className={s.button}
+              key={path}
+              onClick={() => {
+                setSelectedComponent(path);
+              }}
+              data-selected={selectedComponent === path}
+            >
+              {path}
+            </button>
+          );
+        })}
       </div>
 
       <div

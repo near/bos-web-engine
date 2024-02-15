@@ -71,6 +71,11 @@ export function BWEComponent() {
               <li>
                 <a href={buildUrl('bwe-demos.near/Posts.Feed')}>Social Feed</a>
               </li>
+              <li>
+                <a href={buildUrl('bwe-demos.near/NPM.Tracker')}>
+                  NPM Compatability Tracker
+                </a>
+              </li>
             </ul>
           </div>
         </div>
