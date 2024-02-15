@@ -47,7 +47,7 @@ export interface ExternalCallbackInvocation {
   invocation: Promise<any>;
 }
 
-export interface InvokeExternalContainerCallbackParams {
+export interface InvokeExternalCallbackParams {
   args: SerializedArgs;
   callbacks: CallbackMap;
   containerId: string;
@@ -69,7 +69,7 @@ export interface PostMessageComponentCallbackInvocationParams {
   method: string;
   requestId: string;
   serializeArgs: SerializeArgsCallback;
-  targetId: string;
+  targetId: string | null;
 }
 
 export type PostMessageComponentResponseCallback = (
@@ -141,9 +141,7 @@ export interface ProcessEventParams {
   deserializeProps: DeserializePropsCallback;
   initExternalCallbackInvocation: () => ExternalCallbackInvocation;
   invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
-  invokeExternalContainerCallback: (
-    args: InvokeExternalContainerCallbackParams
-  ) => any;
+  invokeExternalContainerCallback: (args: InvokeExternalCallbackParams) => any;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   requests: RequestMap;
@@ -161,9 +159,10 @@ export interface InitContainerParams {
     composeRenderMethods: ComposeRenderMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
+    invokeApplicationCallback: (args: InvokeExternalCallbackParams) => any;
     invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
     invokeExternalContainerCallback: (
-      args: InvokeExternalContainerCallbackParams
+      args: InvokeExternalCallbackParams
     ) => any;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;

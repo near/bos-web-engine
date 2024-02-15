@@ -19,7 +19,7 @@ export function onCallbackInvocation({
   */
   const { args, method, originator, requestId, targetId } = data;
   sendMessage({
-    componentId: targetId,
+    componentId: targetId!,
     message: {
       args,
       method,

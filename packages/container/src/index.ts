@@ -1,4 +1,5 @@
 export {
+  invokeApplicationCallback,
   invokeExternalContainerCallback,
   invokeInternalCallback,
 } from './callbacks';

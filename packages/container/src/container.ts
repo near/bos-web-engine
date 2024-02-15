@@ -1,4 +1,4 @@
-import type { Props } from '@bos-web-engine/common';
+import type { Props, SerializedArgs } from '@bos-web-engine/common';
 
 import type { CallbackRequest, InitContainerParams } from './types';
 
@@ -10,6 +10,7 @@ export function initContainer({
     composeMessagingMethods,
     composeRenderMethods,
     composeSerializationMethods,
+    invokeApplicationCallback,
     invokeExternalContainerCallback,
     invokeInternalCallback,
   },

@@ -1,5 +1,5 @@
 import type {
-  InvokeExternalContainerCallbackParams,
+  InvokeExternalCallbackParams,
   InvokeInternalCallbackParams,
 } from './types';
 
@@ -47,7 +47,7 @@ export function invokeExternalContainerCallback({
   method,
   postCallbackInvocationMessage,
   serializeArgs,
-}: InvokeExternalContainerCallbackParams): any {
+}: InvokeExternalCallbackParams): any {
   // unknown method
   if (!callbacks[method]) {
     console.error(`No method ${method} on container ${containerId}`);
@@ -83,4 +83,38 @@ export function invokeExternalContainerCallback({
   }
 
   return invokeInternalCallback({ args, callback: callbacks[method] });
+}
+
+/**
+ * Invoke a method on the outer window application
+ * @param args The arguments to the invoked callback
+ * @param callbacks The set of callbacks defined on the target Component
+ * @param containerId ID of the container invoking the method
+ * @param initExternalCallbackInvocation Function to initialize a callback invocation request
+ * @param invokeInternalCallback Function to execute the specified function in the current Component's context
+ * @param method The name of the callback to be invoked
+ * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
+ * @param serializeArgs Function to serialize arguments passed to window.postMessage
+ */
+export function invokeApplicationCallback({
+  args,
+  callbacks,
+  containerId,
+  initExternalCallbackInvocation,
+  method,
+  postCallbackInvocationMessage,
+  serializeArgs,
+}: InvokeExternalCallbackParams): Promise<any> {
+  const { invocation, invocationId } = initExternalCallbackInvocation();
+  postCallbackInvocationMessage({
+    args,
+    callbacks,
+    containerId,
+    method,
+    requestId: invocationId,
+    serializeArgs,
+    targetId: null,
+  });
+
+  return invocation;
 }

@@ -1,6 +1,7 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
 import {
   buildEventHandler,
+  invokeApplicationCallback,
   invokeExternalContainerCallback,
   invokeInternalCallback,
   buildRequest,
@@ -65,6 +66,7 @@ ${scriptSrc}
                 composeMessagingMethods: ${composeMessagingMethods.toString()},
                 composeRenderMethods: ${composeRenderMethods.toString()},
                 composeSerializationMethods: ${composeSerializationMethods.toString()},
+                invokeApplicationCallback: ${invokeApplicationCallback.toString()},
                 invokeExternalContainerCallback: ${invokeExternalContainerCallback.toString()},
                 invokeInternalCallback: ${invokeInternalCallback.toString()},
               },
