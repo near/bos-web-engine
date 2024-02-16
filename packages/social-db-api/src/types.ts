@@ -29,26 +29,27 @@ interface SocialGetOptions {
   return_deleted?: boolean;
 }
 
-export type SocialGetParams = (
-  | {
+export type SocialGetParams = {
+  options?: SocialGetOptions;
+} & (
+    | {
       key: string;
       keys?: never;
     }
-  | {
+    | {
       key?: never;
       keys: string[];
-      options?: SocialGetOptions;
     }
-) &
+  ) &
   (
     | {
-        blockId?: never;
-        finality?: Finality;
-      }
+      blockId?: never;
+      finality?: Finality;
+    }
     | {
-        blockId: BlockId;
-        finality?: never;
-      }
+      blockId: BlockId;
+      finality?: never;
+    }
   );
 
 export type SocialSetParams = {

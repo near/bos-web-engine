@@ -65,7 +65,7 @@ export class ComponentCompiler {
       (componentPath) => !this.bosSourceCache.has(componentPath)
     );
     if (unfetchedPaths.length > 0) {
-      const pathsFetch = fetchComponentSources(this.social, unfetchedPaths, { withBlockHeight: true });
+      const pathsFetch = fetchComponentSources(this.social, unfetchedPaths);
       unfetchedPaths.forEach((componentPath) => {
         this.bosSourceCache.set(
           componentPath,

@@ -68,7 +68,7 @@ function prepareSourceWithBlockHeight(response: SocialComponentsByAuthorWithBloc
 export async function fetchComponentSources(
   social: SocialDb,
   componentPaths: string[],
-  options?: { withBlockHeight?: boolean }
+  options = { withBlockHeight: true }
 ): Promise<Record<string, BOSModule>> {
   /*
     Typically, you'd want to pass a generic to `social.get<MyType>()`. This generic

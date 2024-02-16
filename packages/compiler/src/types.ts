@@ -94,11 +94,11 @@ export interface ImportExpression {
   reference?: string;
 }
 
-interface IWithBlock {
+interface WithBlockHeight {
   [BLOCK_HEIGHT_KEY]: number;
 }
 
-interface ISourceWithBlockHeight extends IWithBlock {
+interface SourceWithBlockHeight extends WithBlockHeight {
   "": string;
 }
 
@@ -107,9 +107,9 @@ export interface ComponentEntry {
   css: string;
 }
 
-export interface ComponentEntryWithBlockHeight extends IWithBlock {
-  "": ISourceWithBlockHeight,
-  css: ISourceWithBlockHeight;
+export interface ComponentEntryWithBlockHeight extends WithBlockHeight {
+  "": SourceWithBlockHeight,
+  css: SourceWithBlockHeight;
 }
 
 interface SocialWidget {
@@ -124,7 +124,7 @@ interface SocialComponent {
   widget: SocialWidget;
 }
 
-export interface SocialComponentWithBlockHeight extends IWithBlock, SocialWidgetWithBlockHeight { }
+export interface SocialComponentWithBlockHeight extends WithBlockHeight, SocialWidgetWithBlockHeight { }
 
 export interface SocialComponentsByAuthor {
   [author: string]: SocialComponent
@@ -137,7 +137,8 @@ export interface SocialComponentsByAuthorWithBlockHeight {
 export type ComponentSourcesResponse = { [key: string]: BOSModule }
 
 export interface ComponentCacheRecord {
-  key: string; // component path + block height
+  /* <componentPath>@<blockHeight> */
+  key: string; 
   componentSource: string;
   containerStyles: string;
   importedModules: Map<string, string>;

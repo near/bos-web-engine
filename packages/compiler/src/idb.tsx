@@ -2,7 +2,7 @@ import { openDB, DBSchema, IDBPDatabase } from 'idb';
 
 import { ComponentCacheRecord } from './types';
 
-const BOS_INDEX_DB = 'bosIndexDB';
+const BOS_INDEX_DB = 'bosIndexedDB';
 const BOS_INDEX_DB_VERSION = 1;
 const COMPONENTS_CACHE_STORE_NAME = 'componentsCache'
 
