@@ -1,6 +1,7 @@
 import type {
   ComponentChildMetadata,
   ComponentTrust,
+  ExternalCallbackInvocation,
   Props,
   SerializedArgs,
   SerializedNode,
@@ -32,26 +33,16 @@ export interface DeserializePropsParams {
 
 export type EventArgs = { event: any };
 
-export interface InvokeApplicationCallbackParams {
-  args: SerializedArgs;
-  method: string;
-}
-
 export interface InvokeInternalCallbackParams {
   args: SerializedArgs | EventArgs;
   callback: Function;
-}
-
-export interface ExternalCallbackInvocation {
-  invocationId: string;
-  invocation: Promise<any>;
 }
 
 export interface InvokeExternalCallbackParams {
   args: SerializedArgs;
   callbacks: CallbackMap;
   containerId: string;
-  initExternalCallbackInvocation: () => ExternalCallbackInvocation;
+  initExternalCallbackInvocation<T>(): ExternalCallbackInvocation<T>;
   invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
   method: string;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
@@ -111,7 +102,7 @@ export type ComposeRenderMethodsCallback = (
 
 export interface ComposeSerializationMethodsParams {
   callbacks: CallbackMap;
-  initExternalCallbackInvocation: () => ExternalCallbackInvocation;
+  initExternalCallbackInvocation<T>(): ExternalCallbackInvocation<T>;
   isComponent: (component: Function) => boolean;
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
@@ -139,7 +130,7 @@ export interface ProcessEventParams {
   containerId: string;
   deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
-  initExternalCallbackInvocation: () => ExternalCallbackInvocation;
+  initExternalCallbackInvocation<T>(): ExternalCallbackInvocation<T>;
   invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
   invokeExternalContainerCallback: (args: InvokeExternalCallbackParams) => any;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;

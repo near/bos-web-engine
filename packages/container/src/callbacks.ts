@@ -96,7 +96,7 @@ export function invokeExternalContainerCallback({
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  */
-export function invokeApplicationCallback({
+export function invokeApplicationCallback<T>({
   args,
   callbacks,
   containerId,
@@ -104,8 +104,8 @@ export function invokeApplicationCallback({
   method,
   postCallbackInvocationMessage,
   serializeArgs,
-}: InvokeExternalCallbackParams): Promise<any> {
-  const { invocation, invocationId } = initExternalCallbackInvocation();
+}: InvokeExternalCallbackParams): Promise<T> {
+  const { invocation, invocationId } = initExternalCallbackInvocation<T>();
   postCallbackInvocationMessage({
     args,
     callbacks,
