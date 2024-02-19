@@ -32,24 +32,24 @@ interface SocialGetOptions {
 export type SocialGetParams = {
   options?: SocialGetOptions;
 } & (
-    | {
+  | {
       key: string;
       keys?: never;
     }
-    | {
+  | {
       key?: never;
       keys: string[];
     }
-  ) &
+) &
   (
     | {
-      blockId?: never;
-      finality?: Finality;
-    }
+        blockId?: never;
+        finality?: Finality;
+      }
     | {
-      blockId: BlockId;
-      finality?: never;
-    }
+        blockId: BlockId;
+        finality?: never;
+      }
   );
 
 export type SocialSetParams = {

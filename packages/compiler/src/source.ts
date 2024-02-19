@@ -15,8 +15,9 @@ import {
   SocialWidgetWithBlockHeight,
 } from './types';
 
-
-function prepareSource(response: SocialComponentsByAuthor): { [key: string]: BOSModule } {
+function prepareSource(response: SocialComponentsByAuthor): {
+  [key: string]: BOSModule;
+} {
   return Object.entries(response).reduce(
     (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
       Object.entries(componentEntry).forEach(([componentName, component]) => {
@@ -36,33 +37,51 @@ function prepareSource(response: SocialComponentsByAuthor): { [key: string]: BOS
   );
 }
 
-function isNotABlockEntry<T>(entryKey: string, entryValue: any): entryValue is T {
+function isNotABlockEntry<T>(
+  entryKey: string,
+  entryValue: any
+): entryValue is T {
   return typeof entryValue !== 'number' && entryKey !== BLOCK_HEIGHT_KEY;
 }
 
-function prepareSourceWithBlockHeight(response: SocialComponentsByAuthorWithBlockHeight) {
-  return Object.entries(response).reduce(
-    (sources, [entryKey, entryValue]) => {
-      if (isNotABlockEntry<SocialComponentWithBlockHeight>(entryKey, entryValue)) {
-        const { [SOCIAL_COMPONENT_NAMESPACE]: component, [BLOCK_HEIGHT_KEY]: componentBlockHeight } = entryValue;
+function prepareSourceWithBlockHeight(
+  response: SocialComponentsByAuthorWithBlockHeight
+) {
+  return Object.entries(response).reduce((sources, [entryKey, entryValue]) => {
+    if (
+      isNotABlockEntry<SocialComponentWithBlockHeight>(entryKey, entryValue)
+    ) {
+      const {
+        [SOCIAL_COMPONENT_NAMESPACE]: component,
+        [BLOCK_HEIGHT_KEY]: componentBlockHeight,
+      } = entryValue;
 
-        if (isNotABlockEntry<SocialWidgetWithBlockHeight>(SOCIAL_COMPONENT_NAMESPACE, component)) {
-
-          Object.entries(component).forEach(([componentKey, componentValue]) => {
-
-            if (isNotABlockEntry<ComponentEntryWithBlockHeight>(componentKey, componentValue)) {
-              const sourceKey = `${entryKey}/${componentKey}`;
-              sources[sourceKey] = { component: componentValue[""][""], css: componentValue.css[""], blockHeight: componentBlockHeight };
-            }
-
-          });
-        }
+      if (
+        isNotABlockEntry<SocialWidgetWithBlockHeight>(
+          SOCIAL_COMPONENT_NAMESPACE,
+          component
+        )
+      ) {
+        Object.entries(component).forEach(([componentKey, componentValue]) => {
+          if (
+            isNotABlockEntry<ComponentEntryWithBlockHeight>(
+              componentKey,
+              componentValue
+            )
+          ) {
+            const sourceKey = `${entryKey}/${componentKey}`;
+            sources[sourceKey] = {
+              component: componentValue[''][''],
+              css: componentValue.css[''],
+              blockHeight: componentBlockHeight,
+            };
+          }
+        });
       }
+    }
 
-      return sources;
-    },
-    {} as ComponentSourcesResponse
-  );
+    return sources;
+  }, {} as ComponentSourcesResponse);
 }
 
 export async function fetchComponentSources(
@@ -94,12 +113,16 @@ export async function fetchComponentSources(
 
     socialGetParams.options = optionsWithBlockHeight;
 
-    const response = (await social.get(socialGetParams)) as SocialComponentsByAuthorWithBlockHeight;
+    const response = (await social.get(
+      socialGetParams
+    )) as SocialComponentsByAuthorWithBlockHeight;
 
     return prepareSourceWithBlockHeight(response);
   }
 
-  const response = (await social.get(socialGetParams)) as SocialComponentsByAuthor;
+  const response = (await social.get(
+    socialGetParams
+  )) as SocialComponentsByAuthor;
 
   return prepareSource(response);
 }

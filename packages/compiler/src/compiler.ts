@@ -6,7 +6,11 @@ import {
   buildComponentSource,
   isChildComponentTrusted,
 } from './component';
-import { addComponentToCache, initializeDB, retrieveComponentFromCache } from './idb';
+import {
+  addComponentToCache,
+  initializeDB,
+  retrieveComponentFromCache,
+} from './idb';
 import { buildModuleImports, buildModulePackageUrl } from './import';
 import { ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
@@ -221,11 +225,11 @@ export class ComponentCompiler {
             trustedRoot?.trustMode === TrustMode.Sandboxed
               ? undefined
               : () => {
-                if (childTrustedRoot?.trustMode === TrustMode.TrustAuthor) {
-                  return !!childTrustedRoot?.matchesRootAuthor(path);
-                }
-                return false;
-              },
+                  if (childTrustedRoot?.trustMode === TrustMode.TrustAuthor) {
+                    return !!childTrustedRoot?.matchesRootAuthor(path);
+                  }
+                  return false;
+                },
         });
       })
     );
@@ -258,7 +262,10 @@ export class ComponentCompiler {
 
     const componentCacheKey = `${componentPath}@${moduleEntry.blockHeight}`;
     const db = await initializeDB();
-    const retrievedData = await retrieveComponentFromCache(db, componentCacheKey);
+    const retrievedData = await retrieveComponentFromCache(
+      db,
+      componentCacheKey
+    );
     if (retrievedData) {
       this.sendWorkerMessage({
         componentId,
@@ -341,8 +348,12 @@ ${styleSheet}
   ${aggregatedStyles}
 }`;
 
-      await addComponentToCache(db, { key: componentCacheKey, componentSource, containerStyles, importedModules });
-
+      await addComponentToCache(db, {
+        key: componentCacheKey,
+        componentSource,
+        containerStyles,
+        importedModules,
+      });
 
       this.sendWorkerMessage({
         componentId,
