@@ -137,7 +137,6 @@ export interface SocialComponentsByAuthorWithBlockHeight {
 export type ComponentSourcesResponse = { [key: string]: BOSModule };
 
 export interface ComponentCacheRecord {
-  /* <componentPath>@<blockHeight> */
   key: string;
   componentSource: string;
   containerStyles: string;

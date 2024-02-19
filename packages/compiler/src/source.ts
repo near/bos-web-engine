@@ -107,11 +107,11 @@ export async function fetchComponentSources(
   };
 
   if (options?.withBlockHeight) {
-    const optionsWithBlockHeight = {
+    const socialOptions = {
       with_block_height: true,
     };
 
-    socialGetParams.options = optionsWithBlockHeight;
+    socialGetParams.options = socialOptions;
 
     const response = (await social.get(
       socialGetParams
