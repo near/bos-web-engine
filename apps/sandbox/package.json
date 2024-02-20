@@ -18,6 +18,7 @@
     "@near-wallet-selector/here-wallet": "^8.9.2",
     "@near-wallet-selector/meteor-wallet": "^8.9.2",
     "@near-wallet-selector/modal-ui": "^8.9.2",
+    "@near-wallet-selector/my-near-wallet": "^8.9.5",
     "@near-wallet-selector/nightly": "^8.9.2",
     "@near-wallet-selector/sender": "^8.9.2",
     "next": "14.0.4",

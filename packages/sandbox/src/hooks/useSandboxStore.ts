@@ -174,6 +174,7 @@ export const useSandboxStore = create<SandboxStore>()(
         activeFileChildSourceType,
         expandedEditPanel,
         files,
+        mode,
         pinnedPreviewFilePath,
       }) {
         return {
@@ -181,6 +182,7 @@ export const useSandboxStore = create<SandboxStore>()(
           activeFileChildSourceType,
           expandedEditPanel,
           files,
+          mode,
           pinnedPreviewFilePath,
         };
       },
