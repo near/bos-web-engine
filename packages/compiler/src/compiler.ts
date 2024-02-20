@@ -2,14 +2,14 @@ import { BOSModule, TrustMode } from '@bos-web-engine/common';
 import { SocialDb } from '@bos-web-engine/social-db-api';
 
 import {
+  cacheComponentTreeDetails,
+  retrieveComponentTreeDetailFromCache,
+} from './cache';
+import {
   buildComponentFunctionName,
   buildComponentSource,
   isChildComponentTrusted,
 } from './component';
-import {
-  cacheComponentTreeDetails,
-  retrieveComponentTreeDetailFromCache,
-} from './idb';
 import { buildModuleImports, buildModulePackageUrl } from './import';
 import { ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
