@@ -8,7 +8,6 @@ import {
 } from './component';
 import {
   cacheComponentTreeDetails,
-  initializeDB,
   retrieveComponentTreeDetailFromCache,
 } from './idb';
 import { buildModuleImports, buildModulePackageUrl } from './import';
@@ -28,6 +27,7 @@ import { TrustedRoot } from './types';
 
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<BOSModule | null>>;
+  private localComponents: Map<string, boolean>;
   private compiledSourceCache: Map<string, string | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
   private hasFetchedLocal: boolean = false;
@@ -37,6 +37,7 @@ export class ComponentCompiler {
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<BOSModule>>();
+    this.localComponents = new Map<string, boolean>();
     this.compiledSourceCache = new Map<string, string>();
     this.sendWorkerMessage = sendMessage;
     this.social = new SocialDb({
@@ -50,10 +51,12 @@ export class ComponentCompiler {
     this.preactVersion = preactVersion;
 
     this.bosSourceCache.clear();
+    this.localComponents.clear();
     this.compiledSourceCache.clear();
 
     Object.entries(localComponents || {}).forEach(([path, component]) => {
       this.bosSourceCache.set(path, Promise.resolve(component));
+      this.localComponents.set(path, true);
     });
   }
 
@@ -260,23 +263,23 @@ export class ComponentCompiler {
       throw new Error(`Component not found at ${componentPath}`);
     }
 
+    const isLocalComponent = this.localComponents.get(componentPath);
     const componentCacheKey = `${componentPath}@${moduleEntry.blockHeight}`;
-    const db = await initializeDB();
-    const retrievedData = await retrieveComponentTreeDetailFromCache(
-      db,
-      componentCacheKey
-    );
-    if (retrievedData) {
-      this.sendWorkerMessage({
-        componentId,
-        componentSource: retrievedData.componentSource,
-        containerStyles: retrievedData.containerStyles,
-        rawSource: moduleEntry.component,
-        componentPath,
-        importedModules: retrievedData.importedModules,
-      });
+    if (!isLocalComponent) {
+      const retrievedData =
+        await retrieveComponentTreeDetailFromCache(componentCacheKey);
+      if (retrievedData) {
+        this.sendWorkerMessage({
+          componentId,
+          componentSource: retrievedData.componentSource,
+          containerStyles: retrievedData.containerStyles,
+          rawSource: moduleEntry.component,
+          componentPath,
+          importedModules: retrievedData.importedModules,
+        });
 
-      return;
+        return;
+      }
     }
 
     // recursively parse the Component tree for child Components
@@ -351,12 +354,14 @@ ${styleSheet}
   ${aggregatedStyles}
 }`;
 
-    await cacheComponentTreeDetails(db, {
-      key: componentCacheKey,
-      componentSource,
-      containerStyles,
-      importedModules,
-    });
+    if (!isLocalComponent) {
+      await cacheComponentTreeDetails({
+        key: componentCacheKey,
+        componentSource,
+        containerStyles,
+        importedModules,
+      });
+    }
 
     this.sendWorkerMessage({
       componentId,
@@ -397,6 +402,7 @@ ${styleSheet}
       // @ts-expect-error
       const { code: component } = componentSource;
       this.bosSourceCache.set(componentPath, Promise.resolve({ component }));
+      this.localComponents.set(componentPath, true);
     }
   }
 }

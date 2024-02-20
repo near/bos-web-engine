@@ -28,15 +28,15 @@ export async function initializeDB(): Promise<IDBPDatabase<BOSIndexDB>> {
 }
 
 export async function cacheComponentTreeDetails(
-  db: IDBPDatabase<BOSIndexDB>,
   data: ComponentCacheRecord
 ): Promise<void> {
+  const db = await initializeDB();
   await db.put(COMPONENT_TREES_CACHE_STORE_NAME, data);
 }
 
-export function retrieveComponentTreeDetailFromCache(
-  db: IDBPDatabase<BOSIndexDB>,
+export async function retrieveComponentTreeDetailFromCache(
   componentName: string
 ): Promise<ComponentCacheRecord | undefined> {
+  const db = await initializeDB();
   return db.get(COMPONENT_TREES_CACHE_STORE_NAME, componentName);
 }
