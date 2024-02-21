@@ -1,5 +1,5 @@
 .wrapper {
-  --header-height: 3rem;
+  --gateway-header-height: 3rem;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -12,7 +12,7 @@
   gap: 1rem;
   position: sticky;
   top: 0;
-  height: var(--header-height);
+  height: var(--gateway-header-height);
   flex-shrink: 0;
   padding: 0 1rem;
   z-index: 2000;
