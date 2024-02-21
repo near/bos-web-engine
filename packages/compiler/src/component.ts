@@ -182,7 +182,10 @@ function buildComponentFunction({
       ${importAssignments.join('\n')}
       ${COMPONENT_IMPORT_PLACEHOLDER}
       ${componentSource}
-      return ${exportedReference ? exportedReference : 'BWEComponent'};
+      ${
+        exportedReference || 'BWEComponent'
+      }.isRootContainerComponent = ${isRoot};
+      return ${exportedReference || 'BWEComponent'};
     })();
   `;
 }

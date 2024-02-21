@@ -15,7 +15,6 @@ export function initContainer({
     invokeInternalCallback,
   },
   context: {
-    BWEComponent,
     Component,
     componentId,
     componentPropsJson,
@@ -53,7 +52,7 @@ export function initContainer({
     componentId,
     isComponent: (c) => c === Component,
     isFragment: (c) => c === Fragment,
-    isRootComponent: (c) => c === BWEComponent,
+    isRootComponent: (c) => !!c.isRootContainerComponent,
     postComponentRenderMessage,
     serializeNode,
     trust,

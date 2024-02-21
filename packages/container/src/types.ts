@@ -84,11 +84,15 @@ export interface PostMessageComponentRenderParams {
   trust: ComponentTrust;
 }
 
+interface ContainerComponent extends FunctionComponent {
+  isRootContainerComponent: boolean;
+}
+
 interface ComposeRenderMethodsParams {
   componentId: string;
   isComponent: (component: Function) => boolean;
   isFragment: (component: Function) => boolean;
-  isRootComponent: (component: Function) => boolean;
+  isRootComponent: (component: ContainerComponent) => boolean;
   postComponentRenderMessage: PostMessageComponentRenderCallback;
   serializeNode: SerializeNodeCallback;
   trust: ComponentTrust;

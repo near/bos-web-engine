@@ -71,7 +71,6 @@ ${scriptSrc}
                 invokeInternalCallback: ${invokeInternalCallback.toString()},
               },
               context: {
-                BWEComponent,
                 Component,
                 componentId: '${id}',
                 componentPropsJson: ${componentPropsJson},
