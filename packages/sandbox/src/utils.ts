@@ -37,14 +37,18 @@ export function filePathIsComponent(filePath: string) {
 }
 
 export function normalizeFilePathAndExtension(filePath: string) {
-  const filePathWithoutExtension = filePath.replace(FILE_EXTENSION_REGEX, '');
-  let fileExtension = filePath
-    .replace(filePathWithoutExtension, '')
-    .replace(/^\./, '') as FileExtension;
+  let filePathWithoutExtension = filePath.replace(FILE_EXTENSION_REGEX, '');
+  let fileExtension = filePath.replace(
+    filePathWithoutExtension,
+    ''
+  ) as FileExtension;
 
   if (!FILE_EXTENSIONS.includes(fileExtension)) {
     fileExtension = 'tsx';
   }
+
+  // Convert all remaining "." to "/":
+  filePathWithoutExtension = filePathWithoutExtension.replace(/\./g, '/');
 
   return {
     fileExtension,
