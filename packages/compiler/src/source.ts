@@ -72,7 +72,7 @@ function prepareSourceWithBlockHeight(
             const sourceKey = `${entryKey}/${componentKey}`;
             sources[sourceKey] = {
               component: componentValue[''][''],
-              css: componentValue.css[''],
+              css: componentValue.css?.[''],
               blockHeight: componentBlockHeight,
             };
           }
