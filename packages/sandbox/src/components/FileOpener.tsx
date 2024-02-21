@@ -296,10 +296,10 @@ function Root({ setIsOpen }: Props) {
 
                 <ul className={s.examplesList}>
                   <li>
-                    <Text size="s">bwe-demos.near</Text>
+                    <Text size="s">webengine.near</Text>
                   </li>
                   <li>
-                    <Text size="s">bwe-demos.near/HelloWorld</Text>
+                    <Text size="s">webengine.near/LandingPage</Text>
                   </li>
                 </ul>
               </>

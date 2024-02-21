@@ -102,6 +102,9 @@ importers:
       '@near-wallet-selector/modal-ui':
         specifier: ^8.9.2
         version: 8.9.2(near-api-js@2.1.4)
+      '@near-wallet-selector/my-near-wallet':
+        specifier: ^8.9.5
+        version: 8.9.5(near-api-js@2.1.4)
       '@near-wallet-selector/nightly':
         specifier: ^8.9.2
         version: 8.9.2(near-api-js@2.1.4)
@@ -172,6 +175,9 @@ importers:
       '@near-wallet-selector/modal-ui':
         specifier: ^8.9.2
         version: 8.9.2(near-api-js@2.1.4)
+      '@near-wallet-selector/my-near-wallet':
+        specifier: ^8.9.5
+        version: 8.9.5(near-api-js@2.1.4)
       '@near-wallet-selector/nightly':
         specifier: ^8.9.2
         version: 8.9.2(near-api-js@2.1.4)
@@ -221,12 +227,6 @@ importers:
       '@types/uuid':
         specifier: ^9.0.1
         version: 9.0.2
-      bootstrap:
-        specifier: ^5.3.0
-        version: 5.3.1(@popperjs/core@2.11.8)
-      bootstrap-icons:
-        specifier: ^1.10.5
-        version: 1.10.5
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -3921,6 +3921,18 @@ packages:
       rxjs: 7.8.1
     dev: false
 
+  /@near-wallet-selector/core@8.9.5(near-api-js@2.1.4):
+    resolution: {integrity: sha512-wJiCL8M7z6tkNMY5H4n63/SZCmlW0Z15H6R1biWgpRuMDlVjhQOzxrmQggb1jbK4nYkzXyARNKyPh2gcRUuS+w==}
+    peerDependencies:
+      near-api-js: ^1.0.0 || ^2.0.0
+    dependencies:
+      borsh: 0.7.0
+      events: 3.3.0
+      js-sha256: 0.9.0
+      near-api-js: 2.1.4(encoding@0.1.13)
+      rxjs: 7.8.1
+    dev: false
+
   /@near-wallet-selector/here-wallet@8.9.2(borsh@0.7.0)(near-api-js@2.1.4):
     resolution: {integrity: sha512-LJ8vO4NAAPzkHDdPEfq5IEGqzLS8Zmg7fKhIuxL1E7iAAAHFg7P5yxjP+jh8wwa0x7fZPs0aoYRsug1kCJanxA==}
     peerDependencies:
@@ -3956,6 +3968,16 @@ packages:
       - near-api-js
     dev: false
 
+  /@near-wallet-selector/my-near-wallet@8.9.5(near-api-js@2.1.4):
+    resolution: {integrity: sha512-oX/l0jaj73Vg3fIoAqRs8paZ83wBhtbjtNWtak8CaQ3SOtJjKd8RH58kbPaoxSPa+KqqNbC1J7V2WtdVC0leGQ==}
+    peerDependencies:
+      near-api-js: ^1.0.0 || ^2.0.0
+    dependencies:
+      '@near-wallet-selector/core': 8.9.5(near-api-js@2.1.4)
+      '@near-wallet-selector/wallet-utils': 8.9.5(near-api-js@2.1.4)
+      near-api-js: 2.1.4(encoding@0.1.13)
+    dev: false
+
   /@near-wallet-selector/nightly@8.9.2(near-api-js@2.1.4):
     resolution: {integrity: sha512-s5U94VQrLnDLgL1KBDRtmnWbUUu5jH7TlW1XzNsjcWOIvXZtib/xGQfizrBmpGXceSqntSjTWawOJzL/1gZQgg==}
     peerDependencies:
@@ -3983,6 +4005,16 @@ packages:
       near-api-js: ^1.0.0 || ^2.0.0
     dependencies:
       '@near-wallet-selector/core': 8.9.2(near-api-js@2.1.4)
+      bn.js: 5.2.1
+      near-api-js: 2.1.4(encoding@0.1.13)
+    dev: false
+
+  /@near-wallet-selector/wallet-utils@8.9.5(near-api-js@2.1.4):
+    resolution: {integrity: sha512-TBeQheoizs4EQIGQPJxz44ZsxL4VbjLQJLlpDsNpwQfkxjcyThsZ19hOvcj5XZjwdJxwM10VBcf/qh1mKzv1uQ==}
+    peerDependencies:
+      near-api-js: ^1.0.0 || ^2.0.0
+    dependencies:
+      '@near-wallet-selector/core': 8.9.5(near-api-js@2.1.4)
       bn.js: 5.2.1
       near-api-js: 2.1.4(encoding@0.1.13)
     dev: false
@@ -4219,10 +4251,6 @@ packages:
   /@polka/url@1.0.0-next.24:
     resolution: {integrity: sha512-2LuNTFBIO0m7kKIQvvPHN6UE63VjpmL9rnEEaOOaiSPbZK+zUOYIzBAWcED+3XYzhYsd/0mD57VdxAEqqV52CQ==}
     dev: false
-
-  /@popperjs/core@2.11.8:
-    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
-    dev: true
 
   /@radix-ui/colors@3.0.0:
     resolution: {integrity: sha512-FUOsGBkHrYJwCSEtWRCIfQbZG7q1e6DgxCIOe1SUQzDe/7rXXeA47s8yCn6fuTNQAj1Zq4oTFi9Yjp3wzElcxg==}
@@ -6117,18 +6145,6 @@ packages:
 
   /boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
-
-  /bootstrap-icons@1.10.5:
-    resolution: {integrity: sha512-oSX26F37V7QV7NCE53PPEL45d7EGXmBgHG3pDpZvcRaKVzWMqIRL9wcqJUyEha1esFtM3NJzvmxFXDxjJYD0jQ==}
-    dev: true
-
-  /bootstrap@5.3.1(@popperjs/core@2.11.8):
-    resolution: {integrity: sha512-jzwza3Yagduci2x0rr9MeFSORjcHpt0lRZukZPZQJT1Dth5qzV7XcgGqYzi39KGAVYR8QEDVoO0ubFKOxzMG+g==}
-    peerDependencies:
-      '@popperjs/core': ^2.11.8
-    dependencies:
-      '@popperjs/core': 2.11.8
-    dev: true
 
   /borsh@0.7.0:
     resolution: {integrity: sha512-CLCsZGIBCFnPtkNnieW/a8wmreDmfUtjU2m9yHrzPXIlNbqVs0AQrSatSG6vdNYUqdc83tkQi2eHfF98ubzQLA==}

@@ -48,6 +48,14 @@ const SIDE_EFFECT_IMPORT_REGEX =
 export const extractImportStatements = (source: string) => {
   let src = stripLeadingComment(source.trim());
 
+  // separate out Babel-generated helper functions inserted above import statements
+  const generatedFunctionDeclarations: string[] = [];
+  while (src.startsWith('function')) {
+    const eolIndex = src.indexOf('\n');
+    generatedFunctionDeclarations.push(src.slice(0, eolIndex));
+    src = src.slice(eolIndex + 1);
+  }
+
   const imports: ModuleImport[] = [];
   while (src.startsWith('import')) {
     const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
@@ -148,7 +156,7 @@ export const extractImportStatements = (source: string) => {
 
   return {
     imports,
-    source: src,
+    source: [...generatedFunctionDeclarations, src].join('\n\n'),
   };
 };
 
