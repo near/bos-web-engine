@@ -1,4 +1,7 @@
-import type { Props, SerializedArgs } from '@bos-web-engine/common';
+import type {
+  InvokeApplicationCallbackParams,
+  Props,
+} from '@bos-web-engine/common';
 
 import type { CallbackRequest, InitContainerParams } from './types';
 
@@ -108,6 +111,18 @@ export function initContainer({
   });
 
   return {
+    callApplicationMethod({ args, method }: InvokeApplicationCallbackParams) {
+      return invokeApplicationCallback({
+        args,
+        callbacks,
+        containerId: componentId,
+        initExternalCallbackInvocation,
+        invokeInternalCallback,
+        method,
+        postCallbackInvocationMessage,
+        serializeArgs,
+      });
+    },
     commit,
     processEvent,
     props,
