@@ -84,7 +84,7 @@ export interface PostMessageComponentRenderParams {
   trust: ComponentTrust;
 }
 
-interface ContainerComponent extends FunctionComponent {
+export interface ContainerComponent extends FunctionComponent {
   isRootContainerComponent: boolean;
 }
 

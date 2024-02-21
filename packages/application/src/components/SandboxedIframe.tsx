@@ -46,15 +46,11 @@ function buildSandboxedComponent({
           if (typeof React === 'undefined') {
             window.React = {};
           }
-          React.Fragment = __Preact.Fragment ;
+          React.Fragment = __Preact.Fragment;
 
-/******** BEGIN BOS SOURCE ********/
-/******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
-${scriptSrc}
-/******** END BOS SOURCE ********/
-
-          (function () {
+          window.webEngine = (function () {
             let {
+              callApplicationMethod,
               commit,
               processEvent,
               props,
@@ -95,9 +91,21 @@ ${scriptSrc}
             };
   
             window.addEventListener('message', processEvent);
-  
-            __Preact.render(__Preact.createElement(BWEComponent, props), document.body);
+
+            return {
+              container: {
+                props,
+              },
+              initPlugin: (initializer) => initializer({ callApplicationMethod }),
+            }
           }());
+
+/******** BEGIN BOS SOURCE ********/
+/******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
+${scriptSrc}
+/******** END BOS SOURCE ********/
+
+          __Preact.render(__Preact.createElement(BWEComponent, window.webEngine.container.props), document.body);
         </script>
       </body>
     </html>
