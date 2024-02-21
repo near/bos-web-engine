@@ -119,7 +119,6 @@ export class SocialDb {
     blockId,
     key,
     keys,
-    options,
     finality = 'optimistic',
   }: SocialGetParams): Promise<SocialGetResponse<T>> {
     const normalizedKeys = ((key ? [key] : keys) ?? []).filter(
@@ -139,7 +138,6 @@ export class SocialDb {
     const response = await this.rpcFetch<SocialGetResponse<T>>({
       data: {
         keys: normalizedKeys,
-        options,
       },
       methodName: 'get',
       ...(blockId ? { blockId } : { finality }),
