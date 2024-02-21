@@ -176,15 +176,16 @@ export function SidebarActions({ showFileOpener }: Props) {
         )}
 
         <Tooltip
-          content="Sandbox Docs"
+          content="Documentation"
           side="right"
           container={containerElement}
         >
           <a
             className={s.action}
             style={{ marginTop: 'auto' }}
-            href="/help"
+            href="https://bwe-docs.near.dev"
             target="_blank"
+            rel="noreferrer"
           >
             <BookOpenText />
           </a>

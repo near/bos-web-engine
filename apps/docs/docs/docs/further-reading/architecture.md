@@ -1,17 +1,12 @@
-# BOS Web Engine Architecture
-
-## Overview
-
-BOS Web Engine is a framework for creating secure JavaScript environments for BOS Components backed by iframes. This offers
-risk-free composability while supporting basic React Components, a growing set of APIs, and ultimately NPM dependencies.
+# Architecture
 
 ### BOS Component Loading
 BOS Components are loaded in BOS Web Engine by way of a client-side pipeline, responsible for BOS Component source
-fetching, JSX transpilation, and Component composition. A web worker services requests from the outer application to
+fetching, TSX transpilation, and Component composition. A web worker services requests from the outer application to
 load new Components, caching the Component source and transpiled wrapper function. The worker responds with the wrapped
 source code, which is used to initialize containers with iframes.
 
-![source-compile-container](./assets/source-compile-container.png)
+![source-compile-container](/img/source-compile-container.png)
 _High-level overview of the flow from BOS Component source to Component container._
 
 ### Component Containers
@@ -28,7 +23,7 @@ The outer application and individual containers register event handlers on this 
 message passing to communicate renders and broker inter-Component callbacks. As a consequence of this, all inter-Component
 communication is inherently asynchronous.
 
-<img alt="container-application" src="./assets/container-application.png" width="1000">
+![Container to Outer Window Application](/img/container-owa.png)
 
 _Component containers manage root Components, which may be under another Component in the DOM tree despite being sandboxed._
 
@@ -52,7 +47,7 @@ Component Trust is best employed to create logical trust boundaries in a BOS app
 from different accounts. By default, BOS Components are loaded as **sandboxed**; loading a Component as **trusted** requires
 explicit configuration.
 
-![trusted-source-compile-container](./assets/source-container-trusted.png)
+![trusted-source-compile-container](/img/source-container-trusted.png)
 _Trusted Components are included in the same container context as their parent Component._
 
 ### Component Callbacks

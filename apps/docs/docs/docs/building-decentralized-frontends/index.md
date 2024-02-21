@@ -1,6 +1,10 @@
+---
+sidebar_position: 2
+---
+
 # Building Decentralized Frontends
 
-A BOS component looks, for the most part, like a standard React component. There are some syntax differences and additions where necessary to function within the architecture of the engine.
+A BWE component looks, for the most part, like a standard React component. There are some syntax differences and additions where necessary to function within the architecture of the engine.
 
 ## Terms
 - **Outer Window Application (OWA)** is the application responsible for rendering Components and brokers messages between containers.

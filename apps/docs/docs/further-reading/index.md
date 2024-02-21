@@ -1,4 +1,0 @@
-# Further Reading
-
-:::warning TODO
-:::
