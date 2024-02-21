@@ -1,4 +1,5 @@
 import type { BOSModule } from '@bos-web-engine/common';
+import { BLOCK_HEIGHT_KEY } from '@bos-web-engine/social-db-api';
 
 export type ComponentCompilerRequest =
   | CompilerExecuteAction
@@ -91,13 +92,53 @@ export interface ImportExpression {
   reference?: string;
 }
 
+interface WithBlockHeight {
+  [BLOCK_HEIGHT_KEY]: number;
+}
+
+interface SourceWithBlockHeight extends WithBlockHeight {
+  '': string;
+}
+
 export interface ComponentEntry {
   '': string;
   css: string;
 }
 
-interface SocialComponent {
-  widget: { [name: string]: string | ComponentEntry };
+export interface ComponentEntryWithBlockHeight extends WithBlockHeight {
+  '': SourceWithBlockHeight;
+  css: SourceWithBlockHeight;
 }
 
-export type SocialComponentsByAuthor = { [author: string]: SocialComponent };
+interface SocialWidget {
+  [name: string]: ComponentEntry;
+}
+
+export interface SocialWidgetWithBlockHeight {
+  [name: string]: ComponentEntryWithBlockHeight | number;
+}
+
+interface SocialComponent {
+  widget: SocialWidget;
+}
+
+export interface SocialComponentWithBlockHeight
+  extends WithBlockHeight,
+    SocialWidgetWithBlockHeight {}
+
+export interface SocialComponentsByAuthor {
+  [author: string]: SocialComponent;
+}
+
+export interface SocialComponentsByAuthorWithBlockHeight {
+  [authorOrBlockHeight: string]: SocialComponentWithBlockHeight | number;
+}
+
+export type ComponentSourcesResponse = { [key: string]: BOSModule };
+
+export interface ComponentCacheRecord {
+  key: string;
+  componentSource: string;
+  containerStyles: string;
+  importedModules: Map<string, string>;
+}

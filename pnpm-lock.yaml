@@ -318,6 +318,9 @@ importers:
       '@bos-web-engine/social-db-api':
         specifier: workspace:*
         version: link:../social-db-api
+      idb:
+        specifier: ^8.0.0
+        version: 8.0.0
     devDependencies:
       '@near-js/types':
         specifier: ^0.0.4
@@ -9094,6 +9097,10 @@ packages:
       postcss: ^8.1.0
     dependencies:
       postcss: 8.4.33
+    dev: false
+
+  /idb@8.0.0:
+    resolution: {integrity: sha512-l//qvlAKGmQO31Qn7xdzagVPPaHTxXx199MhrAFuVBTPqydcPYBWjkrbv4Y0ktB+GmWOiwHl237UUOrLmQxLvw==}
     dev: false
 
   /ignore@4.0.6:
