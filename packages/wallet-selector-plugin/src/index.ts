@@ -1,5 +1,7 @@
 import type { WebEngine, WebEngineContext } from '@bos-web-engine/common';
+import type { Action } from '@near-js/transactions';
 import type {
+  BrowserWalletBehaviour,
   SignMessageParams,
   SignedMessage,
 } from '@near-wallet-selector/core';
@@ -10,9 +12,10 @@ declare global {
   }
 }
 
-interface WalletSelectorPlugin {
-  signMessage(params: SignMessageParams): Promise<SignedMessage | void>;
-}
+type WalletSelectorPlugin = Pick<
+  BrowserWalletBehaviour,
+  'signMessage' | 'signAndSendTransaction'
+>;
 
 export default function initializeWalletSelectorPlugin() {
   function initWalletSelectorPlugin({
@@ -24,8 +27,19 @@ export default function initializeWalletSelectorPlugin() {
         method: 'walletSelector.signMessage',
       });
 
+    const signAndSendTransaction = (args: {
+      receiverId: string;
+      actions: Action[];
+    }) =>
+      callApplicationMethod<SignedMessage>({
+        args: [args],
+        method: 'walletSelector.signAndSendTransaction',
+      });
+
     return {
       signMessage,
+      // @ts-expect-error FIXME incompatible @near-js versions?
+      signAndSendTransaction,
     };
   }
 
