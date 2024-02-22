@@ -254,6 +254,9 @@ importers:
       '@bos-web-engine/container':
         specifier: workspace:*
         version: link:../container
+      '@bos-web-engine/social-db-api':
+        specifier: workspace:*
+        version: link:../social-db-api
       '@bos-web-engine/wallet-selector-control':
         specifier: workspace:*
         version: link:../wallet-selector-control
@@ -327,6 +330,9 @@ importers:
       '@bos-web-engine/social-db-api':
         specifier: workspace:*
         version: link:../social-db-api
+      '@bos-web-engine/social-db-api-plugin':
+        specifier: workspace:*
+        version: link:../social-db-api-plugin
       '@bos-web-engine/wallet-selector-plugin':
         specifier: workspace:*
         version: link:../wallet-selector-plugin
@@ -535,6 +541,30 @@ importers:
       preact:
         specifier: ^10.18.1
         version: 10.18.1
+      tsconfig:
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: ^4.5.2
+        version: 4.9.5
+
+  packages/social-db-api-plugin:
+    devDependencies:
+      '@bos-web-engine/common':
+        specifier: workspace:*
+        version: link:../common
+      '@bos-web-engine/social-db-api':
+        specifier: workspace:*
+        version: link:../social-db-api
+      '@types/node':
+        specifier: ^17.0.12
+        version: 17.0.45
+      eslint:
+        specifier: ^7.32.0
+        version: 7.32.0
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../eslint-config-custom
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig

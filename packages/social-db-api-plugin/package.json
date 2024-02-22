@@ -1,0 +1,24 @@
+{
+  "name": "@bos-web-engine/social-db-api-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "dev": "tsc -w -p ./tsconfig.json",
+    "lint": "eslint ./src/**/*.ts*",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@bos-web-engine/common": "workspace:*",
+    "@bos-web-engine/social-db-api": "workspace:*",
+    "@types/node": "^17.0.12",
+    "eslint": "^7.32.0",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.5.2"
+  }
+}

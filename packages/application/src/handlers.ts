@@ -17,6 +17,7 @@ export async function onApplicationMethodInvocation({
   componentId,
   onMessageSent,
   requestId,
+  social,
   wallet,
 }: ApplicationMethodInvocationParams) {
   const sendResponse = (value: any, error?: Error) =>
@@ -38,6 +39,12 @@ export async function onApplicationMethodInvocation({
 
   try {
     switch (method) {
+      case 'socialDb.get': {
+        return sendResponse(await social.get(args[0] as any));
+      }
+      case 'socialDb.set': {
+        return sendResponse(await social.set(args[0] as any));
+      }
       case 'walletSelector.signAndSendTransaction': {
         return sendResponse(
           await WalletSelectorPlugin.signAndSendTransaction({ args, wallet })

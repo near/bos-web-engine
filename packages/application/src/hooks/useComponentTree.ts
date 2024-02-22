@@ -1,5 +1,6 @@
 import type { MessagePayload } from '@bos-web-engine/common';
 import type { ComponentCompilerRequest } from '@bos-web-engine/compiler';
+import { useSocial } from '@bos-web-engine/social-db-api';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -49,6 +50,7 @@ export function useComponentTree({
   getComponentRenderCount,
 }: UseComponentTreeParams) {
   const { wallet } = useWallet();
+  const { social } = useSocial();
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef(
     {}
   );
@@ -123,6 +125,7 @@ export function useComponentTree({
                 method: data.method,
                 onMessageSent,
                 requestId: data.requestId,
+                social,
                 wallet,
               });
             }
@@ -164,6 +167,8 @@ export function useComponentTree({
       hooks,
       debug,
       getComponentRenderCount,
+      social,
+      wallet,
     ]
   );
 
