@@ -8,7 +8,7 @@ import s from './FileOpener.module.css';
 import { fetchPublishedFiles } from '../helpers/fetch-published-files';
 import { useDebouncedFunction } from '../hooks/useDebounced';
 import { SandboxFiles, useSandboxStore } from '../hooks/useSandboxStore';
-import { convertFilePathToComponentName, returnUniqueFilePath } from '../utils';
+import { normalizeFilePathAndExtension, returnUniqueFilePath } from '../utils';
 
 type Props = {
   isOpen: boolean;
@@ -147,10 +147,10 @@ function Root({ setIsOpen }: Props) {
         we try to avoid path collisions with components written by the current 
         user (local and published).
       */
-      const name = convertFilePathToComponentName(path);
+      const { filePathWithoutExtension } = normalizeFilePathAndExtension(path);
       const uniquePath = returnUniqueFilePath(
         { ...publishedFiles, ...openedFiles },
-        name,
+        filePathWithoutExtension,
         'tsx'
       );
       setFile(uniquePath, file);
