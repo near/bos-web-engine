@@ -2,16 +2,16 @@ import { signMessage } from '@bos-web-engine/wallet-selector-plugin';
 import { Buffer } from 'buffer';
 import { useState } from 'react';
 
+const generateNonce = () => {
+  let nonceArray: Uint8Array = new Uint8Array(32);
+  nonceArray = crypto.getRandomValues(nonceArray);
+  return Buffer.from(nonceArray);
+};
+
 export default function () {
   const [message, setMessage] = useState('');
   const [recipient, setRecipient] = useState('');
   const [signature, setSignature] = useState('');
-
-  const generateNonce = () => {
-    let nonceArray: Uint8Array = new Uint8Array(32);
-    nonceArray = crypto.getRandomValues(nonceArray);
-    return Buffer.from(nonceArray);
-  };
 
   const sign = async () => {
     const { signature: signedMessage } = await signMessage({
