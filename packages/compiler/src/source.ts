@@ -2,7 +2,7 @@ import type { BOSModule } from '@bos-web-engine/common';
 import {
   SOCIAL_COMPONENT_NAMESPACE,
   SocialDb,
-} from '@bos-web-engine/social-db-api';
+} from '@bos-web-engine/social-db';
 
 import { ComponentEntry } from './types';
 

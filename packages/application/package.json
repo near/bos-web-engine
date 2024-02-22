@@ -12,7 +12,7 @@
   "dependencies": {
     "@bos-web-engine/compiler": "workspace:*",
     "@bos-web-engine/container": "workspace:*",
-    "@bos-web-engine/social-db-api": "workspace:*",
+    "@bos-web-engine/social-db": "workspace:*",
     "@bos-web-engine/wallet-selector-control": "workspace:*"
   },
   "devDependencies": {

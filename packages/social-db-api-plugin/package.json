@@ -1,5 +1,5 @@
 {
-  "name": "@bos-web-engine/social-db-api-plugin",
+  "name": "@bos-web-engine/social-db-plugin",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -14,7 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "@bos-web-engine/common": "workspace:*",
-    "@bos-web-engine/social-db-api": "workspace:*",
+    "@bos-web-engine/social-db": "workspace:*",
     "@types/node": "^17.0.12",
     "eslint": "^7.32.0",
     "eslint-config-custom": "workspace:*",

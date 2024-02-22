@@ -1,5 +1,5 @@
 import { BOSModule, TrustMode } from '@bos-web-engine/common';
-import { SocialDb } from '@bos-web-engine/social-db-api';
+import { SocialDb } from '@bos-web-engine/social-db';
 
 import {
   buildComponentSource,

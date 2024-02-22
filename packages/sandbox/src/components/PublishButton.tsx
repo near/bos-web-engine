@@ -1,7 +1,7 @@
 import {
   SOCIAL_COMPONENT_NAMESPACE,
   useSocial,
-} from '@bos-web-engine/social-db-api';
+} from '@bos-web-engine/social-db';
 import { Button, HR, Text } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { useState } from 'react';

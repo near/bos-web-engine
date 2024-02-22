@@ -1,6 +1,6 @@
 import type { MessagePayload } from '@bos-web-engine/common';
 import type { ComponentCompilerRequest } from '@bos-web-engine/compiler';
-import { useSocial } from '@bos-web-engine/social-db-api';
+import { useSocial } from '@bos-web-engine/social-db';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';

@@ -1,7 +1,7 @@
 import {
   SOCIAL_COMPONENT_NAMESPACE,
   type SocialDb,
-} from '@bos-web-engine/social-db-api';
+} from '@bos-web-engine/social-db';
 
 import { type SandboxFiles } from '../hooks/useSandboxStore';
 import { convertComponentNameToFilePath } from '../utils';

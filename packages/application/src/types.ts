@@ -11,7 +11,7 @@ import type {
   ComponentCompilerRequest,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
-import type { SocialDb } from '@bos-web-engine/social-db-api';
+import type { SocialDb } from '@bos-web-engine/social-db';
 import type { Wallet } from '@near-wallet-selector/core';
 import type { DOMElement } from 'react';
 

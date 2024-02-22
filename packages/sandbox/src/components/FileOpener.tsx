@@ -1,4 +1,4 @@
-import { useSocial } from '@bos-web-engine/social-db-api';
+import { useSocial } from '@bos-web-engine/social-db';
 import { Dialog, HR, Input, Text } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';

@@ -14,7 +14,7 @@
   "dependencies": {
     "@bos-web-engine/application": "workspace:*",
     "@bos-web-engine/sandbox": "workspace:*",
-    "@bos-web-engine/social-db-api": "workspace:*",
+    "@bos-web-engine/social-db": "workspace:*",
     "@bos-web-engine/ui": "workspace:*",
     "@bos-web-engine/wallet-selector-control": "workspace:*",
     "@near-wallet-selector/core": "^8.9.2",

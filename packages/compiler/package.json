@@ -12,8 +12,8 @@
   "dependencies": {
     "@babel/standalone": "^7.22.14",
     "@bos-web-engine/common": "workspace:*",
-    "@bos-web-engine/social-db-api": "workspace:*",
-    "@bos-web-engine/social-db-api-plugin": "workspace:*",
+    "@bos-web-engine/social-db": "workspace:*",
+    "@bos-web-engine/social-db-plugin": "workspace:*",
     "@bos-web-engine/wallet-selector-plugin": "workspace:*"
   },
   "devDependencies": {

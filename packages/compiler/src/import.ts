@@ -1,4 +1,4 @@
-import initializeSocialDbPlugin from '@bos-web-engine/social-db-api-plugin';
+import initializeSocialDbPlugin from '@bos-web-engine/social-db-plugin';
 import initializeWalletSelectorPlugin from '@bos-web-engine/wallet-selector-plugin';
 
 import type { ImportExpression, ModuleImport } from './types';
@@ -12,7 +12,7 @@ type ImportMixed = ImportModule & {
 
 const BWE_MODULE_URL_PREFIX = 'near://';
 const PLUGIN_MODULES = new Map<string, string>([
-  ['@bos-web-engine/social-db-api-plugin', initializeSocialDbPlugin.toString()],
+  ['@bos-web-engine/social-db-plugin', initializeSocialDbPlugin.toString()],
   [
     '@bos-web-engine/wallet-selector-plugin',
     initializeWalletSelectorPlugin.toString(),

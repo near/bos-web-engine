@@ -39,12 +39,15 @@ export async function onApplicationMethodInvocation({
 
   try {
     switch (method) {
+      // Social DB doesn't require extra serialization steps (as of now) so we can pass through directly:
       case 'socialDb.get': {
         return sendResponse(await social.get(args[0] as any));
       }
       case 'socialDb.set': {
         return sendResponse(await social.set(args[0] as any));
       }
+
+      // Wallet selector plugin requires more advanced serialization due to use of Buffer:
       case 'walletSelector.signAndSendTransaction': {
         return sendResponse(
           await WalletSelectorPlugin.signAndSendTransaction({ args, wallet })
@@ -54,6 +57,7 @@ export async function onApplicationMethodInvocation({
         return sendResponse(
           await WalletSelectorPlugin.signMessage({ args, wallet })
         );
+
       default:
         throw new Error(`Unrecognized method ${method}`);
     }

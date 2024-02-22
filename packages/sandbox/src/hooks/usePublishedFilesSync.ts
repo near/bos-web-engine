@@ -1,4 +1,4 @@
-import { useSocial } from '@bos-web-engine/social-db-api';
+import { useSocial } from '@bos-web-engine/social-db';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { useEffect } from 'react';
 
