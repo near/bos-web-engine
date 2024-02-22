@@ -1,10 +1,5 @@
 import type { WebEngine, WebEngineContext } from '@bos-web-engine/common';
-import type { Action } from '@near-js/transactions';
-import type {
-  BrowserWalletBehaviour,
-  SignMessageParams,
-  SignedMessage,
-} from '@near-wallet-selector/core';
+import type { BrowserWalletBehaviour } from '@near-wallet-selector/core';
 
 declare global {
   interface Window {
@@ -21,29 +16,24 @@ export default function initializeWalletSelectorPlugin() {
   function initWalletSelectorPlugin({
     callApplicationMethod,
   }: WebEngineContext): WalletSelectorPlugin {
-    const signMessage = (args: SignMessageParams) =>
-      callApplicationMethod<SignedMessage>({
+    const signMessage: BrowserWalletBehaviour['signMessage'] = (args) =>
+      callApplicationMethod({
         args: [args],
         method: 'walletSelector.signMessage',
       });
 
-    const signAndSendTransaction = (args: {
-      receiverId: string;
-      actions: Action[];
-    }) =>
-      callApplicationMethod<SignedMessage>({
-        args: [args],
-        method: 'walletSelector.signAndSendTransaction',
-      });
+    const signAndSendTransaction: BrowserWalletBehaviour['signAndSendTransaction'] =
+      (args) =>
+        callApplicationMethod({
+          args: [args],
+          method: 'walletSelector.signAndSendTransaction',
+        });
 
     return {
       signMessage,
-      // @ts-expect-error FIXME incompatible @near-js versions?
       signAndSendTransaction,
     };
   }
 
-  return window.webEngine.initPlugin<WalletSelectorPlugin>(
-    initWalletSelectorPlugin
-  );
+  return window.webEngine.initPlugin(initWalletSelectorPlugin);
 }
