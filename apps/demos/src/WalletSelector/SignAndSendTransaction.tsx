@@ -1,12 +1,12 @@
 import { signAndSendTransaction } from '@bos-web-engine/wallet-selector-plugin';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 export default function () {
   const [transferAmount, setTransferAmount] = useState('');
   const [receiverId, setReceiverId] = useState('');
   const [transaction, setTransaction] = useState('');
 
-  const signAndSend = useCallback(async () => {
+  const signAndSend = async () => {
     const { transaction } = await signAndSendTransaction({
       actions: [
         {
@@ -19,7 +19,7 @@ export default function () {
       receiverId,
     });
     setTransaction(JSON.stringify(transaction, null, 2));
-  }, [transferAmount, receiverId]);
+  };
 
   return (
     <div>
