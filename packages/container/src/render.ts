@@ -8,6 +8,7 @@ import type { ComponentChildren, ComponentType, VNode } from 'preact';
 import type {
   BuildSafeProxyCallback,
   ComposeRenderMethodsCallback,
+  ContainerComponent,
   Node,
 } from './types';
 
@@ -129,7 +130,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       const fragmentChildren = renderedChildren || [];
       if (
         fragmentChildren.length === 1 &&
-        isRootComponent(fragmentChildren[0]?.type as ComponentType)
+        isRootComponent(fragmentChildren[0]?.type as ContainerComponent)
       ) {
         // this node is the root of a component defined in the container
         return parseRenderedTree(
@@ -163,7 +164,10 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
         : node.props;
 
     if (typeof node.type === 'function' && !isComponent(node.type)) {
-      if (isBWEComponent(node) && !isRootComponent(node.type)) {
+      if (
+        isBWEComponent(node) &&
+        !isRootComponent(node.type as ContainerComponent)
+      ) {
         const componentNode = buildBWEComponentNode(
           node as BWEComponentNode,
           renderedChildren

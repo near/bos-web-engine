@@ -8,8 +8,8 @@ import type { ProcessEventParams } from './types';
  * @param callbacks The set of callbacks defined on the target Component
  * @param containerId ID of the container handling messages
  * @param deserializeProps Function to deserialize props passed on the event
- * @param invokeCallback Function to execute the specified function in the current context
- * @param invokeComponentCallback Function to execute the specified function, either in the current context or another Component's
+ * @param invokeExternalContainerCallback Function to execute the specified function, either in the current context or another Component's
+ * @param invokeInternalCallback Function to execute the specified function in the current context
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param postCallbackResponseMessage Send callback execution result to calling Component via window.postMessage
  * @param requests The set of inter-Component callback requests being tracked by the Component
@@ -18,13 +18,13 @@ import type { ProcessEventParams } from './types';
  * @param updateProps Callback for setting the Component's props
  */
 export function buildEventHandler({
-  buildRequest,
   callbacks,
   containerId,
   deserializeArgs,
   deserializeProps,
-  invokeCallback,
-  invokeComponentCallback,
+  initExternalCallbackInvocation,
+  invokeExternalContainerCallback,
+  invokeInternalCallback,
   postCallbackInvocationMessage,
   postCallbackResponseMessage,
   requests,
@@ -44,15 +44,14 @@ export function buildEventHandler({
       method: string;
     }) {
       const deserializedArgs = deserializeArgs({ args, containerId });
-      return invokeComponentCallback({
+      return invokeExternalContainerCallback({
         args: deserializedArgs,
-        buildRequest,
         callbacks,
         containerId,
-        invokeCallback,
+        initExternalCallbackInvocation,
+        invokeInternalCallback,
         method,
         postCallbackInvocationMessage,
-        requests,
         serializeArgs,
       });
     }

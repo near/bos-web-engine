@@ -1,5 +1,5 @@
 {
-  "name": "@bos-web-engine/application",
+  "name": "@bos-web-engine/wallet-selector-plugin",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -9,25 +9,17 @@
     "lint": "eslint ./src/**/*.ts*",
     "lint:fix": "eslint . --fix"
   },
-  "dependencies": {
-    "@bos-web-engine/compiler": "workspace:*",
-    "@bos-web-engine/container": "workspace:*",
-    "@bos-web-engine/wallet-selector-control": "workspace:*"
-  },
-  "devDependencies": {
-    "@bos-web-engine/common": "workspace:*",
-    "@near-js/transactions": "^0.2.1",
-    "@near-wallet-selector/core": "^8.9.2",
-    "@types/node": "^17.0.12",
-    "@types/react": "^18.2.34",
-    "@types/react-dom": "^18.0.6",
-    "eslint": "^7.32.0",
-    "eslint-config-custom": "workspace:*",
-    "react": "^18.2.0",
-    "tsconfig": "workspace:*",
-    "typescript": "^4.5.2"
-  },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@bos-web-engine/common": "workspace:*",
+    "@near-js/transactions": "0.2.1",
+    "@near-wallet-selector/core": "^8.9.2",
+    "@types/node": "^17.0.12",
+    "eslint": "^7.32.0",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.5.2"
+  }
 }

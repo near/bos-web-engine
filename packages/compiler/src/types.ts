@@ -75,7 +75,8 @@ export interface ModuleImport {
   imports: ImportExpression[];
   isBweModule?: boolean;
   isCssModule: boolean;
-  isPackageImport: boolean;
+  isPackage: boolean;
+  isPlugin: boolean;
   isRelative?: boolean;
   isSideEffect?: boolean;
   moduleName: string;

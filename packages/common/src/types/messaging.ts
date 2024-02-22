@@ -29,7 +29,7 @@ export interface ComponentCallbackInvocation extends PostMessageParams {
   method: string;
   originator: string;
   requestId: string;
-  targetId: string;
+  targetId: string | null;
   type: ComponentCallbackInvocationType;
 }
 

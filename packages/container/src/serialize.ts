@@ -44,18 +44,16 @@ interface BuildContainerMethodIdentifierParams {
 /**
  * Compose the set of serialization methods for the given container context
  * @param buildRequest Method for building callback requests
- * @param builtinComponents Set of builtin BOS Web Engine Components
  * @param callbacks Component container's callbacks
+ * @param initExternalCallbackInvocation Initialize callback invocation request
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
- * @param requests Set of current callback requests
  */
 export const composeSerializationMethods: ComposeSerializationMethodsCallback =
   ({
-    buildRequest,
     callbacks,
+    initExternalCallbackInvocation,
     isComponent,
     postCallbackInvocationMessage,
-    requests,
   }) => {
     const isSerializedCallback = (o: any) =>
       !!o &&
@@ -274,8 +272,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       callbackIdentifier,
     }: SerializedPropsCallback) => {
       return (...args: any) => {
-        const requestId = window.crypto.randomUUID();
-        requests[requestId] = buildRequest();
+        const { invocationId, invocation } = initExternalCallbackInvocation();
 
         // any function arguments are closures in this child component scope
         // and must be cached in the component iframe
@@ -284,12 +281,12 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           callbacks,
           containerId,
           method: callbackIdentifier,
-          requestId,
+          requestId: invocationId,
           serializeArgs,
           targetId: callbackIdentifier.split('::')[0],
         });
 
-        return requests[requestId].promise;
+        return invocation;
       };
     };
 

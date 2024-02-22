@@ -1,4 +1,7 @@
-import type { Props } from '@bos-web-engine/common';
+import type {
+  InvokeApplicationCallbackParams,
+  Props,
+} from '@bos-web-engine/common';
 
 import type { CallbackRequest, InitContainerParams } from './types';
 
@@ -10,11 +13,11 @@ export function initContainer({
     composeMessagingMethods,
     composeRenderMethods,
     composeSerializationMethods,
-    invokeCallback,
-    invokeComponentCallback,
+    invokeApplicationCallback,
+    invokeExternalContainerCallback,
+    invokeInternalCallback,
   },
   context: {
-    BWEComponent,
     Component,
     componentId,
     componentPropsJson,
@@ -27,6 +30,12 @@ export function initContainer({
   const callbacks: { [key: string]: Function } = {};
   const requests: { [key: string]: CallbackRequest } = {};
 
+  const initExternalCallbackInvocation = () => {
+    const invocationId = window.crypto.randomUUID();
+    requests[invocationId] = buildRequest();
+    return { invocationId, invocation: requests[invocationId].promise };
+  };
+
   const {
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
@@ -35,19 +44,18 @@ export function initContainer({
 
   const { deserializeArgs, deserializeProps, serializeArgs, serializeNode } =
     composeSerializationMethods({
-      buildRequest,
       callbacks,
+      initExternalCallbackInvocation,
       isComponent: (c) => c === Component,
       parentContainerId,
       postCallbackInvocationMessage,
-      requests,
     });
 
   const { commit } = composeRenderMethods({
     componentId,
     isComponent: (c) => c === Component,
     isFragment: (c) => c === Fragment,
-    isRootComponent: (c) => c === BWEComponent,
+    isRootComponent: (c) => !!c.isRootContainerComponent,
     postComponentRenderMessage,
     serializeNode,
     trust,
@@ -65,13 +73,13 @@ export function initContainer({
   };
 
   const processEvent = buildEventHandler({
-    buildRequest,
     callbacks,
     containerId: componentId,
     deserializeArgs,
     deserializeProps,
-    invokeCallback,
-    invokeComponentCallback,
+    initExternalCallbackInvocation,
+    invokeExternalContainerCallback,
+    invokeInternalCallback,
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     requests,
@@ -103,6 +111,18 @@ export function initContainer({
   });
 
   return {
+    callApplicationMethod({ args, method }: InvokeApplicationCallbackParams) {
+      return invokeApplicationCallback({
+        args,
+        callbacks,
+        containerId: componentId,
+        initExternalCallbackInvocation,
+        invokeInternalCallback,
+        method,
+        postCallbackInvocationMessage,
+        serializeArgs,
+      });
+    },
     commit,
     processEvent,
     props,

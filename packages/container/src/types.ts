@@ -1,6 +1,7 @@
 import type {
   ComponentChildMetadata,
   ComponentTrust,
+  ExternalCallbackInvocation,
   Props,
   SerializedArgs,
   SerializedNode,
@@ -32,20 +33,19 @@ export interface DeserializePropsParams {
 
 export type EventArgs = { event: any };
 
-export interface InvokeCallbackParams {
+export interface InvokeInternalCallbackParams {
   args: SerializedArgs | EventArgs;
   callback: Function;
 }
 
-export interface InvokeComponentCallbackParams {
+export interface InvokeExternalCallbackParams {
   args: SerializedArgs;
-  buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   containerId: string;
-  invokeCallback: (args: InvokeCallbackParams) => any;
+  initExternalCallbackInvocation<T>(): ExternalCallbackInvocation<T>;
+  invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
   method: string;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
-  requests: { [key: string]: CallbackRequest };
   serializeArgs: SerializeArgsCallback;
 }
 
@@ -60,7 +60,7 @@ export interface PostMessageComponentCallbackInvocationParams {
   method: string;
   requestId: string;
   serializeArgs: SerializeArgsCallback;
-  targetId: string;
+  targetId: string | null;
 }
 
 export type PostMessageComponentResponseCallback = (
@@ -84,11 +84,15 @@ export interface PostMessageComponentRenderParams {
   trust: ComponentTrust;
 }
 
+export interface ContainerComponent extends FunctionComponent {
+  isRootContainerComponent: boolean;
+}
+
 interface ComposeRenderMethodsParams {
   componentId: string;
   isComponent: (component: Function) => boolean;
   isFragment: (component: Function) => boolean;
-  isRootComponent: (component: Function) => boolean;
+  isRootComponent: (component: ContainerComponent) => boolean;
   postComponentRenderMessage: PostMessageComponentRenderCallback;
   serializeNode: SerializeNodeCallback;
   trust: ComponentTrust;
@@ -101,12 +105,11 @@ export type ComposeRenderMethodsCallback = (
 };
 
 export interface ComposeSerializationMethodsParams {
-  buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
+  initExternalCallbackInvocation<T>(): ExternalCallbackInvocation<T>;
   isComponent: (component: Function) => boolean;
   parentContainerId: string | null;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
-  requests: RequestMap;
 }
 
 export type ComposeSerializationMethodsCallback = (
@@ -127,13 +130,13 @@ export type ComposeMessagingMethodsCallback = () => {
 export type UpdateContainerPropsCallback = (props: Props) => void;
 
 export interface ProcessEventParams {
-  buildRequest: BuildRequestCallback;
   callbacks: CallbackMap;
   containerId: string;
   deserializeArgs: DeserializeArgsCallback;
   deserializeProps: DeserializePropsCallback;
-  invokeCallback: (args: InvokeCallbackParams) => any;
-  invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
+  initExternalCallbackInvocation<T>(): ExternalCallbackInvocation<T>;
+  invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
+  invokeExternalContainerCallback: (args: InvokeExternalCallbackParams) => any;
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   requests: RequestMap;
@@ -151,8 +154,11 @@ export interface InitContainerParams {
     composeRenderMethods: ComposeRenderMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
     dispatchRenderEvent: DispatchRenderEventCallback;
-    invokeCallback: (args: InvokeCallbackParams) => any;
-    invokeComponentCallback: (args: InvokeComponentCallbackParams) => any;
+    invokeApplicationCallback: (args: InvokeExternalCallbackParams) => any;
+    invokeInternalCallback: (args: InvokeInternalCallbackParams) => any;
+    invokeExternalContainerCallback: (
+      args: InvokeExternalCallbackParams
+    ) => any;
     postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
     postCallbackResponseMessage: PostMessageComponentResponseCallback;
     postComponentRenderMessage: (p: any) => void;

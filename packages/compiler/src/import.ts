@@ -1,3 +1,5 @@
+import initializeWalletSelectorPlugin from '@bos-web-engine/wallet-selector-plugin';
+
 import type { ImportExpression, ModuleImport } from './types';
 
 type ImportModule = { modulePath: string };
@@ -8,6 +10,12 @@ type ImportMixed = ImportModule & {
 };
 
 const BWE_MODULE_URL_PREFIX = 'near://';
+const PLUGIN_MODULES = new Map<string, string>([
+  [
+    '@bos-web-engine/wallet-selector-plugin',
+    initializeWalletSelectorPlugin.toString(),
+  ],
+]);
 
 const stripLeadingComment = (source: string) => {
   if (!source) {
@@ -78,11 +86,13 @@ export const extractImportStatements = (source: string) => {
         modulePath = modulePath.replace(BWE_MODULE_URL_PREFIX, '');
       }
 
+      const isPlugin = PLUGIN_MODULES.has(moduleName);
       const isBweModule = (isRelative && !isCssModule) || isComponentImport;
       const importMeta = {
         isBweModule,
         isCssModule,
-        isPackageImport: !isBweModule && !isCssModule,
+        isPackage: !isPlugin && !isBweModule && !isCssModule,
+        isPlugin,
         isRelative,
         moduleName,
         modulePath,
@@ -133,11 +143,13 @@ export const extractImportStatements = (source: string) => {
       const [sideEffectMatch] = [...src.matchAll(SIDE_EFFECT_IMPORT_REGEX)];
       if (sideEffectMatch) {
         const { modulePath } = sideEffectMatch.groups as ImportModule;
+        // TODO add real support for side-effect imports
         imports.push({
           imports: [],
           isCssModule: false,
           isSideEffect: true,
-          isPackageImport: true,
+          isPackage: true,
+          isPlugin: false,
           moduleName: extractModuleName(modulePath),
           modulePath,
         });
@@ -279,7 +291,7 @@ interface ImportsByType {
 export const buildComponentImportStatements = (
   moduleImport: ModuleImport
 ): string[] => {
-  const { imports, isSideEffect, moduleName } = moduleImport;
+  const { imports, isPlugin, isSideEffect, moduleName } = moduleImport;
   if (isSideEffect) {
     return [];
   }
@@ -301,6 +313,13 @@ export const buildComponentImportStatements = (
     })
     .join(', ');
 
+  if (isPlugin) {
+    statements.push(
+      `const ${defaultAlias} = (${PLUGIN_MODULES.get(moduleName)})();`
+    );
+    statements.push(`const ${namespaceAlias} = ${defaultAlias};`);
+  }
+
   if (defaultImport) {
     // import X from 'x'
     statements.push(`const ${defaultImport.reference} = ${defaultAlias};`);
@@ -319,6 +338,11 @@ export const buildComponentImportStatements = (
     // does not expose a default, causing a default-style import to break - therefore
     // assume that all imports with only destructuring behave in this way
     // this means references for destructuring imports are always at container scope
+
+    // plugins are expanded inline, the destructuring "import" here is an object destructure
+    if (isPlugin) {
+      statements.push(`const { ${destructuredStatements} } = ${defaultAlias};`);
+    }
   } else {
     throw new Error(`Invalid import for module ${moduleName}`);
   }

@@ -1,10 +1,12 @@
 import type { MessagePayload } from '@bos-web-engine/common';
 import type { ComponentCompilerRequest } from '@bos-web-engine/compiler';
+import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { getAppDomId } from '../container';
 import {
+  onApplicationMethodInvocation,
   onCallbackInvocation,
   onCallbackResponse,
   onRender,
@@ -46,6 +48,7 @@ export function useComponentTree({
   addComponent,
   getComponentRenderCount,
 }: UseComponentTreeParams) {
+  const { wallet } = useWallet();
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef(
     {}
   );
@@ -112,6 +115,18 @@ export function useComponentTree({
 
         switch (data.type) {
           case 'component.callbackInvocation': {
+            // invocations with null container targets are invoking methods exposed by the outer application
+            if (data.targetId === null) {
+              return onApplicationMethodInvocation({
+                args: data.args,
+                componentId: data.originator,
+                method: data.method,
+                onMessageSent,
+                requestId: data.requestId,
+                wallet,
+              });
+            }
+
             onCallbackInvocation({ data, onMessageSent });
             break;
           }

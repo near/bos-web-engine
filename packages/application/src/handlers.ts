@@ -2,12 +2,58 @@ import type { ComponentTrust } from '@bos-web-engine/common';
 import React from 'react';
 
 import { sendMessage } from './container';
+import WalletSelectorPlugin from './plugins/wallet-selector';
 import { createChildElements, createElement } from './react';
 import type {
+  ApplicationMethodInvocationParams,
   CallbackInvocationHandlerParams,
   CallbackResponseHandlerParams,
   RenderHandlerParams,
 } from './types';
+
+export async function onApplicationMethodInvocation({
+  args,
+  method,
+  componentId,
+  onMessageSent,
+  requestId,
+  wallet,
+}: ApplicationMethodInvocationParams) {
+  const sendResponse = (value: any, error?: Error) =>
+    sendMessage({
+      componentId,
+      message: {
+        containerId: componentId,
+        result: JSON.stringify({ error, value }),
+        requestId,
+        targetId: componentId,
+        type: 'component.callbackResponse',
+      },
+      onMessageSent,
+    });
+
+  if (!wallet) {
+    throw new Error('Wallet not initialized');
+  }
+
+  try {
+    switch (method) {
+      case 'walletSelector.signAndSendTransaction': {
+        return sendResponse(
+          await WalletSelectorPlugin.signAndSendTransaction({ args, wallet })
+        );
+      }
+      case 'walletSelector.signMessage':
+        return sendResponse(
+          await WalletSelectorPlugin.signMessage({ args, wallet })
+        );
+      default:
+        throw new Error(`Unrecognized method ${method}`);
+    }
+  } catch (error: any) {
+    return sendResponse(undefined, error.toString());
+  }
+}
 
 export function onCallbackInvocation({
   data,
@@ -19,7 +65,7 @@ export function onCallbackInvocation({
   */
   const { args, method, originator, requestId, targetId } = data;
   sendMessage({
-    componentId: targetId,
+    componentId: targetId!,
     message: {
       args,
       method,

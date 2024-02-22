@@ -1,6 +1,6 @@
 import type {
-  InvokeCallbackParams,
-  InvokeComponentCallbackParams,
+  InvokeExternalCallbackParams,
+  InvokeInternalCallbackParams,
 } from './types';
 
 /**
@@ -8,7 +8,10 @@ import type {
  * @param args The arguments to the invoked callback
  * @param callback The function to execute
  */
-export function invokeCallback({ args, callback }: InvokeCallbackParams): any {
+export function invokeInternalCallback({
+  args,
+  callback,
+}: InvokeInternalCallbackParams): any {
   if (args === undefined) {
     return callback();
   }
@@ -27,26 +30,24 @@ export function invokeCallback({ args, callback }: InvokeCallbackParams): any {
 /**
  * Invoke a callback declared within a Component
  * @param args The arguments to the invoked callback
- * @param buildRequest Function to build an inter-Component asynchronous callback request
  * @param callbacks The set of callbacks defined on the target Component
- * @param componentId ID of the Component invoking the method
- * @param invokeCallback Function to execute the specified function in the current Component's context
+ * @param containerId ID of the container invoking the method
+ * @param initExternalCallbackInvocation Function to initialize a callback invocation request
+ * @param invokeInternalCallback Function to execute the specified function in the current Component's context
  * @param method The name of the callback to be invoked
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
- * @param requests The set of inter-Component callback requests being tracked by the Component
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  */
-export function invokeComponentCallback({
+export function invokeExternalContainerCallback({
   args,
-  buildRequest,
   callbacks,
   containerId,
-  invokeCallback,
+  initExternalCallbackInvocation,
+  invokeInternalCallback,
   method,
   postCallbackInvocationMessage,
-  requests,
   serializeArgs,
-}: InvokeComponentCallbackParams): any {
+}: InvokeExternalCallbackParams): any {
   // unknown method
   if (!callbacks[method]) {
     console.error(`No method ${method} on container ${containerId}`);
@@ -66,15 +67,14 @@ export function invokeComponentCallback({
       }
 
       return (...childArgs: any[]) => {
-        const requestId = window.crypto.randomUUID();
-        requests[requestId] = buildRequest();
+        const { invocationId } = initExternalCallbackInvocation();
 
         postCallbackInvocationMessage({
           args: childArgs,
           callbacks,
           containerId,
           method: callbackIdentifier,
-          requestId,
+          requestId: invocationId,
           serializeArgs,
           targetId: callbackIdentifier.split('::').slice(1).join('::'),
         });
@@ -82,5 +82,39 @@ export function invokeComponentCallback({
     });
   }
 
-  return invokeCallback({ args, callback: callbacks[method] });
+  return invokeInternalCallback({ args, callback: callbacks[method] });
+}
+
+/**
+ * Invoke a method on the outer window application
+ * @param args The arguments to the invoked callback
+ * @param callbacks The set of callbacks defined on the target Component
+ * @param containerId ID of the container invoking the method
+ * @param initExternalCallbackInvocation Function to initialize a callback invocation request
+ * @param invokeInternalCallback Function to execute the specified function in the current Component's context
+ * @param method The name of the callback to be invoked
+ * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
+ * @param serializeArgs Function to serialize arguments passed to window.postMessage
+ */
+export function invokeApplicationCallback<T>({
+  args,
+  callbacks,
+  containerId,
+  initExternalCallbackInvocation,
+  method,
+  postCallbackInvocationMessage,
+  serializeArgs,
+}: InvokeExternalCallbackParams): Promise<T> {
+  const { invocation, invocationId } = initExternalCallbackInvocation<T>();
+  postCallbackInvocationMessage({
+    args,
+    callbacks,
+    containerId,
+    method,
+    requestId: invocationId,
+    serializeArgs,
+    targetId: null,
+  });
+
+  return invocation;
 }

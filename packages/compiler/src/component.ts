@@ -106,7 +106,7 @@ export function buildComponentSource({
   }
 
   const importAssignments = imports
-    .filter((moduleImport) => moduleImport.isPackageImport)
+    .filter((moduleImport) => moduleImport.isPackage || moduleImport.isPlugin)
     .map((moduleImport) => buildComponentImportStatements(moduleImport))
     .flat()
     .filter((statement) => !!statement) as string[];
@@ -158,7 +158,7 @@ export function buildComponentSource({
   return {
     childComponents,
     css: parsedCss?.stylesheet,
-    packageImports: imports.filter(({ isPackageImport }) => isPackageImport),
+    packageImports: imports.filter(({ isPackage }) => isPackage),
     source: source.replace(
       COMPONENT_IMPORT_PLACEHOLDER,
       importedComponentDefinitions
@@ -182,7 +182,10 @@ function buildComponentFunction({
       ${importAssignments.join('\n')}
       ${COMPONENT_IMPORT_PLACEHOLDER}
       ${componentSource}
-      return ${exportedReference ? exportedReference : 'BWEComponent'};
+      ${
+        exportedReference || 'BWEComponent'
+      }.isRootContainerComponent = ${isRoot};
+      return ${exportedReference || 'BWEComponent'};
     })();
   `;
 }

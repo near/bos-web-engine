@@ -1,8 +1,9 @@
 import type { ComponentTrust } from '@bos-web-engine/common';
 import {
   buildEventHandler,
-  invokeCallback,
-  invokeComponentCallback,
+  invokeApplicationCallback,
+  invokeExternalContainerCallback,
+  invokeInternalCallback,
   buildRequest,
   composeMessagingMethods,
   initContainer,
@@ -45,15 +46,11 @@ function buildSandboxedComponent({
           if (typeof React === 'undefined') {
             window.React = {};
           }
-          React.Fragment = __Preact.Fragment ;
+          React.Fragment = __Preact.Fragment;
 
-/******** BEGIN BOS SOURCE ********/
-/******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
-${scriptSrc}
-/******** END BOS SOURCE ********/
-
-          (function () {
+          window.webEngine = (function () {
             let {
+              callApplicationMethod,
               commit,
               processEvent,
               props,
@@ -65,11 +62,11 @@ ${scriptSrc}
                 composeMessagingMethods: ${composeMessagingMethods.toString()},
                 composeRenderMethods: ${composeRenderMethods.toString()},
                 composeSerializationMethods: ${composeSerializationMethods.toString()},
-                invokeCallback: ${invokeCallback.toString()},
-                invokeComponentCallback: ${invokeComponentCallback.toString()},
+                invokeApplicationCallback: ${invokeApplicationCallback.toString()},
+                invokeExternalContainerCallback: ${invokeExternalContainerCallback.toString()},
+                invokeInternalCallback: ${invokeInternalCallback.toString()},
               },
               context: {
-                BWEComponent,
                 Component,
                 componentId: '${id}',
                 componentPropsJson: ${componentPropsJson},
@@ -94,9 +91,21 @@ ${scriptSrc}
             };
   
             window.addEventListener('message', processEvent);
-  
-            __Preact.render(__Preact.createElement(BWEComponent, props), document.body);
+
+            return {
+              container: {
+                props,
+              },
+              initPlugin: (initializer) => initializer({ callApplicationMethod }),
+            }
           }());
+
+/******** BEGIN BOS SOURCE ********/
+/******** The root Component definition is inlined here as [function BWEComponent() {...}] ********/
+${scriptSrc}
+/******** END BOS SOURCE ********/
+
+          __Preact.render(__Preact.createElement(BWEComponent, window.webEngine.container.props), document.body);
         </script>
       </body>
     </html>

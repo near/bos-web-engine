@@ -5,12 +5,23 @@ import type {
   ComponentRender,
   ComponentTrust,
   MessagePayload,
+  SerializedArgs,
 } from '@bos-web-engine/common';
 import type {
   ComponentCompilerRequest,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
+import { Wallet } from '@near-wallet-selector/core';
 import type { DOMElement } from 'react';
+
+export interface ApplicationMethodInvocationParams {
+  args: SerializedArgs;
+  componentId: string;
+  method: string;
+  onMessageSent: OnMessageSentCallback;
+  requestId: string;
+  wallet: Wallet | null;
+}
 
 export interface CallbackInvocationHandlerParams {
   data: ComponentCallbackInvocation;
@@ -18,7 +29,7 @@ export interface CallbackInvocationHandlerParams {
 }
 
 export interface CallbackResponseHandlerParams {
-  data: ComponentCallbackResponse;
+  data: Omit<ComponentCallbackResponse, 'type'>;
   onMessageSent: OnMessageSentCallback;
 }
 

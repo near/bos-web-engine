@@ -159,7 +159,7 @@ export function ComponentMonitor({
       }
       case 'component.callbackInvocation': {
         const targetComponent = formatComponentId(
-          parseComponentId(message.targetId)
+          parseComponentId(message.targetId || '')
         );
         const { requestId, method, args } = message;
         return {
