@@ -33,13 +33,16 @@ export async function onApplicationMethodInvocation({
       onMessageSent,
     });
 
-  if (!wallet) {
-    throw new Error('Wallet not initialized');
-  }
-
   try {
     switch (method) {
-      // Social DB doesn't require extra serialization steps (as of now) so we can pass through directly:
+      /*
+        NOTE: Social DB doesn't require extra serialization steps (as of now) so we can pass 
+        through directly. The get() method doesn't require a user to be signed in with a wallet. 
+        The set() method handles throwing a proper error when the user is not signed in with a 
+        wallet. The social db instance passed in is already attached to the current wallet 
+        selector instance.
+      */
+
       case 'socialDb.get': {
         return sendResponse(await social.get(args[0] as any));
       }
@@ -47,13 +50,21 @@ export async function onApplicationMethodInvocation({
         return sendResponse(await social.set(args[0] as any));
       }
 
-      // Wallet selector plugin requires more advanced serialization due to use of Buffer:
+      /*
+        NOTE: Wallet selector plugin requires more advanced serialization due to use of Buffer. 
+        All of the methods also require the user to be signed in with a wallet.
+      */
+
       case 'walletSelector.signAndSendTransaction': {
+        if (!wallet)
+          throw new Error('Wallet not initialized (user not signed in)');
         return sendResponse(
           await WalletSelectorPlugin.signAndSendTransaction({ args, wallet })
         );
       }
       case 'walletSelector.signMessage':
+        if (!wallet)
+          throw new Error('Wallet not initialized (user not signed in)');
         return sendResponse(
           await WalletSelectorPlugin.signMessage({ args, wallet })
         );
