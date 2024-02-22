@@ -39,6 +39,14 @@ export function sendMessage({
   });
 }
 
+function translatePropsKey(key: string) {
+  if (key === 'oninput') {
+    return 'onInput';
+  }
+
+  return key;
+}
+
 export function deserializeProps({
   id,
   props,
@@ -59,17 +67,17 @@ export function deserializeProps({
 
       const { callbackIdentifier } = callbackMeta;
       return [
-        k,
+        translatePropsKey(k),
         (...args: any[]) => {
           let serializedArgs: any = args;
           const event = args[0] || {};
 
-        // TODO make this opt-in/out?
-        event.preventDefault?.();
+          // TODO make this opt-in/out?
+          event.preventDefault?.();
 
-        const { target } = event;// is this a DOM event?
+          const { target } = event; // is this a DOM event?
           if (target && typeof target === 'object') {
-          const { checked, name, type, value } = target;
+            const { checked, name, type, value } = target;
             serializedArgs = {
               event: {
                 target: {
