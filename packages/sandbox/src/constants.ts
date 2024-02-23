@@ -117,8 +117,6 @@ import s from './styles.module.css';
 
 // expect error underlines on npm import lines, the editor is not able to resolve them
 import reverse from 'lodash/reverse';
-import { BookOpenText } from '@phosphor-icons/react/dist/icons/BookOpenText';
-import { Plus } from '@phosphor-icons/react/dist/icons/Plus';
 
 function HelloWorld() {
   const [count, setCount] = useState(0);
@@ -127,10 +125,9 @@ function HelloWorld() {
     <div className={s.wrapper}>
       <h1>Welcome to the BOS Web Engine Sandbox!</h1>
       <div style={{ display: 'flex', columnGap: '0.5rem' }}>
-        <p>If you are new to BWE development, check out the docs in the sidebar</p>
-        <BookOpenText className={s.icon} />
+        <p>If you are new to BWE development, check out the docs in the sidebar 👀</p>
       </div>
-      <p>You can hit the <Plus style={{display: 'inline'}} /> button in the sidebar to create a new component with recommended boilerplate</p>
+      <p>You can hit the + button in the sidebar to create a new component with recommended boilerplate</p>
 
       <h2>Here are a few examples</h2>
       <div className={s.examples}>
