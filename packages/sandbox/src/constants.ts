@@ -62,8 +62,7 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
 
 export const DEFAULT_FILES: SandboxFiles = {
   'HelloWorld.tsx': {
-    css: `
-.wrapper {
+    css: `.wrapper {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -99,8 +98,7 @@ export const DEFAULT_FILES: SandboxFiles = {
   height: 1.5rem;
 }
   `,
-    source: `
-/*
+    source: `/*
   Welcome to the BOS Web Engine Sandbox!
 
   This environment has TypeScript support. All changes in this IDE 
@@ -160,8 +158,7 @@ export default HelloWorld as BWEComponent;
 `,
   },
   'Message.tsx': {
-    css: `
-.wrapper {
+    css: `.wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -183,8 +180,7 @@ export default HelloWorld as BWEComponent;
   color: var(--green-10);
 }
 `,
-    source: `
-import s from './styles.module.css';
+    source: `import s from './styles.module.css';
 
 type Props = {
   message?: string;
