@@ -41,13 +41,13 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/social-card.svg',
     navbar: {
       title: 'BOS Web Engine Docs',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'NEAR logo',
         src: 'img/logo.svg',
+        srcDark: 'img/logo_rev.svg',
       },
       items: [
         {
@@ -55,6 +55,22 @@ const config: Config = {
           sidebarId: 'docs',
           position: 'left',
           label: 'Docs',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'alpha',
+          position: 'left',
+          label: 'Alpha Test',
+        },
+        {
+          href: 'https://bwe.near.dev',
+          label: 'Gateway / Demos',
+          position: 'left',
+        },
+        {
+          href: 'https://bwe-sandbox.near.dev',
+          label: 'Sandbox',
+          position: 'left',
         },
         {
           href: 'https://github.com/near/bos-web-engine',
