@@ -11,7 +11,8 @@ import type {
   ComponentCompilerRequest,
   ComponentCompilerResponse,
 } from '@bos-web-engine/compiler';
-import { Wallet } from '@near-wallet-selector/core';
+import type { SocialDb } from '@bos-web-engine/social-db';
+import type { Wallet } from '@near-wallet-selector/core';
 import type { DOMElement } from 'react';
 
 export interface ApplicationMethodInvocationParams {
@@ -20,6 +21,7 @@ export interface ApplicationMethodInvocationParams {
   method: string;
   onMessageSent: OnMessageSentCallback;
   requestId: string;
+  social: SocialDb;
   wallet: Wallet | null;
 }
 

@@ -17,7 +17,7 @@ import {
   MAINNET_SOCIAL_CONTRACT_ID,
   SocialProvider,
   SocialDb,
-} from '@bos-web-engine/social-db-api';
+} from '@bos-web-engine/social-db';
 import { ThemeProvider } from '@bos-web-engine/ui';
 import {
   WalletSelectorControl,
@@ -86,6 +86,6 @@ This package also includes the following hooks for convenience:
 In some cases you might need to initialize and manage an SDK instance yourself:
 
 ```ts
-import { SocialDb } from '@bos-web-engine/social-db-api';
+import { SocialDb } from '@bos-web-engine/social-db';
 const db = new SocialDb({ ... });
 ```

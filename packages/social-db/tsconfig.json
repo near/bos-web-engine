@@ -1,6 +1,6 @@
 {
   "extends": "tsconfig/react-library.json",
-  "include": ["src", "../social-db/src/hooks/useSocialProfile.ts"],
+  "include": ["src"],
   "exclude": ["lib", "node_modules"],
   "compilerOptions": {
     "outDir": "lib"
