@@ -55,7 +55,7 @@ export function initContainer({
     componentId,
     isComponent: (c) => c === Component,
     isFragment: (c) => c === Fragment,
-    isRootComponent: (c) => !!c.isRootContainerComponent,
+    isRootComponent: (c) => !!c?.isRootContainerComponent,
     postComponentRenderMessage,
     serializeNode,
     trust,
