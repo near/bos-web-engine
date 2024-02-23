@@ -83,7 +83,7 @@ importers:
         version: link:../../packages/sandbox
       '@bos-web-engine/social-db':
         specifier: workspace:*
-        version: link:../../packages/social-db-api
+        version: link:../../packages/social-db
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -156,7 +156,7 @@ importers:
         version: link:../../packages/sandbox
       '@bos-web-engine/social-db':
         specifier: workspace:*
-        version: link:../../packages/social-db-api
+        version: link:../../packages/social-db
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -256,7 +256,7 @@ importers:
         version: link:../container
       '@bos-web-engine/social-db':
         specifier: workspace:*
-        version: link:../social-db-api
+        version: link:../social-db
       '@bos-web-engine/wallet-selector-control':
         specifier: workspace:*
         version: link:../wallet-selector-control
@@ -329,10 +329,10 @@ importers:
         version: link:../common
       '@bos-web-engine/social-db':
         specifier: workspace:*
-        version: link:../social-db-api
+        version: link:../social-db
       '@bos-web-engine/social-db-plugin':
         specifier: workspace:*
-        version: link:../social-db-api-plugin
+        version: link:../social-db-plugin
       '@bos-web-engine/wallet-selector-plugin':
         specifier: workspace:*
         version: link:../wallet-selector-plugin
@@ -412,7 +412,7 @@ importers:
         version: link:../application
       '@bos-web-engine/social-db':
         specifier: workspace:*
-        version: link:../social-db-api
+        version: link:../social-db
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../ui
@@ -496,14 +496,14 @@ importers:
         specifier: ^4.7.4
         version: 4.9.5
 
-  packages/social-db-api:
+  packages/social-db:
     dependencies:
       '@near-js/providers':
         specifier: ^0.0.7
         version: 0.0.7(encoding@0.1.13)
       '@near-wallet-selector/core':
         specifier: ^8.9.2
-        version: 8.9.2(near-api-js@2.1.4)
+        version: 8.9.5(near-api-js@2.1.4)
       big.js:
         specifier: ^6.2.1
         version: 6.2.1
@@ -548,14 +548,14 @@ importers:
         specifier: ^4.5.2
         version: 4.9.5
 
-  packages/social-db-api-plugin:
+  packages/social-db-plugin:
     devDependencies:
       '@bos-web-engine/common':
         specifier: workspace:*
         version: link:../common
       '@bos-web-engine/social-db':
         specifier: workspace:*
-        version: link:../social-db-api
+        version: link:../social-db
       '@types/node':
         specifier: ^17.0.12
         version: 17.0.45
@@ -648,7 +648,7 @@ importers:
     dependencies:
       '@bos-web-engine/social-db':
         specifier: workspace:*
-        version: link:../social-db-api
+        version: link:../social-db
       '@bos-web-engine/ui':
         specifier: workspace:*
         version: link:../ui
