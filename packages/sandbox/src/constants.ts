@@ -68,7 +68,7 @@ export const DEFAULT_FILES: SandboxFiles = {
   gap: 1rem;
   padding: 1rem;
   background-color: #f1f0ef;
-  height: calc(100vh - var(--gateway-header-height))
+  min-height: calc(100vh - var(--gateway-header-height))
 }    
 
 .examples {
