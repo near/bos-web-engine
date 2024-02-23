@@ -1,4 +1,5 @@
 import { signAndSendTransaction } from '@bos-web-engine/wallet-selector-plugin';
+import { parseNearAmount } from '@near-js/utils';
 import { useState } from 'react';
 
 export default function () {
@@ -12,7 +13,7 @@ export default function () {
         {
           type: 'Transfer',
           params: {
-            deposit: transferAmount,
+            deposit: parseNearAmount(transferAmount),
           },
         },
       ],
@@ -24,7 +25,7 @@ export default function () {
   return (
     <div>
       <div>
-        <span>Amount to transfer</span>
+        <span>⋈ to transfer</span>
         <input
           type="text"
           onChange={(e) => setTransferAmount(e.target.value)}
