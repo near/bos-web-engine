@@ -96,9 +96,3 @@ export interface ComponentEntry {
   '': string;
   css: string;
 }
-
-interface SocialComponent {
-  widget: { [name: string]: string | ComponentEntry };
-}
-
-export type SocialComponentsByAuthor = { [author: string]: SocialComponent };
