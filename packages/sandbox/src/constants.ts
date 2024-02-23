@@ -142,7 +142,7 @@ function HelloWorld() {
         </div>
         <div className={s.card}>
           <h3>React <code>useState</code></h3>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
+          <button type="button" onClick={() => setCount((value) => value + 1)}>
             Increase Count: {count}
           </button>
         </div>
