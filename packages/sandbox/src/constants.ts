@@ -62,14 +62,45 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
 
 export const DEFAULT_FILES: SandboxFiles = {
   'HelloWorld.tsx': {
-    css: `.wrapper {
+    css: `
+.wrapper {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
+  background-color: #f1f0ef;
+  height: calc(100vh - var(--gateway-header-height))
 }    
+
+.examples {
+  display: flex;
+  flex-direction: row;
+  column-gap: 1rem;
+  flex-wrap: wrap;
+  row-gap: 1.5rem;
+}
+  
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 500px;
+  background: var(--color-surface-1);
+  border-radius: 1rem;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05), 0 5px 5px rgba(0, 0, 0, 0.05), 0 0 30px rgba(0, 0, 0, 0.05);
+  min-width: 25rem;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
   `,
-    source: `/*
+    source: `
+/*
   Welcome to the BOS Web Engine Sandbox!
 
   This environment has TypeScript support. All changes in this IDE 
@@ -86,18 +117,41 @@ import { useState } from 'react';
 import Message from './Message';
 import s from './styles.module.css';
 
+// expect error underlines on npm import lines, the editor is not able to resolve them
+import reverse from 'lodash/reverse';
+import { BookOpenText } from '@phosphor-icons/react/dist/icons/BookOpenText';
+import { Plus } from '@phosphor-icons/react/dist/icons/Plus';
+
 function HelloWorld() {
   const [count, setCount] = useState(0);
 
   return (
     <div className={s.wrapper}>
-      <h1>Welcome!</h1>
+      <h1>Welcome to the BOS Web Engine Sandbox!</h1>
+      <div style={{ display: 'flex', columnGap: '0.5rem' }}>
+        <p>If you are new to BWE development, check out the docs in the sidebar</p>
+        <BookOpenText className={s.icon} />
+      </div>
+      <p>You can hit the <Plus style={{display: 'inline'}} /> button in the sidebar to create a new component with recommended boilerplate</p>
 
-      <Message props={{ message: 'Hello world!' }} />
-
-      <button type="button" onClick={() => setCount((value) => value + 1)}>
-        Increase Count: {count}
-      </button>
+      <h2>Here are a few examples</h2>
+      <div className={s.examples}>
+        <div className={s.card}>
+          <h3>Embedding another BWE component</h3>
+          <Message props={{ message: 'Hello world!' }} />
+        </div>
+        <div className={s.card}>
+          <h3>React <code>useState</code></h3>
+          <button type="button" onClick={() => setCount((value) => value + 1)}>
+            Increase Count: {count}
+          </button>
+        </div>
+        <div className={s.card}>
+          <h3>Using an imported library</h3>
+          <p>Lodash <code>_.reverse([1, 2, 3])</code></p>
+          {JSON.stringify(reverse([1, 2, 3]))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -106,7 +160,8 @@ export default HelloWorld as BWEComponent;
 `,
   },
   'Message.tsx': {
-    css: `.wrapper {
+    css: `
+.wrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -114,6 +169,10 @@ export default HelloWorld as BWEComponent;
   background: var(--green-4);
   color: var(green-1);
   border-radius: 0.5rem;
+
+  --green-1: #fbfefc;
+  --green-4: #d6f1df;
+  --green-10: #2b9a66;
 }
 
 .title {
@@ -124,7 +183,8 @@ export default HelloWorld as BWEComponent;
   color: var(--green-10);
 }
 `,
-    source: `import s from './styles.module.css';
+    source: `
+import s from './styles.module.css';
 
 type Props = {
   message?: string;
@@ -133,7 +193,7 @@ type Props = {
 function Message({ message = 'Default message...' }: Props) {
   return (
     <div className={s.wrapper}>
-      <h2 className={s.title}>BOS Says:</h2>
+      <h2 className={s.title}>Message:</h2>
       <p className={s.message}>{message}</p>
     </div>
   );
