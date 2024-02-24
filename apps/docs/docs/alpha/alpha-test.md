@@ -49,7 +49,7 @@ Please create a GitHub issue describing what you are experiencing. The more info
 
 #### Opinions on Syntax and DevX
 
-You can [start a GitHub Discussion](https://github.com/near/bos-web-engine/discussions/new?category=misc) or let us know through [this form](example.com)
+You can [start a GitHub Discussion](https://github.com/near/bos-web-engine/discussions/new?category=misc) or let us know through this form
 
 :::warning
 TODO form
