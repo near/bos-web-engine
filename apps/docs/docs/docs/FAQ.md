@@ -25,10 +25,6 @@ BOS components are written in TypeScript or JavaScript and use Preact as the ren
 
 See the [npm section of our imports documentation](/docs/building-decentralized-frontends/imports#npm) for full details. You can attempt to import any npm package, but not all will work due to the sandboxed environment.
 
-### How do I convert an existing (p)react application?
-
-See [migrating.md](migrating.md)(placeholder) for guidance on migrating an existing (p)react application to BOS.
-
 ### What are the performance limits? How many sandboxed components can reasonably be rendered on a page?
 
 We don't have hard numbers to share here since our engine is constantly evolving, but the Social Feed app in our [demo list](http://bwe.near.dev) is a great example of a page with many components. We've found that the load time is reasonable for real world usage even on mobile devices with lower than average memory.
