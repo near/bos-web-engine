@@ -5,7 +5,7 @@ Please use non-vital NEAR accounts during the alpha test since we have not yet i
 :::
 
 ## Welcome
-Thanks so much for participating in the alpha test of BOS Web Engine, an improved execution layer for NEAR's decentralized front-end components.
+Thanks so much for participating in the alpha test for BOS Web Engine, an improved execution layer for NEAR's decentralized front-end components.
 
 ## Timeline
 
@@ -49,11 +49,9 @@ Please create a GitHub issue describing what you are experiencing. The more info
 
 #### Opinions on Syntax and DevX
 
-You can [start a GitHub Discussion](https://github.com/near/bos-web-engine/discussions/new?category=misc) or let us know through this form
+You can [Start a GitHub Discussion](https://github.com/near/bos-web-engine/discussions/new?category=misc) or let us know through this form
 
-:::warning
-TODO form
-:::
+- [BOS Web Engine Feeback For ](https://forms.gle/5w16G5wix4ezWx4y5)
 
 ## What to expect
 
@@ -75,4 +73,4 @@ A wide variety of npm packages should work out of the box with BWE, especially n
 ### Not Planned to be Supported
 
 - Direct DOM manipulation
-- interoperability between BWE and the previous VM
+- Interoperability between BWE and the previous VM
