@@ -9,13 +9,19 @@ declare global {
 
 type WalletSelectorPlugin = Pick<
   BrowserWalletBehaviour,
-  'signMessage' | 'signAndSendTransaction'
+  'getAccounts' | 'signMessage' | 'signAndSendTransaction'
 >;
 
 export default function initializeWalletSelectorPlugin() {
   function initWalletSelectorPlugin({
     callApplicationMethod,
   }: WebEngineContext): WalletSelectorPlugin {
+    const getAccounts: BrowserWalletBehaviour['getAccounts'] = () =>
+      callApplicationMethod({
+        args: [],
+        method: 'walletSelector.getAccounts',
+      });
+
     const signMessage: BrowserWalletBehaviour['signMessage'] = (args) =>
       callApplicationMethod({
         args: [args],
@@ -30,6 +36,7 @@ export default function initializeWalletSelectorPlugin() {
         });
 
     return {
+      getAccounts,
       signMessage,
       signAndSendTransaction,
     };

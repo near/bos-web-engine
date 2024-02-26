@@ -1,4 +1,5 @@
 import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
+import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
@@ -11,6 +12,7 @@ const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;
 const PREACT_VERSION = '10.17.1';
 
 export default function Root() {
+  const { account } = useWallet();
   const router = useRouter();
   const { query } = router;
 
@@ -55,6 +57,7 @@ export default function Root() {
           {error && <div className="error">{error}</div>}
           <ComponentTree
             components={components}
+            currentUserAccountId={account?.accountId}
             rootComponentPath={rootComponentPath}
           />
           <Inspector />

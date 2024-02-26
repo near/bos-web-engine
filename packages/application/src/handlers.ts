@@ -55,6 +55,11 @@ export async function onApplicationMethodInvocation({
         All of the methods also require the user to be signed in with a wallet.
       */
 
+      case 'walletSelector.getAccounts': {
+        // Instead of throwing an error, we return an empty array when the user hasn't signed in yet
+        if (!wallet) return sendResponse([]);
+        return sendResponse(await wallet.getAccounts());
+      }
       case 'walletSelector.signAndSendTransaction': {
         if (!wallet)
           throw new Error('Wallet not initialized (user not signed in)');
