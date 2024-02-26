@@ -23,7 +23,7 @@ BOS components are written in TypeScript or JavaScript and use Preact as the ren
 
 ### What non-BOS code can I import?
 
-See the [npm section of our imports documentation](/docs/building-decentralized-frontends/imports#npm) for full details. You can attempt to import any npm package, but not all will work due to the sandboxed environment.
+See the [npm section of our imports documentation](/alpha/building-decentralized-frontends/imports#npm) for full details. You can attempt to import any npm package, but not all will work due to the sandboxed environment.
 
 ### What are the performance limits? How many sandboxed components can reasonably be rendered on a page?
 
@@ -82,7 +82,7 @@ In the spirit of progressive decentralization, BWE will launch with dependencies
 
 Containers maintain a set of callbacks, defined within the container, which are available to be "invoked" across container boundaries. This includes functions passed via `props` and function arguments passed to `props` functions. When an external container needs to invoke one of these callbacks, the external container requests the outer application to send a message to the target container identifying the method and arguments.
 
-See [architecture.md](/docs/further-reading/architecture.md#component-callbacks) for more details.
+See [architecture.md](/alpha/further-reading/architecture.md#component-callbacks) for more details.
 
 ### What happens when I set an `onClick` function and it gets called?
 
