@@ -127,6 +127,7 @@ export function Preview() {
           <ComponentTree
             key={nonce}
             components={components}
+            currentUserAccountId={account?.accountId}
             rootComponentPath={rootComponentPath}
           />
         )}
