@@ -37,6 +37,10 @@
     color: var(--color-text-2);
     font-size: 0.7rem;
   }
+
+  &:first-child {
+    padding-left: 0.25rem;
+  }
 }
 
 .avatar {

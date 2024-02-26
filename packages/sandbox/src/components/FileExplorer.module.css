@@ -156,6 +156,10 @@
   box-sizing: border-box;
   min-width: 0;
   outline: none;
+
+  &[contenteditable] {
+    text-overflow: clip;
+  }
 }
 
 .fileIcon {
