@@ -23,9 +23,6 @@ If you have certain packages which you would like to use within BWE, please chim
 Some packages are expected to not work within BWE due to its architecture and security model. Packages which rely on the following are expected to not work:
 
 - direct access to the `window` or `document` objects
-:::warning TODO
-andy
-:::
 
 ## BWE Components
 
