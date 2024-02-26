@@ -81,7 +81,7 @@ There are three main avenues for giving feedback. Please choose whichever is mos
 
     - [BWE Feedback Form](https://forms.gle/5w16G5wix4ezWx4y5) - Easy google feedback form
     - [GitHub Discussions](https://github.com/near/bos-web-engine/discussions/new?category=alpha-test-feedback) - Alpha feedback section of BWE's GH Discussions
-    - [GitHub Issues](https://github.com/near/bos-web-engine/issues) - Found a bug, performance issue, or have a feature request? [File it here.](https://github.com/near/bos-web-engine/issues) The more info the better, but don't let that be a blocker from filing one! If you only have time to file something quick, please do so and we can follow up for more details later 🙂
+    - [GitHub Issues](https://github.com/near/bos-web-engine/issues/new) - Found a bug, performance issue, or have a feature request? [File it here.](https://github.com/near/bos-web-engine/issues) The more info the better, but don't let that be a blocker from filing one! If you only have time to file something quick, please do so and we can follow up for more details later 🙂
 
 :::tip
 
