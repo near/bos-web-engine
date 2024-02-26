@@ -44,7 +44,7 @@ Using the [BWE Sandbox IDE](https://bwe-sandbox.near.dev), try any of the follow
 - Test npm package imports
 
 :::tip npm Package Support
-A wide variety of npm packages should work out of the box with BWE, especially non-UI packages. See the [npm section of our imports documentation](/docs/building-decentralized-frontends/imports#npm) for full details.
+A wide variety of npm packages should work out of the box with BWE, especially non-UI packages. See the [npm section of our imports documentation](/alpha/building-decentralized-frontends/imports#npm) for full details.
 
 **Note:** You can attempt to import any npm package, but not all will work due to the sand boxed environment. We are using this testing period to determine which packages will work and cataloging them in docs.
 :::
