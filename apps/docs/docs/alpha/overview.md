@@ -1,9 +1,8 @@
 ---
-slug: /
-sidebar_position: 1
+sidebar_position: 2
 ---
 
-# Overview
+# BWE Overview
 
 BOS Web Engine (BWE) is the next-gen decentralized frontend execution environment.
 

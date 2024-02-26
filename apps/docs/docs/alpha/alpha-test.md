@@ -1,3 +1,8 @@
+---
+slug: /
+sidebar_position: 1
+---
+
 # BWE Alpha Test
 
 ## Welcome 🎉
