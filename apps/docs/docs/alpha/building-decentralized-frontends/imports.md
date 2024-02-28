@@ -14,7 +14,9 @@ Note that not every npm package will function within the BWE environment
 
 ### Supported Packages
 
-The BWE team has a tracker [here](https://bos-web-engine.vercel.app/webengine.near/NPM.Tracker) which categorizes known compatability of packages. Expect the list to grow over time.
+By default, `preact` and `react` (via `preact/compat`) are available via the container's `importmap`.
+
+The BWE team has a tracker [here](https://bos-web-engine.vercel.app/webengine.near/NPM.Tracker) which categorizes known compatibility of packages. Expect the list to grow over time.
 
 If you have certain packages which you would like to use within BWE, please chime in on [this thread](https://github.com/near/bos-web-engine/discussions/166)
 
@@ -23,6 +25,11 @@ If you have certain packages which you would like to use within BWE, please chim
 Some packages are expected to not work within BWE due to its architecture and security model. Packages which rely on the following are expected to not work:
 
 - direct access to the `window` or `document` objects
+- usage of certain React hooks, in particular `useContext` and DOM manipulation via `useRef`
+- state management across iframes
+- React implementation details not in parity with Preact 
+
+In general, external component libraries (e.g. Chakra UI) and state management libraries are not well-supported in the current version.
 
 ## BWE Components
 
