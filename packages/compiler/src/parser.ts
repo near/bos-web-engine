@@ -5,12 +5,17 @@ function deriveComponentPath(
   componentImport: ModuleImport
 ) {
   const [author, component] = componentPath.split('/');
-  const importPathComponents = componentImport.modulePath.split('/');
+  const { modulePath } = componentImport;
+  const importPathComponents = modulePath.split('/');
   const pathComponents = component.split('.');
+
+  const parentCount = modulePath.startsWith('..')
+    ? modulePath.split('..').length - 1
+    : 0;
 
   return `${author}/${[
     ...pathComponents.slice(
-      0,
+      parentCount,
       pathComponents.length -
         importPathComponents.filter((p) => p.startsWith('.')).length
     ),
