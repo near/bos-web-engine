@@ -19,7 +19,6 @@ interface BuildComponentFunctionParams {
   componentPath: string;
   componentSource: string;
   cssModuleAssignment?: string;
-  exportedReference: string | null;
   importAssignments: string[];
   isRoot: boolean;
 }
@@ -27,7 +26,6 @@ interface BuildComponentFunctionParams {
 interface BuildComponentSourceParams {
   componentPath: string;
   componentStyles?: string;
-  exportedReference: string;
   imports: ModuleImport[];
   isRoot: boolean;
   transpiledComponentSource: string;
@@ -45,7 +43,6 @@ interface BuildComponentSourceParams {
 export function buildComponentSource({
   componentPath,
   componentStyles,
-  exportedReference,
   imports,
   isRoot,
   transpiledComponentSource,
@@ -80,7 +77,6 @@ export function buildComponentSource({
     componentPath,
     componentSource: transpiledComponentSource,
     cssModuleAssignment,
-    exportedReference,
     importAssignments,
     isRoot,
   });
@@ -95,7 +91,6 @@ function buildComponentFunction({
   componentPath,
   componentSource,
   cssModuleAssignment,
-  exportedReference,
   importAssignments,
   isRoot,
 }: BuildComponentFunctionParams) {
@@ -108,10 +103,6 @@ function buildComponentFunction({
       ${importAssignments.join('\n')}
       ${cssModuleAssignment}
       ${componentSource}
-      ${
-        exportedReference || 'BWEComponent'
-      }.isRootContainerComponent = ${isRoot};
-      return ${exportedReference || 'BWEComponent'};
     })();
   `;
 }

@@ -1,13 +1,8 @@
 import { BOSModule, TrustMode } from '@bos-web-engine/common';
 import { SocialDb } from '@bos-web-engine/social-db';
 
-import {
-  buildComponentSource,
-  buildComponentFunctionName,
-  isChildComponentTrusted,
-} from './component';
+import { buildComponentSource } from './component';
 import { buildModuleImports, buildModulePackageUrl } from './import';
-import { ParsedChildComponent } from './parser';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
 import type {
@@ -15,15 +10,22 @@ import type {
   CompilerInitAction,
   ComponentCompilerParams,
   ComponentTreeNode,
+  ModuleImport,
   ParseComponentTreeParams,
   SendMessageCallback,
   TranspiledComponentLookupParams,
 } from './types';
 import { TrustedRoot } from './types';
 
+interface TranspiledCacheEntry {
+  children: { isTrusted: boolean; path: string; trustMode: string }[];
+  imports: ModuleImport[];
+  source: string;
+}
+
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<BOSModule | null>>;
-  private compiledSourceCache: Map<string, string | null>;
+  private compiledSourceCache: Map<string, TranspiledCacheEntry | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
   private hasFetchedLocal: boolean = false;
   private localFetchUrl?: string;
@@ -32,7 +34,7 @@ export class ComponentCompiler {
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<BOSModule>>();
-    this.compiledSourceCache = new Map<string, string>();
+    this.compiledSourceCache = new Map<string, TranspiledCacheEntry>();
     this.sendWorkerMessage = sendMessage;
     this.social = new SocialDb({
       debug: true, // TODO: Conditionally enable "debug" option
@@ -92,18 +94,28 @@ export class ComponentCompiler {
    * Transpile the component and cache for future lookups
    * @param componentPath path to the BOS Component
    * @param componentSource source code of the BOS Component
+   * @param isComponentPathTrusted function to determine whether a child Component is rendered in a trusted context
    * @param isRoot flag indicating whether this is the root Component of a container
    */
   getTranspiledComponentSource({
     componentPath,
     componentSource,
+    isComponentPathTrusted,
     isRoot,
   }: TranspiledComponentLookupParams) {
     const cacheKey = JSON.stringify({ componentPath, isRoot });
     if (!this.compiledSourceCache.has(cacheKey)) {
       try {
-        const { code } = transpileSource(componentSource);
-        this.compiledSourceCache.set(cacheKey, code || null);
+        const { children, code, imports } = transpileSource(
+          componentPath,
+          componentSource,
+          isRoot,
+          isComponentPathTrusted
+        );
+        this.compiledSourceCache.set(
+          cacheKey,
+          code ? { children, imports, source: code } : null
+        );
       } catch (e) {
         console.error(`Failed to transpile ${componentPath}`, e);
         this.compiledSourceCache.set(cacheKey, null);
@@ -132,41 +144,39 @@ export class ComponentCompiler {
     trustedRoot,
   }: ParseComponentTreeParams) {
     // transpile and cache the Component
-    const transpiledComponentSource = this.getTranspiledComponentSource({
+    const {
+      children,
+      imports,
+      source: transpiledComponentSource,
+    } = this.getTranspiledComponentSource({
       componentPath,
       componentSource,
+      isComponentPathTrusted: isComponentPathTrusted
+        ? isComponentPathTrusted
+        : () => false,
       isRoot,
     });
 
-    const {
-      css: componentCss,
-      childComponents,
-      packageImports,
-      source: componentFunctionSource,
-    } = buildComponentSource({
-      componentPath,
-      componentStyles,
-      isRoot,
-      transpiledComponentSource,
-    });
+    const packageImports = imports.filter(({ isPackage }) => isPackage);
+    const { css: componentCss, source: componentFunctionSource } =
+      buildComponentSource({
+        componentPath,
+        componentStyles,
+        imports,
+        isRoot,
+        transpiledComponentSource,
+      });
 
     // get the set of trusted child Components to be inlined in the container
-    const trustedChildComponents = childComponents.filter((child) =>
-      isChildComponentTrusted(child, isComponentPathTrusted)
+    const trustedChildComponents = children.filter(
+      ({ isTrusted }) => isTrusted
     );
 
-    // each child Component being rendered as a new trusted root (i.e. trust mode `trusted-author`)
-    // will track inclusion criteria when evaluating trust for their children in turn
-    const buildTrustedRootKey = ({ index, path }: ParsedChildComponent) =>
-      `${index}:${path}`;
-
-    const trustedRoots = childComponents.reduce((trusted, childComponent) => {
-      const { trustMode } = childComponent;
-
+    const trustedRoots = children.reduce((trusted, { path, trustMode }) => {
       // trust Components with the same author as the trusted root Component
       if (trustMode === TrustMode.TrustAuthor) {
         const rootComponentAuthor = componentPath.split('/')[0];
-        trusted.set(buildTrustedRootKey(childComponent), {
+        trusted.set(path, {
           rootPath: componentPath,
           trustMode,
           matchesRootAuthor: (path: string) =>
@@ -181,13 +191,7 @@ export class ComponentCompiler {
     components.set(componentPath, {
       css: componentCss,
       imports: packageImports,
-      // replace each child [Component] reference in the target Component source
-      // with the generated name of the inlined Component function definition
-      transpiled: trustedChildComponents.reduce(
-        (transformed, { path, transform }) =>
-          transform(transformed, buildComponentFunctionName(path)),
-        componentFunctionSource
-      ),
+      transpiled: componentFunctionSource,
     });
 
     // fetch the set of child Component sources not already added to the tree
@@ -207,7 +211,7 @@ export class ComponentCompiler {
         }
 
         const childTrustedRoot =
-          trustedRoots.get(buildTrustedRootKey(childComponent)) || trustedRoot;
+          trustedRoots.get(childComponent.path) || trustedRoot;
 
         await this.parseComponentTree({
           componentPath: path,
@@ -264,9 +268,9 @@ export class ComponentCompiler {
       isRoot: true,
     });
 
-    const containerModuleImports = [...transformedComponents.values()]
-      .map(({ imports }) => imports)
-      .flat();
+      const containerModuleImports = [...transformedComponents.values()]
+        .map(({ imports }) => imports)
+        .flat();
 
     // build the import map used by the container
     const importedModules = containerModuleImports.reduce(

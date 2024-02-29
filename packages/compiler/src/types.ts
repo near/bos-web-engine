@@ -37,6 +37,7 @@ export interface ComponentCompilerParams {
 export interface TranspiledComponentLookupParams {
   componentPath: string;
   componentSource: string;
+  isComponentPathTrusted: (path: string) => boolean;
   isRoot: boolean;
 }
 
