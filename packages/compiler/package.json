@@ -17,6 +17,7 @@
     "@bos-web-engine/wallet-selector-plugin": "workspace:*"
   },
   "devDependencies": {
+    "@babel/types": "^7.24.0",
     "@near-js/types": "^0.0.4",
     "@types/babel__standalone": "^7.1.6",
     "@types/node": "^17.0.12",
