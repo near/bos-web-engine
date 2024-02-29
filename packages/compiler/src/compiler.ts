@@ -264,29 +264,6 @@ export class ComponentCompiler {
       isRoot: true,
     });
 
-    const aggregatedStyles = [...transformedComponents.entries()].reduce(
-      (styleSheet, [path, { css }], i) => {
-        if (!css) {
-          return styleSheet;
-        }
-
-        // don't specify a selector the root Component CSS
-        // it will be under the container's id in the aggregated CSS
-        if (i === 0) {
-          return css;
-        }
-
-        return `
-${styleSheet}
-
-[data-component-src="${path}"] {
-  ${css}
-}
-`;
-      },
-      ''
-    );
-
     const containerModuleImports = [...transformedComponents.values()]
       .map(({ imports }) => imports)
       .flat();
@@ -322,15 +299,12 @@ ${styleSheet}
       ),
     ].join('\n\n');
 
-    const containerStyles = `
-#dom-${componentId.replace(/([\/.#])/g, '\\$1')} {
-  ${aggregatedStyles}
-}`;
-
     this.sendWorkerMessage({
       componentId,
       componentSource,
-      containerStyles,
+      containerStyles: [...transformedComponents.values()]
+        .map(({ css }) => css)
+        .join('\n'),
       rawSource: moduleEntry.component,
       componentPath,
       importedModules,
