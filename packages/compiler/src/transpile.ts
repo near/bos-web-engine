@@ -1,7 +1,9 @@
 import Babel from '@babel/standalone';
 import type {
   ExportDefaultDeclaration,
+  ExportNamedDeclaration,
   Expression,
+  FunctionDeclaration,
   Identifier,
   ImportDeclaration,
   ImportSpecifier,
@@ -9,12 +11,13 @@ import type {
   ObjectProperty,
   StringLiteral,
   TSAsExpression,
+  VariableDeclaration,
 } from '@babel/types';
 import { TrustMode } from '@bos-web-engine/common';
 
 import { buildComponentFunctionName } from './component';
 import { parseModuleImport } from './import';
-import type { ImportExpression, ModuleImport } from './types';
+import type { ImportExpression, ModuleExport, ModuleImport } from './types';
 
 /**
  * Derive a BOS Component path from a relative import
@@ -73,13 +76,18 @@ function isChildComponentTrusted(
   return false;
 }
 
-export function transpileSource(
-  componentPath: string,
-  source: string,
-  isRoot: boolean,
-  isComponentPathTrusted?: (path: string) => boolean
-) {
-  const exports: { default: string } = { default: '' };
+interface TranspileSourceParams {
+  componentPath: string;
+  source: string;
+  isComponentPathTrusted?: (path: string) => boolean;
+}
+
+export function transpileSource({
+  componentPath,
+  source,
+  isComponentPathTrusted,
+}: TranspileSourceParams) {
+  const exports: ModuleExport = { default: '', named: [] };
   const imports: ModuleImport[] = [];
   const componentReferences: { [component: string]: ModuleImport } = {};
   const children: {
@@ -217,24 +225,53 @@ export function transpileSource(
         }
       },
       ExportDeclaration(path: {
-        node: ExportDefaultDeclaration;
+        node: ExportDefaultDeclaration | ExportNamedDeclaration;
+        remove(): void;
+        replaceWith(
+          declaration: FunctionDeclaration | VariableDeclaration
+        ): void;
         replaceWithMultiple(expressions: Expression[]): void;
       }) {
         if (t.isExportDefaultDeclaration(path.node)) {
-          exports.default = (
-            (path.node.declaration as TSAsExpression).expression as Identifier
-          ).name;
-          path.replaceWithMultiple([
-            t.assignmentExpression(
-              '=',
-              t.memberExpression(
-                t.identifier(exports.default),
-                t.identifier('isRootContainerComponent')
-              ),
-              t.booleanLiteral(isRoot)
-            ),
-            t.returnStatement(t.identifier(exports.default)),
-          ]);
+          let component: Identifier | undefined;
+          const declaration = (path.node as ExportDefaultDeclaration)
+            .declaration as TSAsExpression | FunctionDeclaration | Identifier;
+
+          if (t.isTSAsExpression(declaration)) {
+            // export default X;
+            component = (declaration as TSAsExpression)
+              .expression as Identifier;
+
+            path.remove();
+          } else if (t.isFunctionDeclaration(declaration)) {
+            // export default function X()
+            component = (declaration as FunctionDeclaration).id as Identifier;
+            if (!component) {
+              // export default function ()
+              component = t.identifier('BWEPlaceholderComponent');
+              (declaration as FunctionDeclaration).id = component as Identifier;
+            }
+
+            path.replaceWith(declaration as FunctionDeclaration);
+          } else if (t.isIdentifier(declaration)) {
+            component = declaration as Identifier;
+            path.remove();
+          } else {
+            console.error(`unsupported declaration type ${declaration?.type}`);
+          }
+
+          exports.default = component!.name;
+        } else if (t.isExportNamedDeclaration(path.node)) {
+          const { declaration } = path.node as ExportNamedDeclaration;
+          if (t.isVariableDeclaration(declaration)) {
+            const [exported] = (declaration as VariableDeclaration)
+              .declarations;
+            exports.named.push((exported.id as Identifier).name);
+
+            path.replaceWith(declaration as VariableDeclaration);
+          } else {
+            console.error(`unsupported export type ${path.node.type}`);
+          }
         }
       },
       ImportDeclaration(path: { node: ImportDeclaration; remove(): void }) {

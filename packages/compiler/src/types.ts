@@ -97,3 +97,8 @@ export interface ComponentEntry {
   '': string;
   css: string;
 }
+
+export interface ModuleExport {
+  default: string;
+  named: string[];
+}

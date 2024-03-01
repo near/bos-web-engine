@@ -10,15 +10,17 @@ import type {
   CompilerInitAction,
   ComponentCompilerParams,
   ComponentTreeNode,
+  ModuleExport,
   ModuleImport,
   ParseComponentTreeParams,
   SendMessageCallback,
   TranspiledComponentLookupParams,
+  TrustedRoot,
 } from './types';
-import { TrustedRoot } from './types';
 
 interface TranspiledCacheEntry {
   children: { isTrusted: boolean; path: string; trustMode: string }[];
+  exports: ModuleExport;
   imports: ModuleImport[];
   source: string;
 }
@@ -106,15 +108,14 @@ export class ComponentCompiler {
     const cacheKey = JSON.stringify({ componentPath, isRoot });
     if (!this.compiledSourceCache.has(cacheKey)) {
       try {
-        const { children, code, imports } = transpileSource(
+        const { children, code, exports, imports } = transpileSource({
           componentPath,
-          componentSource,
-          isRoot,
-          isComponentPathTrusted
-        );
+          source: componentSource,
+          isComponentPathTrusted,
+        });
         this.compiledSourceCache.set(
           cacheKey,
-          code ? { children, imports, source: code } : null
+          code ? { children, exports, imports, source: code } : null
         );
       } catch (e) {
         console.error(`Failed to transpile ${componentPath}`, e);
@@ -146,6 +147,7 @@ export class ComponentCompiler {
     // transpile and cache the Component
     const {
       children,
+      exports,
       imports,
       source: transpiledComponentSource,
     } = this.getTranspiledComponentSource({
@@ -162,6 +164,7 @@ export class ComponentCompiler {
       buildComponentSource({
         componentPath,
         componentStyles,
+        exports,
         imports,
         isRoot,
         transpiledComponentSource,

@@ -1,6 +1,6 @@
 import { parseCssModule } from './css';
 import { buildComponentImportStatements } from './import';
-import type { ModuleImport } from './types';
+import type { ModuleExport, ModuleImport } from './types';
 
 /**
  * Returns the name to be used for the Component function
@@ -19,6 +19,7 @@ interface BuildComponentFunctionParams {
   componentPath: string;
   componentSource: string;
   cssModuleAssignment?: string;
+  exports: ModuleExport;
   importAssignments: string[];
   isRoot: boolean;
 }
@@ -26,6 +27,7 @@ interface BuildComponentFunctionParams {
 interface BuildComponentSourceParams {
   componentPath: string;
   componentStyles?: string;
+  exports: ModuleExport;
   imports: ModuleImport[];
   isRoot: boolean;
   transpiledComponentSource: string;
@@ -35,7 +37,7 @@ interface BuildComponentSourceParams {
  * Build the transpiled source of a BOS Component along with its imports
  * @param componentPath path to the BOS Component
  * @param componentStyles CSS module for the BOS Component
- * @param exportedReference the name of the default-exported identifier
+ * @param exports identifiers exported from this BOS Component
  * @param imports structured import metadata for dependencies of the BOS Component
  * @param transpiledComponentSource transpiled source code of the BOS Component
  * @param isRoot flag indicating whether this is the root Component of a container
@@ -43,6 +45,7 @@ interface BuildComponentSourceParams {
 export function buildComponentSource({
   componentPath,
   componentStyles,
+  exports,
   imports,
   isRoot,
   transpiledComponentSource,
@@ -77,6 +80,7 @@ export function buildComponentSource({
     componentPath,
     componentSource: transpiledComponentSource,
     cssModuleAssignment,
+    exports,
     importAssignments,
     isRoot,
   });
@@ -91,6 +95,7 @@ function buildComponentFunction({
   componentPath,
   componentSource,
   cssModuleAssignment,
+  exports,
   importAssignments,
   isRoot,
 }: BuildComponentFunctionParams) {
@@ -99,10 +104,15 @@ function buildComponentFunction({
 
   return `
     /************************* ${commentHeader} *************************/
-    const ${functionName} = (() => {
+    const { default: ${functionName} } = (() => {
       ${importAssignments.join('\n')}
       ${cssModuleAssignment}
       ${componentSource}
+      ${exports.default}.isRootContainerComponent = ${isRoot};
+      return {
+        default: ${exports.default},
+        ${exports.named.join(',\n')}
+      };
     })();
   `;
 }
