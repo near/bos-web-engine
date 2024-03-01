@@ -4,6 +4,7 @@ import typescript from '@rollup/plugin-typescript';
 import postcssPresetEnv from 'postcss-preset-env';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
+import { string } from 'rollup-plugin-string';
 
 const extensions = ['.js', '.jsx', '.ts', '.tsx'];
 const globals = {
@@ -27,6 +28,9 @@ const options = {
     },
   ],
   plugins: [
+    string({
+      include: '**/*.txt',
+    }),
     peerDepsExternal(),
     nodeResolve({ extensions, browser: true }),
     commonjs(),

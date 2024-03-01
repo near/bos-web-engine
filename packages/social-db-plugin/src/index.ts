@@ -1,5 +1,6 @@
 import type { WebEngine, WebEngineContext } from '@bos-web-engine/common';
 import type { SocialDb } from '@bos-web-engine/social-db';
+export type { SocialGetResponse } from '@bos-web-engine/social-db';
 
 declare global {
   interface Window {
@@ -7,7 +8,7 @@ declare global {
   }
 }
 
-type SocialDbPlugin = {
+export type SocialDbPlugin = {
   socialDb: Pick<SocialDb, 'get' | 'set'>;
 };
 

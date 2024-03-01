@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-type WalletSelectorPlugin = Pick<
+export type WalletSelectorPlugin = Pick<
   BrowserWalletBehaviour,
   'getAccounts' | 'signMessage' | 'signAndSendTransaction'
 >;
