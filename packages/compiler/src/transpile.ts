@@ -108,13 +108,11 @@ export function transpileSource(
           return;
         }
 
-        const [Component, props] = args as [
-          Identifier,
-          ObjectExpression | undefined,
-        ];
+        let [Component, props] = args as [Identifier, ObjectExpression];
 
-        // TODO handle case w/o props
-        if (!props) {
+        if (t.isNullLiteral(props)) {
+          props = t.objectExpression([]);
+          path.node.arguments[1] = props;
         }
 
         const propsExpressions = props?.properties.reduce(
