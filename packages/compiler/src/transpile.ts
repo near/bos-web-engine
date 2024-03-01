@@ -115,7 +115,42 @@ export function transpileSource(
           path.node.arguments[1] = props;
         }
 
-        const propsExpressions = props?.properties.reduce(
+        /**
+         * FIXME referencing `arguments` only works when the Component rendering takes place within
+         *  in a scope in which the correct props is bound to arguments[0], i.e. the Component's root
+         *  scope - in the directly-returned JSX or an arrow function in the Component's root scope.
+         *
+         *  TODO the correct solution is for the parser to inject the __bweMeta reference into the Component
+         *   props argument, but it would also need to be made accessible to the render site
+         *
+         *   TL; DR
+         *   this preserves ancestry:
+         *   import Y from './Y';
+         *   export default function X() { return <Y />; }
+         *
+         *   this doesn't:
+         *   import Y from './Y';
+         *   const renderY = () => <Y />;
+         *   export default function X() { return <>{renderY()}</> }
+         */
+        const propsAccessor = t.memberExpression(
+          t.identifier('arguments'),
+          t.numericLiteral(0),
+          true
+        );
+
+        const bweMeta = t.objectExpression([
+          t.objectProperty(
+            t.identifier('parentMeta'),
+            t.logicalExpression(
+              '&&',
+              propsAccessor,
+              t.memberExpression(propsAccessor, t.identifier('__bweMeta'))
+            )
+          ),
+        ]);
+
+        const propsExpressions = props.properties.reduce(
           (expressions, { key, value }: any) => {
             expressions[key.name] = value;
             return expressions;
@@ -124,6 +159,7 @@ export function transpileSource(
         ) as {
           id?: string;
           props?: ObjectExpression;
+          src?: StringLiteral | Identifier;
           trust?: ObjectExpression;
         };
 
@@ -160,10 +196,23 @@ export function transpileSource(
 
           // use the derived Component path to set the "src" prop on <Component />
           if (!isTrusted) {
-            // TODO remove ?.
-            props?.properties.push(
+            props.properties.push(
               t.objectProperty(t.identifier('src'), t.stringLiteral(src))
             );
+          } else {
+            const componentProps = propsExpressions.props;
+            props.properties = [
+              t.objectProperty(
+                t.identifier('__bweMeta'),
+                t.objectExpression([
+                  ...bweMeta.properties,
+                  ...props!.properties.filter(
+                    ({ value }: any) => value !== componentProps
+                  ),
+                ])
+              ),
+              ...(componentProps ? componentProps.properties : []),
+            ];
           }
         }
       },
@@ -180,7 +229,7 @@ export function transpileSource(
               '=',
               t.memberExpression(
                 t.identifier(exports.default),
-                t.identifier('isRootComponent')
+                t.identifier('isRootContainerComponent')
               ),
               t.booleanLiteral(isRoot)
             ),
