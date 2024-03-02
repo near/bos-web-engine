@@ -1,5 +1,6 @@
 import { SandboxFile, SandboxFiles } from './hooks/useSandboxStore';
 import { MonacoExternalLibrary } from './types';
+import pluginsDefinitionSource from '../artifacts/plugins.d.ts.txt';
 
 export const FILE_EXTENSIONS = ['tsx', 'module.css'] as const;
 export type FileExtension = (typeof FILE_EXTENSIONS)[number];
@@ -33,6 +34,25 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
   {
     resolutionPath: 'file:///node_modules/@types/react/jsx-runtime.d.ts',
     url: 'https://unpkg.com/@types/react@18.2.47/jsx-runtime.d.ts',
+  },
+  {
+    resolutionPath: 'file:///plugins.d.ts',
+    source: `
+      declare namespace Plugins {
+        ${pluginsDefinitionSource}
+      }
+
+      declare module "@bos-web-engine/social-db-plugin" {
+        const plugin: Plugins.SocialDbPlugin;
+        export type SocialGetResponse<T> = Plugins.SocialGetResponse<T>;
+        export = plugin;
+      }
+
+      declare module "@bos-web-engine/wallet-selector-plugin" {
+        const plugin: Plugins.WalletSelectorPlugin;
+        export = plugin;
+      }
+    `,
   },
   {
     resolutionPath: 'file:///globals.d.ts',

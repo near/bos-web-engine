@@ -7,9 +7,16 @@ declare global {
   }
 }
 
-type WalletSelectorPlugin = Pick<
-  BrowserWalletBehaviour,
-  'getAccounts' | 'signMessage' | 'signAndSendTransaction'
+/*
+  The Required<...> wrapper is needed due to BrowserWalletBehaviour["signMessage"] being 
+  optional. Our plugin ensures signMessage is always defined and callable - it just 
+  throws an error if you aren't signed in
+*/
+export type WalletSelectorPlugin = Required<
+  Pick<
+    BrowserWalletBehaviour,
+    'getAccounts' | 'signMessage' | 'signAndSendTransaction'
+  >
 >;
 
 export default function initializeWalletSelectorPlugin() {

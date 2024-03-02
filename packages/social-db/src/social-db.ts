@@ -2,6 +2,7 @@ import { JsonRpcProvider } from '@near-js/providers';
 import { CodeResult, FinalExecutionStatusBasic } from '@near-js/types';
 import type {
   AccountState,
+  FinalExecutionOutcome,
   FunctionCallAction,
   NetworkId,
   WalletSelector,
@@ -168,7 +169,10 @@ export class SocialDb {
    * @throws Promise rejects with an `Error`. If the error is caused by a failed transaction, a `FinalExecutionOutcome` object will be attached to the `cause`.
    * @returns A promise that resolves with `FinalExecutionOutcome` if transaction succeeds or `null` if transaction is skipped (due to passed `data` being empty or in sync with what's already stored on chain).
    */
-  async set({ data, strategy = 'DIFF' }: SocialSetParams) {
+  async set({
+    data,
+    strategy = 'DIFF',
+  }: SocialSetParams): Promise<FinalExecutionOutcome | null> {
     const wallet = await this.wallet();
 
     if (!wallet || !this.accountState?.publicKey) {

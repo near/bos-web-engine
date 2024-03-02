@@ -97,6 +97,9 @@ export function MonacoEditor() {
 
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
+      esModuleInterop: true,
+      strict: true,
+      strictNullChecks: true,
     });
 
     if (!libraries) {
