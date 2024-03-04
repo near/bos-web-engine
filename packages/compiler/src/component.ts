@@ -101,14 +101,19 @@ function buildComponentFunction({
 }: BuildComponentFunctionParams) {
   const functionName = buildComponentFunctionName(isRoot ? '' : componentPath);
   const commentHeader = `${componentPath} ${isRoot ? '(root)' : ''}`;
+  const rootComponentFlagSet = `${exports.default}.isRootContainerComponent = ${isRoot};`;
 
   return `
     /************************* ${commentHeader} *************************/
     const { default: ${functionName} } = (() => {
-      ${importAssignments.join('\n')}
-      ${cssModuleAssignment}
-      ${componentSource}
-      ${exports.default}.isRootContainerComponent = ${isRoot};
+      ${[
+        ...importAssignments,
+        cssModuleAssignment,
+        componentSource,
+        rootComponentFlagSet,
+      ]
+        .filter((s) => !!s)
+        .join('\n')}
       return {
         default: ${exports.default},
         ${exports.named.join(',\n')}
