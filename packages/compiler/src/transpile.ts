@@ -8,7 +8,9 @@ import type {
   ImportDeclaration,
   ImportSpecifier,
   ObjectExpression,
+  ObjectMethod,
   ObjectProperty,
+  SpreadElement,
   StringLiteral,
   TSAsExpression,
   VariableDeclaration,
@@ -159,8 +161,20 @@ export function transpileSource({
         ]);
 
         const propsExpressions = props.properties.reduce(
-          (expressions, { key, value }: any) => {
-            expressions[key.name] = value;
+          (
+            expressions,
+            property: ObjectMethod | ObjectProperty | SpreadElement
+          ) => {
+            const { key, value } = property as ObjectProperty;
+            const name = (key as Identifier)?.name;
+            if (!name) {
+              if (!t.isSpreadElement(property)) {
+                console.error(`Unexpected props type "${property.type}"`);
+              }
+
+              return expressions;
+            }
+            expressions[name] = value;
             return expressions;
           },
           {} as any
@@ -266,7 +280,14 @@ export function transpileSource({
           if (t.isVariableDeclaration(declaration)) {
             const [exported] = (declaration as VariableDeclaration)
               .declarations;
-            exports.named.push((exported.id as Identifier).name);
+            const exportedName = (exported.id as Identifier).name;
+            exports.named.push(exportedName);
+            if (exportedName === 'BWEComponent' && !exports.default) {
+              exports.default = exportedName;
+              console.warn(
+                `Component ${componentPath} relies on a named export for "BWEComponent". In future versions, the module Component must be a default export.`
+              );
+            }
 
             path.replaceWith(declaration as VariableDeclaration);
           } else {
@@ -324,6 +345,10 @@ export function transpileSource({
     ],
     filename: 'component.tsx', // name is not important, just the extension
   });
+
+  if (!exports.default) {
+    throw new Error(`${componentPath} missing default-exported Component`);
+  }
 
   return { children, code, exports, imports };
 }
