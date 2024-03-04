@@ -271,9 +271,9 @@ export class ComponentCompiler {
       isRoot: true,
     });
 
-      const containerModuleImports = [...transformedComponents.values()]
-        .map(({ imports }) => imports)
-        .flat();
+    const containerModuleImports = [...transformedComponents.values()]
+      .map(({ imports }) => imports)
+      .flat();
 
     // build the import map used by the container
     const importedModules = containerModuleImports.reduce(
