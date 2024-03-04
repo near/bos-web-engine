@@ -58,6 +58,7 @@ type DispatchRenderCallback = (vnode: VNode) => void;
 
 export const composeRenderMethods: ComposeRenderMethodsCallback = ({
   componentId,
+  isExternalComponent,
   isRootComponent,
   isComponent,
   isFragment,
@@ -112,11 +113,6 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     };
   };
 
-  const isBWEComponent = (node: VNode<any>) =>
-    (typeof node.type === 'function' &&
-      node.type?.name?.startsWith?.('BWEComponent')) ||
-    false;
-
   function parseRenderedTree(
     node: RenderedVNode | null,
     renderedChildren?: Array<RenderedVNode | null>,
@@ -164,10 +160,8 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
         : node.props;
 
     if (typeof node.type === 'function' && !isComponent(node.type)) {
-      if (
-        isBWEComponent(node) &&
-        !isRootComponent(node.type as ContainerComponent)
-      ) {
+      const component = node.type as ContainerComponent;
+      if (!isExternalComponent(component) && !isRootComponent(component)) {
         const componentNode = buildBWEComponentNode(
           node as BWEComponentNode,
           renderedChildren

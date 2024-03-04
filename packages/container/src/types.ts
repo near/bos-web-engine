@@ -91,6 +91,7 @@ export interface ContainerComponent extends FunctionComponent {
 interface ComposeRenderMethodsParams {
   componentId: string;
   isComponent: (component: Function) => boolean;
+  isExternalComponent: (component: ContainerComponent) => boolean;
   isFragment: (component: Function) => boolean;
   isRootComponent: (component: ContainerComponent) => boolean;
   postComponentRenderMessage: PostMessageComponentRenderCallback;

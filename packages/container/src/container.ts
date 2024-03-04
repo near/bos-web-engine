@@ -54,6 +54,7 @@ export function initContainer({
   const { commit } = composeRenderMethods({
     componentId,
     isComponent: (c) => c === Component,
+    isExternalComponent: (c) => !('isRootContainerComponent' in c),
     isFragment: (c) => c === Fragment,
     isRootComponent: (c) => !!c?.isRootContainerComponent,
     postComponentRenderMessage,
