@@ -302,7 +302,6 @@ export function transpileSource({
 
         const importExpressions = specifiers.map((specifier) => {
           if (t.isImportSpecifier(specifier)) {
-            // TODO differentiate/handle namespaced & side-effect imports
             const { imported, local } = specifier as ImportSpecifier;
             return {
               alias: local.name,
@@ -315,6 +314,11 @@ export function transpileSource({
             return {
               isDefault: true,
               reference: specifier.local.name,
+            };
+          } else if (t.isImportNamespaceSpecifier(specifier)) {
+            return {
+              isNamespace: true,
+              alias: specifier.local.name,
             };
           }
         }) as ImportExpression[];

@@ -153,9 +153,7 @@ export class ComponentCompiler {
     } = this.getTranspiledComponentSource({
       componentPath,
       componentSource,
-      isComponentPathTrusted: isComponentPathTrusted
-        ? isComponentPathTrusted
-        : () => false,
+      isComponentPathTrusted: isComponentPathTrusted || (() => false),
       isRoot,
     });
 
