@@ -216,12 +216,12 @@ export function transpileSource({
             ? buildComponentFunctionName(src)
             : 'Component';
 
-          // use the derived Component path to set the "src" prop on <Component />
-          if (!isTrusted) {
-            props.properties.push(
-              t.objectProperty(t.identifier('src'), t.stringLiteral(src))
-            );
-          } else {
+          // inject the src prop
+          props.properties.push(
+            t.objectProperty(t.identifier('src'), t.stringLiteral(src))
+          );
+
+          if (isTrusted) {
             const componentProps = propsExpressions.props;
             props.properties = [
               t.objectProperty(
