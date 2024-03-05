@@ -47,6 +47,7 @@ export function parseModuleImport(
     isCssModule,
     isPackage: !isPlugin && !isBweModule && !isCssModule,
     isPlugin,
+    isRelative,
     moduleName,
     modulePath,
   } as ModuleImport;

@@ -185,11 +185,11 @@ export function transpileSource({
           trust?: ObjectExpression;
         };
 
-        if (componentReferences[Component.name]) {
-          const src = deriveComponentPath(
-            componentPath,
-            componentReferences[Component.name]
-          );
+        const componentImport = componentReferences[Component.name];
+        if (componentImport) {
+          const src = componentImport.isRelative
+            ? deriveComponentPath(componentPath, componentImport)
+            : componentImport.modulePath;
 
           const trustValue = propsExpressions.trust
             ?.properties[0] as ObjectProperty;
