@@ -1,16 +1,16 @@
 import ShapeSet from './ShapeSet';
 
-interface Props {
+type Props = {
   circle: string;
   id: string;
   square: string;
   triangle: string;
-  updateCircle: () => {};
-  updateSquare: () => {};
-  updateTriangle: () => {};
-}
+  updateCircle: () => any;
+  updateSquare: () => any;
+  updateTriangle: () => any;
+};
 
-export default function BWEComponent(props: Props) {
+function SetParent(props: Props) {
   const {
     circle,
     square,
@@ -22,18 +22,18 @@ export default function BWEComponent(props: Props) {
   } = props;
 
   return (
-    <div>
-      <ShapeSet
-        id={id}
-        props={{
-          circle,
-          square,
-          triangle,
-          updateCircle,
-          updateSquare,
-          updateTriangle,
-        }}
-      />
-    </div>
+    <ShapeSet
+      id={id}
+      props={{
+        circle,
+        square,
+        triangle,
+        updateCircle,
+        updateSquare,
+        updateTriangle,
+      }}
+    />
   );
 }
+
+export default SetParent as BWEComponent<Props>;

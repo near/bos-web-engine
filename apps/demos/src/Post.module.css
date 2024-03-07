@@ -1,0 +1,30 @@
+.post {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-surface-1);
+    border-radius: 1rem;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05), 0 5px 5px rgba(0, 0, 0, 0.05), 0 0 30px rgba(0, 0, 0, 0.05);
+
+    * {
+        min-width: 0;
+    }
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.timestamp {
+    margin-left: auto;
+    font: var(--text-xs);
+    color: var(--color-text-2);
+    white-space: nowrap;
+    flex-shrink: 0;
+}

@@ -1,0 +1,25 @@
+.circle {
+    position: relative;
+    width: var(--shape-size);
+    height: var(--shape-size);
+    border-radius: var(--shape-size);
+    background: var(--shape-color);
+    cursor: pointer;
+    transition: all 200ms;
+
+    &:hover {
+        transform: scale(1.1, 1.1);
+    }
+}
+
+.icon {
+    position: absolute;
+    display: block;
+    width: var(--shape-size);
+    height: var(--shape-size);
+    line-height: var(--shape-size);
+    text-align: center;
+    inset: 0;
+    color: #fff;
+    font-weight: 700;
+}

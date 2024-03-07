@@ -1,0 +1,20 @@
+.wrapper {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+
+.entryRow {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.5rem;
+
+    span {
+        width: 10rem;
+    }
+
+    span::after {
+        content: ':';
+    }
+}

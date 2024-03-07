@@ -1,31 +1,26 @@
-interface Props {
+import s from './styles.module.css';
+
+type Props = {
   color: string;
   icon: string;
-  length: number;
   iconColor: string;
   onClick: () => {};
-}
+  size: string;
+};
 
-export default function BWEComponent(props: Props) {
-  const lengthPx = `${props.length}px`;
+function Square(props: Props) {
   return (
     <div
       onClick={props.onClick}
+      className={s.square}
       style={{
-        width: lengthPx,
-        height: lengthPx,
-        backgroundColor: props.color,
-        textAlign: 'center',
+        '--shape-size': props.size,
+        '--shape-color': props.color,
       }}
     >
-      <i
-        className={`bi-${props.icon}`}
-        style={{
-          color: props.iconColor,
-          position: 'relative',
-          top: 'calc(50% - 16px)',
-        }}
-      />
+      <span className={s.icon}>{props.icon}</span>
     </div>
   );
 }
+
+export default Square as BWEComponent<Props>;

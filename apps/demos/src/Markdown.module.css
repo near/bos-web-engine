@@ -1,0 +1,11 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    a {
+        color: var(--color-primary-action);
+        font-weight: 700;
+        text-underline-offset: 0.15em;
+    }
+}

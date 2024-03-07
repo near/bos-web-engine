@@ -1,0 +1,30 @@
+.wrapper {
+  /* theme */
+  --font-primary: 'Inter', sans-serif;
+
+  font-family: var(--font-primary);
+  line-height: 1.5;
+  color: var(--color-text-1);
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+
+  /* only needed values from our master theme */
+  --color-border-1: var(--sand-5);
+  --sand-5: #e2e1de;
+
+  --color-surface-3: var(--sand-3);
+  --sand-3: #f1f0ef;
+
+  --color-surface-1: #fff;
+
+  --color-text-1: var(--sand-12);
+  --sand-12: #21201c;
+  /* end theme */
+
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  padding: 1rem;
+  min-height: calc(100vh - var(--gateway-header-height));
+  background: var(--color-surface-1);
+}

@@ -1,0 +1,26 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    background: #f1f0ef;
+    min-height: calc(100vh - var(--gateway-header-height));
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+
+    @media (max-width: 800px) {
+        grid-template-columns: 1fr;
+    }
+}

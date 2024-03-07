@@ -1,0 +1,21 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--green-4);
+  color: var(green-1);
+  border-radius: 0.5rem;
+
+  --green-1: #fbfefc;
+  --green-4: #d6f1df;
+  --green-10: #2b9a66;
+}
+
+.title {
+  color: var(--green-10);
+}
+
+.message {
+  color: var(--green-10);
+}

@@ -1,6 +1,7 @@
 import { signMessage } from '@bos-web-engine/wallet-selector-plugin';
 import { Buffer } from 'buffer';
 import { useState } from 'react';
+import s from './SignMessage.module.css';
 
 const generateNonce = () => {
   let nonceArray: Uint8Array = new Uint8Array(32);
@@ -8,27 +9,32 @@ const generateNonce = () => {
   return Buffer.from(nonceArray);
 };
 
-export default function () {
+function SignMessage () {
   const [message, setMessage] = useState('');
   const [recipient, setRecipient] = useState('');
   const [signature, setSignature] = useState('');
 
   const sign = async () => {
-    const { signature: signedMessage } = await signMessage({
+    const result = await signMessage({
       message,
       recipient,
       nonce: generateNonce(),
     });
-    setSignature(signedMessage);
+
+    if (result) {
+      setSignature(result.signature);
+    } else {
+      console.error('Sign message failed');
+    }
   };
 
   return (
-    <div>
-      <div>
+    <div className={s.wrapper}>
+      <div className={s.entryRow}>
         <span>Message to sign</span>
-        <input type="text" onChange={(e) => setMessage(e.target.value)} />
+        <textarea onChange={(e) => setMessage(e.target.value)} />
       </div>
-      <div>
+      <div className={s.entryRow}>
         <span>Recipient</span>
         <input type="text" onChange={(e) => setRecipient(e.target.value)} />
       </div>
@@ -39,3 +45,5 @@ export default function () {
     </div>
   );
 }
+
+export default SignMessage as BWEComponent;
