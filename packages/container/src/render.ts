@@ -122,21 +122,20 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       return node;
     }
 
+    const component = node.type as ContainerComponent;
+    let rootComponentChildren = isRootComponent(component)
+      ? renderedChildren
+      : [];
+
     if (isFragment(node.type as ComponentType)) {
       const fragmentChildren = renderedChildren || [];
       if (
         fragmentChildren.length === 1 &&
         isRootComponent(fragmentChildren[0]?.type as ContainerComponent)
       ) {
-        // this node is the root of a component defined in the container
-        return parseRenderedTree(
-          {
-            type: 'div',
-            key: 'bwe-container-component',
-            props: null,
-          },
-          fragmentChildren[0]?.__k
-        );
+        // this is the initial render of the container's root Component
+        // set the Fragment's children as the root Component's children
+        rootComponentChildren = fragmentChildren[0]!.__k as RenderedVNode[];
       } else {
         // Handling for nested or non-root fragments. This will flatten non-root fragments
 
@@ -150,6 +149,17 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           return parseRenderedTree(child, child?.__k);
         }) as VNode[];
       }
+    }
+
+    if (rootComponentChildren.length) {
+      return parseRenderedTree(
+        {
+          type: 'div',
+          key: 'bwe-container-component',
+          props: null,
+        },
+        rootComponentChildren
+      );
     }
 
     const props =
@@ -182,10 +192,8 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       };
     }
 
-    const component = node.type as ContainerComponent;
-
     // wrap external (e.g. imported from NPM package) Components
-    if (isExternalComponent(component) || isRootComponent(component)) {
+    if (isExternalComponent(component)) {
       return parseRenderedTree(
         {
           type: 'div',
