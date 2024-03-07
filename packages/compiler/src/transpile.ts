@@ -290,6 +290,8 @@ export function transpileSource({
             }
 
             path.replaceWith(declaration as VariableDeclaration);
+          } else if (declaration === null) {
+            path.remove();
           } else {
             console.error(`unsupported export type ${path.node.type}`);
           }
