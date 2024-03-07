@@ -56,7 +56,7 @@ export function deriveComponentPath(
  * @param isComponentPathTrusted flag indicating whether the child is implicitly trusted by virtue of being under a trusted root
  */
 function isChildComponentTrusted(
-  { trustMode, path }: { trustMode: string; path: string },
+  { trustMode, path }: { trustMode: string | undefined; path: string },
   isComponentPathTrusted?: (p: string) => boolean
 ) {
   // child is explicitly trusted by parent or constitutes a new trusted root
@@ -193,8 +193,7 @@ export function transpileSource({
 
           const trustValue = propsExpressions.trust
             ?.properties[0] as ObjectProperty;
-          const trustMode =
-            (trustValue?.value as StringLiteral)?.value || 'sandboxed';
+          const trustMode = (trustValue?.value as StringLiteral)?.value;
           const isTrusted = isChildComponentTrusted(
             {
               trustMode,
