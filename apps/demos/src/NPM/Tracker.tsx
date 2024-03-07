@@ -22,7 +22,7 @@ const functionalAsExpected: PackageCompatibility[] = [
   },
   {
     name: 'uuid',
-    demoLink: '/bwe-demos.near/NPM.uuid?showCode=true',
+    demoLink: '/bwe-demos.near/NPM.Uuid?showCode=true',
   },
 ];
 

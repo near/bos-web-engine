@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import s from './uuid.module.css';
+import s from './Uuid.module.css';
 import { v4 as uuidv4 } from 'uuid';
 
 type Props = {
   inCount?: number;
 };
 
-function MyComponent({ inCount = 5 }: Props) {
+function Uuid({ inCount = 5 }: Props) {
   const [ids, setIds] = useState<string[]>([]);
   const [count, setCount] = useState(inCount);
 
@@ -33,4 +33,4 @@ function MyComponent({ inCount = 5 }: Props) {
   );
 }
 
-export default MyComponent as BWEComponent<Props>;
+export default Uuid as BWEComponent<Props>;
