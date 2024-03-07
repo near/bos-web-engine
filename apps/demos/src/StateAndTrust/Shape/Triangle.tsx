@@ -1,33 +1,26 @@
-interface Props {
+import s from './styles.module.css';
+
+type Props = {
   color: string;
-  height: number;
   icon: string;
   iconColor: string;
   onClick: () => {};
-}
+  size: string;
+};
 
-export default function BWEComponent(props: Props) {
+function Triangle(props: Props) {
   return (
     <div
       onClick={props.onClick}
+      className={s.triangle}
       style={{
-        width: 0,
-        height: 0,
-        borderLeft: `${props.height / 2}px solid transparent`,
-        borderRight: `${props.height / 2}px solid transparent`,
-        borderBottom: `${props.height}px solid ${props.color}`,
-        textAlign: 'center',
+        '--shape-size': props.size,
+        '--shape-color': props.color,
       }}
     >
-      <i
-        className={`bi-${props.icon}`}
-        style={{
-          color: props.iconColor,
-          position: 'relative',
-          top: 'calc(50% + 34px)',
-          right: 'calc(50% + 9px)',
-        }}
-      />
+      <span className={s.icon}>{props.icon}</span>
     </div>
   );
 }
+
+export default Triangle as BWEComponent<Props>;

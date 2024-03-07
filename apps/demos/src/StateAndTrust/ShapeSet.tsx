@@ -1,55 +1,53 @@
+import s from './styles.module.css';
+
 import Circle from './Shape/Circle';
 import Square from './Shape/Square';
 import Triangle from './Shape/Triangle';
 
-interface Props {
+type Props = {
   circle: string;
   square: string;
   triangle: string;
-  updateCircle: () => {};
-  updateSquare: () => {};
-  updateTriangle: () => {};
-}
+  updateCircle: () => any;
+  updateSquare: () => any;
+  updateTriangle: () => any;
+};
 
-export default function BWEComponent(props: Props) {
+function ShapeSet(props: Props) {
   return (
-    <div className="row" style={{ padding: '8px 4px' }}>
-      <div className="col">
-        <Circle
-          id="circle"
-          props={{
-            color: '#C1200B',
-            iconColor: 'white',
-            icon: props.circle || 'circle',
-            radius: 40,
-            onClick: props.updateCircle,
-          }}
-        />
-      </div>
-      <div className="col">
-        <Square
-          id="square"
-          props={{
-            color: '#4A825A',
-            iconColor: 'white',
-            icon: props.square || 'square',
-            length: 80,
-            onClick: props.updateSquare,
-          }}
-        />
-      </div>
-      <div className="col">
-        <Triangle
-          id="triangle"
-          props={{
-            color: '#0A81D1',
-            iconColor: 'white',
-            icon: props.triangle || 'triangle',
-            height: 80,
-            onClick: props.updateTriangle,
-          }}
-        />
-      </div>
+    <div className={s.wrapper}>
+      <Circle
+        id="circle"
+        props={{
+          color: '#b54548',
+          iconColor: 'white',
+          icon: props.circle,
+          onClick: props.updateCircle,
+          size: "4rem",
+        }}
+      />
+      <Square
+        id="square"
+        props={{
+          color: '#30a46c',
+          iconColor: 'white',
+          icon: props.square,
+          onClick: props.updateSquare,
+          size: "4rem",
+        }}
+      />
+      <Triangle
+        id="triangle"
+        props={{
+          color: '#00a2c7',
+          iconColor: 'white',
+          icon: props.triangle,
+          onClick: props.updateTriangle,
+          size: "4rem",
+        }}
+      />
     </div>
   );
 }
+
+export default ShapeSet as BWEComponent<Props>;

@@ -1,14 +1,15 @@
 import { signAndSendTransaction } from '@bos-web-engine/wallet-selector-plugin';
 import { parseNearAmount } from '@near-js/utils';
 import { useState } from 'react';
+import s from './SignAndSendMessage.module.css';
 
-export default function () {
+function SignAndSendMessage() {
   const [transferAmount, setTransferAmount] = useState('');
   const [receiverId, setReceiverId] = useState('');
   const [transaction, setTransaction] = useState('');
 
   const signAndSend = async () => {
-    const { transaction } = await signAndSendTransaction({
+    const result = await signAndSendTransaction({
       actions: [
         {
           type: 'Transfer',
@@ -19,19 +20,24 @@ export default function () {
       ],
       receiverId,
     });
-    setTransaction(JSON.stringify(transaction, null, 2));
+    
+    if (result) {
+      setTransaction(JSON.stringify(result.transaction, null, 2));
+    } else {
+      console.error('Transaction failed');
+    }
   };
 
   return (
-    <div>
-      <div>
+    <div className={s.wrapper}>
+      <div className={s.entryRow}>
         <span>⋈ to transfer</span>
         <input
           type="text"
           onChange={(e) => setTransferAmount(e.target.value)}
         />
       </div>
-      <div>
+      <div className={s.entryRow}>
         <span>Recipient</span>
         <input type="text" onChange={(e) => setReceiverId(e.target.value)} />
       </div>
@@ -42,3 +48,5 @@ export default function () {
     </div>
   );
 }
+
+export default SignAndSendMessage as BWEComponent;

@@ -1,3 +1,6 @@
+import ModuleEntry from './ModuleEntry'
+import s from './Tracker.module.css'
+
 interface PackageCompatibility {
   name: string;
   demoLink: string;
@@ -51,7 +54,7 @@ const needsTesting: PackageCompatibility[] = [
 
 export default function () {
   return (
-    <div style={{ padding: '2rem' }}>
+    <div className={s.wrapper}>
       <h1>NPM Package Compatibility</h1>
       <PackageSection
         name="Functional as Expected"
@@ -84,9 +87,8 @@ function PackageSection({
       <ul>
         {packageCompats.map((p) => {
           return (
-            <Component
+            <ModuleEntry
               trust={{ mode: 'trusted' }}
-              src="bwe-demos.near/NPM.Tracker.ComponentEntry"
               id={p.name}
               key={p.name}
               props={{ ...p }}

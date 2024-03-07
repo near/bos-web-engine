@@ -38,10 +38,11 @@ jobs:
           find . -name "*.tsx" -exec sh -c 'mv "$1" "${1%.tsx}.jsx"' _ {} \;
 
       - name: Install bos CLI
+        working-directory: apps/demos # only while using forked version that is not installed
         run: |
-          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/bos-cli-rs/bos-cli-rs/releases/download/v0.3.6/bos-cli-installer.sh | sh
+          wget https://github.com/mpeterdev/bos-cli-rs/releases/download/v1/bos && chmod +x bos
 
       - name: Deploy widgets
         working-directory: apps/demos
         run: |
-          bos components deploy "$BOS_DEPLOY_ACCOUNT_ID" sign-as "$BOS_SIGNER_ACCOUNT_ID" network-config mainnet sign-with-plaintext-private-key --signer-public-key "$BOS_SIGNER_PUBLIC_KEY" --signer-private-key "$BOS_SIGNER_PRIVATE_KEY" send
+          ./bos components --social-db-folder "component_alpha" deploy "$BOS_DEPLOY_ACCOUNT_ID" sign-as "$BOS_SIGNER_ACCOUNT_ID" network-config mainnet sign-with-plaintext-private-key --signer-public-key "$BOS_SIGNER_PUBLIC_KEY" --signer-private-key "$BOS_SIGNER_PRIVATE_KEY" send

@@ -1,32 +1,26 @@
-interface Props {
+import s from './styles.module.css';
+
+type Props = {
   color: string;
   icon: string;
   iconColor: string;
   onClick: () => {};
-  radius: number;
-}
+  size: string;
+};
 
-export default function BWEComponent(props: Props) {
-  const diameterPx = `${props.radius * 2}px`;
+function Circle(props: Props) {
   return (
     <div
       onClick={props.onClick}
+      className={s.circle}
       style={{
-        width: diameterPx,
-        height: diameterPx,
-        borderRadius: '100%',
-        backgroundColor: props.color,
-        textAlign: 'center',
+        '--shape-size': props.size,
+        '--shape-color': props.color,
       }}
     >
-      <i
-        className={`bi-${props.icon}`}
-        style={{
-          color: props.iconColor,
-          position: 'relative',
-          top: 'calc(50% - 16px)',
-        }}
-      />
+      <span className={s.icon}>{props.icon}</span>
     </div>
   );
 }
+
+export default Circle as BWEComponent<Props>;

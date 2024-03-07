@@ -1,0 +1,10 @@
+.wrapper {
+    --color-primary-action: var(--violet-9);
+    --violet-9: #6e56cf;
+}
+
+.link {
+    color: var(--color-primary-action);
+    font-weight: 700;
+    text-underline-offset: 0.15em;
+}
