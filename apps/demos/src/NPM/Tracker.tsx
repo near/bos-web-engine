@@ -1,5 +1,5 @@
-import ModuleEntry from './ModuleEntry'
-import s from './Tracker.module.css'
+import ModuleEntry from './ModuleEntry';
+import s from './Tracker.module.css';
 
 interface PackageCompatibility {
   name: string;
@@ -19,6 +19,10 @@ const functionalAsExpected: PackageCompatibility[] = [
   {
     name: 'React Syntax Highlighter',
     demoLink: '/bwe-demos.near/NPM.ReactSyntaxHighlighter?showCode=true',
+  },
+  {
+    name: 'uuid',
+    demoLink: '/bwe-demos.near/NPM.Uuid?showCode=true',
   },
 ];
 
