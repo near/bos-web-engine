@@ -25,7 +25,7 @@ jobs:
     env:
       BOS_DEPLOY_ACCOUNT_ID: bwe-demos.near
       BOS_SIGNER_ACCOUNT_ID: bwe-demos.near
-      BOS_SIGNER_PUBLIC_KEY: ed25519:8WLckTAFUtT7SADeAw4BF7tUFfgeG5ZW5kFbfi1TQZQB
+      BOS_SIGNER_PUBLIC_KEY: ed25519:FJG379b3NocJo7Sk8TRekrNDn6C7vzvpYHm7MhAJaThh
       BOS_SIGNER_PRIVATE_KEY: ${{ secrets.SIGNER_PRIVATE_KEY }}
 
     steps:
