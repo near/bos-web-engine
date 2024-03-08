@@ -3,7 +3,6 @@
   padding: 0.5rem;
   border: 1px solid transparent;
   border-bottom: 1px solid black;
-  color: white;
   text-align: left;
   overflow-wrap: break-word;
 
@@ -17,18 +16,20 @@
 }
 
 .closeButton {
-  background-color: #343028;
+  background-color: hsl(40, 13%, 18%);
   position: absolute;
   top: 0;
   right: 1.5rem;
   padding: 0.5rem;
   border: 1px solid transparent;
+  border-radius: 0 0 0.5rem 0.5rem;
   border-bottom: 1px solid black;
-  color: white;
   text-align: left;
 
+  border: 1px solid white;
+  border-top: none;
   &:hover {
-    border: 1px solid white;
+    background-color: hsl(40, 13%, 25%);
   }
 }
 
@@ -40,9 +41,9 @@
   padding: 0.5rem;
   border: 1px solid transparent;
   border-bottom: 1px solid black;
-  color: white;
   text-align: left;
   border-radius: 0.5rem 0.5rem 0 0;
+  color: white;
 
   &:hover {
     border: 1px solid white;
@@ -55,12 +56,13 @@
   flex-direction: column;
   min-width: 20rem;
   max-width: 30rem;
-  background-color: #343028;
+  background-color: hsl(40, 13%, 18%);
   overflow-y: auto;
 }
 
 .panel {
   display: flex;
+  flex-direction: column;
   width: 100vw;
   height: 40vh;
   position: fixed;
@@ -68,4 +70,74 @@
   left: 0;
   z-index: 2;
   border-top: 1px solid black;
+  background-color: hsl(40, 13%, 8%);
+  color: white;
+
+  button {
+    color: white;
+  }
+}
+
+.sourceViewer {
+  display: flex;
+}
+
+.flagSet {
+  display: flex;
+  flex-direction: row;
+  column-gap: 2.5rem;
+  padding: 0.5rem;
+
+  label:after {
+    content: ':';
+  }
+}
+
+.flag {
+  --input-height: 2rem;
+  display: flex;
+  flex-direction: row;
+  column-gap: 0.5rem;
+  align-items: center;
+  input[type='url'] {
+    min-width: 20rem;
+    border-radius: 0.25rem 0 0 0.25rem;
+    height: var(--input-height);
+    border: none;
+  }
+  > button {
+    all: unset;
+    background-color: hsl(270, 50%, 40%);
+    padding-inline: 0.5rem;
+    padding-block: 0.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid hsl(40, 13%, 18%);
+
+    &:hover {
+      background-color: hsl(270, 50%, 30%);
+    }
+    &:active {
+      background-color: hsl(270, 50%, 25%);
+    }
+  }
+}
+
+.clearable {
+  display: flex;
+  flex-direction: row;
+
+  button {
+    height: var(--input-height);
+    border: none;
+    border-radius: 0 0.25rem 0.25rem 0;
+    background-color: hsl(0, 0%, 85%);
+
+    &:hover {
+      background-color: hsl(0, 0%, 60%);
+    }
+
+    &:active {
+      background-color: hsl(0, 0%, 50%);
+    }
+  }
 }

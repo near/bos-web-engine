@@ -25,8 +25,6 @@ export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<BOSModule | null>>;
   private compiledSourceCache: Map<string, string | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
-  private hasFetchedLocal: boolean = false;
-  private localFetchUrl?: string;
   private preactVersion?: string;
   private social: SocialDb;
 
@@ -40,8 +38,7 @@ export class ComponentCompiler {
     });
   }
 
-  init({ localComponents, localFetchUrl, preactVersion }: CompilerInitAction) {
-    this.localFetchUrl = localFetchUrl;
+  init({ localComponents, preactVersion }: CompilerInitAction) {
     this.preactVersion = preactVersion;
 
     this.bosSourceCache.clear();
@@ -237,15 +234,6 @@ export class ComponentCompiler {
    * @param componentId ID for the new container's root Component
    */
   async compileComponent({ componentId }: CompilerExecuteAction) {
-    if (this.localFetchUrl && !this.hasFetchedLocal) {
-      try {
-        await this.fetchLocalComponents();
-      } catch (e) {
-        console.error('Failed to fetch local components', e);
-      }
-      this.hasFetchedLocal = true;
-    }
-
     const componentPath = componentId.split('##')[0];
     const moduleEntry = await this.getComponentSources([componentPath]).get(
       componentPath
@@ -309,37 +297,5 @@ export class ComponentCompiler {
       componentPath,
       importedModules,
     });
-  }
-
-  /**
-   * Fetch local component source from a bos-loader instance
-   */
-  async fetchLocalComponents() {
-    if (!this.localFetchUrl) {
-      return;
-    }
-
-    const res = await fetch(this.localFetchUrl, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error('Network response was not OK');
-    }
-
-    const data = (await res.json()) as {
-      components: Record<string, BOSModule>;
-    };
-    for (const [componentPath, componentSource] of Object.entries(
-      data.components
-    )) {
-      // TODO remove once data is being returned in expected shape
-      // @ts-expect-error
-      const { code: component } = componentSource;
-      this.bosSourceCache.set(componentPath, Promise.resolve({ component }));
-    }
   }
 }
