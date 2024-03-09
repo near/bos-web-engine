@@ -58,6 +58,7 @@ type DispatchRenderCallback = (vnode: VNode) => void;
 
 export const composeRenderMethods: ComposeRenderMethodsCallback = ({
   componentId,
+  isExternalComponent,
   isRootComponent,
   isComponent,
   isFragment,
@@ -112,11 +113,6 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     };
   };
 
-  const isBWEComponent = (node: VNode<any>) =>
-    (typeof node.type === 'function' &&
-      node.type?.name?.startsWith?.('BWEComponent')) ||
-    false;
-
   function parseRenderedTree(
     node: RenderedVNode | null,
     renderedChildren?: Array<RenderedVNode | null>,
@@ -126,21 +122,20 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       return node;
     }
 
+    const component = node.type as ContainerComponent;
+    let rootComponentChildren = isRootComponent(component)
+      ? renderedChildren
+      : [];
+
     if (isFragment(node.type as ComponentType)) {
       const fragmentChildren = renderedChildren || [];
       if (
         fragmentChildren.length === 1 &&
         isRootComponent(fragmentChildren[0]?.type as ContainerComponent)
       ) {
-        // this node is the root of a component defined in the container
-        return parseRenderedTree(
-          {
-            type: 'div',
-            key: 'bwe-container-component',
-            props: null,
-          },
-          fragmentChildren[0]?.__k
-        );
+        // this is the initial render of the container's root Component
+        // set the Fragment's children as the root Component's children
+        rootComponentChildren = fragmentChildren[0]!.__k as RenderedVNode[];
       } else {
         // Handling for nested or non-root fragments. This will flatten non-root fragments
 
@@ -156,6 +151,17 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       }
     }
 
+    if (rootComponentChildren.length) {
+      return parseRenderedTree(
+        {
+          type: 'div',
+          key: 'bwe-container-component',
+          props: null,
+        },
+        rootComponentChildren
+      );
+    }
+
     const props =
       node.props && typeof node.props === 'object'
         ? Object.fromEntries(
@@ -163,26 +169,31 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           )
         : node.props;
 
-    if (typeof node.type === 'function' && !isComponent(node.type)) {
-      if (
-        isBWEComponent(node) &&
-        !isRootComponent(node.type as ContainerComponent)
-      ) {
-        const componentNode = buildBWEComponentNode(
-          node as BWEComponentNode,
-          renderedChildren
-        );
+    // no need to wrap element types and <Component /> references
+    if (typeof node.type !== 'function' || isComponent(node.type)) {
+      return {
+        type: node.type,
+        key: `${typeof node.type === 'function' ? node.type.name : node.type}-${
+          childIndex || 0
+        }`,
+        props: {
+          ...props,
+          children: [renderedChildren]
+            .flat()
+            .filter((c) => !!c)
+            .map((child, i) => {
+              if (child?.type) {
+                return parseRenderedTree(child, child?.__k, i);
+              }
 
-        return parseRenderedTree(
-          {
-            type: componentNode.type,
-            props: componentNode.props,
-            key: `bwe-component-${node.type.name}`,
-          },
-          renderedChildren
-        );
-      }
+              return child?.props;
+            }),
+        },
+      };
+    }
 
+    // wrap external (e.g. imported from NPM package) Components
+    if (isExternalComponent(component)) {
       return parseRenderedTree(
         {
           type: 'div',
@@ -197,25 +208,20 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       );
     }
 
-    return {
-      type: node.type,
-      key: `${typeof node.type === 'function' ? node.type.name : node.type}-${
-        childIndex || 0
-      }`,
-      props: {
-        ...props,
-        children: [renderedChildren]
-          .flat()
-          .filter((c) => !!c)
-          .map((child, i) => {
-            if (child?.type) {
-              return parseRenderedTree(child, child?.__k, i);
-            }
+    // compose and render the trusted Component
+    const componentNode = buildBWEComponentNode(
+      node as BWEComponentNode,
+      renderedChildren
+    );
 
-            return child?.props;
-          }),
+    return parseRenderedTree(
+      {
+        type: componentNode.type,
+        props: componentNode.props,
+        key: `bwe-component-${node.type.name}`,
       },
-    };
+      renderedChildren
+    );
   }
 
   const commit = (vnode: RenderedVNode) => {

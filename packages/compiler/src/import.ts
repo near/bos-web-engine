@@ -3,13 +3,6 @@ import initializeWalletSelectorPlugin from '@bos-web-engine/wallet-selector-plug
 
 import type { ImportExpression, ModuleImport } from './types';
 
-type ImportModule = { modulePath: string };
-type ImportMixed = ImportModule & {
-  destructured?: string;
-  namespace?: string;
-  reference: string;
-};
-
 const BWE_MODULE_URL_PREFIX = 'near://';
 const PLUGIN_MODULES = new Map<string, string>([
   ['@bos-web-engine/social-db-plugin', initializeSocialDbPlugin.toString()],
@@ -19,160 +12,46 @@ const PLUGIN_MODULES = new Map<string, string>([
   ],
 ]);
 
-const stripLeadingComment = (source: string) => {
-  if (!source) {
-    return source;
-  }
-
-  if (source.startsWith('//')) {
-    return source.slice(source.indexOf('\n') + 1).trim();
-  }
-
-  if (source.startsWith('/*')) {
-    let i = 2;
-    while (i < source.length) {
-      if (source.slice(i, i + 2) === '*/') {
-        return source.slice(i + 2).trim();
-      }
-      i++;
-    }
-  }
-
-  return source;
-};
-
 const isBweModuleImportPath = (moduleImportPath: string) => {
   return moduleImportPath.startsWith(BWE_MODULE_URL_PREFIX);
 };
 
-// valid combinations of default, namespace, and destructured imports
-const MIXED_IMPORT_REGEX =
-  /^import\s+(?<reference>[\w$]+)?\s*,?(\s*\*\s+as\s+(?<namespace>[\w-]+))?(\s*{\s*(?<destructured>[\w\s*\/,$-]+)})?\s+from\s+["'`](?<modulePath>[\w@\/.:?&=-]+)["'`];?\s*/gi;
-const SIDE_EFFECT_IMPORT_REGEX =
-  /^import\s+["'](?<modulePath>[\w@\/.:?&=-]+)["'];?\s*/gi;
-
 /**
- * Given BOS Component source code, return an object with the `import`-less source code and array of structured import statements
- * @param source BOS Component source code
+ * Parse import statement metadata
+ * @param modulePath the import path from `import X from "X"`, where "X" can be relative ("./BWEComponent") or absolute ("react")
+ * @param imports structured metadata on individual imported references, e.g. destructured, default, etc.
  */
-export const extractImportStatements = (source: string) => {
-  let src = stripLeadingComment(source.trim());
+export function parseModuleImport(
+  modulePath: string,
+  imports: ImportExpression[]
+): ModuleImport {
+  let moduleName = extractModuleName(modulePath);
+  const isRelative = !!modulePath?.match(/^\.?\.\/(\.\.\/)*[a-z_$][\w\/]*$/gi);
 
-  // separate out Babel-generated helper functions inserted above import statements
-  const generatedFunctionDeclarations: string[] = [];
-  while (src.startsWith('function')) {
-    const eolIndex = src.indexOf('\n');
-    generatedFunctionDeclarations.push(src.slice(0, eolIndex));
-    src = src.slice(eolIndex + 1);
+  // TODO check against Component name
+  const isCssModule =
+    modulePath.startsWith('./') && modulePath.endsWith('.module.css');
+
+  const isComponentImport = isBweModuleImportPath(modulePath);
+  if (isComponentImport) {
+    moduleName = moduleName.replace(BWE_MODULE_URL_PREFIX, '');
+    modulePath = modulePath.replace(BWE_MODULE_URL_PREFIX, '');
   }
 
-  const imports: ModuleImport[] = [];
-  while (src.startsWith('import')) {
-    const [mixedMatch] = [...src.matchAll(MIXED_IMPORT_REGEX)];
-    if (mixedMatch) {
-      let { reference, namespace, destructured, modulePath } =
-        mixedMatch.groups as ImportMixed;
-
-      let moduleName = extractModuleName(modulePath);
-      const isRelative = !!modulePath?.match(
-        /^\.?\.\/(\.\.\/)*[a-z_$][\w\/]*$/gi
-      );
-
-      // TODO check against Component name
-      const isCssModule =
-        modulePath.startsWith('./') && modulePath.endsWith('.module.css');
-
-      const isComponentImport = isBweModuleImportPath(modulePath);
-      if (isComponentImport) {
-        moduleName = moduleName.replace(BWE_MODULE_URL_PREFIX, '');
-        modulePath = modulePath.replace(BWE_MODULE_URL_PREFIX, '');
-      }
-
-      const isPlugin = PLUGIN_MODULES.has(moduleName);
-      const isBweModule = (isRelative && !isCssModule) || isComponentImport;
-      const importMeta = {
-        isBweModule,
-        isCssModule,
-        isPackage: !isPlugin && !isBweModule && !isCssModule,
-        isPlugin,
-        isRelative,
-        moduleName,
-        modulePath,
-      };
-
-      if (destructured) {
-        const destructuredReferences = destructured
-          .trim()
-          .replace(/\/\*.+?\*\//gi, '') // remove comments
-          .split(',')
-          .filter((expression) => !!expression)
-          .map((expression) => {
-            const [reference, alias] = expression
-              .split(' as ')
-              .map((s) => s.trim());
-
-            if (alias) {
-              return { alias, reference, isDestructured: true };
-            }
-
-            return { reference, isDestructured: true };
-          });
-
-        imports.push({
-          ...importMeta,
-          imports: [
-            ...(reference ? [{ isDefault: true, reference }] : []),
-            ...destructuredReferences,
-          ],
-        });
-      } else if (namespace) {
-        imports.push({
-          ...importMeta,
-          imports: [
-            ...(reference ? [{ isDefault: true, reference }] : []),
-            { isNamespace: true, alias: namespace },
-          ],
-        });
-      } else {
-        imports.push({
-          ...importMeta,
-          imports: [{ isDefault: true, reference }],
-        });
-      }
-
-      src = src.replace(mixedMatch[0], '');
-    } else {
-      const [sideEffectMatch] = [...src.matchAll(SIDE_EFFECT_IMPORT_REGEX)];
-      if (sideEffectMatch) {
-        const { modulePath } = sideEffectMatch.groups as ImportModule;
-        // TODO add real support for side-effect imports
-        imports.push({
-          imports: [],
-          isCssModule: false,
-          isSideEffect: true,
-          isPackage: true,
-          isPlugin: false,
-          moduleName: extractModuleName(modulePath),
-          modulePath,
-        });
-        src = src.replace(sideEffectMatch[0], '');
-      } else {
-        // invalid import
-        console.error(
-          `Could not parse import statement: ${src.slice(0, 255)}...`
-        );
-        break;
-      }
-    }
-
-    src = stripLeadingComment(src.trim());
-  }
+  const isPlugin = PLUGIN_MODULES.has(moduleName);
+  const isBweModule = (isRelative && !isCssModule) || isComponentImport;
 
   return {
     imports,
-    source: [...generatedFunctionDeclarations, src].join('\n\n'),
-  };
-};
+    isBweModule,
+    isCssModule,
+    isPackage: !isPlugin && !isBweModule && !isCssModule,
+    isPlugin,
+    isRelative,
+    moduleName,
+    modulePath,
+  } as ModuleImport;
+}
 
 const extractModuleName = (modulePath: string) => {
   let path = modulePath;

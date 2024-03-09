@@ -2,7 +2,7 @@ import type { MessagePayload } from '@bos-web-engine/common';
 import type { ComponentCompilerRequest } from '@bos-web-engine/compiler';
 import { useSocial } from '@bos-web-engine/social-db';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
-import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
+import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { getAppDomId } from '../container';
@@ -84,7 +84,6 @@ export function useComponentTree({
 
       if (!domRoots.current[domId]) {
         const domElement = document.getElementById(domId);
-
         if (!domElement) {
           console.error(`Node not found: #${domId}`);
           return;
@@ -93,7 +92,9 @@ export function useComponentTree({
         domRoots.current[domId] = ReactDOM.createRoot(domElement);
       }
 
-      domRoots.current[domId].render(element);
+      domRoots.current[domId].render(
+        React.createElement(React.Fragment, null, element.props.children)
+      );
     },
     [domRoots]
   );

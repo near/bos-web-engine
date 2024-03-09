@@ -37,6 +37,7 @@ export interface ComponentCompilerParams {
 export interface TranspiledComponentLookupParams {
   componentPath: string;
   componentSource: string;
+  isComponentPathTrusted: (path: string) => boolean;
   isRoot: boolean;
 }
 
@@ -95,4 +96,9 @@ export interface ImportExpression {
 export interface ComponentEntry {
   '': string;
   css: string;
+}
+
+export interface ModuleExport {
+  default: string;
+  named: string[];
 }
