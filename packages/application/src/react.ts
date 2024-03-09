@@ -16,7 +16,20 @@ const secureCreateElement = (
     return null;
   }
 
-  return React.createElement(type, props, ...children);
+  const sanitizedProps = Object.fromEntries(
+    Object.entries(props).filter(([, value]) => {
+      if (typeof value === 'string') {
+        const v = value.trim();
+        if (v.startsWith('#') || v.startsWith('javascript:')) {
+          return false;
+        }
+      }
+
+      return true;
+    })
+  );
+
+  return React.createElement(type, sanitizedProps, ...children);
 };
 
 function isChildrenAllowed(elementType: string) {
