@@ -304,9 +304,15 @@ export class ComponentCompiler {
       ),
     ].join('\n\n');
 
+    // escape "</script>" literals to prevent interpolation issues
+    const sanitizedSource = componentSource.replaceAll(
+      /<\/script\s*>/g,
+      '<\\/script>'
+    );
+
     this.sendWorkerMessage({
       componentId,
-      componentSource,
+      componentSource: sanitizedSource,
       containerStyles: [...transformedComponents.values()]
         .map(({ css }) => css)
         .join('\n'),

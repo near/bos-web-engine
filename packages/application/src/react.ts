@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type FunctionComponent } from 'react';
 
 import { deserializeProps } from './container';
 import type {
@@ -6,6 +6,31 @@ import type {
   CreateElementParams,
   ComponentDOMElement,
 } from './types';
+
+const secureCreateElement = (
+  type: string | FunctionComponent,
+  props: object,
+  ...children: any
+): ComponentDOMElement | null => {
+  if (type === 'script') {
+    return null;
+  }
+
+  const sanitizedProps = Object.fromEntries(
+    Object.entries(props).filter(([, value]) => {
+      if (typeof value === 'string') {
+        const v = value.trim();
+        if (v.startsWith('#') || v.startsWith('javascript:')) {
+          return false;
+        }
+      }
+
+      return true;
+    })
+  );
+
+  return React.createElement(type, sanitizedProps, ...children);
+};
 
 function isChildrenAllowed(elementType: string) {
   return !(elementType in ['img']);
@@ -17,8 +42,8 @@ export function createElement({
   props,
   type,
   onMessageSent,
-}: CreateElementParams): ComponentDOMElement {
-  return React.createElement(
+}: CreateElementParams): ComponentDOMElement | null {
+  return secureCreateElement(
     type,
     deserializeProps({ id, props, onMessageSent }),
     isChildrenAllowed(type) ? children : undefined
@@ -60,10 +85,10 @@ export function createChildElements({
       !subChildren ||
       !subChildren.filter((c: any) => c !== undefined).length
     ) {
-      return React.createElement(type, childProps);
+      return secureCreateElement(type, childProps);
     }
 
-    return React.createElement(
+    return secureCreateElement(
       type,
       childProps,
       createChildElements({

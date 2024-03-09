@@ -13,7 +13,7 @@ import type {
 } from '@bos-web-engine/compiler';
 import type { SocialDb } from '@bos-web-engine/social-db';
 import type { Wallet } from '@near-wallet-selector/core';
-import type { DOMElement } from 'react';
+import type { ReactElement } from 'react';
 
 export interface ApplicationMethodInvocationParams {
   args: SerializedArgs;
@@ -91,7 +91,7 @@ export interface DeserializePropsParams {
   props: any;
 }
 
-export interface ComponentDOMElement extends DOMElement<any, any> {}
+export interface ComponentDOMElement extends ReactElement<any, any> {}
 
 export interface CreateElementParams {
   children?: any;

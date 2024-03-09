@@ -105,6 +105,7 @@ export function transpileSource({
           arguments: [Identifier | StringLiteral, ObjectExpression | undefined];
           callee: { object: Identifier; property: Identifier };
         };
+        remove: () => void;
       }) {
         const {
           arguments: args,
@@ -115,6 +116,9 @@ export function transpileSource({
           object?.name === '__Preact' && property?.name === 'createElement';
         const isElement = t.isStringLiteral(args[0]);
         if (!isCreateElement || isElement) {
+          if (isElement && (args[0] as StringLiteral).value === 'script') {
+            path.remove();
+          }
           return;
         }
 
