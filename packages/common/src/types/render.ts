@@ -1,6 +1,5 @@
 export interface WebEngineMeta {
   componentId?: string;
-  isProxy?: boolean;
   parentMeta?: WebEngineMeta;
 }
 

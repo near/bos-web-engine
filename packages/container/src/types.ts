@@ -150,7 +150,6 @@ export interface InitContainerParams {
   containerMethods: {
     buildEventHandler: (params: ProcessEventParams) => Function;
     buildRequest: BuildRequestCallback;
-    buildSafeProxy: BuildSafeProxyCallback;
     composeMessagingMethods: ComposeMessagingMethodsCallback;
     composeRenderMethods: ComposeRenderMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
@@ -233,10 +232,3 @@ export interface DispatchRenderEventParams {
 export type DispatchRenderEventCallback = (
   params: DispatchRenderEventParams
 ) => void;
-
-interface BuildSafeProxyParams {
-  props: Props;
-  componentId: string;
-}
-
-export type BuildSafeProxyCallback = (params: BuildSafeProxyParams) => object;

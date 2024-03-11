@@ -9,7 +9,6 @@ export function initContainer({
   containerMethods: {
     buildEventHandler,
     buildRequest,
-    buildSafeProxy,
     composeMessagingMethods,
     composeRenderMethods,
     composeSerializationMethods,
@@ -93,23 +92,28 @@ export function initContainer({
           return props;
         }
 
-        return buildSafeProxy({
-          componentId,
-          props: {
-            ...props,
-            ...newProps,
-          },
-        });
+        const updatedProps = { ...props, ...newProps };
+        if (!updatedProps.__bweMeta) {
+          updatedProps.__bweMeta = {};
+        }
+        updatedProps.__bweMeta.componentId = componentId;
+
+        return updatedProps;
       }),
   });
 
-  const props = buildSafeProxy({
-    componentId,
-    props: deserializeProps({
-      containerId: componentId,
-      props: componentPropsJson,
-    }),
+  const deserializedProps = deserializeProps({
+    containerId: componentId,
+    props: componentPropsJson,
   });
+
+  const props = {
+    ...deserializedProps,
+    bwe: {
+      ...deserializedProps,
+      componentId,
+    },
+  };
 
   return {
     callApplicationMethod({ args, method }: InvokeApplicationCallbackParams) {

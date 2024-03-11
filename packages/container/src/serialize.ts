@@ -149,8 +149,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     }) => {
       return Object.entries(props).reduce(
         (newProps, [key, value]: [string, any]) => {
-          const isProxy = value?.__bweMeta?.isProxy || false;
-
           // TODO remove invalid props keys at the source
           //  (probably JSX transpilation)
           if (key === 'class' || key.includes('-')) {
@@ -179,18 +177,15 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           if (typeof value === 'function') {
             newProps[key] = serializeCallback(key, value);
           } else {
-            let serializedValue = value;
             if (isPreactNode(value)) {
               newProps[key] = serializeNode({
                 childComponents: [],
                 node: value,
                 parentId: containerId,
               });
-            } else if (isProxy) {
-              newProps[key] = { ...serializedValue };
             } else {
               newProps[key] = deepTransform({
-                value: serializedValue,
+                value,
                 onFunction: (fn: Function, path: string) =>
                   serializeCallback(`${key}${path}`, fn),
                 onNode: (node) =>

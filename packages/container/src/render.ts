@@ -6,29 +6,10 @@ import type {
 import type { ComponentChildren, ComponentType, VNode } from 'preact';
 
 import type {
-  BuildSafeProxyCallback,
   ComposeRenderMethodsCallback,
   ContainerComponent,
   Node,
 } from './types';
-
-export const buildSafeProxy: BuildSafeProxyCallback = ({
-  props,
-  componentId,
-}) => {
-  return new Proxy(
-    { ...props, __bweMeta: { componentId, isProxy: true } },
-    {
-      get(target, key) {
-        try {
-          return (target as any)[key];
-        } catch {
-          return undefined;
-        }
-      },
-    }
-  );
-};
 
 type BOSComponentProps = Props & {
   __bweMeta: WebEngineMeta & {
