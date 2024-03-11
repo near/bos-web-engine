@@ -19,8 +19,7 @@ const secureCreateElement = (
   const sanitizedProps = Object.fromEntries(
     Object.entries(props).filter(([, value]) => {
       if (typeof value === 'string') {
-        const v = value.trim();
-        if (v.startsWith('#') || v.startsWith('javascript:')) {
+        if (value.trim().startsWith('javascript:')) {
           return false;
         }
       }
