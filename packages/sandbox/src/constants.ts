@@ -64,18 +64,18 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
         export default classes;
       }
 
-      type BWEComponent<TProps = {}> = (props: {
+      interface BWEComponentConfig {
         id?: string;
-        props?: TProps;
         trust?: { mode: string };
-      }) => JSX.Element;
+      }
 
-      function Component(props: {
-        src: string;
-        props?: Record<any, any>;
-        trust?: { mode: string };
-        id?: string;
-      }): JSX.Element;
+      interface BWEComponentProps {
+        bwe?: BWEComponentConfig;
+      }
+
+      type BWEComponent<TProps = {}> = (props: TProps & BWEComponentProps) => JSX.Element;
+
+      function Component(props: { src: string } & Record<any, any> & BWEComponentProps): JSX.Element
     }`,
   },
 ];
