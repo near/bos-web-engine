@@ -12,5 +12,5 @@ declare global {
 
   type BWEComponent<TProps = {}> = (props: TProps & BWEComponentProps) => JSX.Element;
 
-  function Component(props: { src: string } & Record<any, any> & BWEComponentProps): JSX.Element
+  function Component(props: { bwe: { src: string; } & BWEComponentConfig } & Record<any, any>): JSX.Element
 }
