@@ -1,6 +1,10 @@
+import type { ComponentTrust } from './trust';
+
 export interface WebEngineMeta {
   componentId?: string;
   parentMeta?: WebEngineMeta;
+  src?: string;
+  trust?: ComponentTrust;
 }
 
 export interface KeyValuePair {
@@ -8,7 +12,7 @@ export interface KeyValuePair {
 }
 
 export interface Props extends KeyValuePair {
-  __bweMeta?: WebEngineMeta;
+  bwe?: WebEngineMeta;
   children?: any[];
   className?: string;
   id?: string;

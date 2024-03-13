@@ -134,7 +134,7 @@ export function transpileSource({
          *  in a scope in which the correct props is bound to arguments[0], i.e. the Component's root
          *  scope - in the directly-returned JSX or an arrow function in the Component's root scope.
          *
-         *  TODO the correct solution is for the parser to inject the __bweMeta reference into the Component
+         *  TODO the correct solution is for the parser to inject the `bwe` reference into the Component
          *   props argument, but it would also need to be made accessible to the render site
          *
          *   TL; DR
@@ -159,7 +159,7 @@ export function transpileSource({
             t.logicalExpression(
               '&&',
               propsAccessor,
-              t.memberExpression(propsAccessor, t.identifier('__bweMeta'))
+              t.memberExpression(propsAccessor, t.identifier('bwe'))
             )
           ),
         ]);
@@ -228,7 +228,7 @@ export function transpileSource({
             const componentProps = propsExpressions.props;
             props.properties = [
               t.objectProperty(
-                t.identifier('__bweMeta'),
+                t.identifier('bwe'),
                 t.objectExpression([
                   ...bweMeta.properties,
                   ...props!.properties.filter(

@@ -65,7 +65,7 @@ export function initContainer({
     const getComparable = (p: Props) =>
       Object.entries(p)
         .sort(([aKey], [bKey]) => (aKey === bKey ? 0 : aKey > bKey ? 1 : -1))
-        .filter(([k]) => k !== '__bweMeta')
+        .filter(([k]) => k !== 'bwe')
         .map(([key, value]) => `${key}::${value?.toString()}`)
         .join(',');
 
@@ -93,10 +93,10 @@ export function initContainer({
         }
 
         const updatedProps = { ...props, ...newProps };
-        if (!updatedProps.__bweMeta) {
-          updatedProps.__bweMeta = {};
+        if (!updatedProps.bwe) {
+          updatedProps.bwe = {};
         }
-        updatedProps.__bweMeta.componentId = componentId;
+        updatedProps.bwe.componentId = componentId;
 
         return updatedProps;
       }),

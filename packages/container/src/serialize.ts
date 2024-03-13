@@ -358,7 +358,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           type: 'div',
           props: {
             id: 'dom-' + componentId,
-            __bweMeta: {
+            bwe: {
               componentId,
             },
             className: 'container-child',

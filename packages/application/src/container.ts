@@ -56,7 +56,7 @@ export function deserializeProps({
     return props;
   }
 
-  delete props.__bweMeta;
+  delete props.bwe;
 
   return Object.fromEntries(
     Object.entries(props).map(([k, v]) => {

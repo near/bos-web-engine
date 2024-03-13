@@ -1,8 +1,4 @@
-import type {
-  ComponentTrust,
-  Props,
-  WebEngineMeta,
-} from '@bos-web-engine/common';
+import type { Props, WebEngineMeta } from '@bos-web-engine/common';
 import type { ComponentChildren, ComponentType, VNode } from 'preact';
 
 import type {
@@ -12,11 +8,7 @@ import type {
 } from './types';
 
 type BOSComponentProps = Props & {
-  __bweMeta: WebEngineMeta & {
-    id: string;
-    src: string;
-    trust?: ComponentTrust;
-  };
+  bwe: WebEngineMeta;
 };
 
 type BWEComponentNode = VNode<BOSComponentProps>;
