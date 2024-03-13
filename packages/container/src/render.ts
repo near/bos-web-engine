@@ -72,7 +72,8 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     node: BWEComponentNode,
     children: ComponentChildren
   ): PlaceholderNode => {
-    const { id, src, parentMeta } = node.props.__bweMeta;
+    const { bwe, id } = node.props;
+    const { src, parentMeta } = bwe;
     const childComponentId = [src, id, parentMeta?.componentId].join('##');
 
     return {

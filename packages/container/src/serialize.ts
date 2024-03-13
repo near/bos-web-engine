@@ -324,10 +324,12 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       parentId,
       props,
     }: SerializeChildComponentParams) => {
-      const { id: instanceId, src, props: componentProps, trust } = props;
+      const { id: instanceId, bwe, ...componentProps } = props;
+      const { src, trust } = bwe || {};
+
       const componentId = buildComponentId({
         instanceId,
-        componentPath: src,
+        componentPath: src!,
         parentComponentId: parentId,
       });
 

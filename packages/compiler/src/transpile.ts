@@ -183,11 +183,25 @@ export function transpileSource({
           },
           {} as any
         ) as {
+          bwe?: ObjectExpression;
           id?: string;
           props?: ObjectExpression;
           src?: StringLiteral | Identifier;
           trust?: ObjectExpression;
         };
+
+        // check for legacy props usage, i.e. doesn't have `bwe` but has either `props` or `trust`
+        // TODO remove after dev migration
+        const hasLegacyProps = !!(
+          !propsExpressions.bwe &&
+          (propsExpressions.props || propsExpressions.trust)
+        );
+
+        if (hasLegacyProps) {
+          console.warn(
+            'Component `props` can now be specified at the top level. The legacy interface for providing a `props.props` key will be deprecated in later alpha versions.'
+          );
+        }
 
         const componentImport = componentReferences[Component.name];
         if (componentImport) {
@@ -195,8 +209,33 @@ export function transpileSource({
             ? deriveComponentPath(componentPath, componentImport)
             : componentImport.modulePath;
 
-          const trustValue = propsExpressions.trust
-            ?.properties[0] as ObjectProperty;
+          let trustValue: ObjectProperty;
+          if (hasLegacyProps) {
+            trustValue = propsExpressions.trust
+              ?.properties[0] as ObjectProperty;
+          } else {
+            trustValue = (
+              (
+                propsExpressions.bwe?.properties.find((p) => {
+                  if (!t.isObjectProperty(p)) {
+                    return;
+                  }
+
+                  const { key } = p as ObjectProperty;
+                  if (t.isStringLiteral(key)) {
+                    return (key as StringLiteral).value === 'trust';
+                  }
+
+                  if (t.isIdentifier(key)) {
+                    return (key as Identifier).name === 'trust';
+                  }
+
+                  return;
+                }) as ObjectProperty
+              )?.value as ObjectExpression
+            ).properties[0] as ObjectProperty;
+          }
+
           const trustMode = (trustValue?.value as StringLiteral)?.value;
           const isTrusted = isChildComponentTrusted(
             {
@@ -219,12 +258,28 @@ export function transpileSource({
             ? buildComponentFunctionName(src)
             : 'Component';
 
+          // no value for `props.bwe`, create new object for metadata
+          if (!propsExpressions.bwe) {
+            const createdBweProp = t.objectExpression([]);
+            props.properties.push(
+              t.objectProperty(t.identifier('bwe'), createdBweProp)
+            );
+            propsExpressions.bwe = createdBweProp;
+          }
+
           // inject the src prop
-          props.properties.push(
-            t.objectProperty(t.identifier('src'), t.stringLiteral(src))
+          const srcProperty = t.objectProperty(
+            t.identifier('src'),
+            t.stringLiteral(src)
           );
 
-          if (isTrusted) {
+          if (hasLegacyProps) {
+            props.properties.push(srcProperty);
+          } else {
+            propsExpressions.bwe!.properties.push(srcProperty);
+          }
+
+          if (hasLegacyProps) {
             const componentProps = propsExpressions.props;
             props.properties = [
               t.objectProperty(
@@ -232,11 +287,19 @@ export function transpileSource({
                 t.objectExpression([
                   ...bweMeta.properties,
                   ...props!.properties.filter(
-                    ({ value }: any) => value !== componentProps
+                    ({ value }: any) =>
+                      value !== componentProps &&
+                      value !== propsExpressions.id &&
+                      value !== propsExpressions.bwe
                   ),
                 ])
               ),
-              ...(componentProps ? componentProps.properties : []),
+              ...(componentProps
+                ? [
+                    ...componentProps.properties,
+                    t.objectProperty(t.identifier('id'), propsExpressions.id),
+                  ]
+                : []),
             ];
           }
         }
