@@ -153,7 +153,7 @@ function HelloWorld() {
       <div className={s.examples}>
         <div className={s.card}>
           <h3>Embedding another BWE component</h3>
-          <Message props={{ message: 'Hello world!' }} />
+          <Message message="Hello world!" />
         </div>
         <div className={s.card}>
           <h3>React <code>useState</code></h3>
