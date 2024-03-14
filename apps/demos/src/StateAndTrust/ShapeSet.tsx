@@ -17,34 +17,28 @@ function ShapeSet(props: Props) {
   return (
     <div className={s.wrapper}>
       <Circle
-        id="circle"
-        props={{
-          color: '#b54548',
-          iconColor: 'white',
-          icon: props.circle,
-          onClick: props.updateCircle,
-          size: "4rem",
-        }}
+        key="circle"
+        color="#b54548"
+        iconColor="white"
+        icon={props.circle}
+        onClick={props.updateCircle}
+        size="4rem"
       />
       <Square
-        id="square"
-        props={{
-          color: '#30a46c',
-          iconColor: 'white',
-          icon: props.square,
-          onClick: props.updateSquare,
-          size: "4rem",
-        }}
+        key="square"
+        color="#30a46c"
+        iconColor="white"
+        icon={props.square}
+        onClick={props.updateSquare}
+        size="4rem"
       />
       <Triangle
-        id="triangle"
-        props={{
-          color: '#00a2c7',
-          iconColor: 'white',
-          icon: props.triangle,
-          onClick: props.updateTriangle,
-          size: "4rem",
-        }}
+        key="triangle"
+        color="#00a2c7"
+        iconColor="white"
+        icon={props.triangle}
+        onClick={props.updateTriangle}
+        size="4rem"
       />
     </div>
   );

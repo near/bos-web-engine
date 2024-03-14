@@ -3,7 +3,7 @@ import s from './styles.module.css';
 import Button from './Button';
 
 const DISPLAY_LIMIT = 5;
-const GRAPHQL_ENDPOINT = "https://near-queryapi.api.pagoda.co";
+const GRAPHQL_ENDPOINT = 'https://near-queryapi.api.pagoda.co';
 
 const query = `
   query Versions {
@@ -20,11 +20,14 @@ const query = `
   }
 `;
 
-async function fetchGraphQL(operationName: 'Versions', variables: Record<string, any>) {
+async function fetchGraphQL(
+  operationName: 'Versions',
+  variables: Record<string, any>
+) {
   const response = await fetch(`${GRAPHQL_ENDPOINT}/v1/graphql`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "x-hasura-role": "calebjacob_near"
+      'x-hasura-role': 'calebjacob_near',
       // This needs to match the account where the indexer is published
       // EG: https://near.org/dataplatform.near/widget/QueryApi.App?selectedIndexerPath=calebjacob.near%2Fcomponents_alpha
     },
@@ -70,25 +73,35 @@ function AlphaDashboard() {
   const [developers, setDevelopers] = useState<Developer[] | null>(null);
   const [versions, setVersions] = useState<Version[] | null>(null);
   const [totalLinesAdded, setTotalLinesAdded] = useState<number | null>(null);
-  const [totalLinesRemoved, setTotalLinesRemoved] = useState<number | null>(null);
-  const [componentsSorting, setComponentsSorting] = useState<"ALPHABETICAL" | "RECENT">("RECENT");
-  const [developersSorting, setDevelopersSorting] = useState<"ALPHABETICAL" | "RECENT">("RECENT");
+  const [totalLinesRemoved, setTotalLinesRemoved] = useState<number | null>(
+    null
+  );
+  const [componentsSorting, setComponentsSorting] = useState<
+    'ALPHABETICAL' | 'RECENT'
+  >('RECENT');
+  const [developersSorting, setDevelopersSorting] = useState<
+    'ALPHABETICAL' | 'RECENT'
+  >('RECENT');
   const [showAllComponents, setSowAllComponents] = useState(false);
   const [showAllDevelopers, setSowAllDevelopers] = useState(false);
 
   // The query already returns developers in ALPHABETICAL sorting, so we only need logic for RECENT
   const sortedDevelopers = developers ? [...developers] : null;
   if (sortedDevelopers && developersSorting === 'RECENT') {
-    sortedDevelopers.sort((a, b) => b.lastPublishTimestampMs - a.lastPublishTimestampMs);
+    sortedDevelopers.sort(
+      (a, b) => b.lastPublishTimestampMs - a.lastPublishTimestampMs
+    );
   }
   const sortedComponents = components ? [...components] : null;
   if (sortedComponents && componentsSorting === 'RECENT') {
-    sortedComponents.sort((a, b) => b.lastPublishTimestampMs - a.lastPublishTimestampMs);
+    sortedComponents.sort(
+      (a, b) => b.lastPublishTimestampMs - a.lastPublishTimestampMs
+    );
   }
 
   useEffect(() => {
     const loadVersions = async () => {
-      const { data } = await fetchGraphQL("Versions", {});
+      const { data } = await fetchGraphQL('Versions', {});
       setVersions(data.calebjacob_near_components_alpha_versions);
     };
 
@@ -111,13 +124,14 @@ function AlphaDashboard() {
 
     versions.forEach((version) => {
       const accountId = version.component_author_id;
-      const componentPath = version.component_author_id + version.component_name;
+      const componentPath =
+        version.component_author_id + version.component_name;
 
       const component = componentsByPath[componentPath] ?? {
         accountId: version.component_author_id,
         componentName: version.component_name,
         lastPublishTimestampMs: 0,
-        totalVersions: 0
+        totalVersions: 0,
       };
 
       const developer = developersById[accountId] ?? {
@@ -126,13 +140,19 @@ function AlphaDashboard() {
         componentNames: [],
         totalVersions: 0,
         totalLinesAdded: 0,
-        totalLinesRemoved: 0
+        totalLinesRemoved: 0,
       };
 
-      component.lastPublishTimestampMs = Math.max(version.block_timestamp_ms, component.lastPublishTimestampMs);
+      component.lastPublishTimestampMs = Math.max(
+        version.block_timestamp_ms,
+        component.lastPublishTimestampMs
+      );
       component.totalVersions++;
 
-      developer.lastPublishTimestampMs = Math.max(version.block_timestamp_ms, developer.lastPublishTimestampMs);
+      developer.lastPublishTimestampMs = Math.max(
+        version.block_timestamp_ms,
+        developer.lastPublishTimestampMs
+      );
       developer.totalLinesAdded += version.lines_added;
       developer.totalLinesRemoved += version.lines_removed;
       developer.totalVersions++;
@@ -162,21 +182,23 @@ function AlphaDashboard() {
         <div className={s.totals}>
           <div className={s.card}>
             <p className={s.label}>Developers</p>
-            <p className={s.total}>{developers?.length ?? "..."}</p>
+            <p className={s.total}>{developers?.length ?? '...'}</p>
           </div>
           <div className={s.card}>
             <p className={s.label}>Components</p>
-            <p className={s.total}>{components?.length ?? "..."}</p>
+            <p className={s.total}>{components?.length ?? '...'}</p>
           </div>
           <div className={s.card}>
             <p className={s.label}>Versions</p>
-            <p className={s.total}>{versions?.length ?? "..."}</p>
+            <p className={s.total}>{versions?.length ?? '...'}</p>
           </div>
           <div className={s.card}>
             <p className={s.label}>Lines</p>
             <div>
-              <p className={s.totalLinesAdded}>+{totalLinesAdded ?? "..."}</p>
-              <p className={s.totalLinesRemoved}>-{totalLinesRemoved ?? "..."}</p>
+              <p className={s.totalLinesAdded}>+{totalLinesAdded ?? '...'}</p>
+              <p className={s.totalLinesRemoved}>
+                -{totalLinesRemoved ?? '...'}
+              </p>
             </div>
           </div>
         </div>
@@ -189,38 +211,69 @@ function AlphaDashboard() {
           <div className={s.cardHeader}>
             <div className={s.sorting}>
               <label className={s.checkbox} title="Based on last publish">
-                <input type="radio" name="developersSorting" checked={developersSorting === 'RECENT'} value="RECENT" onChange={() => setDevelopersSorting("RECENT")} />
+                <input
+                  type="radio"
+                  name="developersSorting"
+                  checked={developersSorting === 'RECENT'}
+                  value="RECENT"
+                  onChange={() => setDevelopersSorting('RECENT')}
+                />
                 Recent
               </label>
               <label className={s.checkbox}>
-                <input type="radio" name="developersSorting" checked={developersSorting === 'ALPHABETICAL'} value="ALPHABETICAL" onChange={() => setDevelopersSorting("ALPHABETICAL")} />
+                <input
+                  type="radio"
+                  name="developersSorting"
+                  checked={developersSorting === 'ALPHABETICAL'}
+                  value="ALPHABETICAL"
+                  onChange={() => setDevelopersSorting('ALPHABETICAL')}
+                />
                 A-Z
               </label>
             </div>
           </div>
 
           <div className={s.developers}>
-            {sortedDevelopers?.slice(0, showAllDevelopers ? -1 : DISPLAY_LIMIT).map((developer) => (
-              <div className={s.developer} key={developer.accountId}>
-                <h4>{developer.accountId}</h4>
-                <div className={s.developerStats}>
-                  <span title="Total Components">{developer.componentNames.length}</span>
-                  <span title="Total Versions">{developer.totalVersions}</span>
-                  <span className={s.totalLinesAdded} title="Total Lines Added">+{developer.totalLinesAdded}</span>
-                  <span className={s.totalLinesRemoved} title="Total Lines Removed">-{developer.totalLinesRemoved}</span>
+            {sortedDevelopers
+              ?.slice(0, showAllDevelopers ? -1 : DISPLAY_LIMIT)
+              .map((developer) => (
+                <div className={s.developer} key={developer.accountId}>
+                  <h4>{developer.accountId}</h4>
+                  <div className={s.developerStats}>
+                    <span title="Total Components">
+                      {developer.componentNames.length}
+                    </span>
+                    <span title="Total Versions">
+                      {developer.totalVersions}
+                    </span>
+                    <span
+                      className={s.totalLinesAdded}
+                      title="Total Lines Added"
+                    >
+                      +{developer.totalLinesAdded}
+                    </span>
+                    <span
+                      className={s.totalLinesRemoved}
+                      title="Total Lines Removed"
+                    >
+                      -{developer.totalLinesRemoved}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
 
-          {!showAllDevelopers && (developers?.length ?? 0) > DISPLAY_LIMIT && <div className={s.cardFooter}>
-            <Button id="show-all-developers" props={{
-              children: `Show All (${developers?.length})`,
-              onClick: () => setSowAllDevelopers(true)
-            }} />
-          </div>}
+          {!showAllDevelopers && (developers?.length ?? 0) > DISPLAY_LIMIT && (
+            <div className={s.cardFooter}>
+              <Button
+                id="show-all-developers"
+                onClick={() => setSowAllDevelopers(true)}
+              >
+                {`Show All (${developers?.length})`}
+              </Button>
+            </div>
+          )}
         </div>
-
 
         <hr />
 
@@ -230,11 +283,23 @@ function AlphaDashboard() {
           <div className={s.cardHeader}>
             <div className={s.sorting}>
               <label className={s.checkbox} title="Based on last publish">
-                <input type="radio" name="componentsSorting" checked={componentsSorting === 'RECENT'} value="RECENT" onChange={() => setComponentsSorting("RECENT")} />
+                <input
+                  type="radio"
+                  name="componentsSorting"
+                  checked={componentsSorting === 'RECENT'}
+                  value="RECENT"
+                  onChange={() => setComponentsSorting('RECENT')}
+                />
                 Recent
               </label>
               <label className={s.checkbox}>
-                <input type="radio" name="componentsSorting" checked={componentsSorting === 'ALPHABETICAL'} value="ALPHABETICAL" onChange={() => setComponentsSorting("ALPHABETICAL")} />
+                <input
+                  type="radio"
+                  name="componentsSorting"
+                  checked={componentsSorting === 'ALPHABETICAL'}
+                  value="ALPHABETICAL"
+                  onChange={() => setComponentsSorting('ALPHABETICAL')}
+                />
                 A-Z
               </label>
             </div>
@@ -246,25 +311,46 @@ function AlphaDashboard() {
           </div>
 
           <div className={s.components}>
-            {sortedComponents?.slice(0, showAllComponents ? -1 : DISPLAY_LIMIT).map((component) => (
-              <div className={s.component} key={component.accountId + component.componentName}>
-                <a href={`https://bwe.near.dev/${component.accountId}/${component.componentName}`} target="_blank" >
-                  •
-                  <span className={s.componentContent}>
-                    <span>{component.accountId}/{component.componentName}</span>
-                    <span className={s.timestamp} title="Last Published">{new Date(component.lastPublishTimestampMs).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}</span>
-                  </span>
-                </a>
-              </div>
-            ))}
+            {sortedComponents
+              ?.slice(0, showAllComponents ? -1 : DISPLAY_LIMIT)
+              .map((component) => (
+                <div
+                  className={s.component}
+                  key={component.accountId + component.componentName}
+                >
+                  <a
+                    href={`https://bwe.near.dev/${component.accountId}/${component.componentName}`}
+                    target="_blank"
+                  >
+                    •
+                    <span className={s.componentContent}>
+                      <span>
+                        {component.accountId}/{component.componentName}
+                      </span>
+                      <span className={s.timestamp} title="Last Published">
+                        {new Date(
+                          component.lastPublishTimestampMs
+                        ).toLocaleString(undefined, {
+                          dateStyle: 'short',
+                          timeStyle: 'short',
+                        })}
+                      </span>
+                    </span>
+                  </a>
+                </div>
+              ))}
           </div>
 
-          {!showAllComponents && (components?.length ?? 0) > DISPLAY_LIMIT && <div className={s.cardFooter}>
-            <Button id="show-all-components" props={{
-              children: `Show All (${components?.length})`,
-              onClick: () => setSowAllComponents(true)
-            }} />
-          </div>}
+          {!showAllComponents && (components?.length ?? 0) > DISPLAY_LIMIT && (
+            <div className={s.cardFooter}>
+              <Button
+                id="show-all-components"
+                onClick={() => setSowAllComponents(true)}
+              >
+                {`Show All (${components?.length})`}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

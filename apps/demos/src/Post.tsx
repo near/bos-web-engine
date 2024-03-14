@@ -34,14 +34,14 @@ function Post({ content: contentRaw, account_id, block_timestamp }: PostProps) {
   return (
     <div className={s.post}>
       <div className={s.header}>
-        <Account props={{ accountId: account_id }} />
+        <Account accountId={account_id} />
 
         <p className={s.timestamp}>
           {new Date(block_timestamp / 1000000).toLocaleString()}
         </p>
       </div>
-      
-      <Markdown props={{ content }} />
+
+      <Markdown content={content} />
     </div>
   );
 }
