@@ -134,7 +134,7 @@ export function transpileSource({
          *  in a scope in which the correct props is bound to arguments[0], i.e. the Component's root
          *  scope - in the directly-returned JSX or an arrow function in the Component's root scope.
          *
-         *  TODO the correct solution is for the parser to inject the __bweMeta reference into the Component
+         *  TODO the correct solution is for the parser to inject the `bwe` reference into the Component
          *   props argument, but it would also need to be made accessible to the render site
          *
          *   TL; DR
@@ -159,7 +159,7 @@ export function transpileSource({
             t.logicalExpression(
               '&&',
               propsAccessor,
-              t.memberExpression(propsAccessor, t.identifier('__bweMeta'))
+              t.memberExpression(propsAccessor, t.identifier('bwe'))
             )
           ),
         ]);
@@ -183,11 +183,33 @@ export function transpileSource({
           },
           {} as any
         ) as {
+          bwe?: ObjectExpression;
           id?: string;
+          key?: string;
           props?: ObjectExpression;
           src?: StringLiteral | Identifier;
           trust?: ObjectExpression;
         };
+
+        // check for legacy props usage, i.e. doesn't have `bwe` but has either `props` or `trust`
+        // TODO remove after dev migration
+        const hasLegacyProps = !!(
+          !propsExpressions.bwe &&
+          (propsExpressions.props || propsExpressions.trust)
+        );
+
+        if (hasLegacyProps) {
+          console.warn(
+            'Component `props` can now be specified at the top level. The legacy interface for providing a `props.props` key will be deprecated in a future release.'
+          );
+        }
+
+        // TODO remove after dev migration
+        if (propsExpressions.id && !propsExpressions.key) {
+          console.warn(
+            'The Component `props` field `id` has been renamed to `key`. The legacy interface for providing a `props.id` key will be deprecated in a future release.'
+          );
+        }
 
         const componentImport = componentReferences[Component.name];
         if (componentImport) {
@@ -195,8 +217,33 @@ export function transpileSource({
             ? deriveComponentPath(componentPath, componentImport)
             : componentImport.modulePath;
 
-          const trustValue = propsExpressions.trust
-            ?.properties[0] as ObjectProperty;
+          let trustValue: ObjectProperty;
+          if (hasLegacyProps) {
+            trustValue = propsExpressions.trust
+              ?.properties[0] as ObjectProperty;
+          } else {
+            trustValue = (
+              (
+                propsExpressions.bwe?.properties.find((p) => {
+                  if (!t.isObjectProperty(p)) {
+                    return;
+                  }
+
+                  const { key } = p as ObjectProperty;
+                  if (t.isStringLiteral(key)) {
+                    return (key as StringLiteral).value === 'trust';
+                  }
+
+                  if (t.isIdentifier(key)) {
+                    return (key as Identifier).name === 'trust';
+                  }
+
+                  return;
+                }) as ObjectProperty
+              )?.value as ObjectExpression
+            ).properties[0] as ObjectProperty;
+          }
+
           const trustMode = (trustValue?.value as StringLiteral)?.value;
           const isTrusted = isChildComponentTrusted(
             {
@@ -219,24 +266,56 @@ export function transpileSource({
             ? buildComponentFunctionName(src)
             : 'Component';
 
+          // no value for `props.bwe`, create new object for metadata
+          if (!propsExpressions.bwe) {
+            const createdBweProp = t.objectExpression([]);
+            props.properties.push(
+              t.objectProperty(t.identifier('bwe'), createdBweProp)
+            );
+            propsExpressions.bwe = createdBweProp;
+          }
+
           // inject the src prop
-          props.properties.push(
-            t.objectProperty(t.identifier('src'), t.stringLiteral(src))
+          const srcProperty = t.objectProperty(
+            t.identifier('src'),
+            t.stringLiteral(src)
           );
 
-          if (isTrusted) {
+          if (hasLegacyProps) {
+            props.properties.push(srcProperty);
+          } else {
+            propsExpressions.bwe!.properties = [
+              ...propsExpressions.bwe!.properties,
+              srcProperty,
+              ...bweMeta.properties,
+            ];
+          }
+
+          if (hasLegacyProps) {
             const componentProps = propsExpressions.props;
             props.properties = [
               t.objectProperty(
-                t.identifier('__bweMeta'),
+                t.identifier('bwe'),
                 t.objectExpression([
                   ...bweMeta.properties,
                   ...props!.properties.filter(
-                    ({ value }: any) => value !== componentProps
+                    ({ value }: any) =>
+                      value !== componentProps &&
+                      value !== propsExpressions.bwe &&
+                      value !== propsExpressions.id &&
+                      value !== propsExpressions.key
                   ),
                 ])
               ),
-              ...(componentProps ? componentProps.properties : []),
+              ...(componentProps
+                ? [
+                    ...componentProps.properties,
+                    t.objectProperty(
+                      t.identifier('key'),
+                      propsExpressions.key || propsExpressions.id
+                    ),
+                  ]
+                : []),
             ];
           }
         }

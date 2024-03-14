@@ -1,5 +1,9 @@
-import type { Props } from './render';
+import type { Props, WebEngineMeta } from './render';
 import type { ComponentTrust } from './trust';
+
+export type BOSComponentProps = Props & {
+  bwe: WebEngineMeta;
+};
 
 export interface ComponentChildMetadata {
   componentId: string;

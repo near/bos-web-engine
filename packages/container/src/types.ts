@@ -1,4 +1,5 @@
 import type {
+  BOSComponentProps,
   ComponentChildMetadata,
   ComponentTrust,
   ExternalCallbackInvocation,
@@ -6,7 +7,7 @@ import type {
   SerializedArgs,
   SerializedNode,
 } from '@bos-web-engine/common';
-import { FunctionComponent, VNode } from 'preact';
+import type { ComponentChildren, FunctionComponent, VNode } from 'preact';
 
 export type BuildRequestCallback = () => CallbackRequest;
 
@@ -150,7 +151,6 @@ export interface InitContainerParams {
   containerMethods: {
     buildEventHandler: (params: ProcessEventParams) => Function;
     buildRequest: BuildRequestCallback;
-    buildSafeProxy: BuildSafeProxyCallback;
     composeMessagingMethods: ComposeMessagingMethodsCallback;
     composeRenderMethods: ComposeRenderMethodsCallback;
     composeSerializationMethods: ComposeSerializationMethodsCallback;
@@ -234,9 +234,15 @@ export type DispatchRenderEventCallback = (
   params: DispatchRenderEventParams
 ) => void;
 
-interface BuildSafeProxyParams {
-  props: Props;
-  componentId: string;
-}
+export type BWEComponentNode = VNode<BOSComponentProps>;
 
-export type BuildSafeProxyCallback = (params: BuildSafeProxyParams) => object;
+export interface PlaceholderNode {
+  type: string;
+  key: string;
+  props: {
+    id: string;
+    className: string;
+    children: ComponentChildren;
+    'data-component-src': string;
+  };
+}

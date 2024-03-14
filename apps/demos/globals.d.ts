@@ -1,10 +1,16 @@
 import type { JSX } from 'react';
 
 declare global {
-  function Component(props: {
-    src: string;
-    props?: Record<any, any>;
-    trust?: { mode: string };
+  interface BWEComponentConfig {
     id?: string;
-  }): JSX.Element;
+    trust?: { mode: string };
+  }
+
+  interface BWEComponentProps {
+    bwe?: BWEComponentConfig;
+  }
+
+  type BWEComponent<TProps = {}> = (props: TProps & BWEComponentProps) => JSX.Element;
+
+  function Component(props: { bwe: { src: string; } & BWEComponentConfig } & Record<any, any>): JSX.Element
 }

@@ -7,7 +7,6 @@ import {
   buildRequest,
   composeMessagingMethods,
   initContainer,
-  buildSafeProxy,
   composeSerializationMethods,
   composeRenderMethods,
 } from '@bos-web-engine/container';
@@ -58,7 +57,6 @@ function buildSandboxedComponent({
               containerMethods: {
                 buildEventHandler: ${buildEventHandler.toString()},
                 buildRequest: ${buildRequest.toString()},
-                buildSafeProxy: ${buildSafeProxy.toString()},
                 composeMessagingMethods: ${composeMessagingMethods.toString()},
                 composeRenderMethods: ${composeRenderMethods.toString()},
                 composeSerializationMethods: ${composeSerializationMethods.toString()},

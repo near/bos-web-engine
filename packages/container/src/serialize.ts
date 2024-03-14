@@ -1,13 +1,20 @@
-import type { Props, SerializedNode } from '@bos-web-engine/common';
+import type {
+  BOSComponentProps,
+  ComponentChildMetadata,
+  ComponentTrust,
+  Props,
+  SerializedNode,
+} from '@bos-web-engine/common';
 
 import type {
+  BWEComponentNode,
   ComposeSerializationMethodsCallback,
+  DeserializeArgsCallback,
   DeserializePropsCallback,
-  SerializePropsCallback,
+  Node,
   SerializeArgsCallback,
   SerializeNodeCallback,
-  DeserializeArgsCallback,
-  Node,
+  SerializePropsCallback,
 } from './types';
 
 export interface BuildComponentIdParams {
@@ -18,7 +25,7 @@ export interface BuildComponentIdParams {
 
 interface SerializeChildComponentParams {
   parentId: string;
-  props: Props;
+  node: BWEComponentNode & { id?: string }; // TODO remove id after dev migration
 }
 
 interface SerializedPropsCallback {
@@ -149,8 +156,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     }) => {
       return Object.entries(props).reduce(
         (newProps, [key, value]: [string, any]) => {
-          const isProxy = value?.__bweMeta?.isProxy || false;
-
           // TODO remove invalid props keys at the source
           //  (probably JSX transpilation)
           if (key === 'class' || key.includes('-')) {
@@ -179,18 +184,15 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           if (typeof value === 'function') {
             newProps[key] = serializeCallback(key, value);
           } else {
-            let serializedValue = value;
             if (isPreactNode(value)) {
               newProps[key] = serializeNode({
                 childComponents: [],
                 node: value,
                 parentId: containerId,
               });
-            } else if (isProxy) {
-              newProps[key] = { ...serializedValue };
             } else {
               newProps[key] = deepTransform({
-                value: serializedValue,
+                value,
                 onFunction: (fn: Function, path: string) =>
                   serializeCallback(`${key}${path}`, fn),
                 onNode: (node) =>
@@ -314,7 +316,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       componentPath,
       parentComponentId,
     }: BuildComponentIdParams) {
-      // TODO warn on missing instanceId (<Component>'s id prop) here?
+      // TODO warn on missing instanceId (<Component>'s key prop) here?
       return [componentPath, instanceId?.toString(), parentComponentId].join(
         '##'
       );
@@ -327,19 +329,29 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
      */
     const serializeChildComponent = ({
       parentId,
-      props,
-    }: SerializeChildComponentParams) => {
-      const { id: instanceId, src, props: componentProps, trust } = props;
+      node,
+    }: SerializeChildComponentParams): {
+      child: ComponentChildMetadata;
+      placeholder: SerializedNode;
+    } => {
+      const {
+        key,
+        id,
+        props: { bwe, ...componentProps },
+      } = node;
+      const { src, trust } = bwe;
+      // TODO remove id fallback after dev migration
+      const instanceId = key || id;
+
       const componentId = buildComponentId({
         instanceId,
-        componentPath: src,
+        componentPath: src!,
         parentComponentId: parentId,
       });
 
-      let child;
-      try {
-        child = {
-          trust,
+      return {
+        child: {
+          trust: trust || ({ mode: 'sandboxed' } as ComponentTrust),
           props: componentProps
             ? serializeProps({
                 componentId,
@@ -347,27 +359,18 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
                 props: componentProps,
               })
             : {},
-          source: src,
+          source: src!,
           componentId,
-        };
-      } catch (error) {
-        console.warn(`failed to dispatch component load for ${parentId}`, {
-          error,
-          componentProps,
-        });
-      }
-
-      return {
-        child,
+        },
         placeholder: {
           type: 'div',
           props: {
             id: 'dom-' + componentId,
-            __bweMeta: {
+            bwe: {
               componentId,
             },
             className: 'container-child',
-            'data-component-src': src,
+            'data-component-src': src!,
           },
         },
       };
@@ -391,7 +394,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       const { type } = node;
       let serializedElementType = typeof type === 'string' ? type : '';
       const children = node?.props?.children || [];
-      let props = { ...node.props };
+      const props = { ...node.props } as BOSComponentProps;
       delete props.children;
 
       let unifiedChildren = Array.isArray(children) ? children : [children];
@@ -412,9 +415,10 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           throw new Error(`unrecognized Component function ${type.name}`);
         }
 
+        const componentNode = { ...node, props } as BWEComponentNode;
         const { child, placeholder } = serializeChildComponent({
           parentId,
-          props,
+          node: componentNode,
         });
 
         if (child) {

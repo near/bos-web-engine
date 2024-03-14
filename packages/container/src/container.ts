@@ -9,7 +9,6 @@ export function initContainer({
   containerMethods: {
     buildEventHandler,
     buildRequest,
-    buildSafeProxy,
     composeMessagingMethods,
     composeRenderMethods,
     composeSerializationMethods,
@@ -66,7 +65,7 @@ export function initContainer({
     const getComparable = (p: Props) =>
       Object.entries(p)
         .sort(([aKey], [bKey]) => (aKey === bKey ? 0 : aKey > bKey ? 1 : -1))
-        .filter(([k]) => k !== '__bweMeta')
+        .filter(([k]) => k !== 'bwe')
         .map(([key, value]) => `${key}::${value?.toString()}`)
         .join(',');
 
@@ -93,23 +92,28 @@ export function initContainer({
           return props;
         }
 
-        return buildSafeProxy({
-          componentId,
-          props: {
-            ...props,
-            ...newProps,
-          },
-        });
+        const updatedProps = { ...props, ...newProps };
+        if (!updatedProps.bwe) {
+          updatedProps.bwe = {};
+        }
+        updatedProps.bwe.componentId = componentId;
+
+        return updatedProps;
       }),
   });
 
-  const props = buildSafeProxy({
-    componentId,
-    props: deserializeProps({
-      containerId: componentId,
-      props: componentPropsJson,
-    }),
+  const deserializedProps = deserializeProps({
+    containerId: componentId,
+    props: componentPropsJson,
   });
+
+  const props = {
+    ...deserializedProps,
+    bwe: {
+      ...deserializedProps,
+      componentId,
+    },
+  };
 
   return {
     callApplicationMethod({ args, method }: InvokeApplicationCallbackParams) {

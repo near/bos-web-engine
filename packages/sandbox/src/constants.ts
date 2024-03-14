@@ -64,18 +64,18 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
         export default classes;
       }
 
-      type BWEComponent<TProps = {}> = (props: {
+      interface BWEComponentConfig {
         id?: string;
-        props?: TProps;
         trust?: { mode: string };
-      }) => JSX.Element;
+      }
 
-      function Component(props: {
-        src: string;
-        props?: Record<any, any>;
-        trust?: { mode: string };
-        id?: string;
-      }): JSX.Element;
+      interface BWEComponentProps {
+        bwe?: BWEComponentConfig;
+      }
+
+      type BWEComponent<TProps = {}> = (props: TProps & BWEComponentProps) => JSX.Element;
+
+      function Component(props: { bwe: { src: string; } & BWEComponentConfig } & Record<any, any>): JSX.Element
     }`,
   },
 ];
@@ -153,7 +153,7 @@ function HelloWorld() {
       <div className={s.examples}>
         <div className={s.card}>
           <h3>Embedding another BWE component</h3>
-          <Message props={{ message: 'Hello world!' }} />
+          <Message message="Hello world!" />
         </div>
         <div className={s.card}>
           <h3>React <code>useState</code></h3>
