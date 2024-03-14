@@ -217,7 +217,7 @@ export function transpileSource({
             ? deriveComponentPath(componentPath, componentImport)
             : componentImport.modulePath;
 
-          let trustValue: ObjectProperty;
+          let trustValue: ObjectProperty | undefined;
           if (hasLegacyProps) {
             trustValue = propsExpressions.trust
               ?.properties[0] as ObjectProperty;
@@ -241,7 +241,7 @@ export function transpileSource({
                   return;
                 }) as ObjectProperty
               )?.value as ObjectExpression
-            ).properties[0] as ObjectProperty;
+            )?.properties[0] as ObjectProperty;
           }
 
           const trustMode = (trustValue?.value as StringLiteral)?.value;
