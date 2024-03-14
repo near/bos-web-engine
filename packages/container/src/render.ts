@@ -1,27 +1,12 @@
-import type { Props, WebEngineMeta } from '@bos-web-engine/common';
 import type { ComponentChildren, ComponentType, VNode } from 'preact';
 
 import type {
+  BWEComponentNode,
   ComposeRenderMethodsCallback,
   ContainerComponent,
   Node,
+  PlaceholderNode,
 } from './types';
-
-type BOSComponentProps = Props & {
-  bwe: WebEngineMeta;
-};
-
-type BWEComponentNode = VNode<BOSComponentProps>;
-
-interface PlaceholderNode {
-  type: string;
-  props: {
-    id: string;
-    className: string;
-    children: ComponentChildren;
-    'data-component-src': string;
-  };
-}
 
 interface RenderedVNode extends VNode<any> {
   __k?: RenderedVNode[];
@@ -72,25 +57,31 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     node: BWEComponentNode,
     children: ComponentChildren
   ): PlaceholderNode => {
-    const { bwe, id } = node.props;
+    const {
+      key,
+      props: { id, bwe },
+    } = node;
     const { src, parentMeta } = bwe;
-    const childComponentId = [src, id, parentMeta?.componentId].join('##');
+    // TODO remove id fallback after dev migration
+    const childComponentId = [src, key || id, parentMeta?.componentId].join(
+      '##'
+    );
 
     return {
       type: 'div',
+      key: key || id, // TODO remove id fallback after dev migration
       props: {
         id: 'dom-' + childComponentId,
         className: 'bwe-component-container',
         children,
-        'data-component-src': src,
+        'data-component-src': src!,
       },
     };
   };
 
   function parseRenderedTree(
     node: RenderedVNode | null,
-    renderedChildren?: Array<RenderedVNode | null>,
-    childIndex?: number
+    renderedChildren?: Array<RenderedVNode | null>
   ): VNode | null | Array<VNode | null> {
     if (!node || !renderedChildren) {
       return node;
@@ -147,17 +138,15 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     if (typeof node.type !== 'function' || isComponent(node.type)) {
       return {
         type: node.type,
-        key: `${typeof node.type === 'function' ? node.type.name : node.type}-${
-          childIndex || 0
-        }`,
+        key: node.key || props.id, // TODO remove id fallback after dev migration
         props: {
           ...props,
           children: [renderedChildren]
             .flat()
             .filter((c) => !!c)
-            .map((child, i) => {
+            .map((child) => {
               if (child?.type) {
-                return parseRenderedTree(child, child?.__k, i);
+                return parseRenderedTree(child, child?.__k);
               }
 
               return child?.props;
@@ -188,14 +177,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       renderedChildren
     );
 
-    return parseRenderedTree(
-      {
-        type: componentNode.type,
-        props: componentNode.props,
-        key: `bwe-component-${node.type.name}`,
-      },
-      renderedChildren
-    );
+    return parseRenderedTree(componentNode, renderedChildren);
   }
 
   const commit = (vnode: RenderedVNode) => {

@@ -185,6 +185,7 @@ export function transpileSource({
         ) as {
           bwe?: ObjectExpression;
           id?: string;
+          key?: string;
           props?: ObjectExpression;
           src?: StringLiteral | Identifier;
           trust?: ObjectExpression;
@@ -199,7 +200,14 @@ export function transpileSource({
 
         if (hasLegacyProps) {
           console.warn(
-            'Component `props` can now be specified at the top level. The legacy interface for providing a `props.props` key will be deprecated in later alpha versions.'
+            'Component `props` can now be specified at the top level. The legacy interface for providing a `props.props` key will be deprecated in a future release.'
+          );
+        }
+
+        // TODO remove after dev migration
+        if (propsExpressions.id && !propsExpressions.key) {
+          console.warn(
+            'The Component `props` field `id` has been renamed to `key`. The legacy interface for providing a `props.id` key will be deprecated in a future release.'
           );
         }
 
@@ -276,7 +284,11 @@ export function transpileSource({
           if (hasLegacyProps) {
             props.properties.push(srcProperty);
           } else {
-            propsExpressions.bwe!.properties.push(srcProperty);
+            propsExpressions.bwe!.properties = [
+              ...propsExpressions.bwe!.properties,
+              srcProperty,
+              ...bweMeta.properties,
+            ];
           }
 
           if (hasLegacyProps) {
@@ -289,15 +301,19 @@ export function transpileSource({
                   ...props!.properties.filter(
                     ({ value }: any) =>
                       value !== componentProps &&
+                      value !== propsExpressions.bwe &&
                       value !== propsExpressions.id &&
-                      value !== propsExpressions.bwe
+                      value !== propsExpressions.key
                   ),
                 ])
               ),
               ...(componentProps
                 ? [
                     ...componentProps.properties,
-                    t.objectProperty(t.identifier('id'), propsExpressions.id),
+                    t.objectProperty(
+                      t.identifier('key'),
+                      propsExpressions.key || propsExpressions.id
+                    ),
                   ]
                 : []),
             ];
