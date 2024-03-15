@@ -37,7 +37,7 @@ function SocialFeedPage() {
     });
     const result: GraphqlResponse = await response.json();
     return result;
-  }
+  };
 
   const createQuery = () => {
     const indexerQueries = `
@@ -109,12 +109,14 @@ function SocialFeedPage() {
 
         <div className={s.posts}>
           {posts.map((post) => {
-            return <Post props={post} id={post.receipt_id} key={post.receipt_id} />;
+            return <Post {...post} key={post.receipt_id} />;
           })}
         </div>
 
         <div className={s.footer}>
-          <Button props={{ children: 'Load More', onClick: loadMorePosts, disabled: loading }} />
+          <Button onClick={loadMorePosts} disabled={loading}>
+            Load More
+          </Button>
         </div>
       </div>
     </div>

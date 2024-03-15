@@ -25,25 +25,35 @@ function HelloWorld() {
     <div className={s.wrapper}>
       <h1>Welcome to the BOS Web Engine Sandbox!</h1>
       <div style={{ display: 'flex', columnGap: '0.5rem' }}>
-        <p>If you are new to BWE development, check out the docs in the sidebar 👀</p>
+        <p>
+          If you are new to BWE development, check out the docs in the sidebar
+          👀
+        </p>
       </div>
-      <p>You can hit the + button in the sidebar to create a new component with recommended boilerplate</p>
+      <p>
+        You can hit the + button in the sidebar to create a new component with
+        recommended boilerplate
+      </p>
 
       <h2>Here are a few examples</h2>
       <div className={s.examples}>
         <div className={s.card}>
           <h3>Embedding another BWE component</h3>
-          <Message props={{ message: 'Hello world!' }} />
+          <Message message="Hello world!" />
         </div>
         <div className={s.card}>
-          <h3>React <code>useState</code></h3>
+          <h3>
+            React <code>useState</code>
+          </h3>
           <button type="button" onClick={() => setCount((value) => value + 1)}>
             Increase Count: {count}
           </button>
         </div>
         <div className={s.card}>
           <h3>Using an imported library</h3>
-          <p>Lodash <code>_.reverse([1, 2, 3])</code></p>
+          <p>
+            Lodash <code>_.reverse([1, 2, 3])</code>
+          </p>
           {JSON.stringify(reverse([1, 2, 3]))}
         </div>
       </div>

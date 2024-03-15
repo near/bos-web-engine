@@ -92,10 +92,11 @@ function PackageSection({
         {packageCompats.map((p) => {
           return (
             <ModuleEntry
-              trust={{ mode: 'trusted' }}
-              id={p.name}
               key={p.name}
-              props={{ ...p }}
+              bwe={{
+                trust: { mode: 'trusted' },
+              }}
+              {...p}
             />
           );
         })}

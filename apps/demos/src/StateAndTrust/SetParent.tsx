@@ -11,27 +11,15 @@ type Props = {
 };
 
 function SetParent(props: Props) {
-  const {
-    circle,
-    square,
-    triangle,
-    updateCircle,
-    updateSquare,
-    updateTriangle,
-    id,
-  } = props;
-
   return (
     <ShapeSet
-      id={id}
-      props={{
-        circle,
-        square,
-        triangle,
-        updateCircle,
-        updateSquare,
-        updateTriangle,
-      }}
+      key={props.id}
+      circle={props.circle}
+      square={props.square}
+      triangle={props.triangle}
+      updateCircle={props.updateCircle}
+      updateSquare={props.updateSquare}
+      updateTriangle={props.updateTriangle}
     />
   );
 }

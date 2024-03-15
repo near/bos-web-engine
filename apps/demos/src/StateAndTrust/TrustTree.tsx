@@ -1,23 +1,24 @@
-import s from "./styles.module.css";
-import { useCallback, useState } from "react";
+import s from './styles.module.css';
+import { useState } from 'react';
 
-import SetParent from "./SetParent";
-import ShapeSet from "./ShapeSet";
+import SetParent from './SetParent';
+import ShapeSet from './ShapeSet';
 
 interface Props {
   title: string;
 }
 
-  const icons = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const icons = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 function TrustTree(props: Props) {
-  const [circle, setCircle] = useState("A");
-  const [square, setSquare] = useState("B");
-  const [triangle, setTriangle] = useState("C");
+  const [circle, setCircle] = useState('A');
+  const [square, setSquare] = useState('B');
+  const [triangle, setTriangle] = useState('C');
 
   const getRandomIcon = (currentIcon: string) => {
     const filteredIcons = icons.filter((icon) => icon !== currentIcon);
-    const newIcon = filteredIcons[Math.floor(Math.random() * filteredIcons.length)];
+    const newIcon =
+      filteredIcons[Math.floor(Math.random() * filteredIcons.length)];
     return newIcon;
   };
 
@@ -32,28 +33,24 @@ function TrustTree(props: Props) {
       </p>
 
       <ShapeSet
-        id="root-shapes"
-        props={{
-          circle,
-          square,
-          triangle,
-          updateCircle,
-          updateSquare,
-          updateTriangle,
-        }}
+        key="root-shapes"
+        circle={circle}
+        square={square}
+        triangle={triangle}
+        updateCircle={updateCircle}
+        updateSquare={updateSquare}
+        updateTriangle={updateTriangle}
       />
-      
+
       <SetParent
+        key="parent-shapes"
         id="parent-shapes"
-        props={{
-          id: "parent-shapes",
-          circle,
-          square,
-          triangle,
-          updateCircle,
-          updateSquare,
-          updateTriangle,
-        }}
+        circle={circle}
+        square={square}
+        triangle={triangle}
+        updateCircle={updateCircle}
+        updateSquare={updateSquare}
+        updateTriangle={updateTriangle}
       />
     </div>
   );
