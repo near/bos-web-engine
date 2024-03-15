@@ -135,7 +135,6 @@ function SandboxWebEngine({
     try {
       const response = await fetch(url);
       const data = await response.json();
-      console.log(data);
 
       // FIXME: change engine to expect `code`
       // transform data from having property called code to property called component
@@ -144,7 +143,6 @@ function SandboxWebEngine({
         delete data.components[key].code;
       });
 
-      console.log(data.components);
       setLocalComponents(data.components);
     } catch (error) {
       console.error(error);
