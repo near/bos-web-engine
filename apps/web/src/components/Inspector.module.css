@@ -212,9 +212,5 @@
 .syntaxWrapper {
   flex: 1;
   height: 100%;
-
-  code {
-    width: 100vw;
-    overflow: hidden;
-  }
+  overflow-x: scroll;
 }
