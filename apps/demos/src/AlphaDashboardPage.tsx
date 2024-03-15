@@ -266,7 +266,7 @@ function AlphaDashboard() {
           {!showAllDevelopers && (developers?.length ?? 0) > DISPLAY_LIMIT && (
             <div className={s.cardFooter}>
               <Button
-                id="show-all-developers"
+                key="show-all-developers"
                 onClick={() => setSowAllDevelopers(true)}
               >
                 {`Show All (${developers?.length})`}
@@ -344,7 +344,7 @@ function AlphaDashboard() {
           {!showAllComponents && (components?.length ?? 0) > DISPLAY_LIMIT && (
             <div className={s.cardFooter}>
               <Button
-                id="show-all-components"
+                key="show-all-components"
                 onClick={() => setSowAllComponents(true)}
               >
                 {`Show All (${components?.length})`}
