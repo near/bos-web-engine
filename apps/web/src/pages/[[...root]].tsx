@@ -4,6 +4,7 @@ import {
   useWebEngine,
   useWebEngineSandbox,
 } from '@bos-web-engine/application';
+import { ThemeProvider } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { AccountState } from '@near-wallet-selector/core';
 import { useRouter } from 'next/router';
@@ -41,28 +42,34 @@ export default function Root() {
   }, [router, router.isReady, query.root]);
 
   return (
-    <div className={`bwe-app ${showContainerBoundaries ? 'bwe-debug' : ''}`}>
-      {rootComponentPath && (
-        <>
-          {flags?.bosLoaderUrl ? (
-            <SandboxWebEngine
-              account={account}
-              rootComponentPath={rootComponentPath}
-              showContainerBoundaries={showContainerBoundaries}
-              flags={flags}
-            />
-          ) : (
-            <WebEngine
-              account={account}
-              rootComponentPath={rootComponentPath}
-              showContainerBoundaries={showContainerBoundaries}
-              flags={flags}
-            />
+    <>
+      <ThemeProvider defaultTheme="light">
+        <div
+          className={`bwe-app ${showContainerBoundaries ? 'bwe-debug' : ''}`}
+        >
+          {rootComponentPath && (
+            <>
+              {flags?.bosLoaderUrl ? (
+                <SandboxWebEngine
+                  account={account}
+                  rootComponentPath={rootComponentPath}
+                  showContainerBoundaries={showContainerBoundaries}
+                  flags={flags}
+                />
+              ) : (
+                <WebEngine
+                  account={account}
+                  rootComponentPath={rootComponentPath}
+                  showContainerBoundaries={showContainerBoundaries}
+                  flags={flags}
+                />
+              )}
+            </>
           )}
-          <Inspector />
-        </>
-      )}
-    </div>
+        </div>
+      </ThemeProvider>
+      {rootComponentPath && <Inspector />}
+    </>
   );
 }
 
