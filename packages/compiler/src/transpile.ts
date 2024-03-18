@@ -96,6 +96,7 @@ export function transpileSource({
     isTrusted: boolean;
     path: string;
     trustMode: string;
+    blockHeight?: number;
   }[] = [];
 
   const transformComponents = ({ types: t }: any) => ({
