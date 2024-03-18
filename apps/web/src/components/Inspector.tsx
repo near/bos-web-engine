@@ -1,4 +1,4 @@
-import { Dropdown, Tabs } from '@bos-web-engine/ui';
+import { Tabs, Dialog, RadioGroup } from '@bos-web-engine/ui';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -9,6 +9,7 @@ import s from './Inspector.module.css';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useComponentSourcesStore } from '@/stores/component-sources';
 import { useFlagsStore } from '@/stores/flags';
+import { usePortalStore } from '@/stores/portal';
 
 export function Inspector() {
   const preRef = useRef<HTMLPreElement | null>(null);
@@ -59,12 +60,15 @@ export function Inspector() {
   const smallScreen = useMediaQuery('(max-width: 1000px)');
 
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const portalAnchor = usePortalStore((store) => store.portal);
+  const [showSmallScreenFileSelector, setShowSmallScreenFileSelector] =
+    useState(false);
 
   if (!show) {
     return (
       <button
         type="button"
-        className={s.openButton}
+        className={`${s.devToolsButton} ${s.openButton}`}
         onClick={() => {
           setShow(true);
         }}
@@ -76,17 +80,22 @@ export function Inspector() {
 
   return (
     <div className={s.panel} ref={panelRef}>
-      {!smallScreen && (
-        <button
-          className={s.closeButton}
-          type="button"
-          onClick={() => {
-            setShow(false);
-          }}
+      <button
+        className={`${s.devToolsButton} ${s.closeButton}`}
+        type="button"
+        onClick={() => {
+          setShow(false);
+        }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 256 256"
         >
-          Close
-        </button>
-      )}
+          <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path>
+        </svg>
+      </button>
       <Tabs.Root className={s.root} defaultValue="source">
         <Tabs.List className={s.tabsList}>
           <Tabs.Trigger value="source">Component Source</Tabs.Trigger>
@@ -97,40 +106,46 @@ export function Inspector() {
           <div className={s.sourceViewer}>
             {smallScreen ? (
               <div className={s.mobileSourceBar}>
-                <Dropdown.Root>
-                  <Dropdown.Trigger asChild>
-                    <button type="button" className={s.dropdownTrigger}>
-                      {selectedComponent || 'Select a component'}
-                    </button>
-                  </Dropdown.Trigger>
-                  <Dropdown.Content
-                    className={s.selectorDropdown}
-                    sideOffset={4}
-                  >
-                    <Dropdown.RadioGroup
-                      value={selectedComponent || ''}
-                      onValueChange={(value) => {
-                        setSelectedComponent(value || undefined);
-                      }}
-                    >
-                      {sortedSources.map((path) => (
-                        <Dropdown.RadioItem key={path} value={path}>
-                          <Dropdown.CheckedIndicator />
-                          {path}
-                        </Dropdown.RadioItem>
-                      ))}
-                    </Dropdown.RadioGroup>
-                  </Dropdown.Content>
-                </Dropdown.Root>
                 <button
-                  className={s.closeButton}
                   type="button"
-                  onClick={() => {
-                    setShow(false);
-                  }}
+                  className={s.dropdownTrigger}
+                  onClick={() =>
+                    setShowSmallScreenFileSelector(!showSmallScreenFileSelector)
+                  }
                 >
-                  Close
+                  {selectedComponent || 'Select a component'}
                 </button>
+                <Dialog.Root
+                  open={showSmallScreenFileSelector}
+                  onOpenChange={(open) => setShowSmallScreenFileSelector(open)}
+                >
+                  <Dialog.Portal container={portalAnchor}>
+                    <Dialog.Content
+                      anchor="top"
+                      size="m"
+                      className={s.dialogContent}
+                    >
+                      <RadioGroup.Root
+                        value={selectedComponent || ''}
+                        onValueChange={(value) => {
+                          setSelectedComponent(value || undefined);
+                          setShowSmallScreenFileSelector(false);
+                        }}
+                      >
+                        {sortedSources.map((path) => (
+                          <RadioGroup.Item
+                            key={path}
+                            value={path}
+                            className={s.radioItem}
+                          >
+                            <RadioGroup.CheckedIndicator />
+                            {path}
+                          </RadioGroup.Item>
+                        ))}
+                      </RadioGroup.Root>
+                    </Dialog.Content>
+                  </Dialog.Portal>
+                </Dialog.Root>
               </div>
             ) : (
               <div className={s.componentList}>

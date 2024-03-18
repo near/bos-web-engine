@@ -100,5 +100,5 @@
 
 .tabContent {
   padding-top: var(--space-m);
-  max-height: 100%;
+  overflow: auto;
 }

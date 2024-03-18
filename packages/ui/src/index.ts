@@ -11,3 +11,4 @@ export { Tooltip } from './components/Tooltip';
 export { NearIconSvg } from './components/NearIconSvg';
 export { useTheme } from './hooks/useTheme';
 export * as Tabs from './components/Tabs';
+export * as RadioGroup from './components/RadioGroup';

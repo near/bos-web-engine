@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { MAINNET_WALLET_SELECTOR_PARAMS } from '@/constants';
 import { useFlagsStore } from '@/stores/flags';
+import { usePortalStore } from '@/stores/portal';
 import s from '@/styles/app.module.css';
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -37,6 +38,13 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const flags = useFlagsStore((state) => state.flags);
   const headerRef = useRef(null);
+  const setPortal = usePortalStore((store) => store.setPortal);
+
+  useEffect(() => {
+    if (headerRef.current) {
+      setPortal(headerRef.current);
+    }
+  }, [setPortal]);
 
   return (
     <WalletSelectorProvider

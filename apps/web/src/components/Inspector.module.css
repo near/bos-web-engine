@@ -17,46 +17,6 @@
   }
 }
 
-.closeButton {
-  background-color: hsl(40, 13%, 18%);
-  padding: 0.5rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid black;
-  text-align: left;
-  border-radius: 0.25rem;
-
-  border: 1px solid white;
-  &:hover {
-    background-color: hsl(40, 13%, 25%);
-  }
-
-  @media (min-width: 1001px) {
-    border-top: none;
-    border-radius: 0 0 0.5rem 0.5rem;
-    position: absolute;
-    top: 0;
-    right: 1.5rem;
-  }
-}
-
-.openButton {
-  background-color: #343028;
-  position: fixed;
-  bottom: 0;
-  right: 1.5rem;
-  padding: 0.5rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid black;
-  text-align: left;
-  border-radius: 0.5rem 0.5rem 0 0;
-  color: white;
-  width: fit-content;
-
-  &:hover {
-    border: 1px solid white;
-  }
-}
-
 .componentList {
   display: flex;
   flex: none;
@@ -76,7 +36,7 @@
   bottom: 0;
   left: 0;
   z-index: 2;
-  border-top: 1px solid black;
+  /* border-top: 1px solid black; */
   background-color: var(--color-surface-4);
   color: white;
 
@@ -192,8 +152,6 @@
 }
 
 .sourceContent {
-  height: 100%;
-
   @media (max-width: 1000px) {
     padding-top: 0.5rem;
   }
@@ -211,6 +169,48 @@
 
 .syntaxWrapper {
   flex: 1;
-  height: 100%;
-  overflow-x: scroll;
+  overflow-x: auto;
+  padding: 0;
+}
+
+.dialogContent {
+  padding-inline: 18px;
+  padding-block-start: 3rem;
+}
+
+.radioItem {
+  padding-inline: 0;
+}
+
+.devToolsButton {
+  background-color: var(--color-surface-4);
+  position: fixed;
+  right: 1.5rem;
+  padding: 0.5rem;
+  border: none;
+  text-align: left;
+  border-radius: 0.5rem 0.5rem 0 0;
+  color: white;
+
+  &:hover {
+    color: var(--color-focus-outline);
+    background-color: var(--color-surface-1);
+
+    svg {
+      fill: var(--color-focus-outline);
+    }
+  }
+}
+
+.openButton {
+  bottom: 0;
+  width: fit-content;
+}
+
+.closeButton {
+  bottom: calc(40vh - 1px);
+  width: 3rem;
+  svg {
+    fill: white;
+  }
 }
