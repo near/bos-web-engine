@@ -349,8 +349,8 @@ export class ComponentCompiler {
     )) {
       // TODO remove once data is being returned in expected shape
       // @ts-expect-error
-      const { code: component } = componentSource;
-      this.bosSourceCache.set(componentPath, Promise.resolve({ component }));
+      const { code: component, css } = componentSource;
+      this.bosSourceCache.set(componentPath, Promise.resolve({ component, css }));
     }
   }
 }
