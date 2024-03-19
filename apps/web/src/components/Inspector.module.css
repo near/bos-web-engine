@@ -36,7 +36,6 @@
   bottom: 0;
   left: 0;
   z-index: 2;
-  /* border-top: 1px solid black; */
   background-color: var(--color-surface-4);
   color: white;
 
