@@ -3,7 +3,6 @@
   padding: 0.5rem;
   border: 1px solid transparent;
   border-bottom: 1px solid black;
-  color: white;
   text-align: left;
   overflow-wrap: break-word;
 
@@ -12,40 +11,9 @@
   }
 
   &[data-selected='true'] {
-    background-color: rebeccapurple;
-  }
-}
-
-.closeButton {
-  background-color: #343028;
-  position: absolute;
-  top: 0;
-  right: 1.5rem;
-  padding: 0.5rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid black;
-  color: white;
-  text-align: left;
-
-  &:hover {
-    border: 1px solid white;
-  }
-}
-
-.openButton {
-  background-color: #343028;
-  position: fixed;
-  bottom: 0;
-  right: 1.5rem;
-  padding: 0.5rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid black;
-  color: white;
-  text-align: left;
-  border-radius: 0.5rem 0.5rem 0 0;
-
-  &:hover {
-    border: 1px solid white;
+    background-color: var(--violet-9);
+    font-family: monospace;
+    font-size: 1rem;
   }
 }
 
@@ -55,17 +23,193 @@
   flex-direction: column;
   min-width: 20rem;
   max-width: 30rem;
-  background-color: #343028;
+  background-color: var(--color-surface-4);
   overflow-y: auto;
 }
 
 .panel {
   display: flex;
+  flex-direction: column;
   width: 100vw;
   height: 40vh;
   position: fixed;
   bottom: 0;
   left: 0;
   z-index: 2;
-  border-top: 1px solid black;
+  background-color: var(--color-surface-4);
+  color: white;
+
+  button {
+    color: white;
+  }
+}
+
+.sourceViewer {
+  display: flex;
+  height: 100%;
+
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    font-size: 0.8rem;
+  }
+}
+
+.flagSet {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-inline: 1rem;
+
+  label:after {
+    content: ':';
+  }
+}
+
+.flag {
+  --input-height: 2rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  input[type='url'] {
+    min-width: 20rem;
+    border-radius: 0.25rem 0 0 0.25rem;
+    height: var(--input-height);
+    border: none;
+  }
+  > button {
+    all: unset;
+    background-color: hsl(270, 50%, 40%);
+    padding-inline: 0.5rem;
+    padding-block: 0.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid hsl(40, 13%, 18%);
+
+    &:hover {
+      background-color: hsl(270, 50%, 30%);
+    }
+    &:active {
+      background-color: hsl(270, 50%, 25%);
+    }
+  }
+
+  input[type='checkbox'] {
+    height: calc(var(--input-height) * 0.8);
+    width: calc(var(--input-height) * 0.8);
+  }
+}
+
+.clearable {
+  display: flex;
+  flex-direction: row;
+
+  button {
+    height: var(--input-height);
+    border: none;
+    border-radius: 0 0.25rem 0.25rem 0;
+    background-color: hsl(0, 0%, 85%);
+    flex-shrink: 0;
+
+    &:hover {
+      background-color: hsl(0, 0%, 60%);
+    }
+
+    &:active {
+      background-color: hsl(0, 0%, 50%);
+    }
+  }
+}
+
+.dropdownTrigger {
+  box-sizing: border-box;
+  background-color: var(--color-surface-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid var(--color-cta-primary);
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  flex-grow: 1;
+}
+
+.selectorDropdown {
+  width: calc(100vw - 1rem);
+  margin-inline: 0.5rem;
+  color: var(--color-text-1);
+  font-family: monospace;
+  max-width: unset;
+
+  div {
+    font-size: 1rem;
+  }
+}
+
+.root {
+  height: 100%;
+}
+
+.sourceContent {
+  @media (max-width: 1000px) {
+    padding-top: 0.5rem;
+  }
+}
+
+.tabsList {
+  flex-shrink: 0;
+}
+
+.mobileSourceBar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+}
+
+.syntaxWrapper {
+  flex: 1;
+  overflow-x: auto;
+  padding: 0;
+}
+
+.dialogContent {
+  padding-inline: 18px;
+  padding-block-start: 3rem;
+}
+
+.radioItem {
+  padding-inline: 0;
+}
+
+.devToolsButton {
+  background-color: var(--color-surface-4);
+  position: fixed;
+  right: 1.5rem;
+  padding: 0.5rem;
+  border: none;
+  text-align: left;
+  border-radius: 0.5rem 0.5rem 0 0;
+  color: white;
+
+  &:hover {
+    color: var(--color-focus-outline);
+    background-color: var(--color-surface-1);
+
+    svg {
+      fill: var(--color-focus-outline);
+    }
+  }
+}
+
+.openButton {
+  bottom: 0;
+  width: fit-content;
+}
+
+.closeButton {
+  bottom: calc(40vh - 1px);
+  width: 3rem;
+  svg {
+    fill: white;
+  }
 }

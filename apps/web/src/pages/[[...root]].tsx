@@ -1,47 +1,29 @@
-import { ComponentTree, useWebEngine } from '@bos-web-engine/application';
+import { ThemeProvider } from '@bos-web-engine/ui';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { Inspector } from '@/components/Inspector';
-import { useComponentMetrics } from '@/hooks/useComponentMetrics';
-import { useFlags } from '@/hooks/useFlags';
-import { useComponentSourcesStore } from '@/stores/component-sources';
+import { SandboxWebEngine, WebEngine } from '@/components/WebEngineVariants';
+import { useFlagsStore } from '@/stores/flags';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;
-const PREACT_VERSION = '10.17.1';
 
 export default function Root() {
   const { account } = useWallet();
   const router = useRouter();
   const { query } = router;
 
-  // TODO update parameter name/source
-  const showContainerBoundaries = query.showContainerBoundaries === 'true';
+  const queryShowContainerBoundaries = query.showContainerBoundaries === 'true';
 
   const rootComponentPath = Array.isArray(query.root)
     ? query.root.join('/')
     : undefined;
 
-  const [flags] = useFlags();
-  const { /* metrics, */ reportMessage } = useComponentMetrics();
-  const addSource = useComponentSourcesStore((store) => store.addSource);
+  const flags = useFlagsStore((state) => state.flags);
 
-  const { components, error } = useWebEngine({
-    config: {
-      debug: {
-        showContainerBoundaries,
-      },
-      flags,
-      preactVersion: PREACT_VERSION,
-      hooks: {
-        containerSourceCompiled: ({ componentPath, rawSource }) =>
-          addSource(componentPath, rawSource),
-        messageReceived: reportMessage,
-      },
-    },
-    rootComponentPath,
-  });
+  const showContainerBoundaries =
+    queryShowContainerBoundaries || flags.showContainerBoundaries;
 
   useEffect(() => {
     if (router.isReady && !query.root && DEFAULT_COMPONENT) {
@@ -51,18 +33,33 @@ export default function Root() {
   }, [router, router.isReady, query.root]);
 
   return (
-    <div className={`bwe-app ${showContainerBoundaries ? 'bwe-debug' : ''}`}>
-      {rootComponentPath && (
-        <>
-          {error && <div className="error">{error}</div>}
-          <ComponentTree
-            components={components}
-            currentUserAccountId={account?.accountId}
-            rootComponentPath={rootComponentPath}
-          />
-          <Inspector />
-        </>
-      )}
-    </div>
+    <>
+      <ThemeProvider defaultTheme="light">
+        <div
+          className={`bwe-app ${showContainerBoundaries ? 'bwe-debug' : ''}`}
+        >
+          {rootComponentPath && (
+            <>
+              {flags?.bosLoaderUrl ? (
+                <SandboxWebEngine
+                  account={account}
+                  rootComponentPath={rootComponentPath}
+                  showContainerBoundaries={showContainerBoundaries}
+                  flags={flags}
+                />
+              ) : (
+                <WebEngine
+                  account={account}
+                  rootComponentPath={rootComponentPath}
+                  showContainerBoundaries={showContainerBoundaries}
+                  flags={flags}
+                />
+              )}
+            </>
+          )}
+        </div>
+      </ThemeProvider>
+      {rootComponentPath && <Inspector />}
+    </>
   );
 }
