@@ -25,47 +25,74 @@ export async function fetchComponentSources(
     };
   };
 
-
   /**
    * Requested components mapped by the block heights to reduce the amount of social requests
    * If no block height specified - the "" key is used
    */
-  const componentsByBlockHeight = componentPaths.reduce((accumulator, componentPath) => {
-    const [path, blockHeight] = componentPath.split('@');
-    const blockHeightKey = blockHeight || ""
+  const componentsByBlockHeight = componentPaths.reduce(
+    (pathsByBlockHeight, componentPath) => {
+      const [path, blockHeight] = componentPath.split('@');
+      const blockHeightKey = blockHeight || '';
 
-    if (!accumulator[blockHeightKey]) {
-      accumulator[blockHeightKey] = [];
-    }
+      if (!pathsByBlockHeight[blockHeightKey]) {
+        pathsByBlockHeight[blockHeightKey] = [];
+      }
 
-    accumulator[blockHeightKey].push(path.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`) + '/*');
+      pathsByBlockHeight[blockHeightKey].push(
+        path.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`) + '/*'
+      );
 
-    return accumulator;
-  }, {} as Record<string, string[]>);
+      return pathsByBlockHeight;
+    },
+    {} as Record<string, string[]>
+  );
 
   const componentsByBlockHeightArr = Object.entries(componentsByBlockHeight);
 
-  const responses = await Promise.all(componentsByBlockHeightArr.map(([blockId, keys]) => {
-    return social.get({
-      keys,
-      blockId: Number(blockId),
+  const responses = (await Promise.all(
+    componentsByBlockHeightArr.map(([blockId, keys]) => {
+      return social.get({
+        keys,
+        blockId: Number(blockId),
+      });
     })
-  })) as SocialComponentsByAuthor[];
+  )) as SocialComponentsByAuthor[];
 
   const flattenResponses = responses.reduce((accumulator, response, idx) => {
-    Object.entries(response).forEach(([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
-      const componentEntryWithBlockHeight = Object.entries(componentEntry).reduce((entriesWithBlockHeightAccumulator, [componentName, componentSource]) => {
-        const [blockHeightFromRequest] = componentsByBlockHeightArr[idx];
+    Object.entries(response).forEach(
+      ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
+        const componentEntryWithBlockHeight = Object.entries(
+          componentEntry
+        ).reduce(
+          (
+            entriesWithBlockHeightAccumulator,
+            [componentName, componentSource]
+          ) => {
+            const [blockHeightFromRequest] = componentsByBlockHeightArr[idx];
 
-        return { ...entriesWithBlockHeightAccumulator, [blockHeightFromRequest === '' ? componentName : `${componentName}@${blockHeightFromRequest}`]: componentSource }
-      }, {} as Record<string, ComponentEntry>);
+            return {
+              ...entriesWithBlockHeightAccumulator,
+              [blockHeightFromRequest === ''
+                ? componentName
+                : `${componentName}@${blockHeightFromRequest}`]:
+                componentSource,
+            };
+          },
+          {} as Record<string, ComponentEntry>
+        );
 
-      if (accumulator[author]?.[SOCIAL_COMPONENT_NAMESPACE]) {
-        accumulator[author][SOCIAL_COMPONENT_NAMESPACE] = { ...accumulator[author][SOCIAL_COMPONENT_NAMESPACE], ...componentEntryWithBlockHeight };
-      } else {
-        accumulator[author] = { [SOCIAL_COMPONENT_NAMESPACE]: componentEntryWithBlockHeight };
+        if (accumulator[author]?.[SOCIAL_COMPONENT_NAMESPACE]) {
+          accumulator[author][SOCIAL_COMPONENT_NAMESPACE] = {
+            ...accumulator[author][SOCIAL_COMPONENT_NAMESPACE],
+            ...componentEntryWithBlockHeight,
+          };
+        } else {
+          accumulator[author] = {
+            [SOCIAL_COMPONENT_NAMESPACE]: componentEntryWithBlockHeight,
+          };
+        }
       }
-    });
+    );
 
     return accumulator;
   }, {} as SocialComponentsByAuthor);
