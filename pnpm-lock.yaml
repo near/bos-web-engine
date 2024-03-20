@@ -336,6 +336,9 @@ importers:
       '@bos-web-engine/wallet-selector-plugin':
         specifier: workspace:*
         version: link:../wallet-selector-plugin
+      lightningcss-wasm:
+        specifier: ^1.24.1
+        version: 1.24.1
     devDependencies:
       '@babel/types':
         specifier: ^7.24.0
@@ -9914,6 +9917,13 @@ packages:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  /lightningcss-wasm@1.24.1:
+    resolution: {integrity: sha512-IwA59k7g3Xwj6DVdOr1zvgpBDvTN1Atbt0SZfLrdrQqXtrKJtDmv+amiwooomBaTStziDy59HQuWWTf7cmZvZg==}
+    engines: {node: '>= 12.0.0'}
+    dev: false
+    bundledDependencies:
+      - napi-wasm
 
   /lilconfig@2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
