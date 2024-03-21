@@ -14,7 +14,8 @@
     "@bos-web-engine/common": "workspace:*",
     "@bos-web-engine/social-db": "workspace:*",
     "@bos-web-engine/social-db-plugin": "workspace:*",
-    "@bos-web-engine/wallet-selector-plugin": "workspace:*"
+    "@bos-web-engine/wallet-selector-plugin": "workspace:*",
+    "lightningcss-wasm": "^1.24.1"
   },
   "devDependencies": {
     "@babel/types": "^7.24.0",
