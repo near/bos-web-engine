@@ -2,6 +2,7 @@ import { BOSModule, TrustMode } from '@bos-web-engine/common';
 import { SocialDb } from '@bos-web-engine/social-db';
 
 import { buildComponentSource } from './component';
+import { CssParser } from './css';
 import { buildModuleImports, buildModulePackageUrl } from './import';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
@@ -31,10 +32,12 @@ export class ComponentCompiler {
   private readonly sendWorkerMessage: SendMessageCallback;
   private preactVersion?: string;
   private social: SocialDb;
+  private readonly cssParser: CssParser;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<BOSModule>>();
     this.compiledSourceCache = new Map<string, TranspiledCacheEntry>();
+    this.cssParser = new CssParser();
     this.sendWorkerMessage = sendMessage;
     this.social = new SocialDb({
       debug: true, // TODO: Conditionally enable "debug" option
@@ -159,6 +162,7 @@ export class ComponentCompiler {
       buildComponentSource({
         componentPath,
         componentStyles,
+        cssParser: this.cssParser,
         exports,
         imports,
         isRoot,
@@ -239,6 +243,9 @@ export class ComponentCompiler {
    * @param componentId ID for the new container's root Component
    */
   async compileComponent({ componentId }: CompilerExecuteAction) {
+    // wait on CSS initialization
+    await this.cssParser.init();
+
     const componentPath = componentId.split('##')[0];
     const moduleEntry = await this.getComponentSources([componentPath]).get(
       componentPath

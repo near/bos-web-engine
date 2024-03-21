@@ -1,4 +1,4 @@
-import { parseCssModule } from './css';
+import type { CssParser } from './css';
 import { buildComponentImportStatements } from './import';
 import type { ModuleExport, ModuleImport } from './types';
 
@@ -27,6 +27,7 @@ interface BuildComponentFunctionParams {
 interface BuildComponentSourceParams {
   componentPath: string;
   componentStyles?: string;
+  cssParser: CssParser;
   exports: ModuleExport;
   imports: ModuleImport[];
   isRoot: boolean;
@@ -45,6 +46,7 @@ interface BuildComponentSourceParams {
 export function buildComponentSource({
   componentPath,
   componentStyles,
+  cssParser,
   exports,
   imports,
   isRoot,
@@ -62,7 +64,9 @@ export function buildComponentSource({
     .filter((statement) => !!statement) as string[];
 
   // parse CSS and build assignment for the imported alias
-  const parsedCss = componentStyles ? parseCssModule(componentStyles) : null;
+  const parsedCss = componentStyles
+    ? cssParser.parseCssModule(componentPath, componentStyles)
+    : null;
   let cssModuleAssignment: string | undefined;
   if (parsedCss) {
     const cssModuleReference = imports.find(({ isCssModule }) => isCssModule)
