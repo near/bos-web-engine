@@ -13,6 +13,7 @@ export function useWebEngineSandbox({
 }: UseWebEngineSandboxParams) {
   const [nonce, setNonce] = useState('');
   const preactVersion = config.preactVersion;
+  const enableBlockHeightVersioning = config.flags?.enableBlockHeightVersioning;
 
   const { appendStylesheet, resetContainerStylesheet } = useCss();
   const compiler = useCompiler({ config, localComponents });
@@ -50,6 +51,7 @@ export function useWebEngineSandbox({
       action: 'init',
       localComponents,
       preactVersion,
+      enableBlockHeightVersioning,
     });
 
     compiler?.postMessage({
@@ -63,6 +65,7 @@ export function useWebEngineSandbox({
     preactVersion,
     rootComponentPath,
     setComponents,
+    enableBlockHeightVersioning,
   ]);
 
   return {

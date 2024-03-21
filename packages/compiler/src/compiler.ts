@@ -31,6 +31,7 @@ export class ComponentCompiler {
   private compiledSourceCache: Map<string, TranspiledCacheEntry | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
   private preactVersion?: string;
+  private enableBlockHeightVersioning?: boolean;
   private social: SocialDb;
   private readonly cssParser: CssParser;
 
@@ -45,8 +46,13 @@ export class ComponentCompiler {
     });
   }
 
-  init({ localComponents, preactVersion }: CompilerInitAction) {
+  init({
+    localComponents,
+    preactVersion,
+    enableBlockHeightVersioning,
+  }: CompilerInitAction) {
     this.preactVersion = preactVersion;
+    this.enableBlockHeightVersioning = enableBlockHeightVersioning;
 
     this.bosSourceCache.clear();
     this.compiledSourceCache.clear();
@@ -68,7 +74,11 @@ export class ComponentCompiler {
       (componentPath) => !this.bosSourceCache.has(componentPath)
     );
     if (unfetchedPaths.length > 0) {
-      const pathsFetch = fetchComponentSources(this.social, unfetchedPaths);
+      const pathsFetch = fetchComponentSources(
+        this.social,
+        unfetchedPaths,
+        this.enableBlockHeightVersioning
+      );
       unfetchedPaths.forEach((componentPath) => {
         this.bosSourceCache.set(
           componentPath,
@@ -246,7 +256,10 @@ export class ComponentCompiler {
     // wait on CSS initialization
     await this.cssParser.init();
 
-    const componentPath = componentId.split('##')[0];
+    let [componentPath] = componentId.split('##');
+    componentPath = this.enableBlockHeightVersioning
+      ? componentPath
+      : componentPath?.split('@')[0];
     const moduleEntry = await this.getComponentSources([componentPath]).get(
       componentPath
     );

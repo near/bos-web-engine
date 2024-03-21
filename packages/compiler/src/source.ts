@@ -8,7 +8,8 @@ import { ComponentEntry } from './types';
 
 export async function fetchComponentSources(
   social: SocialDb,
-  componentPaths: string[]
+  componentPaths: string[],
+  enableBlockHeightVersioning?: boolean
 ) {
   /*
     Typically, you'd want to pass a generic to `social.get<MyType>()`. This generic
@@ -25,82 +26,94 @@ export async function fetchComponentSources(
     };
   };
 
-  /**
-   * Requested components mapped by the block heights to reduce the amount of social requests
-   * If no block height specified - the "" key is used
-   */
-  const componentsByBlockHeight = componentPaths.reduce(
-    (pathsByBlockHeight, componentPath) => {
-      const [path, blockHeight] = componentPath.split('@');
-      const blockHeightKey = blockHeight || '';
+  let aggregatedResponses;
 
-      if (!pathsByBlockHeight[blockHeightKey]) {
-        pathsByBlockHeight[blockHeightKey] = [];
-      }
+  if (enableBlockHeightVersioning) {
+    /**
+     * Requested components mapped by the block heights to reduce the amount of social requests
+     * If no block height specified - the "" key is used
+     */
+    const componentsByBlockHeight = componentPaths.reduce(
+      (pathsByBlockHeight, componentPath) => {
+        const [path, blockHeight] = componentPath.split('@');
+        const blockHeightKey = blockHeight || '';
 
-      pathsByBlockHeight[blockHeightKey].push(
-        path.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`) + '/*'
-      );
-
-      return pathsByBlockHeight;
-    },
-    {} as Record<string, string[]>
-  );
-
-  const componentsByBlockHeightArr = Object.entries(componentsByBlockHeight);
-
-  const responsesWithBlockHeight = await Promise.all(
-    componentsByBlockHeightArr.map(async ([blockId, keys]) => {
-      const response = (await social.get({
-        keys,
-        blockId: Number(blockId),
-      })) as SocialComponentsByAuthor;
-
-      if (!blockId) {
-        return response;
-      }
-
-      return Object.fromEntries(
-        Object.entries(response).map(
-          ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
-            author,
-            {
-              [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
-                Object.entries(componentEntry).map(
-                  ([componentPath, componentSource]) => [
-                    `${componentPath}@${blockId}`,
-                    componentSource,
-                  ]
-                )
-              ),
-            },
-          ]
-        )
-      );
-    })
-  );
-
-  const aggregatedResponses = responsesWithBlockHeight.reduce(
-    (accumulator, response) => {
-      Object.entries(response).forEach(
-        ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
-          if (accumulator[author]?.[SOCIAL_COMPONENT_NAMESPACE]) {
-            accumulator[author][SOCIAL_COMPONENT_NAMESPACE] = {
-              ...accumulator[author][SOCIAL_COMPONENT_NAMESPACE],
-              ...componentEntry,
-            };
-          } else {
-            accumulator[author] = {
-              [SOCIAL_COMPONENT_NAMESPACE]: componentEntry,
-            };
-          }
+        if (!pathsByBlockHeight[blockHeightKey]) {
+          pathsByBlockHeight[blockHeightKey] = [];
         }
-      );
 
-      return accumulator;
-    },
-    {} as SocialComponentsByAuthor
-  );
+        pathsByBlockHeight[blockHeightKey].push(
+          path.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`) + '/*'
+        );
+
+        return pathsByBlockHeight;
+      },
+      {} as Record<string, string[]>
+    );
+
+    const componentsByBlockHeightArr = Object.entries(componentsByBlockHeight);
+
+    const responsesWithBlockHeight = await Promise.all(
+      componentsByBlockHeightArr.map(async ([blockId, keys]) => {
+        const response = (await social.get({
+          keys,
+          blockId: Number(blockId),
+        })) as SocialComponentsByAuthor;
+
+        if (!blockId) {
+          return response;
+        }
+
+        return Object.fromEntries(
+          Object.entries(response).map(
+            ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
+              author,
+              {
+                [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
+                  Object.entries(componentEntry).map(
+                    ([componentPath, componentSource]) => [
+                      `${componentPath}@${blockId}`,
+                      componentSource,
+                    ]
+                  )
+                ),
+              },
+            ]
+          )
+        );
+      })
+    );
+
+    aggregatedResponses = responsesWithBlockHeight.reduce(
+      (accumulator, response) => {
+        Object.entries(response).forEach(
+          ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
+            if (accumulator[author]?.[SOCIAL_COMPONENT_NAMESPACE]) {
+              accumulator[author][SOCIAL_COMPONENT_NAMESPACE] = {
+                ...accumulator[author][SOCIAL_COMPONENT_NAMESPACE],
+                ...componentEntry,
+              };
+            } else {
+              accumulator[author] = {
+                [SOCIAL_COMPONENT_NAMESPACE]: componentEntry,
+              };
+            }
+          }
+        );
+
+        return accumulator;
+      },
+      {} as SocialComponentsByAuthor
+    );
+  } else {
+    const keys = componentPaths.map(
+      (p) => p.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`) + '/*'
+    );
+
+    aggregatedResponses = (await social.get({
+      keys,
+    })) as SocialComponentsByAuthor;
+  }
 
   return Object.entries(aggregatedResponses).reduce(
     (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
