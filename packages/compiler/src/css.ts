@@ -1,75 +1,38 @@
-import { getClosingCharIndex } from './text';
+import initCssWasm, {
+  transform as transformCss,
+  TransformOptions,
+  TransformResult,
+} from 'lightningcss-wasm';
+
 import type { ParsedCssModule } from './types';
 
-const CLASS_SELECTOR_REGEX = /^(\.-?[_a-zA-Z]+[_a-zA-Z0-9:, -]*)+/gim;
+export class CssParser {
+  private lightningCssTransform:
+    | ((options: TransformOptions<any>) => TransformResult)
+    | undefined;
 
-export function parseCssModule(css: string): ParsedCssModule {
-  const pseudoClasses = new Map<string, string>();
-  const classSelectors = new Map<string, string>();
+  async init() {
+    if (!this.lightningCssTransform) {
+      await initCssWasm();
+      this.lightningCssTransform = transformCss;
+    }
+  }
 
-  for (let classSelectorMatch of css.matchAll(CLASS_SELECTOR_REGEX)) {
-    const { index } = classSelectorMatch;
-    const bodyOpenIndex = css.indexOf('{', index);
-
-    const cssBodyClosingIndex = getClosingCharIndex({
-      source: css,
-      openChar: '{',
-      closeChar: '}',
-      startIndex: bodyOpenIndex,
+  parseCssModule(componentPath: string, css: string): ParsedCssModule {
+    const { code, exports } = this.lightningCssTransform!({
+      code: new TextEncoder().encode(css),
+      cssModules: true,
+      filename: componentPath,
     });
 
-    if (cssBodyClosingIndex === null) {
-      throw new Error('Invalid source CSS');
-    }
-
-    const cssBody = css.slice(index, cssBodyClosingIndex);
-
-    css
-      .slice(index, bodyOpenIndex)
-      .split(',')
-      .map((c) => c.trim().substring(1))
-      .filter((c) => !!c)
-      .forEach((classSelector) => {
-        const [className, pseudoClass] = classSelector.split(':');
-        if (pseudoClass) {
-          pseudoClasses.set(className, cssBody);
-        } else {
-          classSelectors.set(className, cssBody);
-        }
-      });
+    return {
+      classMap: new Map(
+        Object.entries(exports || {}).map(([className, { name }]) => [
+          className,
+          name,
+        ])
+      ),
+      stylesheet: new TextDecoder().decode(code),
+    };
   }
-
-  for (let [className, css] of pseudoClasses.entries()) {
-    const selectorBlock = classSelectors.get(className);
-    if (selectorBlock) {
-      const pseudoClassBody = css.replace(`.${className}`, '&');
-      classSelectors.set(
-        className,
-        selectorBlock.replace('{', `{\n\n${pseudoClassBody}\n\n`)
-      );
-    } else {
-      classSelectors.set(className, css.replace(`.${className}`, ''));
-    }
-  }
-
-  const classMap = new Map<string, string>();
-  const stylesheet = [...classSelectors.entries()].reduce(
-    (stylesheet, [className, css]) => {
-      const modifiedClassName = `${className}_${crypto
-        .randomUUID()
-        .split('-')
-        .slice(0, 2)
-        .join('')}`;
-
-      classMap.set(className, modifiedClassName);
-
-      return `
-        ${stylesheet}
-        ${css.replace(className, modifiedClassName)}
-      `;
-    },
-    ''
-  );
-
-  return { classMap, stylesheet };
 }
