@@ -49,55 +49,60 @@ export async function fetchComponentSources(
 
   const componentsByBlockHeightArr = Object.entries(componentsByBlockHeight);
 
-  const responses = (await Promise.all(
-    componentsByBlockHeightArr.map(([blockId, keys]) => {
-      return social.get({
+  const responsesWithBlockHeight = await Promise.all(
+    componentsByBlockHeightArr.map(async ([blockId, keys]) => {
+      const response = (await social.get({
         keys,
         blockId: Number(blockId),
-      });
-    })
-  )) as SocialComponentsByAuthor[];
+      })) as SocialComponentsByAuthor;
 
-  const flattenResponses = responses.reduce((accumulator, response, idx) => {
-    Object.entries(response).forEach(
-      ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
-        const componentEntryWithBlockHeight = Object.entries(
-          componentEntry
-        ).reduce(
-          (
-            entriesWithBlockHeightAccumulator,
-            [componentName, componentSource]
-          ) => {
-            const [blockHeightFromRequest] = componentsByBlockHeightArr[idx];
-
-            return {
-              ...entriesWithBlockHeightAccumulator,
-              [blockHeightFromRequest === ''
-                ? componentName
-                : `${componentName}@${blockHeightFromRequest}`]:
-                componentSource,
-            };
-          },
-          {} as Record<string, ComponentEntry>
-        );
-
-        if (accumulator[author]?.[SOCIAL_COMPONENT_NAMESPACE]) {
-          accumulator[author][SOCIAL_COMPONENT_NAMESPACE] = {
-            ...accumulator[author][SOCIAL_COMPONENT_NAMESPACE],
-            ...componentEntryWithBlockHeight,
-          };
-        } else {
-          accumulator[author] = {
-            [SOCIAL_COMPONENT_NAMESPACE]: componentEntryWithBlockHeight,
-          };
-        }
+      if (!blockId) {
+        return response;
       }
-    );
 
-    return accumulator;
-  }, {} as SocialComponentsByAuthor);
+      return Object.fromEntries(
+        Object.entries(response).map(
+          ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
+            author,
+            {
+              [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
+                Object.entries(componentEntry).map(
+                  ([componentPath, componentSource]) => [
+                    `${componentPath}@${blockId}`,
+                    componentSource,
+                  ]
+                )
+              ),
+            },
+          ]
+        )
+      );
+    })
+  );
 
-  return Object.entries(flattenResponses).reduce(
+  const aggregatedResponses = responsesWithBlockHeight.reduce(
+    (accumulator, response) => {
+      Object.entries(response).forEach(
+        ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
+          if (accumulator[author]?.[SOCIAL_COMPONENT_NAMESPACE]) {
+            accumulator[author][SOCIAL_COMPONENT_NAMESPACE] = {
+              ...accumulator[author][SOCIAL_COMPONENT_NAMESPACE],
+              ...componentEntry,
+            };
+          } else {
+            accumulator[author] = {
+              [SOCIAL_COMPONENT_NAMESPACE]: componentEntry,
+            };
+          }
+        }
+      );
+
+      return accumulator;
+    },
+    {} as SocialComponentsByAuthor
+  );
+
+  return Object.entries(aggregatedResponses).reduce(
     (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
       Object.entries(componentEntry).forEach(([componentName, component]) => {
         if (component) {
