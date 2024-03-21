@@ -23,7 +23,7 @@ import type { ImportExpression, ModuleExport, ModuleImport } from './types';
 
 /**
  * Derive a BOS Component path from a relative import
- * @param componentPath poth of the Component importing another BOS Component via relative path
+ * @param componentPath path of the Component importing another BOS Component via relative path
  * @param componentImport import metadata for the relative import
  */
 export function deriveComponentPath(

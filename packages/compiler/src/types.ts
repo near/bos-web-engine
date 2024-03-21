@@ -15,6 +15,7 @@ export interface CompilerInitAction {
   action: 'init';
   localComponents?: LocalComponentMap;
   preactVersion: string;
+  enableBlockHeightVersioning?: boolean;
 }
 
 export interface ComponentCompilerResponse {

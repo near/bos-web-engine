@@ -232,6 +232,21 @@ export function Inspector() {
                 }}
               />
             </div>
+            <div className={s.flag}>
+              <label htmlFor="blockHeight">
+                Enable block height versioning
+              </label>
+              <input
+                type="checkbox"
+                id="blockHeight"
+                checked={flags?.enableBlockHeightVersioning}
+                onChange={(e) => {
+                  updateFlags({
+                    enableBlockHeightVersioning: e.target.checked,
+                  });
+                }}
+              />
+            </div>
           </div>
         </Tabs.Content>
       </Tabs.Root>
