@@ -33,7 +33,6 @@ export function useCompiler({
     compiler.postMessage({
       action: 'init',
       localComponents,
-      localFetchUrl: config.flags?.bosLoaderUrl,
       preactVersion: config.preactVersion,
     });
   }, [

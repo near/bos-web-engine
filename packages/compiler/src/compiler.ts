@@ -2,6 +2,7 @@ import { BOSModule, TrustMode } from '@bos-web-engine/common';
 import { SocialDb } from '@bos-web-engine/social-db';
 
 import { buildComponentSource } from './component';
+import { CssParser } from './css';
 import { buildModuleImports, buildModulePackageUrl } from './import';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
@@ -29,14 +30,14 @@ export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<BOSModule | null>>;
   private compiledSourceCache: Map<string, TranspiledCacheEntry | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
-  private hasFetchedLocal: boolean = false;
-  private localFetchUrl?: string;
   private preactVersion?: string;
   private social: SocialDb;
+  private readonly cssParser: CssParser;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<BOSModule>>();
     this.compiledSourceCache = new Map<string, TranspiledCacheEntry>();
+    this.cssParser = new CssParser();
     this.sendWorkerMessage = sendMessage;
     this.social = new SocialDb({
       debug: true, // TODO: Conditionally enable "debug" option
@@ -44,8 +45,7 @@ export class ComponentCompiler {
     });
   }
 
-  init({ localComponents, localFetchUrl, preactVersion }: CompilerInitAction) {
-    this.localFetchUrl = localFetchUrl;
+  init({ localComponents, preactVersion }: CompilerInitAction) {
     this.preactVersion = preactVersion;
 
     this.bosSourceCache.clear();
@@ -162,6 +162,7 @@ export class ComponentCompiler {
       buildComponentSource({
         componentPath,
         componentStyles,
+        cssParser: this.cssParser,
         exports,
         imports,
         isRoot,
@@ -242,14 +243,8 @@ export class ComponentCompiler {
    * @param componentId ID for the new container's root Component
    */
   async compileComponent({ componentId }: CompilerExecuteAction) {
-    if (this.localFetchUrl && !this.hasFetchedLocal) {
-      try {
-        await this.fetchLocalComponents();
-      } catch (e) {
-        console.error('Failed to fetch local components', e);
-      }
-      this.hasFetchedLocal = true;
-    }
+    // wait on CSS initialization
+    await this.cssParser.init();
 
     const componentPath = componentId.split('##')[0];
     const moduleEntry = await this.getComponentSources([componentPath]).get(
@@ -320,37 +315,5 @@ export class ComponentCompiler {
       componentPath,
       importedModules,
     });
-  }
-
-  /**
-   * Fetch local component source from a bos-loader instance
-   */
-  async fetchLocalComponents() {
-    if (!this.localFetchUrl) {
-      return;
-    }
-
-    const res = await fetch(this.localFetchUrl, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error('Network response was not OK');
-    }
-
-    const data = (await res.json()) as {
-      components: Record<string, BOSModule>;
-    };
-    for (const [componentPath, componentSource] of Object.entries(
-      data.components
-    )) {
-      // TODO remove once data is being returned in expected shape
-      // @ts-expect-error
-      const { code: component } = componentSource;
-      this.bosSourceCache.set(componentPath, Promise.resolve({ component }));
-    }
   }
 }

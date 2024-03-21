@@ -181,7 +181,7 @@ export default HelloWorld as BWEComponent;
   gap: 0.5rem;
   padding: 1rem;
   background: var(--green-4);
-  color: var(green-1);
+  color: var(--green-1);
   border-radius: 0.5rem;
 
   --green-1: #fbfefc;

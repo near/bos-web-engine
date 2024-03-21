@@ -22,13 +22,20 @@ export const Portal = Dialog.Portal;
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(
   (
-    { anchor = 'center', children, hideCloseButton, size = 'm', ...props },
+    {
+      anchor = 'center',
+      children,
+      hideCloseButton,
+      size = 'm',
+      className = '',
+      ...props
+    },
     ref
   ) => {
     return (
       <Dialog.Overlay className={s.overlay}>
         <Dialog.Content
-          className={s.content}
+          className={`${s.content} ${className}`}
           data-anchor={anchor}
           data-size={size}
           ref={ref}

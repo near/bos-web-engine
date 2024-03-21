@@ -29,7 +29,6 @@
   gap: 1rem;
   align-items: center;
   color: var(--color-text-2);
-  margin-right: auto;
   transition: all 200ms;
   text-decoration: none;
   outline: none;
@@ -51,6 +50,30 @@
     text-transform: uppercase;
     font-weight: 300;
     margin: 0;
+  }
+}
+
+.loaderIcon {
+  margin-right: auto;
+  svg {
+    fill: hsl(115, 42.6%, 46.5%);
+  }
+}
+
+.loaderError {
+  svg {
+    fill: hsl(0, 64%, 42%);
+  }
+}
+
+.tooltip {
+  --color-surface-1: black;
+  --color-border-1: black;
+  --color-text-1: white;
+  font-size: 0.875rem;
+  width: fit-content;
+  code {
+    color: hsl(115, 42.6%, 60%);
   }
 }
 
