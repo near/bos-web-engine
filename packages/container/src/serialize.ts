@@ -25,7 +25,7 @@ export interface BuildComponentIdParams {
 
 interface SerializeChildComponentParams {
   parentId: string;
-  node: BWEComponentNode & { id?: string }; // TODO remove id after dev migration
+  node: BWEComponentNode;
 }
 
 interface SerializedPropsCallback {
@@ -335,13 +335,10 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       placeholder: SerializedNode;
     } => {
       const {
-        key,
-        id,
+        key: instanceId,
         props: { bwe, ...componentProps },
       } = node;
       const { src, trust } = bwe;
-      // TODO remove id fallback after dev migration
-      const instanceId = key || id;
 
       const componentId = buildComponentId({
         instanceId,

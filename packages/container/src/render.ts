@@ -59,17 +59,14 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
   ): PlaceholderNode => {
     const {
       key,
-      props: { id, bwe },
+      props: { bwe },
     } = node;
     const { src, parentMeta } = bwe;
-    // TODO remove id fallback after dev migration
-    const childComponentId = [src, key || id, parentMeta?.componentId].join(
-      '##'
-    );
+    const childComponentId = [src, key, parentMeta?.componentId].join('##');
 
     return {
       type: 'div',
-      key: key || id, // TODO remove id fallback after dev migration
+      key: key,
       props: {
         id: 'dom-' + childComponentId,
         className: 'bwe-component-container',
@@ -138,7 +135,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     if (typeof node.type !== 'function' || isComponent(node.type)) {
       return {
         type: node.type,
-        key: node.key || props.id, // TODO remove id fallback after dev migration
+        key: node.key,
         props: {
           ...props,
           children: [renderedChildren]
