@@ -257,9 +257,14 @@ export class ComponentCompiler {
     await this.cssParser.init();
 
     let [componentPath] = componentId.split('##');
-    componentPath = this.enableBlockHeightVersioning
-      ? componentPath
-      : componentPath?.split('@')[0];
+    const [componentPathWithoutBlockHeight, blockHeight] =
+      componentPath.split('@');
+    if (blockHeight && !this.enableBlockHeightVersioning) {
+      console.warn(
+        `${componentPath} has a block height specified, but the "enableBlockHeightVersioning" flag is disabled. The latest version of Component will be used.`
+      );
+      componentPath = componentPathWithoutBlockHeight;
+    }
     const moduleEntry = await this.getComponentSources([componentPath]).get(
       componentPath
     );
