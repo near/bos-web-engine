@@ -122,7 +122,7 @@ const buildMessageSummary = (params: BWEMessage): ComponentMessage | null => {
           isFromComponent ? message.containerId : message.targetId
         )!,
         summary: `[${requestId.split('-')[0]}] returned ${result} ${
-          !isFromComponent ? 'to' : ''
+          isFromComponent ? '' : 'to'
         }`,
       };
     }
