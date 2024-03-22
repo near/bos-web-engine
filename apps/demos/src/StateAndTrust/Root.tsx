@@ -18,7 +18,7 @@ function StateAndTrust() {
         <div className={s.grid}>
           <TrustTree
             key="trusted"
-            bwe={{ trust: { mode: 'trusted' } }}
+            bwe={{ trust: { mode: 'trusted-author' } }}
             title="State across Trusted Components"
           />
           <TrustTree
