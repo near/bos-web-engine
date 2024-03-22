@@ -1,0 +1,54 @@
+.panel {
+  display: flex;
+  border-top: 1px solid black;
+  overflow: hidden;
+}
+
+.codePanel {
+  background-color: #002b36;
+  flex: 3;
+  font-size: 0.8rem;
+  height: 100%;
+  overflow: auto;
+}
+
+.messages {
+  display: flex;
+  flex: 2;
+  flex-direction: column;
+  min-width: 20rem;
+  max-width: 30rem;
+  background-color: #343028;
+  overflow: auto;
+}
+
+.messageRow {
+  cursor: pointer;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  padding: 0.6rem;
+  border-bottom: 1px solid lightgray;
+}
+
+.messageIndex {
+  flex: 1;
+  font-size: 0.5rem;
+  padding-top: 0.2rem;
+}
+
+.messageName {
+  flex: 2;
+  font-size: 0.6rem;
+  font-weight: 600;
+}
+
+.messageSource {
+  flex: 6;
+  font-size: 0.7rem;
+}
+
+.messageTarget {
+  flex: 6;
+  font-size: 0.7rem;
+}

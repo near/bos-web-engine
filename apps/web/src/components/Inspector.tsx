@@ -6,8 +6,10 @@ import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 import s from './Inspector.module.css';
 
+import { Messaging } from '@/components/Messaging';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useComponentSourcesStore } from '@/stores/component-sources';
+import { useContainerMessagesStore } from '@/stores/container-messages';
 import { useFlagsStore } from '@/stores/flags';
 import { usePortalStore } from '@/stores/portal';
 
@@ -31,6 +33,10 @@ export function Inspector() {
   const sortedSources = useMemo(
     () => Object.keys(componentSources).sort(),
     [componentSources]
+  );
+
+  const containerMessages = useContainerMessagesStore(
+    (state) => state.messages
   );
 
   // path of selected component, will need to be modified once we support version locking
@@ -99,6 +105,7 @@ export function Inspector() {
       <Tabs.Root className={s.root} defaultValue="source">
         <Tabs.List className={s.tabsList}>
           <Tabs.Trigger value="source">Component Source</Tabs.Trigger>
+          <Tabs.Trigger value="messages">Container Messages</Tabs.Trigger>
           <Tabs.Trigger value="flags">Flags</Tabs.Trigger>
         </Tabs.List>
 
@@ -186,6 +193,10 @@ export function Inspector() {
               </SyntaxHighlighter>
             </div>
           </div>
+        </Tabs.Content>
+
+        <Tabs.Content value="messages">
+          <Messaging containerMessages={containerMessages} />
         </Tabs.Content>
 
         <Tabs.Content value="flags">
