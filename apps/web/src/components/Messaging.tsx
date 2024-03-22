@@ -161,7 +161,6 @@ export function Messaging({
   const reversedMessages = [...containerMessages];
   reversedMessages.reverse();
 
-  console.log({ selectedMessage });
   return (
     <div className={s.panel}>
       <div className={s.messages}>
