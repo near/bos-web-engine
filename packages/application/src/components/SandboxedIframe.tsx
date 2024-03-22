@@ -36,7 +36,7 @@ function buildSandboxedComponent({
           }
         </script>
         <script type="module">
-            import * as __Preact from 'preact';
+          import * as __Preact from 'preact';
 
           // placeholder function to bind Component references in BOS Component source
           function Component() {}
