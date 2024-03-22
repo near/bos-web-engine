@@ -161,6 +161,7 @@ export function Messaging({
   const reversedMessages = [...containerMessages];
   reversedMessages.reverse();
 
+  console.log({ selectedMessage });
   return (
     <div className={s.panel}>
       <div className={s.messages}>
@@ -169,7 +170,9 @@ export function Messaging({
             message && (
               <div
                 key={i}
-                className={s.messageRow}
+                className={`${s.messageRow} ${
+                  message.message === selectedMessage ? s.selectedMessage : ''
+                }`}
                 onClick={() => setSelectedMessage(message.message)}
               >
                 <div className={s.messageIndex}>

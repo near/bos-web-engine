@@ -31,6 +31,10 @@
   border-bottom: 1px solid lightgray;
 }
 
+.selectedMessage {
+  background-color: #34307a;
+}
+
 .messageIndex {
   flex: 1;
   font-size: 0.5rem;
