@@ -109,7 +109,7 @@ const buildMessageSummary = (params: BWEMessage): ComponentMessage | null => {
         componentId: parseComponentId(message.originator)!,
         summary: `[${requestId.split('-')[0]}] called ${targetComponent}.${
           method.split('::')[0]
-        }(${args})${!isFromComponent ? ' for' : ''}`,
+        }(${args})${isFromComponent ? '' : ' for'}`,
       };
     }
     case 'component.callbackResponse': {
