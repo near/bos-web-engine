@@ -7,8 +7,8 @@ import {
 import { AccountState } from '@near-wallet-selector/core';
 import { useEffect, useState } from 'react';
 
-import { useComponentMetrics } from '@/hooks/useComponentMetrics';
 import { useComponentSourcesStore } from '@/stores/component-sources';
+import { useContainerMessagesStore } from '@/stores/container-messages';
 
 const PREACT_VERSION = '10.17.1';
 
@@ -24,8 +24,8 @@ export function WebEngine({
   rootComponentPath,
   flags,
 }: WebEnginePropsVariantProps) {
-  const { /* metrics, */ reportMessage } = useComponentMetrics();
   const addSource = useComponentSourcesStore((store) => store.addSource);
+  const addMessage = useContainerMessagesStore((store) => store.addMessage);
 
   const { components, error } = useWebEngine({
     config: {
@@ -37,7 +37,7 @@ export function WebEngine({
       hooks: {
         containerSourceCompiled: ({ componentPath, rawSource }) =>
           addSource(componentPath, rawSource),
-        messageReceived: reportMessage,
+        messageReceived: addMessage,
       },
     },
     rootComponentPath,
@@ -60,8 +60,8 @@ export function SandboxWebEngine({
   rootComponentPath,
   flags,
 }: WebEnginePropsVariantProps) {
-  const { /* metrics, */ reportMessage } = useComponentMetrics();
   const addSource = useComponentSourcesStore((store) => store.addSource);
+  const addMessage = useContainerMessagesStore((store) => store.addMessage);
 
   const [localComponents, setLocalComponents] = useState();
 
@@ -99,7 +99,7 @@ export function SandboxWebEngine({
       hooks: {
         containerSourceCompiled: ({ componentPath, rawSource }) =>
           addSource(componentPath, rawSource),
-        messageReceived: reportMessage,
+        messageReceived: addMessage,
       },
     },
     localComponents,
