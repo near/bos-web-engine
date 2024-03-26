@@ -87,6 +87,27 @@ function buildSandboxedComponent({
               commit(vnode);
               oldCommit?.(vnode, commitQueue);
             };
+            
+            // Object.entries({
+            //   "$_root": "__",
+            //   "$_diff": "__b",
+            //   "$_addHookName": "__a",
+            //   "$_render": "__r",
+            //   "$_hook": "__h",
+            //   "$_catchError": "__e",
+            //   "$_unmount": "__u",
+            //   "$_owner": "__o",
+            //   "$_skipEffects": "__s",
+            //   "$_rerenderCount": "__r",
+            //   "$_forwarded": "__f",
+            //   "$_isSuspended": "__i"
+            // }).map(([name, key]) => {
+            //   const h = __Preact.options[key];
+            //   __Preact.options[key] = (...args) => {
+            //     console.log(name, ...args);
+            //     h?.(...args);
+            //   };
+            // })
   
             window.addEventListener('message', processEvent);
 
