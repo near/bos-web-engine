@@ -1,31 +1,92 @@
 import type { BOSModule } from '@bos-web-engine/common';
 import {
+  BLOCK_HEIGHT_KEY,
   SOCIAL_COMPONENT_NAMESPACE,
   SocialDb,
+  SocialGetParams,
 } from '@bos-web-engine/social-db';
 
-import { ComponentEntry } from './types';
+import {
+  ComponentEntryWithBlockHeight,
+  ComponentSourcesResponse,
+  SocialComponentWithBlockHeight,
+  SocialComponentsByAuthor,
+  SocialComponentsByAuthorWithBlockHeight,
+  SocialWidgetWithBlockHeight,
+} from './types';
+
+function prepareSource(response: SocialComponentsByAuthor): {
+  [key: string]: BOSModule;
+} {
+  return Object.entries(response).reduce(
+    (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
+      Object.entries(componentEntry).forEach(([componentName, component]) => {
+        if (component) {
+          const { '': source, css } = component;
+          sources[`${author}/${componentName}`] = {
+            component: source,
+            css,
+          };
+        } else {
+          console.error(`Invalid component source: ${component}`);
+        }
+      });
+      return sources;
+    },
+    {} as { [key: string]: BOSModule }
+  );
+}
+
+function isNotABlockEntry<T>(
+  entryKey: string,
+  entryValue: any
+): entryValue is T {
+  return typeof entryValue !== 'number' && entryKey !== BLOCK_HEIGHT_KEY;
+}
+
+function prepareSourceWithBlockHeight(
+  response: SocialComponentsByAuthorWithBlockHeight
+) {
+  return Object.entries(response).reduce((sources, [entryKey, entryValue]) => {
+    if (
+      isNotABlockEntry<SocialComponentWithBlockHeight>(entryKey, entryValue)
+    ) {
+      const { [SOCIAL_COMPONENT_NAMESPACE]: component } = entryValue;
+
+      if (
+        isNotABlockEntry<SocialWidgetWithBlockHeight>(
+          SOCIAL_COMPONENT_NAMESPACE,
+          component
+        )
+      ) {
+        Object.entries(component).forEach(([componentKey, componentValue]) => {
+          if (
+            isNotABlockEntry<ComponentEntryWithBlockHeight>(
+              componentKey,
+              componentValue
+            )
+          ) {
+            const sourceKey = `${entryKey}/${componentKey}`;
+            sources[sourceKey] = {
+              component: componentValue[''][''],
+              css: componentValue.css[''],
+              blockHeight: componentValue[BLOCK_HEIGHT_KEY],
+            };
+          }
+        });
+      }
+    }
+
+    return sources;
+  }, {} as ComponentSourcesResponse);
+}
 
 export async function fetchComponentSources(
   social: SocialDb,
   componentPaths: string[],
-  enableBlockHeightVersioning?: boolean
+  enableBlockHeightVersioning?: boolean,
+  enablePersistentComponentCache?: boolean
 ) {
-  /*
-    Typically, you'd want to pass a generic to `social.get<MyType>()`. This generic
-    would be wrapped by DeepPartial (recursively flagging all properties as possibly
-    undefined). However, we want this function to actually throw an error if it's trying
-    to access a component (or property) that doesn't exist. That's why we cast with
-    `as SocialComponentsByAuthor` - which will retain our purposefully "dangerous"
-    `any` typings.
-  */
-
-  type SocialComponentsByAuthor = {
-    [author: string]: {
-      [SOCIAL_COMPONENT_NAMESPACE]: { [name: string]: ComponentEntry };
-    };
-  };
-
   let aggregatedResponses;
 
   if (enableBlockHeightVersioning) {
@@ -55,31 +116,45 @@ export async function fetchComponentSources(
 
     const responsesWithBlockHeight = await Promise.all(
       componentsByBlockHeightArr.map(async ([blockId, keys]) => {
-        const response = (await social.get({
+        const socialGetParams: SocialGetParams = {
           keys,
           blockId: Number(blockId),
-        })) as SocialComponentsByAuthor;
+        };
+
+        if (enablePersistentComponentCache) {
+          const socialOptions = {
+            with_block_height: true,
+          };
+
+          socialGetParams.options = socialOptions;
+        }
+
+        const response = (await social.get(
+          socialGetParams
+        )) as SocialComponentsByAuthor;
 
         if (!blockId) {
           return response;
         }
 
         return Object.fromEntries(
-          Object.entries(response).map(
-            ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
-              author,
-              {
-                [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
-                  Object.entries(componentEntry).map(
-                    ([componentPath, componentSource]) => [
-                      `${componentPath}@${blockId}`,
-                      componentSource,
-                    ]
-                  )
-                ),
-              },
-            ]
-          )
+          Object.entries(response)
+            .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
+            .map(
+              ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
+                author,
+                {
+                  [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
+                    Object.entries(componentEntry)
+                      .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
+                      .map(([componentPath, componentSource]) => [
+                        `${componentPath}@${blockId}`,
+                        componentSource,
+                      ])
+                  ),
+                },
+              ]
+            )
         );
       })
     );
@@ -103,33 +178,33 @@ export async function fetchComponentSources(
 
         return accumulator;
       },
-      {} as SocialComponentsByAuthor
+      {}
     );
   } else {
     const keys = componentPaths.map(
       (p) => p.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`) + '/*'
     );
 
-    aggregatedResponses = (await social.get({
+    const socialGetParams: SocialGetParams = {
       keys,
-    })) as SocialComponentsByAuthor;
+    };
+
+    if (enablePersistentComponentCache) {
+      const socialOptions = {
+        with_block_height: true,
+      };
+
+      socialGetParams.options = socialOptions;
+    }
+
+    aggregatedResponses = await social.get(socialGetParams);
   }
 
-  return Object.entries(aggregatedResponses).reduce(
-    (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
-      Object.entries(componentEntry).forEach(([componentName, component]) => {
-        if (component) {
-          const { '': source, css } = component;
-          sources[`${author}/${componentName}`] = {
-            component: source,
-            css,
-          };
-        } else {
-          console.error(`Invalid component source: ${component}`);
-        }
-      });
-      return sources;
-    },
-    {} as { [key: string]: BOSModule }
-  );
+  if (enablePersistentComponentCache) {
+    return prepareSourceWithBlockHeight(
+      aggregatedResponses as SocialComponentsByAuthorWithBlockHeight
+    );
+  }
+
+  return prepareSource(aggregatedResponses as SocialComponentsByAuthor);
 }

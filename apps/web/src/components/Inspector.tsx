@@ -70,6 +70,10 @@ export function Inspector() {
   const [showSmallScreenFileSelector, setShowSmallScreenFileSelector] =
     useState(false);
 
+  const handleClearCache = () => {
+    indexedDB.deleteDatabase('bosIndexedDB');
+  };
+
   if (!show) {
     return (
       <button
@@ -257,6 +261,22 @@ export function Inspector() {
                   });
                 }}
               />
+            </div>
+            <div className={s.flag}>
+              <label htmlFor="persistentCache">
+                Enable persistent component cache
+              </label>
+              <input
+                type="checkbox"
+                id="persistentCache"
+                checked={flags?.enablePersistentComponentCache}
+                onChange={(e) => {
+                  updateFlags({
+                    enablePersistentComponentCache: e.target.checked,
+                  });
+                }}
+              />
+              <button onClick={handleClearCache}>Clear cache</button>
             </div>
           </div>
         </Tabs.Content>

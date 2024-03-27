@@ -1,6 +1,10 @@
 import { BOSModule, TrustMode } from '@bos-web-engine/common';
 import { SocialDb } from '@bos-web-engine/social-db';
 
+import {
+  cacheComponentTreeDetails,
+  retrieveComponentTreeDetailFromCache,
+} from './cache';
 import { buildComponentSource } from './component';
 import { CssParser } from './css';
 import { buildModuleImports, buildModulePackageUrl } from './import';
@@ -28,15 +32,18 @@ interface TranspiledCacheEntry {
 
 export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<BOSModule | null>>;
+  private localComponents: Map<string, boolean>;
   private compiledSourceCache: Map<string, TranspiledCacheEntry | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
   private preactVersion?: string;
   private enableBlockHeightVersioning?: boolean;
+  private enablePersistentComponentCache?: boolean;
   private social: SocialDb;
   private readonly cssParser: CssParser;
 
   constructor({ sendMessage }: ComponentCompilerParams) {
     this.bosSourceCache = new Map<string, Promise<BOSModule>>();
+    this.localComponents = new Map<string, boolean>();
     this.compiledSourceCache = new Map<string, TranspiledCacheEntry>();
     this.cssParser = new CssParser();
     this.sendWorkerMessage = sendMessage;
@@ -50,15 +57,19 @@ export class ComponentCompiler {
     localComponents,
     preactVersion,
     enableBlockHeightVersioning,
+    enablePersistentComponentCache,
   }: CompilerInitAction) {
     this.preactVersion = preactVersion;
     this.enableBlockHeightVersioning = enableBlockHeightVersioning;
+    this.enablePersistentComponentCache = enablePersistentComponentCache;
 
     this.bosSourceCache.clear();
+    this.localComponents.clear();
     this.compiledSourceCache.clear();
 
     Object.entries(localComponents || {}).forEach(([path, component]) => {
       this.bosSourceCache.set(path, Promise.resolve(component));
+      this.localComponents.set(path, true);
     });
   }
 
@@ -77,7 +88,8 @@ export class ComponentCompiler {
       const pathsFetch = fetchComponentSources(
         this.social,
         unfetchedPaths,
-        this.enableBlockHeightVersioning
+        this.enableBlockHeightVersioning,
+        this.enablePersistentComponentCache
       );
       unfetchedPaths.forEach((componentPath) => {
         this.bosSourceCache.set(
@@ -273,6 +285,27 @@ export class ComponentCompiler {
       throw new Error(`Component not found at ${componentPath}`);
     }
 
+    const isLocalComponent = this.localComponents.get(componentPath);
+    // In case the component block height has been defined - clean it and then add it from the module entry
+    const [cleanComponentPath] = componentPath.split('@');
+    const componentCacheKey = `${cleanComponentPath}@${moduleEntry?.blockHeight}`;
+    if (!isLocalComponent && moduleEntry?.blockHeight) {
+      const retrievedData =
+        await retrieveComponentTreeDetailFromCache(componentCacheKey);
+      if (retrievedData) {
+        this.sendWorkerMessage({
+          componentId,
+          componentSource: retrievedData.componentSource,
+          containerStyles: retrievedData.containerStyles,
+          rawSource: moduleEntry.component,
+          componentPath,
+          importedModules: retrievedData.importedModules,
+        });
+
+        return;
+      }
+    }
+
     // recursively parse the Component tree for child Components
     const transformedComponents = await this.parseComponentTree({
       componentPath,
@@ -323,12 +356,23 @@ export class ComponentCompiler {
       '<\\/script>'
     );
 
+    const containerStyles = [...transformedComponents.values()]
+      .map(({ css }) => css)
+      .join('\n');
+
+    if (!isLocalComponent) {
+      await cacheComponentTreeDetails({
+        key: componentCacheKey,
+        componentSource,
+        containerStyles,
+        importedModules,
+      });
+    }
+
     this.sendWorkerMessage({
       componentId,
       componentSource: sanitizedSource,
-      containerStyles: [...transformedComponents.values()]
-        .map(({ css }) => css)
-        .join('\n'),
+      containerStyles,
       rawSource: moduleEntry.component,
       componentPath,
       importedModules,
