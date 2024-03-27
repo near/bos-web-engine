@@ -141,7 +141,6 @@ export interface WebEngineConfiguration {
   debug?: WebEngineDebug;
   flags?: WebEngineFlags;
   hooks?: WebEngineHooks;
-  preactVersion: string;
 }
 
 export interface WebEngineFlags {

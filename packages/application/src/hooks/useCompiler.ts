@@ -33,13 +33,11 @@ export function useCompiler({
     compiler.postMessage({
       action: 'init',
       localComponents,
-      preactVersion: config.preactVersion,
       enableBlockHeightVersioning: config.flags?.enableBlockHeightVersioning,
     });
   }, [
     compiler,
     config.flags?.bosLoaderUrl,
-    config.preactVersion,
     localComponents,
     config.flags?.enableBlockHeightVersioning,
   ]);

@@ -258,12 +258,11 @@ const aggregateModuleImports = (imports: ImportExpression[]): ImportsByType => {
 /**
  * Build the importmap URL based on package name/URL
  * @param moduleName module name specified in the import statement
- * @param preactVersion version of Preact dependency
+ * @param modulePath module import path
  */
 export const buildModulePackageUrl = (
   moduleName: string,
-  modulePath: string,
-  preactVersion: string
+  modulePath: string
 ) => {
   if (modulePath.startsWith('https://')) {
     return {

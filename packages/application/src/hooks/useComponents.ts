@@ -43,7 +43,7 @@ export function useComponents({
   );
 
   const hooks = { ...config.hooks } || {};
-  const { flags, preactVersion } = config;
+  const { flags } = config;
 
   useEffect(() => {
     setIsValidRootComponentPath(
@@ -132,7 +132,6 @@ export function useComponents({
     error,
     isValidRootComponentPath,
     flags?.bosLoaderUrl,
-    preactVersion,
   ]);
 
   return {

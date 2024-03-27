@@ -30,7 +30,6 @@ export class ComponentCompiler {
   private bosSourceCache: Map<string, Promise<BOSModule | null>>;
   private compiledSourceCache: Map<string, TranspiledCacheEntry | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
-  private preactVersion?: string;
   private enableBlockHeightVersioning?: boolean;
   private social: SocialDb;
   private readonly cssParser: CssParser;
@@ -46,12 +45,7 @@ export class ComponentCompiler {
     });
   }
 
-  init({
-    localComponents,
-    preactVersion,
-    enableBlockHeightVersioning,
-  }: CompilerInitAction) {
-    this.preactVersion = preactVersion;
+  init({ localComponents, enableBlockHeightVersioning }: CompilerInitAction) {
     this.enableBlockHeightVersioning = enableBlockHeightVersioning;
 
     this.bosSourceCache.clear();
@@ -289,11 +283,7 @@ export class ComponentCompiler {
     // build the import map used by the container
     const importedModules = containerModuleImports.reduce(
       (importMap, { moduleName, modulePath }) => {
-        const importMapEntries = buildModulePackageUrl(
-          moduleName,
-          modulePath,
-          this.preactVersion!
-        );
+        const importMapEntries = buildModulePackageUrl(moduleName, modulePath);
 
         if (!importMapEntries) {
           return importMap;
