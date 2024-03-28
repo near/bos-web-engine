@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 import s from './Preview.module.css';
 import {
   DEFAULT_SANDBOX_ACCOUNT_ID,
-  PREACT_VERSION,
   PREVIEW_UPDATE_DEBOUNCE_DELAY,
 } from '../constants';
 import { useDebouncedValue } from '../hooks/useDebounced';
@@ -42,9 +41,6 @@ export function Preview() {
   const accountId = account?.accountId ?? DEFAULT_SANDBOX_ACCOUNT_ID;
 
   const { components, nonce } = useWebEngineSandbox({
-    config: {
-      preactVersion: PREACT_VERSION,
-    },
     localComponents,
     rootComponentPath,
   });

@@ -22,7 +22,7 @@ export function useWebEngine({
     addComponent,
     compiler,
     components,
-    debug: config.debug,
+    debug: config?.debug,
     getComponentRenderCount,
     hooks,
   });
