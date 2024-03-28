@@ -308,7 +308,7 @@ export const buildContainerModuleImports = (
 
   // set the Preact import maps
   const preactImportPath = `https://esm.sh/stable/preact@${PREACT_VERSION}`;
-  const preactCompatPath = `${preactImportPath}/compat/X-YS9yZWFjdDpwcmVhY3QvY29tcGF0/es2022/compat.js`;
+  const preactCompatPath = `${preactImportPath}/X-YS9yZWFjdDpwcmVhY3QvY29tcGF0/es2022/compat.js`;
   importedModules.set('preact', preactImportPath);
   importedModules.set('react', preactCompatPath);
   importedModules.set('react-dom', preactCompatPath);

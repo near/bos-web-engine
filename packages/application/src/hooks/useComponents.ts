@@ -42,8 +42,7 @@ export function useComponents({
     [components]
   );
 
-  const hooks = { ...config.hooks } || {};
-  const { flags } = config;
+  const hooks = { ...config?.hooks } || {};
 
   useEffect(() => {
     setIsValidRootComponentPath(
@@ -55,7 +54,7 @@ export function useComponents({
   }, [rootComponentPath]);
 
   hooks.componentRendered = (componentId: string) => {
-    config.hooks?.componentRendered?.(componentId);
+    config?.hooks?.componentRendered?.(componentId);
     setComponents((currentComponents) => ({
       ...currentComponents,
       [componentId]: {
@@ -116,7 +115,7 @@ export function useComponents({
     rootComponentSource,
     error,
     isValidRootComponentPath,
-    flags?.bosLoaderUrl,
+    config?.flags?.bosLoaderUrl,
   ]);
 
   return {

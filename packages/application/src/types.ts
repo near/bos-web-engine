@@ -114,7 +114,7 @@ export interface CompilerWorker extends Omit<Worker, 'postMessage'> {
 }
 
 export interface UseWebEngineParams {
-  config: WebEngineConfiguration;
+  config?: WebEngineConfiguration;
   rootComponentPath?: string;
 }
 
