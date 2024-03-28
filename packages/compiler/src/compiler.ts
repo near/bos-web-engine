@@ -3,7 +3,10 @@ import { SocialDb } from '@bos-web-engine/social-db';
 
 import { buildComponentSource } from './component';
 import { CssParser } from './css';
-import { buildModuleImports, buildModulePackageUrl } from './import';
+import {
+  buildContainerModuleImports,
+  buildModuleImportStatements,
+} from './import';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
 import type {
@@ -281,27 +284,10 @@ export class ComponentCompiler {
       .flat();
 
     // build the import map used by the container
-    const importedModules = containerModuleImports.reduce(
-      (importMap, { moduleName, modulePath }) => {
-        const importMapEntries = buildModulePackageUrl(moduleName, modulePath);
-
-        if (!importMapEntries) {
-          return importMap;
-        }
-
-        const moduleEntry = importMap.get(moduleName);
-        if (moduleEntry) {
-          return importMap;
-        }
-
-        importMap.set(importMapEntries.moduleName, importMapEntries.url);
-        return importMap;
-      },
-      new Map<string, string>()
-    );
+    const importedModules = buildContainerModuleImports(containerModuleImports);
 
     const componentSource = [
-      ...buildModuleImports(containerModuleImports),
+      ...buildModuleImportStatements(containerModuleImports),
       ...[...transformedComponents.values()].map(
         ({ transpiled }) => transpiled
       ),

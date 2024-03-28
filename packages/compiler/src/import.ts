@@ -3,6 +3,7 @@ import initializeWalletSelectorPlugin from '@bos-web-engine/wallet-selector-plug
 
 import type { ImportExpression, ModuleImport } from './types';
 
+const PREACT_VERSION = '10.19.3';
 const BWE_MODULE_URL_PREFIX = 'near://';
 const PLUGIN_MODULES = new Map<string, string>([
   ['@bos-web-engine/social-db-plugin', initializeSocialDbPlugin.toString()],
@@ -78,7 +79,9 @@ const extractModuleName = (modulePath: string) => {
  * Build container-level imports based on module imports across all Components
  * @param moduleImports set of module imports across Components within a container
  */
-export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
+export const buildModuleImportStatements = (
+  moduleImports: ModuleImport[]
+): string[] => {
   if (!moduleImports.length) {
     return [];
   }
@@ -273,6 +276,45 @@ export const buildModulePackageUrl = (
 
   return {
     moduleName,
-    url: `https://esm.sh/${moduleName}?alias=react:preact/compat&deps=preact@${preactVersion}`,
+    url: `https://esm.sh/${moduleName}?alias=react:preact/compat&deps=stable/preact@${PREACT_VERSION}`,
   };
+};
+
+export const buildContainerModuleImports = (
+  containerModuleImports: ModuleImport[]
+) => {
+  const importedModules = containerModuleImports.reduce(
+    (importMap, { moduleName, modulePath }) => {
+      const importMapEntries = buildModulePackageUrl(moduleName, modulePath);
+
+      if (!importMapEntries) {
+        return importMap;
+      }
+
+      const moduleEntry = importMap.get(moduleName);
+      if (moduleEntry) {
+        return importMap;
+      }
+
+      importMap.set(importMapEntries.moduleName, importMapEntries.url);
+      return importMap;
+    },
+    new Map<string, string>()
+  );
+
+  // set the Preact import maps
+  const preactImportPath = `https://esm.sh/stable/preact@${PREACT_VERSION}`;
+  const preactCompatPath = `${preactImportPath}/compat/X-YS9yZWFjdDpwcmVhY3QvY29tcGF0/es2022/compat.js`;
+  importedModules.set('preact', preactImportPath);
+  importedModules.set('react', preactCompatPath);
+  importedModules.set('react-dom', preactCompatPath);
+
+  for (const moduleName of importedModules.keys()) {
+    const [lib, subpath] = moduleName.split('/');
+    if (subpath && ['preact', 'react-dom'].includes(lib)) {
+      importedModules.delete(moduleName);
+    }
+  }
+
+  return importedModules;
 };
