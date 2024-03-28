@@ -3,7 +3,7 @@ import initializeWalletSelectorPlugin from '@bos-web-engine/wallet-selector-plug
 
 import type { ImportExpression, ModuleImport } from './types';
 
-const PREACT_VERSION = '10.19.3';
+const PREACT_VERSION = '10.20.1';
 const BWE_MODULE_URL_PREFIX = 'near://';
 const PLUGIN_MODULES = new Map<string, string>([
   ['@bos-web-engine/social-db-plugin', initializeSocialDbPlugin.toString()],
