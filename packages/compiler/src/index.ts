@@ -5,4 +5,4 @@ export type {
 
 export { ComponentCompiler } from './compiler';
 
-export { BOS_INDEX_DB } from './cache'
+export { BOS_INDEX_DB } from './cache';
