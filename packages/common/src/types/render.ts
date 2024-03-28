@@ -1,7 +1,8 @@
 import type { ComponentTrust } from './trust';
 
 export interface WebEngineMeta {
-  componentId?: string;
+  componentId?: string; // TODO remove this field and only compute from src + key + parentMeta*
+  key?: string;
   parentMeta?: WebEngineMeta;
   src?: string;
   trust?: ComponentTrust;

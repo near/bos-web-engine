@@ -170,6 +170,10 @@ export function transpileSource({
           true
         );
 
+        const keyProp = (props.properties as ObjectProperty[]).find(
+          ({ key }) => t.isIdentifier(key) && (key as Identifier).name === 'key'
+        ) as ObjectProperty;
+
         const bweMeta = t.objectExpression([
           t.objectProperty(
             t.identifier('parentMeta'),
@@ -179,6 +183,9 @@ export function transpileSource({
               t.memberExpression(propsAccessor, t.identifier('bwe'))
             )
           ),
+          ...(keyProp
+            ? [t.objectProperty(t.identifier('key'), keyProp.value)]
+            : []),
         ]);
 
         const propsExpressions = props.properties.reduce(
