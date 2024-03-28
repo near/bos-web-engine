@@ -159,12 +159,8 @@ export interface ComponentCacheRecord {
   importedModules: Map<string, string>;
 }
 
-export interface FeatureFlags {
-
-}
-
 export interface FetchComponentSourcesParams {
-  social: SocialDb,
-  componentPaths: string[],
+  social: SocialDb;
+  componentPaths: string[];
   features: FeatureFlags;
 }
