@@ -1,3 +1,4 @@
+import { WebEngineMeta } from '@bos-web-engine/common';
 import type { ComponentChildren, ComponentType, VNode } from 'preact';
 
 import type {
@@ -53,6 +54,16 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     }
   };
 
+  const buildComponentId = (meta?: WebEngineMeta): string => {
+    if (!meta) {
+      return '';
+    }
+
+    return `${meta.src}##${meta.key || ''}##${buildComponentId(
+      meta.parentMeta
+    )}`;
+  };
+
   const buildBWEComponentNode = (
     node: BWEComponentNode,
     children: ComponentChildren
@@ -61,17 +72,16 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
       key,
       props: { bwe },
     } = node;
-    const { src, parentMeta } = bwe;
-    const childComponentId = [src, key, parentMeta?.componentId].join('##');
+    const childComponentId = buildComponentId(bwe);
 
     return {
       type: 'div',
-      key: key,
+      key,
       props: {
         id: 'dom-' + childComponentId,
         className: 'bwe-component-container',
         children,
-        'data-component-src': src!,
+        'data-component-src': bwe.src!,
       },
     };
   };
