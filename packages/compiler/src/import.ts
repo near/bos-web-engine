@@ -280,6 +280,10 @@ export const buildModulePackageUrl = (
   };
 };
 
+/**
+ * Given a set of module imports, construct the importmap with references to esm.sh modules
+ * @param containerModuleImports set of module imports across the container
+ */
 export const buildContainerModuleImports = (
   containerModuleImports: ModuleImport[]
 ) => {
