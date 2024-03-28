@@ -1,4 +1,3 @@
-import type { BOSModule } from '@bos-web-engine/common';
 import {
   BLOCK_HEIGHT_KEY,
   SOCIAL_COMPONENT_NAMESPACE,
@@ -15,9 +14,9 @@ import {
   SocialWidgetWithBlockHeight,
 } from './types';
 
-function prepareSource(response: SocialComponentsByAuthor): {
-  [key: string]: BOSModule;
-} {
+function prepareSource(
+  response: SocialComponentsByAuthor
+): ComponentSourcesResponse {
   return Object.entries(response).reduce(
     (sources, [author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
       Object.entries(componentEntry).forEach(([componentName, component]) => {
@@ -33,7 +32,7 @@ function prepareSource(response: SocialComponentsByAuthor): {
       });
       return sources;
     },
-    {} as { [key: string]: BOSModule }
+    {} as ComponentSourcesResponse
   );
 }
 
@@ -46,7 +45,7 @@ function isNotABlockEntry<T>(
 
 function prepareSourceWithBlockHeight(
   response: SocialComponentsByAuthorWithBlockHeight
-) {
+): ComponentSourcesResponse {
   return Object.entries(response).reduce((sources, [entryKey, entryValue]) => {
     if (
       isNotABlockEntry<SocialComponentWithBlockHeight>(entryKey, entryValue)

@@ -2,7 +2,7 @@ import { openDB, DBSchema, IDBPDatabase } from 'idb';
 
 import { ComponentCacheRecord } from './types';
 
-const BOS_INDEX_DB = 'bosIndexedDB';
+export const BOS_INDEX_DB = 'bosIndexedDB';
 const BOS_INDEX_DB_VERSION = 1;
 const COMPONENT_TREES_CACHE_STORE_NAME = 'componentTreesCache';
 
@@ -35,8 +35,8 @@ export async function cacheComponentTreeDetails(
 }
 
 export async function retrieveComponentTreeDetailFromCache(
-  componentName: string
+  componentPath: string
 ): Promise<ComponentCacheRecord | undefined> {
   const db = await initializeDB();
-  return db.get(COMPONENT_TREES_CACHE_STORE_NAME, componentName);
+  return db.get(COMPONENT_TREES_CACHE_STORE_NAME, componentPath);
 }
