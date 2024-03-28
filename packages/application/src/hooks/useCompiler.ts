@@ -34,7 +34,11 @@ export function useCompiler({
       action: 'init',
       localComponents,
       preactVersion: config.preactVersion,
-      enableBlockHeightVersioning: config.flags?.enableBlockHeightVersioning,
+      features: {
+        enableBlockHeightVersioning: config.flags?.enableBlockHeightVersioning,
+        enablePersistentComponentCache:
+          config.flags?.enablePersistentComponentCache,
+      },
     });
   }, [
     compiler,
@@ -42,6 +46,7 @@ export function useCompiler({
     config.preactVersion,
     localComponents,
     config.flags?.enableBlockHeightVersioning,
+    config.flags?.enablePersistentComponentCache,
   ]);
 
   return compiler;

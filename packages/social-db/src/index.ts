@@ -3,6 +3,7 @@ export {
   TESTNET_SOCIAL_CONTRACT_ID,
   SOCIAL_COMPONENT_NAMESPACE,
   SOCIAL_IPFS_BASE_URL,
+  BLOCK_HEIGHT_KEY,
 } from './constants';
 export { useSocial } from './hooks/useSocial';
 export { useSocialProfile } from './hooks/useSocialProfile';
