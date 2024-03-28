@@ -2,6 +2,7 @@ import type { BOSModule } from '@bos-web-engine/common';
 import type {
   BLOCK_HEIGHT_KEY,
   SOCIAL_COMPONENT_NAMESPACE,
+  SocialDb,
 } from '@bos-web-engine/social-db';
 
 export type ComponentCompilerRequest =
@@ -15,12 +16,16 @@ export interface CompilerExecuteAction {
 
 export type LocalComponentMap = { [path: string]: BOSModule };
 
+export interface FeatureFlags {
+  enableBlockHeightVersioning?: boolean;
+  enablePersistentComponentCache?: boolean;
+}
+
 export interface CompilerInitAction {
   action: 'init';
   localComponents?: LocalComponentMap;
   preactVersion: string;
-  enableBlockHeightVersioning?: boolean;
-  enablePersistentComponentCache?: boolean;
+  features: FeatureFlags;
 }
 
 export interface ComponentCompilerResponse {
@@ -152,4 +157,14 @@ export interface ComponentCacheRecord {
   componentSource: string;
   containerStyles: string;
   importedModules: Map<string, string>;
+}
+
+export interface FeatureFlags {
+
+}
+
+export interface FetchComponentSourcesParams {
+  social: SocialDb,
+  componentPaths: string[],
+  features: FeatureFlags;
 }

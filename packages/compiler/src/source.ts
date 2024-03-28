@@ -1,13 +1,13 @@
 import {
   BLOCK_HEIGHT_KEY,
   SOCIAL_COMPONENT_NAMESPACE,
-  SocialDb,
   SocialGetParams,
 } from '@bos-web-engine/social-db';
 
 import {
   ComponentEntryWithBlockHeight,
   ComponentSourcesResponse,
+  FetchComponentSourcesParams,
   SocialComponentWithBlockHeight,
   SocialComponentsByAuthor,
   SocialComponentsByAuthorWithBlockHeight,
@@ -80,15 +80,14 @@ function prepareSourceWithBlockHeight(
   }, {} as ComponentSourcesResponse);
 }
 
-export async function fetchComponentSources(
-  social: SocialDb,
-  componentPaths: string[],
-  enableBlockHeightVersioning?: boolean,
-  enablePersistentComponentCache?: boolean
-) {
+export async function fetchComponentSources({
+  social,
+  componentPaths,
+  features,
+}: FetchComponentSourcesParams) {
   let aggregatedResponses;
 
-  if (enableBlockHeightVersioning) {
+  if (features.enableBlockHeightVersioning) {
     /**
      * Requested components mapped by the block heights to reduce the amount of social requests
      * If no block height specified - the "" key is used
@@ -120,7 +119,7 @@ export async function fetchComponentSources(
           blockId: Number(blockId),
         };
 
-        if (enablePersistentComponentCache) {
+        if (features.enablePersistentComponentCache) {
           const socialOptions = {
             with_block_height: true,
           };
@@ -188,7 +187,7 @@ export async function fetchComponentSources(
       keys,
     };
 
-    if (enablePersistentComponentCache) {
+    if (features.enablePersistentComponentCache) {
       const socialOptions = {
         with_block_height: true,
       };
@@ -199,7 +198,7 @@ export async function fetchComponentSources(
     aggregatedResponses = await social.get(socialGetParams);
   }
 
-  if (enablePersistentComponentCache) {
+  if (features.enablePersistentComponentCache) {
     return prepareSourceWithBlockHeight(
       aggregatedResponses as SocialComponentsByAuthorWithBlockHeight
     );

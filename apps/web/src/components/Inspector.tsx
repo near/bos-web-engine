@@ -71,7 +71,16 @@ export function Inspector() {
     useState(false);
 
   const handleClearCache = () => {
-    indexedDB.deleteDatabase('bosIndexedDB');
+    if (typeof indexedDB?.deleteDatabase === 'function') {
+      const req = indexedDB.deleteDatabase('bosIndexedDB');
+      req.onsuccess = () =>
+        console.warn('Database has been successfully deleted!');
+      req.onerror = () => console.error("Couldn't delete database!");
+      req.onblocked = () =>
+        console.warn(
+          "Couldn't delete database due to the operation being blocked!"
+        );
+    }
   };
 
   if (!show) {

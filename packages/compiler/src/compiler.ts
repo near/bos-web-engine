@@ -56,8 +56,7 @@ export class ComponentCompiler {
   init({
     localComponents,
     preactVersion,
-    enableBlockHeightVersioning,
-    enablePersistentComponentCache,
+    features: { enableBlockHeightVersioning, enablePersistentComponentCache },
   }: CompilerInitAction) {
     this.preactVersion = preactVersion;
     this.enableBlockHeightVersioning = enableBlockHeightVersioning;
@@ -85,12 +84,14 @@ export class ComponentCompiler {
       (componentPath) => !this.bosSourceCache.has(componentPath)
     );
     if (unfetchedPaths.length > 0) {
-      const pathsFetch = fetchComponentSources(
-        this.social,
-        unfetchedPaths,
-        this.enableBlockHeightVersioning,
-        this.enablePersistentComponentCache
-      );
+      const pathsFetch = fetchComponentSources({
+        social: this.social,
+        componentPaths: unfetchedPaths,
+        features: {
+          enableBlockHeightVersioning: this.enableBlockHeightVersioning,
+          enablePersistentComponentCache: this.enablePersistentComponentCache,
+        },
+      });
       unfetchedPaths.forEach((componentPath) => {
         this.bosSourceCache.set(
           componentPath,
@@ -289,7 +290,11 @@ export class ComponentCompiler {
     // In case the component block height has been defined - clean it and then add it from the module entry
     const [cleanComponentPath] = componentPath.split('@');
     const componentCacheKey = `${cleanComponentPath}@${moduleEntry?.blockHeight}`;
-    if (!isLocalComponent && moduleEntry?.blockHeight) {
+    if (
+      this.enablePersistentComponentCache &&
+      !isLocalComponent &&
+      moduleEntry?.blockHeight
+    ) {
       const retrievedData =
         await retrieveComponentTreeDetailFromCache(componentCacheKey);
       if (retrievedData) {
@@ -360,7 +365,7 @@ export class ComponentCompiler {
       .map(({ css }) => css)
       .join('\n');
 
-    if (!isLocalComponent) {
+    if (this.enablePersistentComponentCache && !isLocalComponent) {
       await cacheComponentTreeDetails({
         key: componentCacheKey,
         componentSource,
