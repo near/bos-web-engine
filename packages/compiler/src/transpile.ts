@@ -1,5 +1,6 @@
 import Babel from '@babel/standalone';
 import type {
+  CallExpression,
   ExportDefaultDeclaration,
   ExportNamedDeclaration,
   Expression,
@@ -7,6 +8,7 @@ import type {
   Identifier,
   ImportDeclaration,
   ImportSpecifier,
+  NullLiteral,
   ObjectExpression,
   ObjectMethod,
   ObjectProperty,
@@ -102,7 +104,10 @@ export function transpileSource({
     visitor: {
       CallExpression(path: {
         node: {
-          arguments: [Identifier | StringLiteral, ObjectExpression | undefined];
+          arguments: [
+            Identifier | StringLiteral,
+            ObjectExpression | CallExpression | undefined,
+          ];
           callee: { object: Identifier; property: Identifier };
         };
         remove: () => void;
@@ -122,12 +127,24 @@ export function transpileSource({
           return;
         }
 
-        let [Component, props] = args as [Identifier, ObjectExpression];
+        let [Component, props] = args as [
+          Identifier,
+          ObjectExpression | CallExpression | NullLiteral,
+        ];
 
         if (t.isNullLiteral(props)) {
+          // if props were not provided, initialize to an empty object
           props = t.objectExpression([]);
-          path.node.arguments[1] = props;
+          path.node.arguments[1] = props as ObjectExpression;
+        } else if (
+          t.isCallExpression(props) &&
+          ((props as CallExpression).callee as Identifier)?.name === '_extends'
+        ) {
+          // if props is a CallExpression from Babel's _extends() function,
+          // modify the explicitly-specified props and leave the spread
+          props = (props as CallExpression).arguments[0] as ObjectExpression;
         }
+        props = props as ObjectExpression;
 
         /**
          * FIXME referencing `arguments` only works when the Component rendering takes place within
