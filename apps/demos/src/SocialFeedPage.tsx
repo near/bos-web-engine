@@ -114,7 +114,11 @@ function SocialFeedPage() {
         </div>
 
         <div className={s.footer}>
-          <Button onClick={loadMorePosts} disabled={loading}>
+          <Button
+            bwe={{ trust: { mode: 'trusted' } }}
+            onClick={loadMorePosts}
+            disabled={loading}
+          >
             Load More
           </Button>
         </div>

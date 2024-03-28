@@ -266,6 +266,7 @@ function AlphaDashboard() {
           {!showAllDevelopers && (developers?.length ?? 0) > DISPLAY_LIMIT && (
             <div className={s.cardFooter}>
               <Button
+                bwe={{ trust: { mode: 'trusted' } }}
                 key="show-all-developers"
                 onClick={() => setSowAllDevelopers(true)}
               >
@@ -344,6 +345,7 @@ function AlphaDashboard() {
           {!showAllComponents && (components?.length ?? 0) > DISPLAY_LIMIT && (
             <div className={s.cardFooter}>
               <Button
+                bwe={{ trust: { mode: 'trusted' } }}
                 key="show-all-components"
                 onClick={() => setSowAllComponents(true)}
               >
