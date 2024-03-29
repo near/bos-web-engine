@@ -126,15 +126,15 @@ export interface ComponentEntryWithBlockHeight extends WithBlockHeight {
   css: SourceWithBlockHeight;
 }
 
-interface SocialWidget {
+export interface SocialWidget {
   [name: string]: ComponentEntry;
 }
 
 export interface SocialWidgetWithBlockHeight {
-  [name: string]: ComponentEntryWithBlockHeight | number;
+  [SOCIAL_COMPONENT_NAMESPACE]: ComponentEntryWithBlockHeight | number;
 }
 
-interface SocialComponent {
+export interface SocialComponent {
   [SOCIAL_COMPONENT_NAMESPACE]: SocialWidget;
 }
 

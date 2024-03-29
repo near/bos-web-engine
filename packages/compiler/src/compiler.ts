@@ -287,13 +287,10 @@ export class ComponentCompiler {
     }
 
     const isLocalComponent = this.localComponents.get(componentPath);
-    // In case the component block height has been defined - clean it and then add it from the module entry
-    const [cleanComponentPath] = componentPath.split('@');
-    const componentCacheKey = `${cleanComponentPath}@${moduleEntry?.blockHeight}`;
+    const componentCacheKey = `${componentPathWithoutBlockHeight}@${moduleEntry?.blockHeight}`;
     if (
       this.enablePersistentComponentCache &&
-      !isLocalComponent &&
-      moduleEntry?.blockHeight
+      !isLocalComponent
     ) {
       const retrievedData =
         await retrieveComponentTreeDetailFromCache(componentCacheKey);
