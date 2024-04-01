@@ -1,14 +1,16 @@
 import {
   ComponentTree,
+  UseWebEngineSandboxParams,
   WebEngineFlags,
   useWebEngine,
   useWebEngineSandbox,
 } from '@bos-web-engine/application';
 import { AccountState } from '@near-wallet-selector/core';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useComponentSourcesStore } from '@/stores/component-sources';
 import { useContainerMessagesStore } from '@/stores/container-messages';
+import { LocalFetchStatus, useDevToolsStore } from '@/stores/dev-tools';
 
 interface WebEnginePropsVariantProps {
   account: AccountState | null;
@@ -57,34 +59,72 @@ export function SandboxWebEngine({
   rootComponentPath,
   flags,
 }: WebEnginePropsVariantProps) {
-  const addSource = useComponentSourcesStore((store) => store.addSource);
-  const addMessage = useContainerMessagesStore((store) => store.addMessage);
+  const setLocalFetchStatus = useDevToolsStore(
+    (state) => state.setLocalFetchStatus
+  );
 
-  const [localComponents, setLocalComponents] = useState();
+  // null while loading
+  // empty object on error
+  const [localComponents, setLocalComponents] = useState<
+    UseWebEngineSandboxParams['localComponents'] | null
+  >(null);
+
+  const fetchLocalComponents = useCallback(
+    async (url: string) => {
+      setLocalFetchStatus(LocalFetchStatus.LOADING);
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // FIXME: change engine to expect `code` so we do not need to
+        // transform data from having property called `code` to property called `component`
+        Object.keys(data.components).forEach((key) => {
+          data.components[key].component = data.components[key].code + '\n';
+          delete data.components[key].code;
+        });
+
+        setLocalComponents(data.components);
+        setLocalFetchStatus(LocalFetchStatus.SUCCESS);
+      } catch (error) {
+        console.error(`Failed to load local components from ${url}`, error);
+        setLocalComponents({});
+        setLocalFetchStatus(LocalFetchStatus.ERROR);
+      }
+    },
+    [setLocalFetchStatus]
+  );
 
   useEffect(() => {
     if (!flags?.bosLoaderUrl) return;
 
     fetchLocalComponents(flags?.bosLoaderUrl);
-  }, [flags?.bosLoaderUrl]);
+  }, [flags?.bosLoaderUrl, fetchLocalComponents]);
 
-  async function fetchLocalComponents(url: string) {
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
+  return localComponents ? (
+    <PreparedLocalSandbox
+      account={account}
+      rootComponentPath={rootComponentPath}
+      flags={flags}
+      localComponents={localComponents}
+    />
+  ) : (
+    <></>
+  );
+}
 
-      // FIXME: change engine to expect `code` so we do not need to
-      // transform data from having property called `code` to property called `component`
-      Object.keys(data.components).forEach((key) => {
-        data.components[key].component = data.components[key].code + '\n';
-        delete data.components[key].code;
-      });
-
-      setLocalComponents(data.components);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+/**
+ * Actual sandbox redering takes place here, but should only be loaded
+ * once local components have been successfully resolved for the first
+ * time at startup
+ */
+function PreparedLocalSandbox({
+  account,
+  rootComponentPath,
+  flags,
+  localComponents,
+}: WebEnginePropsVariantProps & { localComponents: any }) {
+  const addSource = useComponentSourcesStore((store) => store.addSource);
+  const addMessage = useContainerMessagesStore((store) => store.addMessage);
 
   const { components, error, nonce } = useWebEngineSandbox({
     config: {

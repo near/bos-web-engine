@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 
 import { Inspector } from '@/components/Inspector';
 import { SandboxWebEngine, WebEngine } from '@/components/WebEngineVariants';
-import { useFlagsStore } from '@/stores/flags';
+import { useDevToolsStore } from '@/stores/dev-tools';
 
 const DEFAULT_COMPONENT = process.env.NEXT_PUBLIC_DEFAULT_ROOT_COMPONENT;
 
@@ -20,7 +20,8 @@ export default function Root() {
     ? query.root.join('/')
     : undefined;
 
-  const flags = useFlagsStore((state) => state.flags);
+  const flags = useDevToolsStore((state) => state.flags);
+  const devToolsLoaded = useDevToolsStore((state) => state.devToolsLoaded);
 
   const showContainerBoundaries =
     queryShowContainerBoundaries || flags.showContainerBoundaries;
@@ -38,7 +39,7 @@ export default function Root() {
         <div
           className={`bwe-app ${showContainerBoundaries ? 'bwe-debug' : ''}`}
         >
-          {rootComponentPath && (
+          {rootComponentPath && devToolsLoaded && (
             <>
               {flags?.bosLoaderUrl ? (
                 <SandboxWebEngine
