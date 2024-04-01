@@ -276,7 +276,7 @@ export const buildModulePackageUrl = (
 
   return {
     moduleName,
-    url: `https://esm.sh/${moduleName}?alias=react:preact/compat&deps=stable/preact@${PREACT_VERSION}`,
+    url: `https://esm.sh/${moduleName}?alias=react:preact/compat&external=preact`,
   };
 };
 
@@ -308,17 +308,21 @@ export const buildContainerModuleImports = (
 
   // set the Preact import maps
   const preactImportPath = `https://esm.sh/stable/preact@${PREACT_VERSION}`;
-  const preactCompatPath = `${preactImportPath}/X-YS9yZWFjdDpwcmVhY3QvY29tcGF0/es2022/compat.js`;
+  const preactCompatPath = `https://esm.sh/preact@${PREACT_VERSION}/compat`;
   importedModules.set('preact', preactImportPath);
   importedModules.set('react', preactCompatPath);
   importedModules.set('react-dom', preactCompatPath);
 
+  // remove conflicting imports from source
   for (const moduleName of importedModules.keys()) {
     const [lib, subpath] = moduleName.split('/');
     if (subpath && ['preact', 'react-dom'].includes(lib)) {
       importedModules.delete(moduleName);
     }
   }
+
+  importedModules.set('preact/compat', preactCompatPath);
+  importedModules.set('preact/compat/', `${preactCompatPath}/`);
 
   return importedModules;
 };
