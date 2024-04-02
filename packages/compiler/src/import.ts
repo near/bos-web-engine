@@ -3,6 +3,7 @@ import initializeWalletSelectorPlugin from '@bos-web-engine/wallet-selector-plug
 
 import type { ImportExpression, ModuleImport } from './types';
 
+const PREACT_VERSION = '10.20.1';
 const BWE_MODULE_URL_PREFIX = 'near://';
 const PLUGIN_MODULES = new Map<string, string>([
   ['@bos-web-engine/social-db-plugin', initializeSocialDbPlugin.toString()],
@@ -78,7 +79,9 @@ const extractModuleName = (modulePath: string) => {
  * Build container-level imports based on module imports across all Components
  * @param moduleImports set of module imports across Components within a container
  */
-export const buildModuleImports = (moduleImports: ModuleImport[]): string[] => {
+export const buildModuleImportStatements = (
+  moduleImports: ModuleImport[]
+): string[] => {
   if (!moduleImports.length) {
     return [];
   }
@@ -258,12 +261,11 @@ const aggregateModuleImports = (imports: ImportExpression[]): ImportsByType => {
 /**
  * Build the importmap URL based on package name/URL
  * @param moduleName module name specified in the import statement
- * @param preactVersion version of Preact dependency
+ * @param modulePath module import path
  */
 export const buildModulePackageUrl = (
   moduleName: string,
-  modulePath: string,
-  preactVersion: string
+  modulePath: string
 ) => {
   if (modulePath.startsWith('https://')) {
     return {
@@ -274,6 +276,53 @@ export const buildModulePackageUrl = (
 
   return {
     moduleName,
-    url: `https://esm.sh/${moduleName}?alias=react:preact/compat&deps=preact@${preactVersion}`,
+    url: `https://esm.sh/${moduleName}?alias=react:preact/compat&external=preact`,
   };
+};
+
+/**
+ * Given a set of module imports, construct the importmap with references to esm.sh modules
+ * @param containerModuleImports set of module imports across the container
+ */
+export const buildContainerModuleImports = (
+  containerModuleImports: ModuleImport[]
+) => {
+  const importedModules = containerModuleImports.reduce(
+    (importMap, { moduleName, modulePath }) => {
+      const importMapEntries = buildModulePackageUrl(moduleName, modulePath);
+
+      if (!importMapEntries) {
+        return importMap;
+      }
+
+      const moduleEntry = importMap.get(moduleName);
+      if (moduleEntry) {
+        return importMap;
+      }
+
+      importMap.set(importMapEntries.moduleName, importMapEntries.url);
+      return importMap;
+    },
+    new Map<string, string>()
+  );
+
+  // set the Preact import maps
+  const preactImportPath = `https://esm.sh/stable/preact@${PREACT_VERSION}`;
+  const preactCompatPath = `https://esm.sh/preact@${PREACT_VERSION}/compat`;
+  importedModules.set('preact', preactImportPath);
+  importedModules.set('react', preactCompatPath);
+  importedModules.set('react-dom', preactCompatPath);
+
+  // remove conflicting imports from source
+  for (const moduleName of importedModules.keys()) {
+    const [lib, subpath] = moduleName.split('/');
+    if (subpath && ['preact', 'react-dom'].includes(lib)) {
+      importedModules.delete(moduleName);
+    }
+  }
+
+  importedModules.set('preact/compat', preactCompatPath);
+  importedModules.set('preact/compat/', `${preactCompatPath}/`);
+
+  return importedModules;
 };

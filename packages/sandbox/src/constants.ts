@@ -6,7 +6,6 @@ export const FILE_EXTENSIONS = ['tsx', 'module.css'] as const;
 export type FileExtension = (typeof FILE_EXTENSIONS)[number];
 
 export const DEFAULT_SANDBOX_ACCOUNT_ID = 'bwe-web.near';
-export const PREACT_VERSION = '10.17.1';
 export const FILE_EXTENSION_REGEX = new RegExp(
   `\\.(${FILE_EXTENSIONS.join('|')})$`
 );

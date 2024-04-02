@@ -14,7 +14,6 @@ export type LocalComponentMap = { [path: string]: BOSModule };
 export interface CompilerInitAction {
   action: 'init';
   localComponents?: LocalComponentMap;
-  preactVersion: string;
   enableBlockHeightVersioning?: boolean;
 }
 

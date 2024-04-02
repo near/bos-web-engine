@@ -12,7 +12,6 @@ export function useWebEngineSandbox({
   rootComponentPath,
 }: UseWebEngineSandboxParams) {
   const [nonce, setNonce] = useState('');
-  const preactVersion = config.preactVersion;
 
   const { appendStylesheet, resetContainerStylesheet } = useCss();
   const compiler = useCompiler({ config, localComponents });
@@ -50,14 +49,7 @@ export function useWebEngineSandbox({
       action: 'execute',
       componentId: rootComponentPath,
     });
-  }, [
-    compiler,
-    domRoots,
-    localComponents,
-    preactVersion,
-    rootComponentPath,
-    setComponents,
-  ]);
+  }, [compiler, domRoots, localComponents, rootComponentPath, setComponents]);
 
   return {
     components,
