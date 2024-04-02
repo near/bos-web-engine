@@ -106,6 +106,7 @@ export interface ImportExpression {
 export interface ComponentEntry {
   '': string;
   css: string;
+  blockId?: number;
 }
 
 export interface ModuleExport {
@@ -127,27 +128,15 @@ export interface ComponentEntryWithBlockHeight extends WithBlockHeight {
 }
 
 export interface SocialWidget {
-  [name: string]: ComponentEntry;
-}
-
-export interface SocialWidgetWithBlockHeight {
-  [SOCIAL_COMPONENT_NAMESPACE]: ComponentEntryWithBlockHeight | number;
+  [name: string]: ComponentEntryWithBlockHeight;
 }
 
 export interface SocialComponent {
   [SOCIAL_COMPONENT_NAMESPACE]: SocialWidget;
 }
 
-export interface SocialComponentWithBlockHeight
-  extends WithBlockHeight,
-    SocialWidgetWithBlockHeight {}
-
 export interface SocialComponentsByAuthor {
   [author: string]: SocialComponent;
-}
-
-export interface SocialComponentsByAuthorWithBlockHeight {
-  [authorOrBlockHeight: string]: SocialComponentWithBlockHeight | number;
 }
 
 export type ComponentSourcesResponse = { [key: string]: BOSModule };

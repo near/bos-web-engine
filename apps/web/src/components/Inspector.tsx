@@ -72,7 +72,7 @@ export function Inspector() {
 
   const handleClearCache = () => {
     if (typeof indexedDB?.deleteDatabase === 'function') {
-      const req = indexedDB.deleteDatabase('bosIndexedDB');
+      const req = indexedDB.deleteDatabase('rocIndexedDB');
       req.onsuccess = () =>
         console.warn('Database has been successfully deleted!');
       req.onerror = () => console.error("Couldn't delete database!");

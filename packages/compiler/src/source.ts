@@ -5,53 +5,25 @@ import {
 } from '@bos-web-engine/social-db';
 
 import {
-  ComponentEntryWithBlockHeight,
   ComponentSourcesResponse,
   FetchComponentSourcesParams,
-  SocialComponentWithBlockHeight,
-  SocialComponentsByAuthorWithBlockHeight,
-  SocialWidgetWithBlockHeight,
+  SocialComponentsByAuthor,
 } from './types';
 
-function isNotABlockEntry<T>(
-  entryKey: string,
-  entryValue: any
-): entryValue is T {
-  return typeof entryValue !== 'number' && entryKey !== BLOCK_HEIGHT_KEY;
-}
-
 function prepareSourceWithBlockHeight(
-  response: SocialComponentsByAuthorWithBlockHeight
+  response: SocialComponentsByAuthor
 ): ComponentSourcesResponse {
   return Object.entries(response).reduce((sources, [entryKey, entryValue]) => {
-    if (
-      isNotABlockEntry<SocialComponentWithBlockHeight>(entryKey, entryValue)
-    ) {
-      const { [SOCIAL_COMPONENT_NAMESPACE]: component } = entryValue;
+    const { [SOCIAL_COMPONENT_NAMESPACE]: component } = entryValue;
 
-      if (
-        isNotABlockEntry<SocialWidgetWithBlockHeight>(
-          SOCIAL_COMPONENT_NAMESPACE,
-          component
-        )
-      ) {
-        Object.entries(component).forEach(([componentKey, componentValue]) => {
-          if (
-            isNotABlockEntry<ComponentEntryWithBlockHeight>(
-              componentKey,
-              componentValue
-            )
-          ) {
-            const sourceKey = `${entryKey}/${componentKey}`;
-            sources[sourceKey] = {
-              component: componentValue[''][''],
-              css: componentValue.css[''],
-              blockHeight: componentValue[BLOCK_HEIGHT_KEY],
-            };
-          }
-        });
-      }
-    }
+    Object.entries(component).forEach(([componentKey, componentValue]) => {
+      const sourceKey = `${entryKey}/${componentKey}`;
+      sources[sourceKey] = {
+        component: componentValue[''][''],
+        css: componentValue.css[''],
+        blockHeight: componentValue[BLOCK_HEIGHT_KEY],
+      };
+    });
 
     return sources;
   }, {} as ComponentSourcesResponse);
@@ -79,9 +51,24 @@ export async function fetchComponentSources({
 
     const response = (await social.get(
       socialGetParams
-    )) as SocialComponentsByAuthorWithBlockHeight;
+    )) as SocialComponentsByAuthor;
 
-    return prepareSourceWithBlockHeight(response);
+    const preparedResponse = Object.fromEntries(
+      Object.entries(response)
+        .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
+        .map(([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
+          author,
+          {
+            [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
+              Object.entries(componentEntry).filter(
+                ([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY
+              )
+            ),
+          },
+        ])
+    );
+
+    return prepareSourceWithBlockHeight(preparedResponse);
   }
 
   /**
@@ -108,79 +95,74 @@ export async function fetchComponentSources({
 
   const componentsByBlockHeightArr = Object.entries(componentsByBlockHeight);
 
-  const responsesWithBlockHeight: SocialComponentsByAuthorWithBlockHeight[] =
-    await Promise.all(
-      componentsByBlockHeightArr.map(async ([blockId, keys]) => {
-        const socialGetParams: SocialGetParams = {
-          keys,
-          blockId: Number(blockId),
-        };
+  const responsesWithBlockHeight = await Promise.all(
+    componentsByBlockHeightArr.map(async ([blockId, keys]) => {
+      const socialGetParams: SocialGetParams = {
+        keys,
+        blockId: Number(blockId),
+      };
 
-        socialGetParams.options = socialOptions;
+      socialGetParams.options = socialOptions;
 
-        const response = (await social.get(
-          socialGetParams
-        )) as SocialComponentsByAuthorWithBlockHeight;
+      const response = (await social.get(
+        socialGetParams
+      )) as SocialComponentsByAuthor;
 
-        if (!blockId) {
-          return response;
-        }
-
+      if (!blockId) {
         return Object.fromEntries(
-          Object.entries(response).map(([author, entryValue]) => {
-            if (author === BLOCK_HEIGHT_KEY) {
-              return [author, entryValue];
-            }
-            const { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry } =
-              entryValue as SocialComponentWithBlockHeight;
-            return [
-              author,
-              {
-                [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
-                  Object.entries(componentEntry).map(
-                    ([componentPath, componentSource]) => {
-                      if (componentPath === BLOCK_HEIGHT_KEY) {
-                        return [componentPath, componentSource];
-                      }
-                      return [`${componentPath}@${blockId}`, componentSource];
-                    }
-                  )
-                ),
-              },
-            ];
-          })
+          Object.entries(response)
+            .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
+            .map(
+              ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
+                author,
+                {
+                  [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
+                    Object.entries(componentEntry).filter(
+                      ([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY
+                    )
+                  ),
+                },
+              ]
+            )
         );
-      })
-    );
+      }
+
+      return Object.fromEntries(
+        Object.entries(response)
+          .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
+          .map(([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
+            author,
+            {
+              [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
+                Object.entries(componentEntry)
+                  .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
+                  .map(([componentPath, componentSource]) => [
+                    `${componentPath}@${blockId}`,
+                    componentSource,
+                  ])
+              ),
+            },
+          ])
+      );
+    })
+  );
 
   const aggregatedResponses = responsesWithBlockHeight.reduce(
     (accumulator, response) => {
-      Object.entries(response).forEach(([author, entryValue]) => {
-        if (isNotABlockEntry<SocialWidgetWithBlockHeight>(author, entryValue)) {
-          const { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry } = entryValue;
-          let currentAuthor = accumulator[
-            author
-          ] as SocialWidgetWithBlockHeight;
-          let currentAuthorPayload = currentAuthor?.[
-            SOCIAL_COMPONENT_NAMESPACE
-          ] as ComponentEntryWithBlockHeight;
-
-          if (currentAuthorPayload) {
-            (accumulator[author] as SocialWidgetWithBlockHeight)[
-              SOCIAL_COMPONENT_NAMESPACE
-            ] = {
-              ...currentAuthorPayload,
-              ...(componentEntry as ComponentEntryWithBlockHeight),
+      Object.entries(response).forEach(
+        ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => {
+          if (accumulator[author]?.[SOCIAL_COMPONENT_NAMESPACE]) {
+            accumulator[author][SOCIAL_COMPONENT_NAMESPACE] = {
+              ...accumulator[author][SOCIAL_COMPONENT_NAMESPACE],
+              ...componentEntry,
             };
           } else {
-            (accumulator[author] as SocialWidgetWithBlockHeight) = {
+            accumulator[author] = {
               [SOCIAL_COMPONENT_NAMESPACE]: componentEntry,
             };
           }
-        } else {
-          accumulator[author] = entryValue;
         }
-      });
+      );
 
       return accumulator;
     },

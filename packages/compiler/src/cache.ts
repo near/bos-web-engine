@@ -2,11 +2,11 @@ import { DBSchema, IDBPDatabase, openDB } from 'idb';
 
 import { ComponentCacheRecord } from './types';
 
-export const BOS_INDEX_DB = 'bosIndexedDB';
-const BOS_INDEX_DB_VERSION = 1;
+export const ROC_INDEX_DB = 'rocIndexedDB';
+const ROC_INDEX_DB_VERSION = 1;
 const COMPONENT_TREES_CACHE_STORE_NAME = 'componentTreesCache';
 
-interface BOSIndexDB extends DBSchema {
+interface ROCIndexDB extends DBSchema {
   [COMPONENT_TREES_CACHE_STORE_NAME]: {
     key: string;
     value: ComponentCacheRecord;
@@ -14,8 +14,8 @@ interface BOSIndexDB extends DBSchema {
   };
 }
 
-export async function initializeDB(): Promise<IDBPDatabase<BOSIndexDB>> {
-  const db = await openDB<BOSIndexDB>(BOS_INDEX_DB, BOS_INDEX_DB_VERSION, {
+export async function initializeDB(): Promise<IDBPDatabase<ROCIndexDB>> {
+  const db = await openDB<ROCIndexDB>(ROC_INDEX_DB, ROC_INDEX_DB_VERSION, {
     upgrade(db) {
       const store = db.createObjectStore(COMPONENT_TREES_CACHE_STORE_NAME, {
         keyPath: 'key',
