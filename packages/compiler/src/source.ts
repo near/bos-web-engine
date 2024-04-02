@@ -29,6 +29,25 @@ function prepareSourceWithBlockHeight(
   }, {} as ComponentSourcesResponse);
 }
 
+function extractObjectIdsFromResponse(
+  response: SocialComponentsByAuthor
+): SocialComponentsByAuthor {
+  return Object.fromEntries(
+    Object.entries(response)
+      .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
+      .map(([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
+        author,
+        {
+          [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
+            Object.entries(componentEntry).filter(
+              ([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY
+            )
+          ),
+        },
+      ])
+  );
+}
+
 export async function fetchComponentSources({
   social,
   componentPaths,
@@ -53,22 +72,7 @@ export async function fetchComponentSources({
       socialGetParams
     )) as SocialComponentsByAuthor;
 
-    const preparedResponse = Object.fromEntries(
-      Object.entries(response)
-        .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
-        .map(([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
-          author,
-          {
-            [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
-              Object.entries(componentEntry).filter(
-                ([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY
-              )
-            ),
-          },
-        ])
-    );
-
-    return prepareSourceWithBlockHeight(preparedResponse);
+    return prepareSourceWithBlockHeight(extractObjectIdsFromResponse(response));
   }
 
   /**
@@ -109,22 +113,7 @@ export async function fetchComponentSources({
       )) as SocialComponentsByAuthor;
 
       if (!blockId) {
-        return Object.fromEntries(
-          Object.entries(response)
-            .filter(([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY)
-            .map(
-              ([author, { [SOCIAL_COMPONENT_NAMESPACE]: componentEntry }]) => [
-                author,
-                {
-                  [SOCIAL_COMPONENT_NAMESPACE]: Object.fromEntries(
-                    Object.entries(componentEntry).filter(
-                      ([entryKey]) => entryKey !== BLOCK_HEIGHT_KEY
-                    )
-                  ),
-                },
-              ]
-            )
-        );
+        return extractObjectIdsFromResponse(response);
       }
 
       return Object.fromEntries(
