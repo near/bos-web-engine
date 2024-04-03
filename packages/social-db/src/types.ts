@@ -23,7 +23,15 @@ export type SocialSdkConstructorParams = {
   walletSelector?: WalletSelector | null;
 };
 
-export type SocialGetParams = (
+interface SocialGetOptions {
+  with_block_height?: boolean;
+  with_node_id?: boolean;
+  return_deleted?: boolean;
+}
+
+export type SocialGetParams = {
+  options?: SocialGetOptions;
+} & (
   | {
       key: string;
       keys?: never;

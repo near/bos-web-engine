@@ -70,6 +70,19 @@ export function Inspector() {
   const [showSmallScreenFileSelector, setShowSmallScreenFileSelector] =
     useState(false);
 
+  const handleClearCache = () => {
+    if (typeof indexedDB?.deleteDatabase === 'function') {
+      const req = indexedDB.deleteDatabase('rocIndexedDB');
+      req.onsuccess = () =>
+        console.warn('Database has been successfully deleted!');
+      req.onerror = () => console.error("Couldn't delete database!");
+      req.onblocked = () =>
+        console.warn(
+          "Couldn't delete database due to the operation being blocked!"
+        );
+    }
+  };
+
   if (!show) {
     return (
       <button
@@ -257,6 +270,22 @@ export function Inspector() {
                   });
                 }}
               />
+            </div>
+            <div className={s.flag}>
+              <label htmlFor="persistentCache">
+                Enable persistent component cache
+              </label>
+              <input
+                type="checkbox"
+                id="persistentCache"
+                checked={flags?.enablePersistentComponentCache}
+                onChange={(e) => {
+                  updateFlags({
+                    enablePersistentComponentCache: e.target.checked,
+                  });
+                }}
+              />
+              <button onClick={handleClearCache}>Clear cache</button>
             </div>
           </div>
         </Tabs.Content>

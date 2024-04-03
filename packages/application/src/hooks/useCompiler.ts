@@ -33,13 +33,18 @@ export function useCompiler({
     compiler.postMessage({
       action: 'init',
       localComponents,
-      enableBlockHeightVersioning: config?.flags?.enableBlockHeightVersioning,
+      features: {
+        enableBlockHeightVersioning: config?.flags?.enableBlockHeightVersioning,
+        enablePersistentComponentCache:
+          config?.flags?.enablePersistentComponentCache,
+      },
     });
   }, [
     compiler,
     localComponents,
     config?.flags?.bosLoaderUrl,
     config?.flags?.enableBlockHeightVersioning,
+    config?.flags?.enablePersistentComponentCache,
   ]);
 
   return compiler;

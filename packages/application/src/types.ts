@@ -147,4 +147,5 @@ export interface WebEngineFlags {
   bosLoaderUrl?: string;
   showContainerBoundaries?: boolean;
   enableBlockHeightVersioning?: boolean;
+  enablePersistentComponentCache?: boolean;
 }

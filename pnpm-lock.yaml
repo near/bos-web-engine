@@ -339,6 +339,9 @@ importers:
       '@bos-web-engine/wallet-selector-plugin':
         specifier: workspace:*
         version: link:../wallet-selector-plugin
+      idb:
+        specifier: ^8.0.0
+        version: 8.0.0
       lightningcss-wasm:
         specifier: ^1.24.1
         version: 1.24.1
@@ -9293,6 +9296,10 @@ packages:
       postcss: ^8.1.0
     dependencies:
       postcss: 8.4.33
+    dev: false
+
+  /idb@8.0.0:
+    resolution: {integrity: sha512-l//qvlAKGmQO31Qn7xdzagVPPaHTxXx199MhrAFuVBTPqydcPYBWjkrbv4Y0ktB+GmWOiwHl237UUOrLmQxLvw==}
     dev: false
 
   /ignore@4.0.6:

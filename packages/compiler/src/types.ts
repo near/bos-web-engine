@@ -1,4 +1,9 @@
 import type { BOSModule } from '@bos-web-engine/common';
+import type {
+  BLOCK_HEIGHT_KEY,
+  SOCIAL_COMPONENT_NAMESPACE,
+  SocialDb,
+} from '@bos-web-engine/social-db';
 
 export type ComponentCompilerRequest =
   | CompilerExecuteAction
@@ -11,10 +16,15 @@ export interface CompilerExecuteAction {
 
 export type LocalComponentMap = { [path: string]: BOSModule };
 
+export interface FeatureFlags {
+  enableBlockHeightVersioning?: boolean;
+  enablePersistentComponentCache?: boolean;
+}
+
 export interface CompilerInitAction {
   action: 'init';
   localComponents?: LocalComponentMap;
-  enableBlockHeightVersioning?: boolean;
+  features: FeatureFlags;
 }
 
 export interface ComponentCompilerResponse {
@@ -95,9 +105,50 @@ export interface ImportExpression {
 export interface ComponentEntry {
   '': string;
   css: string;
+  blockId?: number;
 }
 
 export interface ModuleExport {
   default: string;
   named: string[];
+}
+
+interface WithBlockHeight {
+  [BLOCK_HEIGHT_KEY]: number;
+}
+
+interface SourceWithBlockHeight extends WithBlockHeight {
+  '': string;
+}
+
+export interface ComponentEntryWithBlockHeight extends WithBlockHeight {
+  '': SourceWithBlockHeight;
+  css: SourceWithBlockHeight;
+}
+
+export interface SocialWidget {
+  [name: string]: ComponentEntryWithBlockHeight;
+}
+
+export interface SocialComponent {
+  [SOCIAL_COMPONENT_NAMESPACE]: SocialWidget;
+}
+
+export interface SocialComponentsByAuthor {
+  [author: string]: SocialComponent;
+}
+
+export type ComponentSourcesResponse = { [key: string]: BOSModule };
+
+export interface ComponentCacheRecord {
+  key: string;
+  componentSource: string;
+  containerStyles: string;
+  importedModules: Map<string, string>;
+}
+
+export interface FetchComponentSourcesParams {
+  social: SocialDb;
+  componentPaths: string[];
+  features: FeatureFlags;
 }
