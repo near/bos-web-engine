@@ -7,7 +7,10 @@ import {
 } from './cache';
 import { buildComponentSource } from './component';
 import { CssParser } from './css';
-import { buildModuleImports, buildModulePackageUrl } from './import';
+import {
+  buildContainerModuleImports,
+  buildModuleImportStatements,
+} from './import';
 import { fetchComponentSources } from './source';
 import { transpileSource } from './transpile';
 import type {
@@ -35,7 +38,6 @@ export class ComponentCompiler {
   private localComponents: Map<string, boolean>;
   private compiledSourceCache: Map<string, TranspiledCacheEntry | null>;
   private readonly sendWorkerMessage: SendMessageCallback;
-  private preactVersion?: string;
   private enableBlockHeightVersioning?: boolean;
   private enablePersistentComponentCache?: boolean;
   private social: SocialDb;
@@ -55,10 +57,8 @@ export class ComponentCompiler {
 
   init({
     localComponents,
-    preactVersion,
     features: { enableBlockHeightVersioning, enablePersistentComponentCache },
   }: CompilerInitAction) {
-    this.preactVersion = preactVersion;
     this.enableBlockHeightVersioning = enableBlockHeightVersioning;
     this.enablePersistentComponentCache = enablePersistentComponentCache;
 
@@ -288,10 +288,7 @@ export class ComponentCompiler {
 
     const isLocalComponent = this.localComponents.get(componentPath);
     const componentCacheKey = `${componentPathWithoutBlockHeight}@${moduleEntry?.blockHeight}`;
-    if (
-      this.enablePersistentComponentCache &&
-      !isLocalComponent
-    ) {
+    if (this.enablePersistentComponentCache && !isLocalComponent) {
       const retrievedData =
         await retrieveComponentTreeDetailFromCache(componentCacheKey);
       if (retrievedData) {
@@ -322,31 +319,10 @@ export class ComponentCompiler {
       .flat();
 
     // build the import map used by the container
-    const importedModules = containerModuleImports.reduce(
-      (importMap, { moduleName, modulePath }) => {
-        const importMapEntries = buildModulePackageUrl(
-          moduleName,
-          modulePath,
-          this.preactVersion!
-        );
-
-        if (!importMapEntries) {
-          return importMap;
-        }
-
-        const moduleEntry = importMap.get(moduleName);
-        if (moduleEntry) {
-          return importMap;
-        }
-
-        importMap.set(importMapEntries.moduleName, importMapEntries.url);
-        return importMap;
-      },
-      new Map<string, string>()
-    );
+    const importedModules = buildContainerModuleImports(containerModuleImports);
 
     const componentSource = [
-      ...buildModuleImports(containerModuleImports),
+      ...buildModuleImportStatements(containerModuleImports),
       ...[...transformedComponents.values()].map(
         ({ transpiled }) => transpiled
       ),

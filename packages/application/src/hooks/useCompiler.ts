@@ -12,7 +12,7 @@ export function useCompiler({
   config,
   localComponents,
 }: {
-  config: WebEngineConfiguration;
+  config?: WebEngineConfiguration;
   localComponents?: { [path: string]: BOSModule };
 }) {
   const [compiler, setCompiler] = useState<CompilerWorker | null>(null);
@@ -33,20 +33,18 @@ export function useCompiler({
     compiler.postMessage({
       action: 'init',
       localComponents,
-      preactVersion: config.preactVersion,
       features: {
-        enableBlockHeightVersioning: config.flags?.enableBlockHeightVersioning,
+        enableBlockHeightVersioning: config?.flags?.enableBlockHeightVersioning,
         enablePersistentComponentCache:
-          config.flags?.enablePersistentComponentCache,
+          config?.flags?.enablePersistentComponentCache,
       },
     });
   }, [
     compiler,
-    config.flags?.bosLoaderUrl,
-    config.preactVersion,
     localComponents,
-    config.flags?.enableBlockHeightVersioning,
-    config.flags?.enablePersistentComponentCache,
+    config?.flags?.bosLoaderUrl,
+    config?.flags?.enableBlockHeightVersioning,
+    config?.flags?.enablePersistentComponentCache,
   ]);
 
   return compiler;

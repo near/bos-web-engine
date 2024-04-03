@@ -24,7 +24,6 @@ export interface FeatureFlags {
 export interface CompilerInitAction {
   action: 'init';
   localComponents?: LocalComponentMap;
-  preactVersion: string;
   features: FeatureFlags;
 }
 

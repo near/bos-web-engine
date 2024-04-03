@@ -10,8 +10,6 @@ import { useEffect, useState } from 'react';
 import { useComponentSourcesStore } from '@/stores/component-sources';
 import { useContainerMessagesStore } from '@/stores/container-messages';
 
-const PREACT_VERSION = '10.17.1';
-
 interface WebEnginePropsVariantProps {
   account: AccountState | null;
   rootComponentPath: string;
@@ -33,7 +31,6 @@ export function WebEngine({
         showContainerBoundaries: flags?.showContainerBoundaries,
       },
       flags,
-      preactVersion: PREACT_VERSION,
       hooks: {
         containerSourceCompiled: ({ componentPath, rawSource }) =>
           addSource(componentPath, rawSource),
@@ -95,7 +92,6 @@ export function SandboxWebEngine({
         showContainerBoundaries: flags?.showContainerBoundaries,
       },
       flags,
-      preactVersion: PREACT_VERSION,
       hooks: {
         containerSourceCompiled: ({ componentPath, rawSource }) =>
           addSource(componentPath, rawSource),
