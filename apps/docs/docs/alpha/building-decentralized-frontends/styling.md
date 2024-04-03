@@ -6,7 +6,7 @@ sidebar_position: 2
 
 ## CSS Modules
 
-You can currently style BWE components with CSS modules. Each component has an associated CSS file which is saved on-chain alongside component source code.
+You can currently style RoC components with CSS modules. Each component has an associated CSS file which is saved on-chain alongside component source code.
 
 In the sandbox, a CSS module is created automatically for every component.
 
@@ -57,4 +57,4 @@ From the sandbox, use the search icon in left sidebar to pull up `webengine.near
 
 ## CSS-in-JS
 
-We have CSS-in-JS support [on our roadmap](https://github.com/near/bos-web-engine/issues/7), but it is not yet available.
+We have CSS-in-JS support [on our roadmap](https://github.com/near/react-on-chain/issues/7), but it is not yet available.

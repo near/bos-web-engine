@@ -8,21 +8,21 @@ sidebar_position: 3
 
 When importing npm packages, they are fetched in the user's browser from esm.sh, an npm package CDN.
 
-**This means that you can import npm packages directly in your BWE component without having to install them.**
+**This means that you can import npm packages directly in your RoC component without having to install them.**
 
-Note that not every npm package will function within the BWE environment
+Note that not every npm package will function within the RoC environment
 
 ### Supported Packages
 
 By default, `preact` and `react` (via `preact/compat`) are available via the container's `importmap`.
 
-The BWE team has a tracker [here](https://bos-web-engine.vercel.app/webengine.near/NPM.Tracker) which categorizes known compatibility of packages. Expect the list to grow over time.
+The RoC team has a tracker [here](https://roc.near.dev/webengine.near/NPM.Tracker) which categorizes known compatibility of packages. Expect the list to grow over time.
 
-If you have certain packages which you would like to use within BWE, please chime in on [this thread](https://github.com/near/bos-web-engine/discussions/166)
+If you have certain packages which you would like to use within RoC, please chime in on [this thread](https://github.com/near/react-on-chain/discussions/166)
 
 #### Expected Incompatibility
 
-Some packages are expected to not work within BWE due to its architecture and security model. Packages which rely on the following are expected to not work:
+Some packages are expected to not work within RoC due to its architecture and security model. Packages which rely on the following are expected to not work:
 
 - direct access to the `window` or `document` objects
 - usage of certain React hooks, in particular `useContext` and DOM manipulation via `useRef`
@@ -31,13 +31,13 @@ Some packages are expected to not work within BWE due to its architecture and se
 
 In general, external component libraries (e.g. Chakra UI) and state management libraries are not well-supported in the current version.
 
-## BWE Components
+## RoC Components
 
-Other BWE components can be imported and embedded within your component.
+Other RoC components can be imported and embedded within your component.
 
 ### Dedicated Import Syntax
 
-Any BWE Component can be imported using the following syntax
+Any RoC Component can be imported using the following syntax
 
 ```
 near://<account-id>/<Component>

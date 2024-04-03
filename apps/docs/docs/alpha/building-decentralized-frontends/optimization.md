@@ -8,7 +8,7 @@ The options presented here can lead to decreased security and should only be use
 
 ## Trust Mode
 
-The default trust model of BWE is to encourage risk-free composability by sandboxing all embedded BWE components by default. There are cases where this might not be necessary, such as:
+The default trust model of RoC is to encourage risk-free composability by sandboxing all embedded RoC components by default. There are cases where this might not be necessary, such as:
 - embedding your own components
 - embedding components from other developers you trust
 - embedding components you have audited for malicious behavior and are locked to a specific version

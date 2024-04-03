@@ -4,15 +4,15 @@ sidebar_position: 3
 
 # Build
 
-> Creating Decentralized Frontends and components w/ BOS Web Engine
+> Creating Decentralized Frontends and components w/ React on Chain
 
-A BWE component looks, for the most part, like a standard React component. There are some syntactical variations and essential enhancements to adapt seamlessly to the engine's framework.
+A RoC component looks, for the most part, like a standard React component. There are some syntactical variations and essential enhancements to adapt to the engine's architecture.
 
 ## Terms
 
 - **Outer Window Application (OWA)** - The application responsible for rendering Components and brokers messages between containers.
 
-- **Components** - The functions returning JSX to be rendered in BOS Web Engine. Their source is stored on chain in the SocialDB contract.
+- **Components** - The functions returning JSX to be rendered in React on Chain. Their source is stored on chain in the SocialDB contract.
 
 - **Root Component** - The top-level Component loaded by the outer application.
 

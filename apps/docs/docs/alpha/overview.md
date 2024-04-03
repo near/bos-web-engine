@@ -2,11 +2,11 @@
 sidebar_position: 2
 ---
 
-# BWE Overview
+# RoC Overview
 
-BOS Web Engine (BWE) is the next-gen decentralized frontend execution environment.
+React on Chain (RoC) is the next-gen decentralized frontend execution environment.
 
-BWE brings decentralized frontend development significantly closer to standard React development and provides enhanced, browser-backed security.
+RoC brings decentralized frontend development significantly closer to standard React development and provides enhanced, browser-backed security.
 
 Key Features:
 - Upgrades developer experience (TypeScript, improved debugging)
@@ -14,20 +14,16 @@ Key Features:
 - Performance optimization & tuning (configurable trust model)
 - Increased security guarantees using iframe sandboxing, removing the burden of code-level security rules
 
-:::note
-"BOS Web Engine" is a working title and will change before launch
-:::
-
 ## Example Component
 `Foo.tsx`
 ```tsx
 // import CSS module
 import s from './Foo.module.css';
 
-// import another BWE component
+// import another RoC component
 import Account from 'near://webengine.near/Account'
 
-// import a BWE component from the same account using a relative path
+// import a RoC component from the same account using a relative path
 import Post from './Post'
 
 type Props = {
