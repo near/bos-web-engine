@@ -1,7 +1,6 @@
 import {
   BLOCK_HEIGHT_KEY,
   SOCIAL_COMPONENT_NAMESPACE,
-  SocialGetParams,
 } from '@bos-web-engine/social-db';
 
 import {
@@ -29,7 +28,7 @@ function prepareSourceWithBlockHeight(
   }, {} as ComponentSourcesResponse);
 }
 
-function extractObjectIdsFromResponse(
+function parseComponentResponse(
   response: SocialComponentsByAuthor
 ): SocialComponentsByAuthor {
   return Object.fromEntries(
@@ -53,26 +52,19 @@ export async function fetchComponentSources({
   componentPaths,
   features,
 }: FetchComponentSourcesParams) {
-  const socialOptions = {
-    with_block_height: true,
-  };
-
   if (!features.enableBlockHeightVersioning) {
     const keys = componentPaths.map(
       (p) => p.split('/').join(`/${SOCIAL_COMPONENT_NAMESPACE}/`) + '/*'
     );
 
-    const socialGetParams: SocialGetParams = {
+    const response = (await social.get({
       keys,
-    };
+      options: {
+        with_block_height: true,
+      },
+    })) as SocialComponentsByAuthor;
 
-    socialGetParams.options = socialOptions;
-
-    const response = (await social.get(
-      socialGetParams
-    )) as SocialComponentsByAuthor;
-
-    return prepareSourceWithBlockHeight(extractObjectIdsFromResponse(response));
+    return prepareSourceWithBlockHeight(parseComponentResponse(response));
   }
 
   /**
@@ -101,19 +93,14 @@ export async function fetchComponentSources({
 
   const responsesWithBlockHeight = await Promise.all(
     componentsByBlockHeightArr.map(async ([blockId, keys]) => {
-      const socialGetParams: SocialGetParams = {
+      const response = (await social.get({
         keys,
+        options: { with_block_height: true },
         blockId: Number(blockId),
-      };
-
-      socialGetParams.options = socialOptions;
-
-      const response = (await social.get(
-        socialGetParams
-      )) as SocialComponentsByAuthor;
+      })) as SocialComponentsByAuthor;
 
       if (!blockId) {
-        return extractObjectIdsFromResponse(response);
+        return parseComponentResponse(response);
       }
 
       return Object.fromEntries(
