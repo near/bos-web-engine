@@ -58,10 +58,7 @@
   svg {
     fill: hsl(115, 42.6%, 46.5%);
   }
-}
-
-.loaderError {
-  svg {
+  svg[data-status='error'] {
     fill: hsl(0, 64%, 42%);
   }
 }

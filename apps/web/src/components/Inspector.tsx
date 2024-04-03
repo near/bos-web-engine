@@ -10,7 +10,7 @@ import { Messaging } from '@/components/Messaging';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useComponentSourcesStore } from '@/stores/component-sources';
 import { useContainerMessagesStore } from '@/stores/container-messages';
-import { useFlagsStore } from '@/stores/flags';
+import { useDevToolsStore } from '@/stores/dev-tools';
 import { usePortalStore } from '@/stores/portal';
 
 export function Inspector() {
@@ -56,8 +56,8 @@ export function Inspector() {
     }
   }, [sortedSources, selectedComponent]);
 
-  const flags = useFlagsStore((state) => state.flags);
-  const updateFlags = useFlagsStore((state) => state.updateFlags);
+  const flags = useDevToolsStore((state) => state.flags);
+  const updateFlags = useDevToolsStore((state) => state.updateFlags);
 
   const [inputBosLoaderUrl, setInputBosLoaderUrl] = useState(
     flags?.bosLoaderUrl || ''
