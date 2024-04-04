@@ -58,3 +58,9 @@
   right: -0.325rem;
   border-radius: 100%;
 }
+
+.localDeleteConfirmation {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

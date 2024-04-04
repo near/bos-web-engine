@@ -1,4 +1,10 @@
-import { NearIconSvg, Tooltip, useTheme } from '@bos-web-engine/ui';
+import {
+  Button,
+  Dialog,
+  NearIconSvg,
+  Tooltip,
+  useTheme,
+} from '@bos-web-engine/ui';
 import {
   Plus,
   Code,
@@ -12,6 +18,7 @@ import {
   Moon,
   MagnifyingGlass,
 } from '@phosphor-icons/react';
+import { useState } from 'react';
 
 import { GitHubIconSvg } from './GitHubIconSvg';
 import s from './SidebarActions.module.css';
@@ -37,6 +44,8 @@ export function SidebarActions({ showFileOpener }: Props) {
   );
   const { modifiedFilePaths } = useModifiedFiles();
   const { theme, setTheme } = useTheme();
+
+  const [localDeleteIsOpen, setLocalDeleteIsOpen] = useState(false);
 
   const formatCode = () => {
     const actionName = 'editor.action.formatDocument';
@@ -211,10 +220,40 @@ export function SidebarActions({ showFileOpener }: Props) {
           side="right"
           container={containerElement}
         >
-          <button className={s.action} type="button" onClick={resetAllFiles}>
+          <button
+            className={s.action}
+            type="button"
+            onClick={() => setLocalDeleteIsOpen(true)}
+          >
             <FileX />
           </button>
         </Tooltip>
+
+        <Dialog.Root
+          open={localDeleteIsOpen}
+          onOpenChange={setLocalDeleteIsOpen}
+        >
+          <Dialog.Portal container={containerElement}>
+            <Dialog.Content anchor="center" size="m">
+              <div className={s.localDeleteConfirmation}>
+                <h2>Delete local components and reinitialize examples</h2>
+                <p>
+                  Any components in the editor which have not been published
+                  will be lost. Would you like to proceed?
+                </p>
+                <Button
+                  style={{ alignSelf: 'flex-end' }}
+                  onClick={() => {
+                    setLocalDeleteIsOpen(false);
+                    resetAllFiles();
+                  }}
+                >
+                  Yes
+                </Button>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
 
         {theme === 'dark' ? (
           <Tooltip
