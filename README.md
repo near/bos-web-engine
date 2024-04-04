@@ -17,25 +17,11 @@ Examples of other impactful features we plan to research:
 
 For a more detailed breakdown of the work, see [issues labeled with `Epic`](https://github.com/near/bos-web-engine/issues?q=is:open+is:issue+label:Epic)
 
-For a more comprehensive overview of our vision for the project, see our [Press Release / FAQ](./press-release-faq.md) document.
+## More Info
 
-## Solution Architecture
-
-BWE works by executing Component source code in hidden iframes, sandboxed to enforce isolation between Components as well as the application running in the outer window. Those iframes emit render events with the DOM produced, which is then displayed on the page by the outer window application
-
-See [architecture.md](./architecture.md) for more details
-
-### Writing Components
-See [components.md](./components.md) for details on the syntax and patterns necessary for writing BWE compatible components
-
-## Discussion
-This project leverages [GitHub Discussions](https://github.com/near/bos-web-engine/discussions) for decision making, Q&A, implementation discussion between contributors, and more. 
+See our [docs](https://roc-docs.near.dev)!
 
 ## FAQ
-
-### When will BWE be production ready?
-
-At this point, we are focused on communicating progress and do not have an estimate on a date when BWE will be production ready. Updates will be posted to BOS social feeds from the Pagoda account.
 
 ### Will BWE be backwards compatible with existing VM components?
 
@@ -47,3 +33,5 @@ Our primary goal is to build the most capable engine to support complex dapps fo
 
 While the process to convert an existing React codebase to run on BWE will be significantly easier than the previous VM, there will still be some syntax and architecture changes which must be handled manually.
 
+### Other Questions
+See our full FAQ [here](https://roc-docs.near.dev/alpha/FAQ)
