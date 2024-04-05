@@ -27,7 +27,7 @@ export interface PostMessageParams {
 export interface ComponentCallbackInvocation extends PostMessageParams {
   args: SerializedArgs;
   method: string;
-  originator: string;
+  containerId: string;
   requestId: string;
   targetId: string | null;
   type: ComponentCallbackInvocationType;
@@ -43,7 +43,7 @@ export interface ComponentCallbackResponse extends PostMessageParams {
 
 export interface ComponentRender extends PostMessageParams {
   childComponents: ComponentChildMetadata[];
-  componentId: string;
+  containerId: string;
   node: SerializedNode;
   trust: ComponentTrust;
   type: ComponentRenderType;
@@ -62,9 +62,13 @@ export interface DomCallback {
   type: ComponentDomCallbackType;
 }
 
-export type MessagePayload =
+// payloads sent by the application to a container
+export type ApplicationPayload = ComponentUpdate | DomCallback;
+
+// payloads sent by a container to the application
+export type ContainerPayload =
   | ComponentCallbackInvocation
   | ComponentCallbackResponse
-  | DomCallback
-  | ComponentRender
-  | ComponentUpdate;
+  | ComponentRender;
+
+export type MessagePayload = ApplicationPayload | ContainerPayload;

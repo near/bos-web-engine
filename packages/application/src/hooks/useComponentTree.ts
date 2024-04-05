@@ -1,4 +1,4 @@
-import type { MessagePayload } from '@bos-web-engine/common';
+import type { ContainerPayload } from '@bos-web-engine/common';
 import type { ComponentCompilerRequest } from '@bos-web-engine/compiler';
 import { useSocial } from '@bos-web-engine/social-db';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
@@ -100,17 +100,28 @@ export function useComponentTree({
   );
 
   const processMessage = useCallback(
-    (event: MessageEvent<MessagePayload>) => {
+    (event: MessageEvent<ContainerPayload>) => {
       try {
-        if (typeof event.data !== 'object') {
+        if (
+          typeof event.data !== 'object' ||
+          !event.data?.type?.startsWith('component.')
+        ) {
           return;
         }
 
         const { data } = event;
-        if (data.type) {
-          // @ts-expect-error
-          const fromComponent = data.componentId || data.originator;
-          hooks?.messageReceived?.({ fromComponent, message: data });
+        hooks?.messageReceived?.({
+          fromComponent: data.containerId,
+          message: data,
+        });
+
+        const sourceIframe = document.getElementById(
+          `iframe-${data.containerId}`
+        ) as HTMLIFrameElement;
+
+        if (sourceIframe?.contentWindow !== event.source) {
+          // this message came from a different iframe than the one specified in the message payload
+          return;
         }
 
         const onMessageSent = ({ toComponent, message }: BWEMessage) =>
@@ -122,7 +133,7 @@ export function useComponentTree({
             if (data.targetId === null) {
               return onApplicationMethodInvocation({
                 args: data.args,
-                componentId: data.originator,
+                componentId: data.containerId,
                 method: data.method,
                 onMessageSent,
                 requestId: data.requestId,
@@ -139,18 +150,22 @@ export function useComponentTree({
             break;
           }
           case 'component.render': {
+            const { childComponents, containerId, node } = data;
+
             onRender({
-              data,
+              childComponents,
+              containerId,
               debug,
+              getContainerRenderCount: getComponentRenderCount,
+              isComponentLoaded: (c: string) => !!components[c],
+              loadComponent: (component) =>
+                loadComponent(component.componentId, component),
               mountElement: ({ componentId, element }) => {
                 hooks?.componentRendered?.(componentId);
                 mountElement({ componentId, element, id: data.node.props?.id });
               },
-              loadComponent: (component) =>
-                loadComponent(component.componentId, component),
-              isComponentLoaded: (c: string) => !!components[c],
+              node,
               onMessageSent,
-              getContainerRenderCount: getComponentRenderCount,
             });
             break;
           }
