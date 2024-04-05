@@ -91,7 +91,7 @@ export function buildEventHandler({
 
     switch (event.data.type) {
       case 'component.callbackInvocation': {
-        let { args, method, originator, requestId } = event.data;
+        let { args, containerId, method, requestId } = event.data;
         try {
           result = invokeCallbackFromEvent({ args, method });
         } catch (e: any) {
@@ -113,7 +113,7 @@ export function buildEventHandler({
               containerId,
               requestId,
               result: value,
-              targetId: originator,
+              targetId: containerId,
             });
           }
         };

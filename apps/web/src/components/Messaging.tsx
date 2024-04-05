@@ -90,7 +90,7 @@ const buildMessageSummary = (params: BWEMessage): ComponentMessage | null => {
         message,
         isFromComponent,
         name: 'render',
-        componentId: parseComponentId(message.componentId)!,
+        componentId: parseComponentId(message.containerId)!,
         summary: `rendered <${type} ${formatProps(props, true).slice(
           0,
           64
@@ -106,7 +106,7 @@ const buildMessageSummary = (params: BWEMessage): ComponentMessage | null => {
         message,
         isFromComponent,
         name: 'invoke',
-        componentId: parseComponentId(message.originator)!,
+        componentId: parseComponentId(message.containerId)!,
         summary: `[${requestId.split('-')[0]}] called ${targetComponent}.${
           method.split('::')[0]
         }(${args})${isFromComponent ? '' : ' for'}`,
