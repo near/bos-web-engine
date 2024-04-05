@@ -66,8 +66,8 @@ function buildSandboxedComponent({
               },
               context: {
                 Component,
-                componentId: '${id}',
                 componentPropsJson: ${componentPropsJson},
+                containerId: '${id}',
                 Fragment: __Preact.Fragment,
                 parentContainerId: '${parentContainerId}',
                 trust: ${JSON.stringify(trust)},

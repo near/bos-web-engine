@@ -90,13 +90,13 @@ export function onCallbackInvocation({
     a component has invoked a callback passed to it as props by its parent component
     post a component callback message to the parent iframe
   */
-  const { args, method, originator, requestId, targetId } = data;
+  const { args, containerId, method, requestId, targetId } = data;
   sendMessage({
     componentId: targetId!,
     message: {
       args,
       method,
-      originator,
+      containerId,
       requestId,
       targetId,
       type: 'component.callbackInvocation',
@@ -134,23 +134,37 @@ interface ChildComponent {
   trust: ComponentTrust;
 }
 
+/**
+ * A component has been rendered, update it in the outer window
+ * TODO make a distinction between container-level renders and Component (e.g. trusted) renders
+ *  currently containerId may refer to a Component, trusted or internally-defined, within a container
+ * @param containerId originating container
+ * @param childComponents set of child Components to be loaded dynamically
+ * @param debug debug configuration
+ * @param mountElement callback to mount the rendered element
+ * @param isComponentLoaded callback to determine whether a child Component is available or needs to be loaded
+ * @param loadComponent callback to fetch and compile child Component source
+ * @param getContainerRenderCount callback to get the number of times this Component has been rendered
+ * @param node serialized React node of the updated Component
+ * @param onMessageSent callback to be invoked when this Component's DOM posts a message to its container
+ */
 export function onRender({
-  data,
+  containerId,
+  childComponents,
   debug,
   mountElement,
   isComponentLoaded,
   loadComponent,
   getContainerRenderCount,
+  node,
   onMessageSent,
 }: RenderHandlerParams) {
-  /* a component has been rendered and is ready to be updated in the outer window */
-  const { componentId, childComponents, node } = data;
   const { children, ...props } = node?.props || { children: [] };
 
   const componentChildren = createChildElements({
     children,
     depth: 0,
-    parentId: componentId,
+    parentId: containerId,
     onMessageSent,
   });
   const element = createElement({
@@ -159,19 +173,19 @@ export function onRender({
         ? [
             React.createElement('div', { className: 'dom-label' }, [
               `[${
-                componentId.split('##')[0].split('/')[1]
-              } (${getContainerRenderCount(componentId)})]`,
+                containerId.split('##')[0].split('/')[1]
+              } (${getContainerRenderCount(containerId)})]`,
             ]),
           ]
         : []),
       ...[componentChildren].flat(),
     ],
-    id: componentId,
+    id: containerId,
     props,
     type: node.type,
     onMessageSent,
   });
-  mountElement({ componentId, element });
+  mountElement({ componentId: containerId, element });
 
   childComponents.forEach(
     ({
@@ -191,7 +205,7 @@ export function onRender({
           componentId: childComponentId,
           componentPath: source,
           trust,
-          parentId: componentId,
+          parentId: containerId,
           props: componentProps,
           renderCount: 0,
         });

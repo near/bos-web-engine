@@ -44,7 +44,7 @@ export function composeMessagingMethods() {
     postMessage<ComponentCallbackInvocation>({
       args: serializeArgs({ args, callbacks, containerId }),
       method,
-      originator: containerId,
+      containerId,
       requestId,
       targetId,
       type: 'component.callbackInvocation',
@@ -75,13 +75,13 @@ export function composeMessagingMethods() {
 
   function postComponentRenderMessage({
     childComponents,
-    componentId,
+    containerId,
     node,
     trust,
   }: PostMessageComponentRenderParams): void {
     postMessage<ComponentRender>({
       childComponents,
-      componentId,
+      containerId,
       node,
       trust,
       type: 'component.render',

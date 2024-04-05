@@ -18,8 +18,8 @@ export function initContainer({
   },
   context: {
     Component,
-    componentId,
     componentPropsJson,
+    containerId,
     Fragment,
     parentContainerId,
     trust,
@@ -51,7 +51,7 @@ export function initContainer({
     });
 
   const { commit } = composeRenderMethods({
-    componentId,
+    containerId,
     isComponent: (c) => c === Component,
     isExternalComponent: (c) => !('isRootContainerComponent' in c),
     isFragment: (c) => c === Fragment,
@@ -74,7 +74,7 @@ export function initContainer({
 
   const processEvent = buildEventHandler({
     callbacks,
-    containerId: componentId,
+    containerId,
     deserializeArgs,
     deserializeProps,
     initExternalCallbackInvocation,
@@ -96,14 +96,14 @@ export function initContainer({
         if (!updatedProps.bwe) {
           updatedProps.bwe = {};
         }
-        updatedProps.bwe.componentId = componentId;
+        updatedProps.bwe.componentId = containerId;
 
         return updatedProps;
       }),
   });
 
   const deserializedProps = deserializeProps({
-    containerId: componentId,
+    containerId,
     props: componentPropsJson,
   });
 
@@ -111,7 +111,7 @@ export function initContainer({
     ...deserializedProps,
     bwe: {
       ...deserializedProps,
-      componentId,
+      componentId: containerId,
     },
   };
 
@@ -120,7 +120,7 @@ export function initContainer({
       return invokeApplicationCallback({
         args,
         callbacks,
-        containerId: componentId,
+        containerId,
         initExternalCallbackInvocation,
         invokeInternalCallback,
         method,

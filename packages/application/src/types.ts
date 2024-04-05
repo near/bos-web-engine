@@ -2,10 +2,11 @@ import type {
   BOSModule,
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
-  ComponentRender,
+  ComponentChildMetadata,
   ComponentTrust,
   MessagePayload,
   SerializedArgs,
+  SerializedNode,
 } from '@bos-web-engine/common';
 import type {
   ComponentCompilerRequest,
@@ -50,7 +51,8 @@ export interface ComponentMetrics {
 }
 
 export interface RenderHandlerParams {
-  data: ComponentRender;
+  childComponents: ComponentChildMetadata[];
+  containerId: string;
   debug?: WebEngineDebug;
   mountElement: ({
     componentId,
@@ -62,6 +64,7 @@ export interface RenderHandlerParams {
   isComponentLoaded(componentId: string): boolean;
   loadComponent(component: ComponentInstance): void;
   getContainerRenderCount(containerId: string): number;
+  node: SerializedNode;
   onMessageSent: OnMessageSentCallback;
 }
 

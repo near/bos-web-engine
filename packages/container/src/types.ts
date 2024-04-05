@@ -80,7 +80,7 @@ export type PostMessageComponentRenderCallback = (
 ) => void;
 export interface PostMessageComponentRenderParams {
   childComponents: ComponentChildMetadata[];
-  componentId: string;
+  containerId: string;
   node: SerializedNode;
   trust: ComponentTrust;
 }
@@ -90,7 +90,7 @@ export interface ContainerComponent extends FunctionComponent {
 }
 
 interface ComposeRenderMethodsParams {
-  componentId: string;
+  containerId: string;
   isComponent: (component: Function) => boolean;
   isExternalComponent: (component: ContainerComponent) => boolean;
   isFragment: (component: Function) => boolean;
@@ -167,8 +167,8 @@ export interface InitContainerParams {
   context: {
     BWEComponent: FunctionComponent;
     Component: Function;
-    componentId: string;
     componentPropsJson: object;
+    containerId: string;
     createElement: PreactCreateElement;
     Fragment: FunctionComponent;
     parentContainerId: string | null;

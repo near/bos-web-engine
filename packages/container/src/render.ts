@@ -16,7 +16,7 @@ interface RenderedVNode extends VNode<any> {
 type DispatchRenderCallback = (vnode: VNode) => void;
 
 export const composeRenderMethods: ComposeRenderMethodsCallback = ({
-  componentId,
+  containerId,
   isExternalComponent,
   isRootComponent,
   isComponent,
@@ -29,7 +29,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     const serializedNode = serializeNode({
       node: node as Node,
       childComponents: [],
-      parentId: componentId,
+      parentId: containerId,
     });
 
     if (!serializedNode?.type) {
@@ -42,12 +42,12 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     try {
       postComponentRenderMessage({
         childComponents: childComponents || [],
-        componentId,
+        containerId,
         node: serializedNode,
         trust,
       });
     } catch (error) {
-      console.warn(`failed to dispatch render for ${componentId}`, {
+      console.warn(`failed to dispatch render for ${containerId}`, {
         error,
         serializedNode,
       });
