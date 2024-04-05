@@ -110,10 +110,18 @@ export function useComponentTree({
         }
 
         const { data } = event;
-        if (data.type) {
-          // @ts-expect-error
-          const fromComponent = data.componentId || data.originator;
-          hooks?.messageReceived?.({ fromComponent, message: data });
+        hooks?.messageReceived?.({
+          fromComponent: data.containerId,
+          message: data,
+        });
+
+        const sourceIframe = document.getElementById(
+          `iframe-${data.containerId}`
+        ) as HTMLIFrameElement;
+
+        if (sourceIframe?.contentWindow !== event.source) {
+          // this message came from a different iframe than the one specified in the message payload
+          return;
         }
 
         const onMessageSent = ({ toComponent, message }: BWEMessage) =>
