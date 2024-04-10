@@ -264,7 +264,7 @@ const aggregateModuleImports = (imports: ImportExpression[]): ImportsByType => {
  * @param modulePath module import path
  * @param references set of destructured references for tree shaking
  */
-export const buildModulePackageUrl = ({
+const buildModulePackageUrl = ({
   moduleName,
   modulePath,
   references,
