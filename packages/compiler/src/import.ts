@@ -262,10 +262,12 @@ const aggregateModuleImports = (imports: ImportExpression[]): ImportsByType => {
  * Build the importmap URL based on package name/URL
  * @param moduleName module name specified in the import statement
  * @param modulePath module import path
+ * @param references set of destructured references for tree shaking
  */
 export const buildModulePackageUrl = (
   moduleName: string,
-  modulePath: string
+  modulePath: string,
+  references: string[]
 ) => {
   if (modulePath.startsWith('https://')) {
     return {
@@ -274,9 +276,20 @@ export const buildModulePackageUrl = (
     };
   }
 
+  const queryStringParams = new Map([
+    ['alias', 'react:preact/compat'],
+    ['external', 'preact'],
+  ]);
+
+  if (references.length) {
+    queryStringParams.set('exports', references.join(','));
+  }
+
   return {
     moduleName,
-    url: `https://esm.sh/${moduleName}?alias=react:preact/compat&external=preact`,
+    url: `https://esm.sh/${moduleName}?${[...queryStringParams.entries()]
+      .map((entry) => entry.join('='))
+      .join('&')}`,
   };
 };
 
@@ -288,8 +301,18 @@ export const buildContainerModuleImports = (
   containerModuleImports: ModuleImport[]
 ) => {
   const importedModules = containerModuleImports.reduce(
-    (importMap, { moduleName, modulePath }) => {
-      const importMapEntries = buildModulePackageUrl(moduleName, modulePath);
+    (importMap, { moduleName, modulePath, imports }) => {
+      const destructuredReferences = imports
+        .filter(({ isDestructured }) => isDestructured)
+        .map(({ reference }) => reference!);
+
+      const importMapEntries = buildModulePackageUrl(
+        moduleName,
+        modulePath,
+        destructuredReferences.length === imports.length
+          ? destructuredReferences
+          : []
+      );
 
       if (!importMapEntries) {
         return importMap;
