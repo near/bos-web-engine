@@ -264,11 +264,15 @@ const aggregateModuleImports = (imports: ImportExpression[]): ImportsByType => {
  * @param modulePath module import path
  * @param references set of destructured references for tree shaking
  */
-export const buildModulePackageUrl = (
-  moduleName: string,
-  modulePath: string,
-  references: string[]
-) => {
+export const buildModulePackageUrl = ({
+  moduleName,
+  modulePath,
+  references,
+}: {
+  moduleName: string;
+  modulePath: string;
+  references: string[];
+}) => {
   if (modulePath.startsWith('https://')) {
     return {
       moduleName,
@@ -306,13 +310,14 @@ export const buildContainerModuleImports = (
         .filter(({ isDestructured }) => isDestructured)
         .map(({ reference }) => reference!);
 
-      const importMapEntries = buildModulePackageUrl(
+      const importMapEntries = buildModulePackageUrl({
         moduleName,
         modulePath,
-        destructuredReferences.length === imports.length
-          ? destructuredReferences
-          : []
-      );
+        references:
+          destructuredReferences.length === imports.length
+            ? destructuredReferences
+            : [],
+      });
 
       if (!importMapEntries) {
         return importMap;
