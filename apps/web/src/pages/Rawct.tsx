@@ -28,31 +28,6 @@ const srcDoc = `
       
       const theme = extendTheme({ colors });
 
-      function StyledComponent() {
-        return h(Fragment, null, [
-          h(Box, { m: 122, pb: 4, bgColor: 'brand.700' }, 'hi!'),
-          h(PhoneIcon, null),
-        ]);
-      }
-      
-      function Tabbs() {
-        return h(Tabs, null, [
-          h(TabList, null, [
-            h(Tab, null, h(PhoneIcon, null)),
-            h(Tab, null, h(Horse, null)),
-          ]),
-          h(TabPanels, null, [
-            h(TabPanel, null, h(PhoneIcon, null)),
-            h(TabPanel, null, h(PhoneIcon, null)),
-          ]),
-        ]);
-      }
-
-      function Stateful() {
-        const [value, setValue] = useState(0);
-        return h('button', { onClick: () => { console.log(value);setValue((v) => v + 1);} }, value)
-      }
-
       function Chakra() {
         return h(ChakraProvider, null, h(CircularProgress, { value: 30, size: '120px' }));
       }
