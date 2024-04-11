@@ -145,6 +145,26 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       ].join('::');
 
     /**
+     * Mark kebab keys as duplicates when they exist as camel cased on props
+     * TODO find where do these come from
+     * @param key props key
+     * @param props Component props
+     */
+    const isDuplicateKey = (key: string, props: any) => {
+      return (
+        key
+          .split('-')
+          .reduce(
+            (propKey, word, i) =>
+              `${propKey}${
+                i ? `${word[0].toUpperCase()}${word.slice(1)}` : word
+              }`,
+            ''
+          ) in props
+      );
+    };
+
+    /**
      * Serialize props of a child Component to be rendered in the outer application
      * @param containerId Component's parent container
      * @param props The props for this container's Component
@@ -156,9 +176,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
     }) => {
       return Object.entries(props).reduce(
         (newProps, [key, value]: [string, any]) => {
-          // TODO remove invalid props keys at the source
-          //  (probably JSX transpilation)
-          if (key === 'class' || key.includes('-')) {
+          if (key === 'class' || isDuplicateKey(key, props)) {
             return newProps;
           }
 
