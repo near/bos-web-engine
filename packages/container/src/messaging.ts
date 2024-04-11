@@ -2,14 +2,17 @@ import type {
   ComponentCallbackInvocation,
   ComponentCallbackResponse,
   ComponentRender,
+  DomMethodInvocation,
   PostMessageParams,
 } from '@bos-web-engine/common';
 
 import type {
   CallbackRequest,
+  ComposeMessagingMethodsCallback,
   PostMessageComponentCallbackInvocationParams,
   PostMessageComponentCallbackResponseParams,
   PostMessageComponentRenderParams,
+  PostMessageDomMethodInvocationParams,
 } from './types';
 
 export function buildRequest(): CallbackRequest {
@@ -27,7 +30,7 @@ export function buildRequest(): CallbackRequest {
   };
 }
 
-export function composeMessagingMethods() {
+export const composeMessagingMethods: ComposeMessagingMethodsCallback = () => {
   function postMessage<T extends PostMessageParams>(message: T) {
     window.parent.postMessage(message, '*');
   }
@@ -88,9 +91,25 @@ export function composeMessagingMethods() {
     });
   }
 
+  function postDomMethodInvocationMessage({
+    args,
+    containerId,
+    id,
+    method,
+  }: PostMessageDomMethodInvocationParams): void {
+    postMessage<DomMethodInvocation>({
+      args,
+      containerId,
+      id,
+      method,
+      type: 'component.domMethodInvocation',
+    });
+  }
+
   return {
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     postComponentRenderMessage,
+    postDomMethodInvocationMessage,
   };
-}
+};

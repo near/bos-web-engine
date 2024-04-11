@@ -39,6 +39,7 @@ export function initContainer({
     postCallbackInvocationMessage,
     postCallbackResponseMessage,
     postComponentRenderMessage,
+    postDomMethodInvocationMessage,
   } = composeMessagingMethods();
 
   const { deserializeArgs, deserializeProps, serializeArgs, serializeNode } =
@@ -57,6 +58,7 @@ export function initContainer({
     isFragment: (c) => c === Fragment,
     isRootComponent: (c) => !!c?.isRootContainerComponent,
     postComponentRenderMessage,
+    postDomMethodInvocationMessage,
     serializeNode,
     trust,
   });
