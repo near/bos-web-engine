@@ -2,7 +2,13 @@ import type { ContainerPayload } from '@bos-web-engine/common';
 import type { ComponentCompilerRequest } from '@bos-web-engine/compiler';
 import { useSocial } from '@bos-web-engine/social-db';
 import { useWallet } from '@bos-web-engine/wallet-selector-control';
-import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react';
+import React, {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { getAppDomId } from '../container';
@@ -54,6 +60,7 @@ export function useComponentTree({
   const domRoots: MutableRefObject<{ [key: string]: ReactDOM.Root }> = useRef(
     {}
   );
+  const [rendered, setRendered] = useState(false);
 
   const loadComponent = useCallback(
     (componentId: string, component: any) => {
@@ -151,6 +158,10 @@ export function useComponentTree({
           }
           case 'component.render': {
             const { childComponents, containerId, node } = data;
+
+            if (node.props.appendToParentPortal) {
+              return;
+            }
 
             onRender({
               childComponents,

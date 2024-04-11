@@ -17,15 +17,17 @@ const secureCreateElement = (
   }
 
   const sanitizedProps = Object.fromEntries(
-    Object.entries(props).filter(([, value]) => {
+    Object.entries(props).reduce((entries: [string, string], [key, value]) => {
       if (typeof value === 'string') {
         if (value.trim().startsWith('javascript:')) {
-          return false;
+          return entries;
         }
+      } else if (value && typeof value === 'object') {
+        entries.push([key, JSON.stringify(value)]);
       }
 
-      return true;
-    })
+      return entries;
+    }, [])
   );
 
   return React.createElement(type, sanitizedProps, ...children);

@@ -227,8 +227,8 @@ export const buildComponentImportStatements = (
     if (isPlugin) {
       statements.push(`const { ${destructuredStatements} } = ${defaultAlias};`);
     }
-  } else {
-    throw new Error(`Invalid import for module ${moduleName}`);
+    // } else {
+    //   throw new Error(`Invalid import for module ${moduleName}`);
   }
 
   return statements;

@@ -105,6 +105,7 @@ ${scriptSrc}
 
           __Preact.render(__Preact.createElement(BWEComponent, window.webEngine.container.props), document.body);
         </script>
+        <div id="__roc-root"></div>
       </body>
     </html>
   `;
@@ -138,6 +139,7 @@ export function SandboxedIframe({
         'img-src * data:',
         "script-src 'unsafe-inline' 'unsafe-eval'",
         "script-src-elem https://cdn.jsdelivr.net https://esm.sh http://localhost http://localhost:3001 'unsafe-inline'",
+        "style-src 'unsafe-inline'",
         '',
       ].join('; ')}
       height={0}

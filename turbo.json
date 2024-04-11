@@ -16,11 +16,17 @@
     "dev": {
       "cache": false
     },
+    "deve": {
+      "cache": false
+    },
     "lint:check": {
       "outputs": []
     },
     "format:check": {
       "outputs": []
+    },
+    "serve": {
+      "cache": false
     }
   }
 }
