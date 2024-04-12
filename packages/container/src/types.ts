@@ -113,6 +113,7 @@ interface ComposeRenderMethodsParams {
   isRootComponent: (component: ContainerComponent) => boolean;
   postComponentRenderMessage: PostMessageComponentRenderCallback;
   postDomMethodInvocationMessage: PostDomMethodInvocationCallback;
+  serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
   trust: ComponentTrust;
 }

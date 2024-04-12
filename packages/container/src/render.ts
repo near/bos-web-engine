@@ -24,6 +24,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
   isFragment,
   postComponentRenderMessage,
   postDomMethodInvocationMessage,
+  serializeArgs,
   serializeNode,
   trust,
 }) => {
@@ -109,7 +110,7 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
           // posts a DOM method invocation message to the outer application
           function intercepted(...args: any[]) {
             postDomMethodInvocationMessage({
-              args,
+              args: serializeArgs({ args, containerId }),
               containerId,
               id,
               method: p as string,

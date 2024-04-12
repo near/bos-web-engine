@@ -59,6 +59,7 @@ export function initContainer({
     isRootComponent: (c) => !!c?.isRootContainerComponent,
     postComponentRenderMessage,
     postDomMethodInvocationMessage,
+    serializeArgs,
     serializeNode,
     trust,
   });
