@@ -34,7 +34,6 @@ export function composeMessagingMethods() {
 
   function postCallbackInvocationMessage({
     args,
-    callbacks,
     containerId,
     method,
     requestId,
@@ -42,7 +41,7 @@ export function composeMessagingMethods() {
     targetId,
   }: PostMessageComponentCallbackInvocationParams): void {
     postMessage<ComponentCallbackInvocation>({
-      args: serializeArgs({ args, callbacks, containerId }),
+      args: serializeArgs({ args, containerId }),
       method,
       containerId,
       requestId,

@@ -56,7 +56,6 @@ export type PostMessageComponentInvocationCallback = (
 
 export interface PostMessageComponentCallbackInvocationParams {
   args: any[];
-  callbacks: CallbackMap;
   containerId: string;
   method: string;
   requestId: string;
@@ -183,7 +182,6 @@ export type SerializeArgsCallback = (
 ) => SerializedArgs;
 export interface SerializeArgsParams {
   args: any[];
-  callbacks: CallbackMap;
   containerId: string;
 }
 

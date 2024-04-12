@@ -228,7 +228,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
 
     const serializeArgs: SerializeArgsCallback = ({
       args,
-      callbacks,
       containerId,
     }) => {
       return (args || []).map((arg) => {
@@ -237,7 +236,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         }
 
         if (Array.isArray(arg)) {
-          return serializeArgs({ args: arg, callbacks, containerId });
+          return serializeArgs({ args: arg, containerId });
         }
 
         if (typeof arg === 'object') {
@@ -245,7 +244,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
           return Object.fromEntries(
             serializeArgs({
               args: Object.values(arg),
-              callbacks,
               containerId,
             }).map((value, i) => [argKeys[i], value])
           );
@@ -280,7 +278,6 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
         // and must be cached in the component iframe
         postCallbackInvocationMessage({
           args,
-          callbacks,
           containerId,
           method: callbackIdentifier,
           requestId: invocationId,
