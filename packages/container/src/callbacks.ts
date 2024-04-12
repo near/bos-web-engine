@@ -71,7 +71,6 @@ export function invokeExternalContainerCallback({
 
         postCallbackInvocationMessage({
           args: childArgs,
-          callbacks,
           containerId,
           method: callbackIdentifier,
           requestId: invocationId,
@@ -91,14 +90,12 @@ export function invokeExternalContainerCallback({
  * @param callbacks The set of callbacks defined on the target Component
  * @param containerId ID of the container invoking the method
  * @param initExternalCallbackInvocation Function to initialize a callback invocation request
- * @param invokeInternalCallback Function to execute the specified function in the current Component's context
  * @param method The name of the callback to be invoked
  * @param postCallbackInvocationMessage Request invocation on external Component via window.postMessage
  * @param serializeArgs Function to serialize arguments passed to window.postMessage
  */
 export function invokeApplicationCallback<T>({
   args,
-  callbacks,
   containerId,
   initExternalCallbackInvocation,
   method,
@@ -108,7 +105,6 @@ export function invokeApplicationCallback<T>({
   const { invocation, invocationId } = initExternalCallbackInvocation<T>();
   postCallbackInvocationMessage({
     args,
-    callbacks,
     containerId,
     method,
     requestId: invocationId,
