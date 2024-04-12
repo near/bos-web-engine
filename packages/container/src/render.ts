@@ -5,6 +5,7 @@ import type {
   BWEComponentNode,
   ComposeRenderMethodsCallback,
   ContainerComponent,
+  ElementRef,
   Node,
   PlaceholderNode,
 } from './types';
@@ -22,9 +23,13 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
   isComponent,
   isFragment,
   postComponentRenderMessage,
+  postDomMethodInvocationMessage,
+  serializeArgs,
   serializeNode,
   trust,
 }) => {
+  const elementRefs = new Map<HTMLElement, any>();
+
   const dispatchRender: DispatchRenderCallback = (node) => {
     const serializedNode = serializeNode({
       node: node as Node,
@@ -86,12 +91,67 @@ export const composeRenderMethods: ComposeRenderMethodsCallback = ({
     };
   };
 
+  /**
+   * Construct a record for tracking element refs
+   * @param element HTML element bound to a Component via `ref`
+   */
+  function buildElementRef(element: HTMLElement): ElementRef {
+    const id = window.crypto.randomUUID();
+    return {
+      id,
+      proxy: new Proxy(element, {
+        get(target: HTMLElement, p: string | symbol): any {
+          const prop = target[p as keyof typeof target];
+          if (typeof prop !== 'function') {
+            return prop;
+          }
+
+          // replace methods with a wrapper function bound to the element that
+          // posts a DOM method invocation message to the outer application
+          function intercepted(...args: any[]) {
+            postDomMethodInvocationMessage({
+              args: serializeArgs({ args, containerId }),
+              containerId,
+              id,
+              method: p as string,
+            });
+            return (prop as Function).call(target, ...args);
+          }
+
+          return intercepted.bind(target);
+        },
+      }),
+      ref: element,
+    };
+  }
+
   function parseRenderedTree(
     node: RenderedVNode | null,
     renderedChildren?: Array<RenderedVNode | null>
   ): VNode | null | Array<VNode | null> {
     if (!node || !renderedChildren) {
       return node;
+    }
+
+    /*
+      for elements bound to `ref` instances, create a proxy object to forward
+      DOM method invocations in the iframe to the outer application
+     */
+    if (node.ref) {
+      // @ts-expect-error
+      const element: HTMLElement = node.ref.current;
+      if (!(element instanceof HTMLElement)) {
+        console.error('unexpected ref type', element);
+      }
+
+      if (!elementRefs.has(element)) {
+        elementRefs.set(element, buildElementRef(element));
+      }
+
+      const { id, proxy } = elementRefs.get(element)!;
+      // @ts-expect-error
+      node.ref.current = proxy;
+      node.props['data-roc-ref-id'] = id;
     }
 
     const component = node.type as ContainerComponent;

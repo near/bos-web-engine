@@ -8,12 +8,14 @@ import type { ComponentTrust } from './trust';
 type ComponentCallbackInvocationType = 'component.callbackInvocation';
 type ComponentCallbackResponseType = 'component.callbackResponse';
 type ComponentDomCallbackType = 'component.domCallback';
+type ComponentDomMethodInvocationType = 'component.domMethodInvocation';
 type ComponentRenderType = 'component.render';
 type ComponentUpdateType = 'component.update';
 export type EventType =
   | ComponentCallbackInvocationType
   | ComponentCallbackResponseType
   | ComponentDomCallbackType
+  | ComponentDomMethodInvocationType
   | ComponentRenderType
   | ComponentUpdateType;
 
@@ -62,6 +64,14 @@ export interface DomCallback {
   type: ComponentDomCallbackType;
 }
 
+export interface DomMethodInvocation {
+  args: SerializedArgs;
+  containerId: string;
+  id: string;
+  method: string;
+  type: ComponentDomMethodInvocationType;
+}
+
 // payloads sent by the application to a container
 export type ApplicationPayload = ComponentUpdate | DomCallback;
 
@@ -69,6 +79,7 @@ export type ApplicationPayload = ComponentUpdate | DomCallback;
 export type ContainerPayload =
   | ComponentCallbackInvocation
   | ComponentCallbackResponse
-  | ComponentRender;
+  | ComponentRender
+  | DomMethodInvocation;
 
 export type MessagePayload = ApplicationPayload | ContainerPayload;

@@ -84,8 +84,24 @@ export interface PostMessageComponentRenderParams {
   trust: ComponentTrust;
 }
 
+export type PostDomMethodInvocationCallback = (
+  message: PostMessageDomMethodInvocationParams
+) => void;
+export interface PostMessageDomMethodInvocationParams {
+  args: any[];
+  containerId: string;
+  id: string;
+  method: string;
+}
+
 export interface ContainerComponent extends FunctionComponent {
   isRootContainerComponent: boolean;
+}
+
+export interface ElementRef {
+  id: string;
+  proxy: HTMLElement;
+  ref: HTMLElement;
 }
 
 interface ComposeRenderMethodsParams {
@@ -95,6 +111,8 @@ interface ComposeRenderMethodsParams {
   isFragment: (component: Function) => boolean;
   isRootComponent: (component: ContainerComponent) => boolean;
   postComponentRenderMessage: PostMessageComponentRenderCallback;
+  postDomMethodInvocationMessage: PostDomMethodInvocationCallback;
+  serializeArgs: SerializeArgsCallback;
   serializeNode: SerializeNodeCallback;
   trust: ComponentTrust;
 }
@@ -126,6 +144,7 @@ export type ComposeMessagingMethodsCallback = () => {
   postCallbackInvocationMessage: PostMessageComponentInvocationCallback;
   postCallbackResponseMessage: PostMessageComponentResponseCallback;
   postComponentRenderMessage: PostMessageComponentRenderCallback;
+  postDomMethodInvocationMessage: PostDomMethodInvocationCallback;
 };
 
 export type UpdateContainerPropsCallback = (props: Props) => void;

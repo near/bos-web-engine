@@ -149,6 +149,23 @@ export function useComponentTree({
             onCallbackResponse({ data, onMessageSent });
             break;
           }
+          case 'component.domMethodInvocation': {
+            // look up the element for this ref ID
+            const selector = `[data-roc-ref-id="${data.id}"]`;
+            const element = document.querySelector(selector);
+            if (!element) {
+              console.error(`no element found for ref id ${data.id}`);
+              return;
+            }
+
+            // invoke the DOM method
+            const method = element[data.method as keyof Element] as Function;
+            if (typeof method === 'function') {
+              method.call(element, ...data.args);
+            }
+
+            break;
+          }
           case 'component.render': {
             const { childComponents, containerId, node } = data;
 
