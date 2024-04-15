@@ -151,6 +151,10 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
      * @param props Component props
      */
     const isDuplicateKey = (key: string, props: any) => {
+      if (!key.includes('-')) {
+        return false;
+      }
+
       return (
         key
           .split('-')
@@ -244,10 +248,7 @@ export const composeSerializationMethods: ComposeSerializationMethodsCallback =
       });
     };
 
-    const serializeArgs: SerializeArgsCallback = ({
-      args,
-      containerId,
-    }) => {
+    const serializeArgs: SerializeArgsCallback = ({ args, containerId }) => {
       return (args || []).map((arg) => {
         if (!arg) {
           return arg;
