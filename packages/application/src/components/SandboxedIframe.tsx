@@ -84,7 +84,14 @@ function buildSandboxedComponent({
 
             const oldCommit = __Preact.options.__c;
             __Preact.options.__c = (vnode, commitQueue) => {
-              commit(vnode);
+              // traverse the vnode's ancestry until the root node is reached or a Component is found
+              // Preact renders only the changed subtree, but the outer application renders at the container level
+              let componentNode = vnode;
+              while (componentNode.__ !== null && componentNode.type.isRootContainerComponent === undefined) {
+                componentNode = vnode.__;
+              }
+
+              commit(componentNode);
               oldCommit?.(vnode, commitQueue);
             };
   

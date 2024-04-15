@@ -17,12 +17,27 @@ const functionalAsExpected: PackageCompatibility[] = [
     demoLink: '/bwe-demos.near/NPM.React.Hooks.UseMemo?showCode=true',
   },
   {
+    name: 'React Hook useRef',
+    demoLink: '/bwe-demos.near/NPM.React.Hooks.UseRef?showCode=true',
+  },
+  {
     name: 'React Syntax Highlighter',
     demoLink: '/bwe-demos.near/NPM.ReactSyntaxHighlighter?showCode=true',
   },
   {
     name: 'uuid',
     demoLink: '/bwe-demos.near/NPM.Uuid?showCode=true',
+  },
+  {
+    name: 'Zustand',
+    demoLink: '/bwe-demos.near/NPM.Zustand?showCode=true',
+    note: (
+      <span>
+        BOS Web Engine also plans to support cross-component global state
+        management:{' '}
+        <a href="https://github.com/near/bos-web-engine/issues/18">#18</a>
+      </span>
+    ),
   },
 ];
 
@@ -36,25 +51,9 @@ const functionalWithCaveat: PackageCompatibility[] = [
 
 const partialSupport: PackageCompatibility[] = [];
 
-const notCompatible: PackageCompatibility[] = [
-  {
-    name: 'Zustand',
-    demoLink: '/bwe-demos.near/NPM.Zustand?showCode=true',
-    note: (
-      <span>
-        BOS Web Engine plans to support cross-component global state management:{' '}
-        <a href="https://github.com/near/bos-web-engine/issues/18">#18</a>
-      </span>
-    ),
-  },
-];
+const notCompatible: PackageCompatibility[] = [];
 
-const needsTesting: PackageCompatibility[] = [
-  {
-    name: 'React Hook useRef',
-    demoLink: '/bwe-demos.near/NPM.React.Hooks.UseRef?showCode=true',
-  },
-];
+const needsTesting: PackageCompatibility[] = [];
 
 export default function () {
   return (
