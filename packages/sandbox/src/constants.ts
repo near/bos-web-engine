@@ -51,6 +51,11 @@ export const MONACO_EXTERNAL_LIBRARIES: MonacoExternalLibrary[] = [
         const plugin: Plugins.WalletSelectorPlugin;
         export = plugin;
       }
+
+      declare module "@bos-web-engine/container-storage-plugin" {
+        const plugin: Plugins.ContainerStoragePlugin;
+        export = plugin;
+      }
     `,
   },
   {

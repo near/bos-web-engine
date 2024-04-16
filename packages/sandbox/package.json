@@ -41,6 +41,7 @@
     "react-dom": "^18.0.0"
   },
   "dependencies": {
+    "@bos-web-engine/container-storage-plugin": "workspace:*",
     "@bos-web-engine/social-db-plugin": "workspace:*",
     "@bos-web-engine/wallet-selector-plugin": "workspace:*",
     "@monaco-editor/react": "^4.6.0",

@@ -1,3 +1,4 @@
+import initializeContainerStoragePlugin from '@bos-web-engine/container-storage-plugin';
 import initializeSocialDbPlugin from '@bos-web-engine/social-db-plugin';
 import initializeWalletSelectorPlugin from '@bos-web-engine/wallet-selector-plugin';
 
@@ -10,6 +11,10 @@ const PLUGIN_MODULES = new Map<string, string>([
   [
     '@bos-web-engine/wallet-selector-plugin',
     initializeWalletSelectorPlugin.toString(),
+  ],
+  [
+    '@bos-web-engine/container-storage-plugin',
+    initializeContainerStoragePlugin.toString(),
   ],
 ]);
 

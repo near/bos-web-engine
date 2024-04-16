@@ -2,6 +2,7 @@ import type { ComponentTrust } from '@bos-web-engine/common';
 import React from 'react';
 
 import { sendMessage } from './container';
+import ContainerStoragePlugin from './plugins/container-storage';
 import WalletSelectorPlugin from './plugins/wallet-selector';
 import { createChildElements, createElement } from './react';
 import type {
@@ -73,6 +74,24 @@ export async function onApplicationMethodInvocation({
         return sendResponse(
           await WalletSelectorPlugin.signMessage({ args, wallet })
         );
+
+      case 'containerStorage.getItem': {
+        const storageKey = `${componentId}/${args[0] as string}`;
+        return sendResponse(ContainerStoragePlugin.getItem(storageKey));
+      }
+
+      case 'containerStorage.removeItem': {
+        const storageKey = `${componentId}/${args[0] as string}`;
+        return sendResponse(ContainerStoragePlugin.removeItem(storageKey));
+      }
+
+      case 'containerStorage.setItem': {
+        const [key, value] = args;
+        const storageKey = `${componentId}/${key as string}`;
+        return sendResponse(
+          ContainerStoragePlugin.setItem(storageKey, value as string)
+        );
+      }
 
       default:
         throw new Error(`Unrecognized method ${method}`);
