@@ -17,7 +17,7 @@
       "cache": false
     },
     "dev:components": {
-      "cache": false
+      "outputs": []
     },
     "lint:check": {
       "outputs": []
