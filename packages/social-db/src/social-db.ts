@@ -10,6 +10,8 @@ import type {
 import { Big } from 'big.js';
 
 import {
+  ARCHIVAL_MAINNET_RPC_URL,
+  ARCHIVAL_TESTNET_RPC_URL,
   EXTRA_STORAGE_BALANCE,
   INITIAL_ACCOUNT_STORAGE_BALANCE,
   MAINNET_RPC_URL,
@@ -50,6 +52,8 @@ export class SocialDb {
 
   private testnetProvider: JsonRpcProvider;
   private mainnetProvider: JsonRpcProvider;
+  private archivalMainnetProvider: JsonRpcProvider;
+  private archivalTestnetProvider: JsonRpcProvider;
 
   /**
    * Interact with the `social.near` contract (Social DB).
@@ -77,6 +81,14 @@ export class SocialDb {
     this.mainnetProvider = new JsonRpcProvider({
       url: MAINNET_RPC_URL,
     });
+
+    this.archivalMainnetProvider = new JsonRpcProvider({
+      url: ARCHIVAL_MAINNET_RPC_URL,
+    });
+
+    this.archivalTestnetProvider = new JsonRpcProvider({
+      url: ARCHIVAL_TESTNET_RPC_URL,
+    });
   }
 
   private get contractId() {
@@ -92,6 +104,11 @@ export class SocialDb {
   private get provider() {
     if (this.networkId === 'mainnet') return this.mainnetProvider;
     return this.testnetProvider;
+  }
+
+  private get archivalProvider() {
+    if (this.networkId === 'mainnet') return this.archivalMainnetProvider;
+    return this.archivalTestnetProvider;
   }
 
   private get walletSelectorState() {
@@ -399,7 +416,10 @@ export class SocialDb {
     }
 
     try {
-      const response = await this.provider.query<CodeResult>(request);
+      const response = await (blockId
+        ? this.archivalProvider
+        : this.provider
+      ).query<CodeResult>(request);
       const responseData = parseJsonRpcResponse(response.result) as T;
 
       this.log({
