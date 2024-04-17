@@ -60,6 +60,7 @@ export default function Root() {
           )}
         </div>
       </ThemeProvider>
+
       {rootComponentPath && <Inspector />}
     </>
   );

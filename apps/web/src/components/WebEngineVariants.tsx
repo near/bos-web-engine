@@ -8,6 +8,8 @@ import {
 import { AccountState } from '@near-wallet-selector/core';
 import { useCallback, useEffect, useState } from 'react';
 
+import { HotReload } from './HotReload';
+
 import { useComponentSourcesStore } from '@/stores/component-sources';
 import { useContainerMessagesStore } from '@/stores/container-messages';
 import { LocalFetchStatus, useDevToolsStore } from '@/stores/dev-tools';
@@ -94,19 +96,27 @@ export function SandboxWebEngine({
     [setLocalFetchStatus]
   );
 
+  const refreshLocalComponents = () => {
+    if (!flags?.bosLoaderUrl) return;
+    fetchLocalComponents(flags.bosLoaderUrl);
+  };
+
   useEffect(() => {
     if (!flags?.bosLoaderUrl) return;
-
-    fetchLocalComponents(flags?.bosLoaderUrl);
+    fetchLocalComponents(flags.bosLoaderUrl);
   }, [flags?.bosLoaderUrl, fetchLocalComponents]);
 
   return localComponents ? (
-    <PreparedLocalSandbox
-      account={account}
-      rootComponentPath={rootComponentPath}
-      flags={flags}
-      localComponents={localComponents}
-    />
+    <>
+      <PreparedLocalSandbox
+        account={account}
+        rootComponentPath={rootComponentPath}
+        flags={flags}
+        localComponents={localComponents}
+      />
+
+      <HotReload onHotReloadRequested={() => refreshLocalComponents()} />
+    </>
   ) : (
     <></>
   );
