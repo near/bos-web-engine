@@ -1,4 +1,4 @@
-# Hot Reload
+# Hot Reload Server
 
 This is an experimental feature to improve DX when authoring RoC components in a local IDE - such as VS Code. Whenever a file is changed, this package will emit a websocket event to the `web` gateway, which will then trigger a refresh of all local components served by `bos-loader`.
 
@@ -15,8 +15,8 @@ SOURCE_PATH=bos-web-engine/apps/demos/src pnpm dev:components
 You should see the following output:
 
 ```
-@bos-web-engine/hot-reload:dev:components: Hot reload websocket server is running on: ws://localhost:4000
-@bos-web-engine/hot-reload:dev:components: Resolved path for hot reload watch: /Users/.../bos-web-engine/apps/demos/src
+@bos-web-engine/hot-reload-server:dev:components: Hot reload websocket server is running on: ws://localhost:4000
+@bos-web-engine/hot-reload-server:dev:components: Resolved path for hot reload watch: /Users/.../bos-web-engine/apps/demos/src
 ```
 
 The `SOURCE_PATH` is relative to the parent directory of `bos-web-engine` to make it a bit easier to reference a path that lives outside of the monorepo. If you've cloned the [RoC Components](https://github.com/near/near-roc-components) repository next to the `bos-web-engine` repo, you'd use this path instead:

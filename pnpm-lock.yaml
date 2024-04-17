@@ -151,6 +151,9 @@ importers:
       '@bos-web-engine/application':
         specifier: workspace:*
         version: link:../../packages/application
+      '@bos-web-engine/hot-reload-client':
+        specifier: workspace:*
+        version: link:../../packages/hot-reload-client
       '@bos-web-engine/sandbox':
         specifier: workspace:*
         version: link:../../packages/sandbox
@@ -420,7 +423,29 @@ importers:
         specifier: ^4.7.4
         version: 4.9.5
 
-  packages/hot-reload:
+  packages/hot-reload-client:
+    dependencies:
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.0.0
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.34
+        version: 18.2.45
+      '@types/react-dom':
+        specifier: ^18.0.6
+        version: 18.2.7
+      tsconfig:
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
+
+  packages/hot-reload-server:
     devDependencies:
       '@types/node':
         specifier: ^20.12.7
@@ -7508,7 +7533,7 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
-      typescript: 5.2.2
+      typescript: 5.4.5
       yargs: 17.7.2
     dev: true
 

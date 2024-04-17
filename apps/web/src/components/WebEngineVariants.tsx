@@ -5,10 +5,9 @@ import {
   useWebEngine,
   useWebEngineSandbox,
 } from '@bos-web-engine/application';
+import { useHotReload } from '@bos-web-engine/hot-reload-client';
 import { AccountState } from '@near-wallet-selector/core';
 import { useCallback, useEffect, useState } from 'react';
-
-import { HotReload } from './HotReload';
 
 import { useComponentSourcesStore } from '@/stores/component-sources';
 import { useContainerMessagesStore } from '@/stores/container-messages';
@@ -61,9 +60,11 @@ export function SandboxWebEngine({
   rootComponentPath,
   flags,
 }: WebEnginePropsVariantProps) {
+  const { hotReloadWebsocketUrl } = useDevToolsStore((state) => state.flags);
   const setLocalFetchStatus = useDevToolsStore(
     (state) => state.setLocalFetchStatus
   );
+  const bosLoaderUrl = flags?.bosLoaderUrl;
 
   // null while loading
   // empty object on error
@@ -96,27 +97,24 @@ export function SandboxWebEngine({
     [setLocalFetchStatus]
   );
 
-  const refreshLocalComponents = () => {
-    if (!flags?.bosLoaderUrl) return;
-    fetchLocalComponents(flags.bosLoaderUrl);
-  };
+  const refreshLocalComponents = useCallback(() => {
+    if (!bosLoaderUrl) return;
+    fetchLocalComponents(bosLoaderUrl);
+  }, [bosLoaderUrl, fetchLocalComponents]);
 
   useEffect(() => {
-    if (!flags?.bosLoaderUrl) return;
-    fetchLocalComponents(flags.bosLoaderUrl);
-  }, [flags?.bosLoaderUrl, fetchLocalComponents]);
+    refreshLocalComponents();
+  }, [bosLoaderUrl, refreshLocalComponents]);
+
+  useHotReload(hotReloadWebsocketUrl, refreshLocalComponents);
 
   return localComponents ? (
-    <>
-      <PreparedLocalSandbox
-        account={account}
-        rootComponentPath={rootComponentPath}
-        flags={flags}
-        localComponents={localComponents}
-      />
-
-      <HotReload onHotReloadRequested={() => refreshLocalComponents()} />
-    </>
+    <PreparedLocalSandbox
+      account={account}
+      rootComponentPath={rootComponentPath}
+      flags={flags}
+      localComponents={localComponents}
+    />
   ) : (
     <></>
   );

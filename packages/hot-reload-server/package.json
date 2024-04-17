@@ -1,5 +1,5 @@
 {
-  "name": "@bos-web-engine/hot-reload",
+  "name": "@bos-web-engine/hot-reload-server",
   "version": "0.1.0",
   "scripts": {
     "dev:components": "tsc && node ./build/index.js"

@@ -1,14 +1,9 @@
 import { useEffect } from 'react';
 
-import { useDevToolsStore } from '@/stores/dev-tools';
-
-type Props = {
-  onHotReloadRequested: () => void;
-};
-
-export const HotReload = ({ onHotReloadRequested }: Props) => {
-  const { hotReloadWebsocketUrl } = useDevToolsStore((state) => state.flags);
-
+export function useHotReload(
+  hotReloadWebsocketUrl: string | null | undefined,
+  onHotReloadRequested: () => void
+) {
   useEffect(() => {
     if (!hotReloadWebsocketUrl) return;
 
@@ -30,4 +25,4 @@ export const HotReload = ({ onHotReloadRequested }: Props) => {
   }, [hotReloadWebsocketUrl]);
 
   return null;
-};
+}
