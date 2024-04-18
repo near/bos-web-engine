@@ -5,6 +5,7 @@ import {
   useWebEngine,
   useWebEngineSandbox,
 } from '@bos-web-engine/application';
+import { useHotReload } from '@bos-web-engine/hot-reload-client';
 import { AccountState } from '@near-wallet-selector/core';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -59,9 +60,11 @@ export function SandboxWebEngine({
   rootComponentPath,
   flags,
 }: WebEnginePropsVariantProps) {
+  const { hotReloadWebsocketUrl } = useDevToolsStore((state) => state.flags);
   const setLocalFetchStatus = useDevToolsStore(
     (state) => state.setLocalFetchStatus
   );
+  const bosLoaderUrl = flags?.bosLoaderUrl;
 
   // null while loading
   // empty object on error
@@ -94,11 +97,16 @@ export function SandboxWebEngine({
     [setLocalFetchStatus]
   );
 
-  useEffect(() => {
-    if (!flags?.bosLoaderUrl) return;
+  const refreshLocalComponents = useCallback(() => {
+    if (!bosLoaderUrl) return;
+    fetchLocalComponents(bosLoaderUrl);
+  }, [bosLoaderUrl, fetchLocalComponents]);
 
-    fetchLocalComponents(flags?.bosLoaderUrl);
-  }, [flags?.bosLoaderUrl, fetchLocalComponents]);
+  useEffect(() => {
+    refreshLocalComponents();
+  }, [bosLoaderUrl, refreshLocalComponents]);
+
+  useHotReload(hotReloadWebsocketUrl, refreshLocalComponents);
 
   return localComponents ? (
     <PreparedLocalSandbox
