@@ -148,6 +148,7 @@ export interface WebEngineConfiguration {
 
 export interface WebEngineFlags {
   bosLoaderUrl?: string;
+  hotReloadWebsocketUrl?: string;
   showContainerBoundaries?: boolean;
   enableBlockHeightVersioning?: boolean;
   enablePersistentComponentCache?: boolean;

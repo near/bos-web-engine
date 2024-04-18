@@ -63,6 +63,10 @@ export function Inspector() {
     flags?.bosLoaderUrl || ''
   );
 
+  const [inputHotReloadWebsocketUrl, setInputHotReloadWebsocketUrl] = useState(
+    flags?.hotReloadWebsocketUrl || ''
+  );
+
   const smallScreen = useMediaQuery('(max-width: 1000px)');
 
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -221,11 +225,11 @@ export function Inspector() {
                 updateFlags({ bosLoaderUrl: inputBosLoaderUrl });
               }}
             >
-              <label htmlFor="bos loader url">bos-loader URL</label>
+              <label htmlFor="bosLoaderUrl">bos-loader URL</label>
               <div className={s.clearable}>
                 <input
                   type="url"
-                  id="bos loader url"
+                  id="bosLoaderUrl"
                   value={inputBosLoaderUrl}
                   onChange={(e) => setInputBosLoaderUrl(e.target.value)}
                 />
@@ -244,7 +248,46 @@ export function Inspector() {
               </div>
               <button>Save URL</button>
             </form>
+
             <hr />
+
+            <form
+              className={s.flag}
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateFlags({
+                  hotReloadWebsocketUrl: inputHotReloadWebsocketUrl,
+                });
+              }}
+            >
+              <label htmlFor="hotReloadWebsocketUrl">Hot Reload URL</label>
+              <div className={s.clearable}>
+                <input
+                  type="url"
+                  id="hotReloadWebsocketUrl"
+                  value={inputHotReloadWebsocketUrl}
+                  onChange={(e) =>
+                    setInputHotReloadWebsocketUrl(e.target.value)
+                  }
+                />
+                <button type="button" onClick={() => setInputBosLoaderUrl('')}>
+                  <span aria-label="clear" role="img">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 256 256"
+                    >
+                      <path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+              <button>Save URL</button>
+            </form>
+
+            <hr />
+
             <div className={s.flag}>
               <label htmlFor="boundaries">Show container boundaries</label>
               <input
@@ -256,6 +299,7 @@ export function Inspector() {
                 }}
               />
             </div>
+
             <div className={s.flag}>
               <label htmlFor="blockHeight">
                 Enable block height versioning
@@ -271,6 +315,7 @@ export function Inspector() {
                 }}
               />
             </div>
+
             <div className={s.flag}>
               <label htmlFor="persistentCache">
                 Enable persistent component cache

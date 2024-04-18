@@ -1,0 +1,16 @@
+{
+  "name": "@bos-web-engine/hot-reload-server",
+  "version": "0.1.0",
+  "scripts": {
+    "dev:components": "tsc && node ./build/index.js"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/ws": "^8.5.10",
+    "chokidar": "^3.6.0",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.4.5",
+    "ws": "^8.16.0"
+  }
+}
