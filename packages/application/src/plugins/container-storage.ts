@@ -2,15 +2,15 @@ function getStorageKey(componentId: string, key: string) {
   return `component_storage/${componentId}/${key}`;
 }
 
-function getItem(componentId: string, key: string) {
+async function getItem(componentId: string, key: string) {
   return localStorage.getItem(getStorageKey(componentId, key));
 }
 
-function removeItem(componentId: string, key: string) {
+async function removeItem(componentId: string, key: string) {
   return localStorage.removeItem(getStorageKey(componentId, key));
 }
 
-function setItem(componentId: string, key: string, value: string) {
+async function setItem(componentId: string, key: string, value: string) {
   return localStorage.setItem(getStorageKey(componentId, key), value);
 }
 
