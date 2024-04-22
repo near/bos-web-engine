@@ -88,7 +88,7 @@ function buildSandboxedComponent({
               // Preact renders only the changed subtree, but the outer application renders at the container level
               let componentNode = vnode;
               while (componentNode.__ !== null && componentNode.type.isRootContainerComponent === undefined) {
-                componentNode = vnode.__;
+                componentNode = componentNode.__;
               }
 
               commit(componentNode);
