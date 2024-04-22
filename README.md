@@ -1,8 +1,8 @@
-# BOS Web Engine R&D
+# React on Chain R&D
 
-The BOS Web Engine (BWE) is an experimental runtime/rendering layer aimed at replacing the Discovery VM with a full-featured React(or Preact) environment which would enable access to the greater web ecosystem including NPM dependencies. It is an R&D effort lead by Pagoda and will be considered for production usage once our GitHub [issues tagged as `P0 - Release requirement`](https://github.com/near/bos-web-engine/issues?q=is:open+is:issue+label:%22P0+-+Release+requirement%22) are completed.
+React on Chain (f.k.a. BOS Web Engine or BWE) is an experimental framework aimed at replacing the NEAR BOS VM with a full-featured React(or Preact) environment which would enable access to the greater web ecosystem including NPM dependencies. It is an R&D effort lead by Pagoda and will be considered for production usage once our GitHub [issues tagged as `P0 - Release requirement`](https://github.com/near/bos-web-engine/issues?q=is:open+is:issue+label:%22P0+-+Release+requirement%22) are completed.
 
-**Developers who have created components on the Discovery VM should expect a reasonable migration effort to make their components compatible with BWE once it launches. See _"Will BWE be backwards compatible with existing VM components?"_ in the [FAQ](#FAQ) section for more info**
+**Developers who have created components on BOS should expect a reasonable migration effort to make their components compatible with RoC once it launches. See _"Will BWE be backwards compatible with existing VM components?"_ in the [FAQ](#FAQ) section for more info**
 
 Some core goals:
 - ability to import npm packages
@@ -23,15 +23,15 @@ See our [docs](https://roc-docs.near.dev)!
 
 ## FAQ
 
-### Will BWE be backwards compatible with existing VM components?
+### Will RoC be backwards compatible with existing BOS components?
 
-No. BWE is a complete re-write of the component runtime and will not be backwards compatible with existing components due to significant architectural differences. Components will be similar in many ways since they are already written with JSX, but BWE code will look much more like vanilla React with some additional patterns on top.
+No. RoC is a complete re-write of the component runtime and will not be backwards compatible with existing components due to significant architectural differences. Components will be similar in many ways since they are already written with JSX, but RoC code will look much more like vanilla React with some additional patterns on top.
 
-Our primary goal is to build the most capable engine to support complex dapps for a vibrant BOS ecosystem, then we will make efforts to ease the migration of existing work as much as possible. There will be ample discussion before any decisions are made on when and how to start switching to BWE once it is ready.
+Our primary goal is to build the most capable engine to support complex dapps for a vibrant ecosystem, then we will make efforts to ease the migration of existing work as much as possible. There will be ample discussion before any decisions are made on when and how to start switching to RoC once it is ready.
 
-### Can existing React codebases be used with BWE?
+### Can existing React codebases be used with React on Chain?
 
-While the process to convert an existing React codebase to run on BWE will be significantly easier than the previous VM, there will still be some syntax and architecture changes which must be handled manually.
+While the process to convert an existing React codebase to run on RoC will be significantly easier than the BOS, there will still be some syntax and architecture changes which must be handled manually.
 
 ### Other Questions
 See our full FAQ [here](https://roc-docs.near.dev/alpha/FAQ)
