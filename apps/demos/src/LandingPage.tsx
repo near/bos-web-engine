@@ -91,6 +91,11 @@ function LandingPage() {
                 Component Source Inspector
               </a>
             </li>
+            <li>
+              <a className={s.link} href={buildUrl('bwe-demos.near/ContainerStorage')}>
+                Container Storage
+              </a>
+            </li>
           </ul>
         </section>
       </div>

@@ -9,7 +9,7 @@ function ContainerStorage() {
   const updateValueFromContainerStorage = async () => {
     const valueFromContainerStorage =
       await ContainerStoragePlugin.getItem('exampleKey');
-    setValue(Number(valueFromContainerStorage) || 0);
+    setValue(valueFromContainerStorage || 0);
   };
 
   useEffect(() => {
@@ -18,7 +18,7 @@ function ContainerStorage() {
 
   const handleIncrement = () => {
     const newValue = Number(value) + 1;
-    ContainerStoragePlugin.setItem('exampleKey', String(newValue));
+    ContainerStoragePlugin.setItem('exampleKey', newValue);
     setValue(newValue);
   };
 

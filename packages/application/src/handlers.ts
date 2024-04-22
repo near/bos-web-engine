@@ -77,23 +77,26 @@ export async function onApplicationMethodInvocation({
 
       case 'containerStorage.getItem': {
         return sendResponse(
-          ContainerStoragePlugin.getItem(componentId, args[0] as string)
+          await ContainerStoragePlugin.getItem(componentId, args[0] as string)
         );
       }
 
       case 'containerStorage.removeItem': {
         return sendResponse(
-          ContainerStoragePlugin.removeItem(componentId, args[0] as string)
+          await ContainerStoragePlugin.removeItem(
+            componentId,
+            args[0] as string
+          )
         );
       }
 
       case 'containerStorage.setItem': {
         const [key, value] = args;
         return sendResponse(
-          ContainerStoragePlugin.setItem(
+          await ContainerStoragePlugin.setItem(
             componentId,
             key as string,
-            value as string
+            value
           )
         );
       }

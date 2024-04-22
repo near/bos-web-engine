@@ -1,17 +1,33 @@
-function getStorageKey(componentId: string, key: string) {
+type ContainerStorageEntry = string | number | object | null;
+
+function buildStorageKey(componentId: string, key: string) {
   return `component_storage/${componentId}/${key}`;
 }
 
 async function getItem(componentId: string, key: string) {
-  return localStorage.getItem(getStorageKey(componentId, key));
+  const storageKey = buildStorageKey(componentId, key);
+  const valueFromStorage = localStorage.getItem(storageKey);
+  if (!valueFromStorage) {
+    return null;
+  }
+
+  return JSON.parse(valueFromStorage)?.value;
 }
 
 async function removeItem(componentId: string, key: string) {
-  return localStorage.removeItem(getStorageKey(componentId, key));
+  const storageKey = buildStorageKey(componentId, key);
+
+  return localStorage.removeItem(storageKey);
 }
 
-async function setItem(componentId: string, key: string, value: string) {
-  return localStorage.setItem(getStorageKey(componentId, key), value);
+async function setItem(
+  componentId: string,
+  key: string,
+  value: ContainerStorageEntry
+) {
+  const storageKey = buildStorageKey(componentId, key);
+
+  return localStorage.setItem(storageKey, JSON.stringify({ value }));
 }
 
 const ContainerStorage = {
