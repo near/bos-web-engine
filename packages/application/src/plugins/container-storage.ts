@@ -1,13 +1,17 @@
-function getItem(key: string) {
-  return localStorage.getItem(key);
+function getStorageKey(componentId: string, key: string) {
+  return `component_storage/${componentId}/${key}`;
 }
 
-function removeItem(key: string) {
-  return localStorage.removeItem(key);
+function getItem(componentId: string, key: string) {
+  return localStorage.getItem(getStorageKey(componentId, key));
 }
 
-function setItem(key: string, value: string) {
-  return localStorage.setItem(key, value);
+function removeItem(componentId: string, key: string) {
+  return localStorage.removeItem(getStorageKey(componentId, key));
+}
+
+function setItem(componentId: string, key: string, value: string) {
+  return localStorage.setItem(getStorageKey(componentId, key), value);
 }
 
 const ContainerStorage = {

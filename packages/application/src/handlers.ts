@@ -76,20 +76,25 @@ export async function onApplicationMethodInvocation({
         );
 
       case 'containerStorage.getItem': {
-        const storageKey = `component_storage/${componentId}/${args[0] as string}`;
-        return sendResponse(ContainerStoragePlugin.getItem(storageKey));
+        return sendResponse(
+          ContainerStoragePlugin.getItem(componentId, args[0] as string)
+        );
       }
 
       case 'containerStorage.removeItem': {
-        const storageKey = `component_storage/${componentId}/${args[0] as string}`;
-        return sendResponse(ContainerStoragePlugin.removeItem(storageKey));
+        return sendResponse(
+          ContainerStoragePlugin.removeItem(componentId, args[0] as string)
+        );
       }
 
       case 'containerStorage.setItem': {
         const [key, value] = args;
-        const storageKey = `component_storage/${componentId}/${key as string}`;
         return sendResponse(
-          ContainerStoragePlugin.setItem(storageKey, value as string)
+          ContainerStoragePlugin.setItem(
+            componentId,
+            key as string,
+            value as string
+          )
         );
       }
 
