@@ -14,10 +14,12 @@
       "outputs": []
     },
     "dev": {
+      "dependsOn": ["build"],
       "cache": false
     },
     "dev:components": {
-      "outputs": []
+      "dependsOn": ["build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "lib/**"]
     },
     "lint:check": {
       "outputs": []

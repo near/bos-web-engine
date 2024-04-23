@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run build --filter=@bos-web-engine/* && turbo run dev",
-    "dev:components": "turbo run dev:components",
+    "dev": "turbo run dev --concurrency=30",
+    "dev:components": "turbo run dev:components --concurrency=30",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -18,11 +18,11 @@
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
+    "husky": "^8.0.0",
     "next": "^13.5.6",
     "prettier": "latest",
     "rimraf": "^5.0.1",
-    "turbo": "^1.10.15",
-    "husky": "^8.0.0"
+    "turbo": "^1.13.2"
   },
   "engines": {
     "node": ">=18.17.0"
