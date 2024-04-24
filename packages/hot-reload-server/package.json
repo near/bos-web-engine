@@ -2,6 +2,8 @@
   "name": "@bos-web-engine/hot-reload-server",
   "version": "0.1.0",
   "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "pnpm build && SOURCE_PATH=react-on-chain/apps/demos/src node ./build/index.js",
     "dev:components": "node ./build/index.js"
   },
   "license": "ISC",
