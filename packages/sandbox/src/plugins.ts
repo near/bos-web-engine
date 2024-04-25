@@ -24,3 +24,4 @@ export type {
   SocialGetResponse,
 } from '@bos-web-engine/social-db-plugin';
 export type { WalletSelectorPlugin } from '@bos-web-engine/wallet-selector-plugin';
+export type { ContainerStoragePlugin } from '@bos-web-engine/container-storage-plugin';

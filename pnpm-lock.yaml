@@ -333,6 +333,9 @@ importers:
       '@bos-web-engine/common':
         specifier: workspace:*
         version: link:../common
+      '@bos-web-engine/container-storage-plugin':
+        specifier: workspace:*
+        version: link:../container-storage-plugin
       '@bos-web-engine/social-db':
         specifier: workspace:*
         version: link:../social-db
@@ -394,6 +397,27 @@ importers:
       preact:
         specifier: ^10.18.1
         version: 10.18.1
+      tsconfig:
+        specifier: workspace:*
+        version: link:../tsconfig
+      typescript:
+        specifier: ^4.5.2
+        version: 4.9.5
+
+  packages/container-storage-plugin:
+    devDependencies:
+      '@bos-web-engine/common':
+        specifier: workspace:*
+        version: link:../common
+      '@types/node':
+        specifier: ^17.0.12
+        version: 17.0.45
+      eslint:
+        specifier: ^7.32.0
+        version: 7.32.0
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../eslint-config-custom
       tsconfig:
         specifier: workspace:*
         version: link:../tsconfig
@@ -471,6 +495,9 @@ importers:
       '@bos-web-engine/application':
         specifier: workspace:*
         version: link:../application
+      '@bos-web-engine/container-storage-plugin':
+        specifier: workspace:*
+        version: link:../container-storage-plugin
       '@bos-web-engine/social-db':
         specifier: workspace:*
         version: link:../social-db
@@ -1022,7 +1049,7 @@ packages:
   /@babel/code-frame@7.12.11:
     resolution: {integrity: sha512-Zt1yodBx1UcyiePMSkWnU4hPqhwq7hGi2nFL1LeA3EUl+q2LQx16MISgJ0+z7dnmgvP9QtIleuETGOiOH1RcIw==}
     dependencies:
-      '@babel/highlight': 7.22.10
+      '@babel/highlight': 7.23.4
 
   /@babel/code-frame@7.23.5:
     resolution: {integrity: sha512-CgH3s1a96LipHCmSUmYFPwY7MNx8C3avkq7i4Wl3cfa662ldtUe4VM1TPXX70pfmrlWTb6jLqTYrZyT2ZTJBgA==}
@@ -1278,14 +1305,6 @@ packages:
       - supports-color
     dev: false
 
-  /@babel/highlight@7.22.10:
-    resolution: {integrity: sha512-78aUtVcT7MUscr0K5mIEnkwxPE0MaxkR5RxRwuHaQ+JuU5AmTPhY+do2mdzVTnIJJpyBglql2pehuBIWHug+WQ==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/helper-validator-identifier': 7.22.20
-      chalk: 2.4.2
-      js-tokens: 4.0.0
-
   /@babel/highlight@7.23.4:
     resolution: {integrity: sha512-acGdbYSfp2WheJoJm/EBBBLh/ID8KDc64ISZ9DYtBmC8/Q204PZJLHyzeB5qMzJ5trcOkybd78M4x2KWsUq++A==}
     engines: {node: '>=6.9.0'}
@@ -1293,7 +1312,6 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       chalk: 2.4.2
       js-tokens: 4.0.0
-    dev: false
 
   /@babel/parser@7.23.0:
     resolution: {integrity: sha512-vvPKKdMemU85V9WE/l5wZEmImpCtLqbnTvqDS2U1fJ96KrxoW7KrXhNsNCblQlg8Ck4b85yxdTyelsMUgFUXiw==}
