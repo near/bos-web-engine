@@ -1,3 +1,4 @@
+import { QueryParams } from '@bos-web-engine/common';
 import { useEffect, useRef, useState } from 'react';
 
 import { Layout } from './Layout';
@@ -8,13 +9,15 @@ import { useSourceAccountReplace } from '../hooks/useSourceAccountReplace';
 
 type Props = {
   height: string;
+  queryParams?: QueryParams;
 };
 
-export function Sandbox({ height }: Props) {
+export function Sandbox({ height, queryParams }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const setContainerElement = useSandboxStore(
     (store) => store.setContainerElement
   );
+  const setQueryParams = useSandboxStore((store) => store.setQueryParams);
   const [shouldRender, setShouldRender] = useState(false);
 
   usePublishedFilesSync();
@@ -33,6 +36,10 @@ export function Sandbox({ height }: Props) {
       setContainerElement(containerRef.current);
     }
   });
+
+  useEffect(() => {
+    setQueryParams(queryParams);
+  }, [setQueryParams, queryParams]);
 
   if (!shouldRender) return null;
 

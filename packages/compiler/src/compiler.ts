@@ -265,7 +265,7 @@ export class ComponentCompiler {
    * Build the source for a container rooted at the target Component
    * @param componentId ID for the new container's root Component
    */
-  async compileComponent({ componentId }: CompilerExecuteAction) {
+  async compileComponent({ componentId, queryParams }: CompilerExecuteAction) {
     // wait on CSS initialization
     await this.cssParser.init();
 
@@ -299,6 +299,7 @@ export class ComponentCompiler {
           rawSource: moduleEntry.component,
           componentPath,
           importedModules: retrievedData.importedModules,
+          queryParams,
         });
 
         return;
@@ -354,6 +355,7 @@ export class ComponentCompiler {
       rawSource: moduleEntry.component,
       componentPath,
       importedModules,
+      queryParams,
     });
   }
 }

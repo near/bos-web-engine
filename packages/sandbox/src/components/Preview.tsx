@@ -21,6 +21,7 @@ type WebEngineLocalComponents = { [path: string]: BOSModule };
 
 export function Preview() {
   const { account } = useWallet();
+  const queryParams = useSandboxStore((store) => store.queryParams);
   const containerElement = useSandboxStore((store) => store.containerElement);
   const activeFilePath = useSandboxStore((store) => store.activeFilePath);
   const pinnedPreviewFilePath = useSandboxStore(
@@ -43,6 +44,7 @@ export function Preview() {
   const { components, nonce } = useWebEngineSandbox({
     localComponents,
     rootComponentPath,
+    queryParams,
   });
 
   useEffect(() => {

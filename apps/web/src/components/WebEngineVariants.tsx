@@ -9,6 +9,7 @@ import { useHotReload } from '@bos-web-engine/hot-reload-client';
 import { AccountState } from '@near-wallet-selector/core';
 import { useCallback, useEffect, useState } from 'react';
 
+import { useQueryParams } from '@/hooks/useQueryParams';
 import { useComponentSourcesStore } from '@/stores/component-sources';
 import { useContainerMessagesStore } from '@/stores/container-messages';
 import { LocalFetchStatus, useDevToolsStore } from '@/stores/dev-tools';
@@ -25,6 +26,7 @@ export function WebEngine({
   rootComponentPath,
   flags,
 }: WebEnginePropsVariantProps) {
+  const { queryParams } = useQueryParams();
   const addSource = useComponentSourcesStore((store) => store.addSource);
   const addMessage = useContainerMessagesStore((store) => store.addMessage);
 
@@ -41,6 +43,7 @@ export function WebEngine({
       },
     },
     rootComponentPath,
+    queryParams,
   });
 
   return (
@@ -131,6 +134,7 @@ function PreparedLocalSandbox({
   flags,
   localComponents,
 }: WebEnginePropsVariantProps & { localComponents: any }) {
+  const { queryParams } = useQueryParams();
   const addSource = useComponentSourcesStore((store) => store.addSource);
   const addMessage = useContainerMessagesStore((store) => store.addMessage);
 
@@ -148,6 +152,7 @@ function PreparedLocalSandbox({
     },
     localComponents,
     rootComponentPath,
+    queryParams,
   });
 
   return (
