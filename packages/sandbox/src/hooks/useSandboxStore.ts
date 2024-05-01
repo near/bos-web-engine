@@ -1,3 +1,4 @@
+import { QueryParams } from '@bos-web-engine/common';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -28,6 +29,7 @@ type SandboxStore = {
   mode: SandboxMode;
   pinnedPreviewFilePath: string | undefined;
   publishedFiles: SandboxFiles;
+  queryParams: QueryParams | undefined;
 
   addNewFile: (
     options?: Partial<{
@@ -49,6 +51,7 @@ type SandboxStore = {
   setMode: (mode: SandboxMode) => void;
   setPinnedPreviewFile: (path: string | undefined) => void;
   setPublishedFiles: (files: SandboxFiles) => void;
+  setQueryParams: (params: QueryParams | undefined) => void;
   updateFilePath: (currentPath: string, newPath: string) => void;
 };
 
@@ -65,6 +68,7 @@ export const useSandboxStore = create<SandboxStore>()(
       mode: 'EDIT',
       pinnedPreviewFilePath: undefined,
       publishedFiles: {},
+      queryParams: undefined,
 
       addNewFile: ({ file, shouldFocusRenameInput = true } = {}) => {
         const state = get();
@@ -150,6 +154,8 @@ export const useSandboxStore = create<SandboxStore>()(
 
       setPublishedFiles: (publishedFiles) =>
         set(() => ({ isInitializingPublishedFiles: false, publishedFiles })),
+
+      setQueryParams: (queryParams) => set(() => ({ queryParams })),
 
       updateFilePath: (currentPath, newPath) =>
         set((state) => {

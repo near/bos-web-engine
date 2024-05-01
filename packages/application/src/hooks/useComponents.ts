@@ -1,5 +1,5 @@
 import type { ComponentCompilerResponse } from '@bos-web-engine/compiler';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { UseComponentsParams } from '../types';
 
@@ -15,6 +15,7 @@ export function useComponents({
   compiler,
   config,
   rootComponentPath,
+  queryParams,
 }: UseComponentsParams) {
   const [components, setComponents] = useState<{ [key: string]: any }>({});
   const [isValidRootComponentPath, setIsValidRootComponentPath] =
@@ -42,8 +43,6 @@ export function useComponents({
     [components]
   );
 
-  const hooks = { ...config?.hooks } || {};
-
   useEffect(() => {
     setIsValidRootComponentPath(
       !!rootComponentPath &&
@@ -53,16 +52,22 @@ export function useComponents({
     );
   }, [rootComponentPath]);
 
-  hooks.componentRendered = (componentId: string) => {
-    config?.hooks?.componentRendered?.(componentId);
-    setComponents((currentComponents) => ({
-      ...currentComponents,
-      [componentId]: {
-        ...currentComponents[componentId],
-        renderCount: currentComponents?.[componentId]?.renderCount + 1 || 0,
-      },
-    }));
-  };
+  const hooks = useMemo(() => {
+    const result = { ...config?.hooks } || {};
+
+    result.componentRendered = (componentId: string) => {
+      config?.hooks?.componentRendered?.(componentId);
+      setComponents((currentComponents) => ({
+        ...currentComponents,
+        [componentId]: {
+          ...currentComponents[componentId],
+          renderCount: currentComponents?.[componentId]?.renderCount + 1 || 0,
+        },
+      }));
+    };
+
+    return result;
+  }, [config?.hooks]);
 
   useEffect(() => {
     if (!rootComponentPath || !isValidRootComponentPath || !compiler) {
@@ -78,6 +83,7 @@ export function useComponents({
         containerStyles,
         error: loadError,
         importedModules,
+        queryParams,
       } = data;
 
       if (loadError) {
@@ -96,6 +102,7 @@ export function useComponents({
         componentId,
         componentSource,
         moduleImports: importedModules,
+        queryParams,
       };
 
       if (!rootComponentSource && componentId === rootComponentPath) {
@@ -108,14 +115,20 @@ export function useComponents({
     compiler.postMessage({
       action: 'execute',
       componentId: rootComponentPath,
+      queryParams,
     });
   }, [
+    addComponent,
+    appendStylesheet,
+    components,
+    hooks,
     compiler,
     rootComponentPath,
     rootComponentSource,
     error,
     isValidRootComponentPath,
     config?.flags?.bosLoaderUrl,
+    queryParams,
   ]);
 
   return {

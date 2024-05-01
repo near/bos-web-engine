@@ -10,6 +10,7 @@ export function useWebEngineSandbox({
   localComponents,
   config,
   rootComponentPath,
+  queryParams,
 }: UseWebEngineSandboxParams) {
   const [nonce, setNonce] = useState('');
 
@@ -27,6 +28,7 @@ export function useWebEngineSandbox({
     compiler,
     config,
     rootComponentPath,
+    queryParams,
   });
 
   const { domRoots } = useComponentTree({

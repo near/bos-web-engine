@@ -6,3 +6,4 @@ export * from './plugins';
 export * from './render';
 export * from './serialization';
 export * from './trust';
+export * from './url';

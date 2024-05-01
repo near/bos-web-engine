@@ -5,6 +5,7 @@ import type {
   ComponentChildMetadata,
   ComponentTrust,
   MessagePayload,
+  QueryParams,
   SerializedArgs,
   SerializedNode,
 } from '@bos-web-engine/common';
@@ -119,6 +120,7 @@ export interface CompilerWorker extends Omit<Worker, 'postMessage'> {
 export interface UseWebEngineParams {
   config?: WebEngineConfiguration;
   rootComponentPath?: string;
+  queryParams?: QueryParams;
 }
 
 export interface UseComponentsParams extends UseWebEngineParams {

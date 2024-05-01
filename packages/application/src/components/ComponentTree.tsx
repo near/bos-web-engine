@@ -29,7 +29,14 @@ export default function ComponentTree({
           .map(
             ([
               componentId,
-              { trust, props, componentSource, parentId, moduleImports },
+              {
+                trust,
+                props,
+                componentSource,
+                parentId,
+                moduleImports,
+                queryParams,
+              },
             ]) => (
               /*
                 NOTE: Including currentUserAccountId as part of the key forces the entire tree 
@@ -48,7 +55,7 @@ export default function ComponentTree({
                   id={getIframeId(componentId)}
                   trust={trust}
                   scriptSrc={componentSource}
-                  componentProps={props}
+                  componentProps={{ ...queryParams, ...props }}
                   parentContainerId={parentId}
                   moduleImports={moduleImports}
                 />

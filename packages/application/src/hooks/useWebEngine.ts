@@ -7,6 +7,7 @@ import type { UseWebEngineParams } from '../types';
 export function useWebEngine({
   config,
   rootComponentPath,
+  queryParams,
 }: UseWebEngineParams) {
   const { appendStylesheet } = useCss();
   const compiler = useCompiler({ config });
@@ -16,6 +17,7 @@ export function useWebEngine({
       compiler,
       config,
       rootComponentPath,
+      queryParams,
     });
 
   useComponentTree({

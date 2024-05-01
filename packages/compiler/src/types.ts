@@ -1,4 +1,4 @@
-import type { BOSModule } from '@bos-web-engine/common';
+import type { BOSModule, QueryParams } from '@bos-web-engine/common';
 import type {
   BLOCK_HEIGHT_KEY,
   SOCIAL_COMPONENT_NAMESPACE,
@@ -12,6 +12,7 @@ export type ComponentCompilerRequest =
 export interface CompilerExecuteAction {
   action: 'execute';
   componentId: string;
+  queryParams?: QueryParams;
 }
 
 export type LocalComponentMap = { [path: string]: BOSModule };
@@ -35,6 +36,7 @@ export interface ComponentCompilerResponse {
   componentPath: string;
   error?: Error;
   importedModules: Map<string, string>;
+  queryParams?: QueryParams;
 }
 
 export type SendMessageCallback = (res: ComponentCompilerResponse) => void;
