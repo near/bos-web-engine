@@ -15,8 +15,8 @@
         "default": "./lib/index.esm.js"
       },
       "require": {
-        "types": "./lib/cjs/index.d.ts",
-        "default": "./lib/cjs/index.cjs.js"
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.cjs.js"
       }
     },
     "./*.css": {
