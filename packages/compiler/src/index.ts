@@ -1,6 +1,7 @@
 export type {
   ComponentCompilerRequest,
   ComponentCompilerResponse,
+  ComponentEntry,
 } from './types';
 
 export { ComponentCompiler } from './compiler';

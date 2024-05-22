@@ -3,6 +3,8 @@
   "include": ["src"],
   "exclude": ["lib", "node_modules"],
   "compilerOptions": {
-    "outDir": "lib"
+    "outDir": "lib",
+    "module": "commonjs",
+    "esModuleInterop": false
   }
 }

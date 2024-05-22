@@ -1,0 +1,26 @@
+{
+  "name": "@bos-web-engine/cdn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@bos-web-engine/compiler": "workspace:*",
+    "@types/react": "^18.2.34",
+    "nodemon": "^3.1.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@bos-web-engine/social-db": "workspace:*",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "tsconfig": "workspace:*"
+  }
+}
