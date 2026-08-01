@@ -13,6 +13,6 @@
     "chokidar": "^3.6.0",
     "tsconfig": "workspace:*",
     "typescript": "^5.4.5",
-    "ws": "^8.16.0"
+    "ws": "^8.17.1"
   }
 }
